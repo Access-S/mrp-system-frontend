@@ -22,7 +22,10 @@ export function ProductsPage() {
   useEffect(() => {
     setLoading(true);
     fetchAllProducts()
-      .then(fetchedProducts => setProducts(fetchedProducts))
+      .then(response => {
+        // response is { success: true, data: [], message?: string }
+        setProducts(response.data || []);  // ← EXTRACT .data
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
