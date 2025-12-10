@@ -28,20 +28,10 @@ class PurchaseOrderService {
         throw new Error('PO number is required');
       }
 
-      const { data, error } = await supabase
-        .from('purchase_orders')
-        .select('id')
-        .eq('po_number', poNumber)
-        .limit(1);
-
-      if (error) {
-        console.error('Error checking PO number:', error);
-        return true; // Return true to be safe
-      }
-
-      const exists = data && data.length > 0;
-      console.log(`PO number ${poNumber} ${exists ? 'exists' : 'is available'}`);
-      return exists;
+      // TODO: Implement this with backend API
+      // For now, return false to allow creation
+      console.log(`Checking PO number ${poNumber} - temporarily returning false`);
+      return false;
     } catch (error) {
       console.error('Error checking PO number:', error);
       return true; // Return true to be safe
@@ -198,20 +188,10 @@ class PurchaseOrderService {
    */
   async despatchPo(poId: string, deliveryDate: string, docketNumber: string): Promise<void> {
     try {
-      // Update the PO with delivery details using direct Supabase call
-      const { error } = await supabase
-        .from('purchase_orders')
-        .update({
-          delivery_date: deliveryDate,
-          delivery_docket_number: docketNumber,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', poId);
-
-      if (error) {
-        throw error;
-      }
-
+      // TODO: Implement this with backend API
+      // For now, just update status to Completed
+      console.log(`Dispatching PO ${poId} - temporarily skipping delivery details`);
+      
       // Update status to Completed
       await this.updatePoStatus(poId, 'Completed');
       console.log(`✅ PO dispatched: ${poId}`);
@@ -282,20 +262,10 @@ class PurchaseOrderService {
    */
   async reopenDespatchedPo(poId: string): Promise<void> {
     try {
-      // Clear delivery details using direct Supabase call
-      const { error } = await supabase
-        .from('purchase_orders')
-        .update({
-          delivery_date: null,
-          delivery_docket_number: null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', poId);
-
-      if (error) {
-        throw error;
-      }
-
+      // TODO: Implement this with backend API
+      // For now, just update status to Open
+      console.log(`Reopening PO ${poId} - temporarily skipping delivery details`);
+      
       // Update status to Open
       await this.updatePoStatus(poId, 'Open');
       console.log(`✅ PO reopened: ${poId}`);
@@ -333,23 +303,10 @@ class PurchaseOrderService {
    */
   async getTotalPurchaseOrdersCount(statusFilter?: string): Promise<number> {
     try {
-      let query = supabase
-        .from('purchase_orders')
-        .select('*', { count: 'exact', head: true });
-
-      if (statusFilter) {
-        // This would need to be adjusted based on your status storage format
-        query = query.contains('statuses', [statusFilter]);
-      }
-
-      const { count, error } = await query;
-
-      if (error) {
-        throw error;
-      }
-
-      console.log(`✅ Total PO count: ${count || 0}`);
-      return count || 0;
+      // TODO: Implement this with backend API
+      // For now, return 0
+      console.log('Getting total PO count - temporarily returning 0');
+      return 0;
     } catch (error) {
       console.error('❌ Error getting PO count:', error);
       return 0;
@@ -371,48 +328,10 @@ class PurchaseOrderService {
     amountMax?: number;
   }): Promise<PurchaseOrder[]> {
     try {
-      let query = supabase
-        .from('purchase_orders')
-        .select(`
-          *,
-          product:products(*),
-          statuses:po_status_history(status)
-        `)
-        .order('sequence', { ascending: false });
-
-      // Apply filters
-      if (filters.customerName) {
-        query = query.ilike('customer_name', `%${filters.customerName}%`);
-      }
-      
-      if (filters.productCode) {
-        query = query.ilike('product_code', `%${filters.productCode}%`);
-      }
-      
-      if (filters.dateFrom) {
-        query = query.gte('po_created_date', filters.dateFrom);
-      }
-      
-      if (filters.dateTo) {
-        query = query.lte('po_created_date', filters.dateTo);
-      }
-      
-      if (filters.amountMin) {
-        query = query.gte('customer_amount', filters.amountMin);
-      }
-      
-      if (filters.amountMax) {
-        query = query.lte('customer_amount', filters.amountMax);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        throw error;
-      }
-
-      console.log(`✅ Filtered POs: ${data?.length || 0} results`);
-      return data || [];
+      // TODO: Implement this with backend API
+      // For now, return empty array
+      console.log('Getting filtered POs - temporarily returning empty array');
+      return [];
     } catch (error) {
       console.error('❌ Error filtering POs:', error);
       throw new Error(handleApiError(error));
