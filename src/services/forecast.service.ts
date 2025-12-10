@@ -140,18 +140,12 @@ class ForecastService {
 
       const result = await response.json();
       
-      // Handle API response format: { success: true, data: [] }
-      if (result.success && Array.isArray(result.data)) {
-        console.log(`✅ Fetched ${result.data.length} forecasts`);
-        return result.data.map((item: any) => this.mapApiToForecast(item));
+      // Handle your actual API response format
+      if (result.success && result.tableData && Array.isArray(result.tableData.rows)) {
+        console.log(`✅ Fetched ${result.tableData.rows.length} forecasts`);
+        return result.tableData.rows.map((item: any) => this.mapApiToForecast(item));
       }
       
-      // If API returns array directly
-      if (Array.isArray(result)) {
-        console.log(`✅ Fetched ${result.length} forecasts`);
-        return result.map((item: any) => this.mapApiToForecast(item));
-      }
-
       console.warn('Unexpected API response format:', result);
       return [];
     } catch (error) {
@@ -159,7 +153,6 @@ class ForecastService {
       throw new Error(handleApiError(error));
     }
   }
-
   /**
    * Gets forecast for a specific product
    * @param productCode - Product code to get forecast for
@@ -350,12 +343,13 @@ class ForecastService {
     }
   }
 
-  /**
+   /**
    * Maps API response to Forecast interface
    * @param data - Raw data from API
    * @returns Forecast object
    */
   private mapApiToForecast(data: any): Forecast {
+    // Handle different possible field names from your API
     return {
       id: data.id || data.product_code,
       productCode: data.product_code || data.productCode,
@@ -365,7 +359,7 @@ class ForecastService {
       updatedAt: data.updated_at || data.updatedAt
     };
   }
-
+  
   /**
    * Maps Supabase data to Forecast interface (keep for backward compatibility)
    * @param data - Raw data from Supabase
