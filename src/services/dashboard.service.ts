@@ -32,9 +32,9 @@ class DashboardService {
     try {
       console.log('📊 Fetching dashboard statistics...');
 
-      // Fetch products if not provided - USE BACKEND API
+      // Fetch products if not provided - USE BACKEND API WITH FULL URL
       if (!allProducts) {
-        const response = await fetch('/api/products');
+        const response = await fetch('https://mrp-1.onrender.com/api/products');
         if (!response.ok) {
           console.warn('Could not fetch products for dashboard calculations');
           allProducts = [];
@@ -44,16 +44,16 @@ class DashboardService {
         }
       }
 
-      // Fetch all Purchase Orders - USE BACKEND API
-      const poResponse = await fetch('/api/purchase-orders?limit=1000');
+      // Fetch all Purchase Orders - USE BACKEND API WITH FULL URL
+      const poResponse = await fetch('https://mrp-1.onrender.com/api/purchase-orders?limit=1000');
       if (!poResponse.ok) {
         throw new Error('Failed to fetch purchase orders');
       }
       const poResult = await poResponse.json();
       const allPOs = poResult.data || [];
 
-      // Fetch all Components/SOH data - USE BACKEND API
-      const sohResponse = await fetch('/api/soh?limit=1000');
+      // Fetch all Components/SOH data - USE BACKEND API WITH FULL URL
+      const sohResponse = await fetch('https://mrp-1.onrender.com/api/soh?limit=1000');
       const sohResult = await sohResponse.json();
       const allComponents = sohResult.data || [];
 
@@ -180,8 +180,8 @@ class DashboardService {
    */
   async getRecentActivity(limit: number = 10): Promise<any[]> {
     try {
-      // Fetch recent PO updates - USE BACKEND API
-      const response = await fetch(`/api/purchase-orders?limit=${limit}&sort_direction=desc`);
+      // Fetch recent PO updates - USE BACKEND API WITH FULL URL
+      const response = await fetch(`https://mrp-1.onrender.com/api/purchase-orders?limit=${limit}&sort_direction=desc`);
       if (!response.ok) {
         throw new Error('Failed to fetch recent activities');
       }
