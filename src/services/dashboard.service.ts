@@ -45,7 +45,7 @@ class DashboardService {
       }
 
       // Fetch all Purchase Orders - USE BACKEND API WITH FULL URL
-      const poResponse = await fetch('https://mrp-1.onrender.com/api/purchase-orders?limit=1000');
+      const poResponse = await fetch('https://mrp-1.onrender.com/api/purchase-orders?limit=100');
       if (!poResponse.ok) {
         throw new Error('Failed to fetch purchase orders');
       }
@@ -53,7 +53,7 @@ class DashboardService {
       const allPOs = poResult.data || [];
 
       // Fetch all Components/SOH data - USE BACKEND API WITH FULL URL
-      const sohResponse = await fetch('https://mrp-1.onrender.com/api/soh?limit=1000');
+      const sohResponse = await fetch('https://mrp-1.onrender.com/api/soh?limit=100');
       const sohResult = await sohResponse.json();
       const allComponents = sohResult.data || [];
 
