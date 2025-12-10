@@ -33,8 +33,8 @@ class ForecastService {
     return `${year}-${month}`;
   }
 
-  /**
-   * Imports forecast data from Excel file to Supabase
+/**
+   * Imports forecast data from Excel file to Backend API
    * @param file - Excel file to import
    * @returns Promise<{successCount: number, errorCount: number, errors: string[]}>
    */
@@ -86,72 +86,36 @@ class ForecastService {
       let successCount = 0;
       let errorCount = 0;
       const errors: string[] = [];
-      const batchSize = 50; // Process in smaller batches for better performance
 
-      // Process data in batches
-      for (let i = 0; i < jsonData.length; i += batchSize) {
-        const batch = jsonData.slice(i, i + batchSize);
-        const validRecords: any[] = [];
+      // Send data to backend API
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('data', JSON.stringify(jsonData));
 
-        batch.forEach((row, index) => {
-          try {
-            const productCode = row[productCodeHeader];
-            if (!productCode || String(productCode).trim() === "") {
-              errorCount++;
-              errors.push(`Row ${i + index + 2}: Missing product code`);
-              return;
-            }
+      const response = await fetch('https://mrp-1.onrender.com/api/forecasts/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-            const description = descriptionHeader ? row[descriptionHeader] : "N/A";
-            const monthlyForecast: { [key: string]: number } = {};
-
-            // Parse monthly forecast data
-            for (const key in row) {
-              const formattedMonth = this.parseMonthHeader(key);
-              if (formattedMonth) {
-                const value = Number(row[key]) || 0;
-                monthlyForecast[formattedMonth] = value;
-              }
-            }
-
-            validRecords.push({
-              product_code: String(productCode).trim(),
-              description: String(description),
-              monthly_forecast: monthlyForecast,
-              updated_at: new Date().toISOString()
-            });
-
-          } catch (error) {
-            errorCount++;
-            errors.push(`Row ${i + index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-          }
-        });
-
-        // Insert/update valid records using upsert
-        if (validRecords.length > 0) {
-          const { error } = await supabase
-            .from('forecasts')
-            .upsert(validRecords, { 
-              onConflict: 'product_code',
-              ignoreDuplicates: false 
-            });
-
-          if (error) {
-            console.error('Batch insert error:', error);
-            errorCount += validRecords.length;
-            errors.push(`Batch ${Math.floor(i / batchSize) + 1}: ${error.message}`);
-          } else {
-            successCount += validRecords.length;
-          }
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to import forecasts');
       }
 
-      console.log(`✅ Forecast import completed: ${successCount} success, ${errorCount} errors`);
+      const result = await response.json();
       
+      // Adjust based on your backend response format
+      if (result.success) {
+        successCount = result.successCount || jsonData.length;
+        console.log(`✅ Forecast import completed: ${successCount} records imported`);
+      } else {
+        throw new Error(result.message || 'Import failed');
+      }
+
       return { 
         successCount, 
         errorCount, 
-        errors: errors.slice(0, 10) // Return first 10 errors to avoid overwhelming UI
+        errors: errors.slice(0, 10)
       };
 
     } catch (error) {
@@ -161,25 +125,35 @@ class ForecastService {
   }
 
   /**
-   * Fetches all forecast documents from Supabase
+   * Fetches all forecast documents from Backend API
    * @returns Promise<Forecast[]> - Array of forecast objects
    */
   async getAllForecasts(): Promise<Forecast[]> {
     try {
       console.log('📊 Fetching all forecasts...');
 
-      const { data, error } = await supabase
-        .from('forecasts')
-        .select('*')
-        .order('product_code', { ascending: true });
-
-      if (error) {
-        throw error;
+      const response = await fetch('https://mrp-1.onrender.com/api/forecasts');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch forecasts');
       }
 
-      console.log(`✅ Fetched ${data?.length || 0} forecasts`);
+      const result = await response.json();
       
-      return data?.map(item => this.mapSupabaseToForecast(item)) || [];
+      // Handle API response format: { success: true, data: [] }
+      if (result.success && Array.isArray(result.data)) {
+        console.log(`✅ Fetched ${result.data.length} forecasts`);
+        return result.data.map((item: any) => this.mapApiToForecast(item));
+      }
+      
+      // If API returns array directly
+      if (Array.isArray(result)) {
+        console.log(`✅ Fetched ${result.length} forecasts`);
+        return result.map((item: any) => this.mapApiToForecast(item));
+      }
+
+      console.warn('Unexpected API response format:', result);
+      return [];
     } catch (error) {
       console.error('❌ Error fetching forecasts:', error);
       throw new Error(handleApiError(error));
@@ -197,27 +171,26 @@ class ForecastService {
         throw new Error('Product code is required');
       }
 
-      const { data, error } = await supabase
-        .from('forecasts')
-        .select('*')
-        .eq('product_code', productCode)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
+      const response = await fetch(`https://mrp-1.onrender.com/api/forecasts/${encodeURIComponent(productCode)}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
           console.warn(`⚠️ Forecast not found for product: ${productCode}`);
           return null;
         }
-        throw error;
+        throw new Error('Failed to fetch forecast');
       }
 
-      console.log(`✅ Found forecast for product: ${productCode}`);
-      return this.mapSupabaseToForecast(data);
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        console.log(`✅ Found forecast for product: ${productCode}`);
+        return this.mapApiToForecast(result.data);
+      }
+      
+      return null;
     } catch (error) {
       console.error('❌ Error fetching forecast by product code:', error);
-      if (error instanceof Error && error.message.includes('not found')) {
-        return null;
-      }
       throw new Error(handleApiError(error));
     }
   }
@@ -237,26 +210,24 @@ class ForecastService {
         throw new Error('Month must be in YYYY-MM format');
       }
 
-      const { data, error } = await supabase
-        .from('forecasts')
-        .select('product_code, description, monthly_forecast')
-        .not('monthly_forecast', 'is', null);
-
-      if (error) {
-        throw error;
+      const response = await fetch(`https://mrp-1.onrender.com/api/forecasts/month/${month}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch monthly forecasts');
       }
 
-      const monthlyData = (data || [])
-        .map(item => ({
-          productCode: item.product_code,
+      const result = await response.json();
+      
+      if (result.success && Array.isArray(result.data)) {
+        console.log(`✅ Found ${result.data.length} products with forecast for ${month}`);
+        return result.data.map((item: any) => ({
+          productCode: item.product_code || item.productCode,
           description: item.description || 'N/A',
-          forecast: item.monthly_forecast?.[month] || 0
-        }))
-        .filter(item => item.forecast > 0)
-        .sort((a, b) => b.forecast - a.forecast);
-
-      console.log(`✅ Found ${monthlyData.length} products with forecast for ${month}`);
-      return monthlyData;
+          forecast: item.forecast || item.monthly_forecast?.[month] || 0
+        }));
+      }
+      
+      return [];
     } catch (error) {
       console.error('❌ Error fetching forecast by month:', error);
       throw new Error(handleApiError(error));
@@ -276,34 +247,29 @@ class ForecastService {
         throw new Error('Invalid parameters for forecast update');
       }
 
-      // First, get the existing forecast
-      const { data: existing, error: fetchError } = await supabase
-        .from('forecasts')
-        .select('monthly_forecast')
-        .eq('product_code', productCode)
-        .single();
-
-      let monthlyForecast = existing?.monthly_forecast || {};
-      monthlyForecast[month] = forecast;
-
-      const { data, error } = await supabase
-        .from('forecasts')
-        .upsert({
-          product_code: productCode,
-          monthly_forecast: monthlyForecast,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'product_code'
+      const response = await fetch(`https://mrp-1.onrender.com/api/forecasts/${encodeURIComponent(productCode)}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          month,
+          forecast
         })
-        .select()
-        .single();
+      });
 
-      if (error) {
-        throw error;
+      if (!response.ok) {
+        throw new Error('Failed to update forecast');
       }
 
-      console.log(`✅ Updated forecast for ${productCode} - ${month}: ${forecast}`);
-      return this.mapSupabaseToForecast(data);
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        console.log(`✅ Updated forecast for ${productCode} - ${month}: ${forecast}`);
+        return this.mapApiToForecast(result.data);
+      }
+      
+      throw new Error('Failed to update forecast');
     } catch (error) {
       console.error('❌ Error updating forecast:', error);
       throw new Error(handleApiError(error));
@@ -321,50 +287,31 @@ class ForecastService {
     topProducts: { productCode: string; totalForecast: number }[];
   }> {
     try {
-      const { data, error } = await supabase
-        .from('forecasts')
-        .select('product_code, monthly_forecast');
-
-      if (error) {
-        throw error;
+      const response = await fetch('https://mrp-1.onrender.com/api/forecasts/summary');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch forecast summary');
       }
 
-      let totalForecast = 0;
-      let totalEntries = 0;
-      const productTotals: { [key: string]: number } = {};
-      const monthsSet = new Set<string>();
-
-      (data || []).forEach(item => {
-        const monthlyForecast = item.monthly_forecast || {};
-        let productTotal = 0;
-
-        Object.entries(monthlyForecast).forEach(([month, value]) => {
-          const forecastValue = Number(value) || 0;
-          totalForecast += forecastValue;
-          productTotal += forecastValue;
-          totalEntries++;
-          monthsSet.add(month);
-        });
-
-        if (productTotal > 0) {
-          productTotals[item.product_code] = productTotal;
-        }
-      });
-
-      const topProducts = Object.entries(productTotals)
-        .map(([productCode, totalForecast]) => ({ productCode, totalForecast }))
-        .sort((a, b) => b.totalForecast - a.totalForecast)
-        .slice(0, 10);
-
-      const summary = {
-        totalProducts: Object.keys(productTotals).length,
-        totalMonths: monthsSet.size,
-        avgForecast: totalEntries > 0 ? Math.round((totalForecast / totalEntries) * 100) / 100 : 0,
-        topProducts
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        console.log('✅ Forecast summary fetched');
+        return {
+          totalProducts: result.data.totalProducts || 0,
+          totalMonths: result.data.totalMonths || 0,
+          avgForecast: result.data.avgForecast || 0,
+          topProducts: result.data.topProducts || []
+        };
+      }
+      
+      // Return default if API not implemented yet
+      return {
+        totalProducts: 0,
+        totalMonths: 0,
+        avgForecast: 0,
+        topProducts: []
       };
-
-      console.log('✅ Forecast summary calculated:', summary);
-      return summary;
     } catch (error) {
       console.error('❌ Error getting forecast summary:', error);
       throw new Error(handleApiError(error));
@@ -383,19 +330,20 @@ class ForecastService {
         throw new Error('Search term must be at least 2 characters');
       }
 
-      const { data, error } = await supabase
-        .from('forecasts')
-        .select('*')
-        .or(`product_code.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
-        .order('product_code', { ascending: true })
-        .limit(limit);
-
-      if (error) {
-        throw error;
+      const response = await fetch(`https://mrp-1.onrender.com/api/forecasts/search?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to search forecasts');
       }
 
-      console.log(`✅ Search for "${searchTerm}" returned ${data?.length || 0} forecasts`);
-      return data?.map(item => this.mapSupabaseToForecast(item)) || [];
+      const result = await response.json();
+      
+      if (result.success && Array.isArray(result.data)) {
+        console.log(`✅ Search for "${searchTerm}" returned ${result.data.length} forecasts`);
+        return result.data.map((item: any) => this.mapApiToForecast(item));
+      }
+      
+      return [];
     } catch (error) {
       console.error('❌ Error searching forecasts:', error);
       throw new Error(handleApiError(error));
@@ -403,19 +351,28 @@ class ForecastService {
   }
 
   /**
-   * Maps Supabase data to Forecast interface
+   * Maps API response to Forecast interface
+   * @param data - Raw data from API
+   * @returns Forecast object
+   */
+  private mapApiToForecast(data: any): Forecast {
+    return {
+      id: data.id || data.product_code,
+      productCode: data.product_code || data.productCode,
+      description: data.description || 'N/A',
+      monthlyForecast: data.monthly_forecast || data.monthlyForecast || {},
+      createdAt: data.created_at || data.createdAt,
+      updatedAt: data.updated_at || data.updatedAt
+    };
+  }
+
+  /**
+   * Maps Supabase data to Forecast interface (keep for backward compatibility)
    * @param data - Raw data from Supabase
    * @returns Forecast object
    */
   private mapSupabaseToForecast(data: any): Forecast {
-    return {
-      id: data.id || data.product_code,
-      productCode: data.product_code,
-      description: data.description || 'N/A',
-      monthlyForecast: data.monthly_forecast || {},
-      createdAt: data.created_at,
-      updatedAt: data.updated_at
-    };
+    return this.mapApiToForecast(data);
   }
 }
 
