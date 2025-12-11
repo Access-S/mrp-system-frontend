@@ -27,10 +27,10 @@ export interface ApiError {
   details?: string;
 }
 
-// BLOCK 3: Configuration - UPDATED FOR RENDER
+// BLOCK 3: Configuration - FIXED
 const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? import.meta.env.VITE_API_URL  // Remove the "/api" suffix - Render backend already has it
-  : 'http://localhost:5000/api';   // Keep local development with /api
+  ? `${import.meta.env.VITE_API_URL}/api`  // ✅ Always add /api for Render
+  : 'http://localhost:5000/api';   // Local already has /api
 
 console.log('🔗 API Base URL:', API_BASE_URL); // Debug log
 
