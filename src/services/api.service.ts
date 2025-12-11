@@ -29,8 +29,8 @@ export interface ApiError {
 
 // BLOCK 3: Configuration - FIXED
 const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`  // ✅ Always add /api for Render
-  : 'http://localhost:5000/api';   // Local already has /api
+  ? `${import.meta.env.VITE_API_URL}/api`  // ✅ Add /api since environment doesn't have it
+  : 'http://localhost:5000/api';
 
 console.log('🔗 API Base URL:', API_BASE_URL); // Debug log
 
