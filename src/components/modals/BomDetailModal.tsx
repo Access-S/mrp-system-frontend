@@ -20,10 +20,18 @@ export function BomDetailModal({ open, handleOpen, product }: BomDetailModalProp
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (open && product?.id && components.length === 0) {
+    if (open && product?.product_code && components.length === 0) {  // ✅ Changed from product?.id
       setIsLoading(true);
-      fetchBomForProduct(product.id)
-        .then(data => setComponents(data))
+      fetchBomForProduct(product.product_code)  // ✅ Changed from product.id
+        .then(response => {
+          // Handle API response format: { success: true, data: [...] }
+          if (response.success && Array.isArray(response.data)) {
+            setComponents(response.data);
+          } else {
+            console.error('Unexpected API response:', response);
+            setComponents([]);
+          }
+        })
         .catch(console.error)
         .finally(() => setIsLoading(false));
     } else if (!open) {

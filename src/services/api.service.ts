@@ -27,11 +27,13 @@ export interface ApiError {
   details?: string;
 }
 
-// BLOCK 3: Configuration - FIXED
+// BLOCK 3: Configuration - UPDATED FOR RENDER
 const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`  // Add /api suffix when using full URL
-  : '/api';  // Default for local development
-  console.log('🔗 API Base URL:', API_BASE_URL); // Debug log
+  ? import.meta.env.VITE_API_URL  // Remove the "/api" suffix - Render backend already has it
+  : 'http://localhost:5000/api';   // Keep local development with /api
+
+console.log('🔗 API Base URL:', API_BASE_URL); // Debug log
+
 // BLOCK 4: Enhanced HTTP Client
 class ApiClient {
   private baseURL: string;
@@ -216,12 +218,12 @@ export const fetchAllProducts = async (): Promise<ApiResponse<any[]>> => {
   return apiClient.get<ApiResponse<any[]>>('/products');
 };
 
-export const fetchBomForProduct = async (productId: string): Promise<ApiResponse<any[]>> => {
-  if (!productId) {
-    throw new Error('Product ID is required');
+export const fetchBomForProduct = async (productCode: string): Promise<ApiResponse<any[]>> => {
+  if (!productCode) {
+    throw new Error('Product code is required');
   }
 
-  return apiClient.get<ApiResponse<any[]>>(`/products/${productId}/bom`);
+  return apiClient.get<ApiResponse<any[]>>(`/products/${productCode}/bom`);
 };
 
 // BLOCK 8: Utility Functions
