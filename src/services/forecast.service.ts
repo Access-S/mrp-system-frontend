@@ -72,16 +72,32 @@ class ForecastService {
       }
 
       const headers = Object.keys(jsonData[0]);
+      
+      // DEBUG: Log headers to see what we're getting
+      console.log("Headers found:", headers);
+      console.log("Headers with quotes:", headers.map(h => `"${h}"`));
+      
+      // FIXED: Case-insensitive product column detection
       const productCodeHeader = headers.find(
-        (h) => h.toLowerCase().trim() === "Product"
+        (h) => h.toLowerCase().trim() === "product"
+      ) || headers.find(
+        (h) => h.toLowerCase().trim().includes("product")
       );
+      
+      // FIXED: Case-insensitive description column detection  
       const descriptionHeader = headers.find(
-        (h) => h.toLowerCase().trim() === "Description"
+        (h) => h.toLowerCase().trim() === "description"
+      ) || headers.find(
+        (h) => h.toLowerCase().trim().includes("description")
       );
 
+      console.log("Product column found:", productCodeHeader);
+      console.log("Description column found:", descriptionHeader);
+
       if (!productCodeHeader) {
+        console.error("Available headers:", headers);
         throw new Error(
-          "Could not find a 'Product' column in the file. Please ensure the header row is correct."
+          `Could not find a 'Product' column in the file. Available headers: ${headers.join(", ")}`
         );
       }
 
@@ -91,9 +107,10 @@ class ForecastService {
 
       // Send data to backend API
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('forecastFile', file);  // Changed from 'file' to 'forecastFile' to match backend
       formData.append('data', JSON.stringify(jsonData));
 
+      console.log("Sending to backend...");
       const response = await fetch('https://mrp-1.onrender.com/api/forecasts/upload', {
         method: 'POST',
         body: formData,
