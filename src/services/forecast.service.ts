@@ -52,46 +52,71 @@ class ForecastService {
       const workbook = XLSX.read(data, { cellDates: true });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-      // FIXED: Remove range manipulation, let xlsx auto-detect headers
-      const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
+      // FIXED: Read as 2D array and manually find headers
+      const rawData: any[][] = XLSX.utils.sheet_to_json(worksheet, {
+        header: 1, // Get as 2D array
         raw: false,
-        dateNF: "mmm-yy",
-        // No range parameter - let it auto-detect
       });
 
-      console.log("Parsed JSON data:", jsonData);
+      console.log("Raw Excel data (first 5 rows):", rawData.slice(0, 5));
 
-      if (!jsonData || jsonData.length === 0) {
-        throw new Error("No data found in the Excel file.");
+      // Manually find header row (row with "Product", "Description")
+      let headerRowIndex = -1;
+      for (let i = 0; i < Math.min(5, rawData.length); i++) {
+        const row = rawData[i];
+        if (row && Array.isArray(row)) {
+          const hasProduct = row.some(cell => 
+            cell && typeof cell === 'string' && cell.toLowerCase().includes('product')
+          );
+          const hasDescription = row.some(cell => 
+            cell && typeof cell === 'string' && cell.toLowerCase().includes('description')
+          );
+          if (hasProduct && hasDescription) {
+            headerRowIndex = i;
+            break;
+          }
+        }
       }
 
-      const headers = Object.keys(jsonData[0]);
-      
-      // DEBUG: Log headers to see what we're getting
+      if (headerRowIndex === -1) {
+        console.error("Could not find header row. First 5 rows:", rawData.slice(0, 5));
+        throw new Error("Could not find header row with 'Product' and 'Description' columns in Excel file.");
+      }
+
+      const headers = rawData[headerRowIndex];
+      const dataRows = rawData.slice(headerRowIndex + 1);
+
+      // Convert to object array for backend
+      const jsonData = dataRows.map(row => {
+        const obj: any = {};
+        headers.forEach((header, index) => {
+          obj[header] = row[index];
+        });
+        return obj;
+      });
+
+      console.log("Processed JSON data:", jsonData);
       console.log("Headers found:", headers);
-      console.log("Headers with quotes:", headers.map(h => `"${h}"`));
-      
-      // FIXED: Case-insensitive product column detection
-      const productCodeHeader = headers.find(
-        (h) => h.toLowerCase().trim() === "product"
-      ) || headers.find(
-        (h) => h.toLowerCase().trim().includes("product")
+
+      if (!jsonData || jsonData.length === 0) {
+        throw new Error("No data found in the Excel file after the header row.");
+      }
+
+      // Now we know headers are correct
+      const productCodeHeader = headers.find(h => 
+        h && typeof h === 'string' && h.toLowerCase().includes('product')
       );
       
-      // FIXED: Case-insensitive description column detection  
-      const descriptionHeader = headers.find(
-        (h) => h.toLowerCase().trim() === "description"
-      ) || headers.find(
-        (h) => h.toLowerCase().trim().includes("description")
+      const descriptionHeader = headers.find(h => 
+        h && typeof h === 'string' && h.toLowerCase().includes('description')
       );
 
       console.log("Product column found:", productCodeHeader);
       console.log("Description column found:", descriptionHeader);
 
       if (!productCodeHeader) {
-        console.error("Available headers:", headers);
         throw new Error(
-          `Could not find a 'Product' column in the file. Available headers: ${headers.join(", ")}`
+          `Could not find a 'Product' column in the file. Headers: ${headers.join(", ")}`
         );
       }
 
