@@ -52,23 +52,17 @@ class ForecastService {
       const workbook = XLSX.read(data, { cellDates: true });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-      // Get the full range of the sheet
-      const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
-
-      // Modify the range to start from the second row (index 1)
-      range.s.r = 1; // s = start, r = row. Row 1 is the second row.
-
-      // Convert the sheet to JSON using our new, specific range
+      // FIXED: Remove range manipulation, let xlsx auto-detect headers
       const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
         raw: false,
         dateNF: "mmm-yy",
-        range: range,
+        // No range parameter - let it auto-detect
       });
 
       console.log("Parsed JSON data:", jsonData);
 
       if (!jsonData || jsonData.length === 0) {
-        throw new Error("No data found in the Excel file after the header row.");
+        throw new Error("No data found in the Excel file.");
       }
 
       const headers = Object.keys(jsonData[0]);
@@ -107,7 +101,7 @@ class ForecastService {
 
       // Send data to backend API
       const formData = new FormData();
-      formData.append('forecastFile', file);  // Changed from 'file' to 'forecastFile' to match backend
+      formData.append('forecastFile', file);
       formData.append('data', JSON.stringify(jsonData));
 
       console.log("Sending to backend...");
