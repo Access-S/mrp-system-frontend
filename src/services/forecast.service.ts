@@ -1,3 +1,5 @@
+// src/services/forecast.service.ts
+
 // BLOCK 1: Imports
 import { supabase } from "../supabase.config";
 import { handleApiError } from "./api.service";
@@ -71,10 +73,10 @@ class ForecastService {
 
       const headers = Object.keys(jsonData[0]);
       const productCodeHeader = headers.find(
-        (h) => h.toLowerCase().trim() === "product"
+        (h) => h.toLowerCase().trim() === "Product"
       );
       const descriptionHeader = headers.find(
-        (h) => h.toLowerCase().trim() === "description"
+        (h) => h.toLowerCase().trim() === "Description"
       );
 
       if (!productCodeHeader) {
