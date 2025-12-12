@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: mrp-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://mrp-1.onrender.com/api
