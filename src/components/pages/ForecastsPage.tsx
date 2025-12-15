@@ -139,60 +139,66 @@ export function ForecastsPage() {
           </ButtonGroup>
         </div>
 
-        {/* Forecast Table */}
-        <CardBody className="overflow-x-auto p-0">
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <Spinner className="h-12 w-12" />
-            </div>
-          ) : filteredRows.length > 0 ? (
-            <table className="w-full min-w-max table-auto text-left">
-              <thead>
-                <tr>
-                  {filteredHeaders.map((header) => (
-                    <th
-                      key={header.key}
-                      className={`border-b-2 ${theme.borderColor} ${theme.tableHeaderBg} p-4`}
-                    >
-                      <Typography
-                        variant="small"
-                        className={`font-semibold leading-none ${theme.text}`}
-                      >
-                        {header.label}
-                      </Typography>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRows.map((row, index) => (
-                  <tr key={index} className={theme.hoverBg}>
-                    {filteredHeaders.map((header) => (
-                      <td
-                        key={header.key}
-                        className={`p-4 border-b ${theme.borderColor} text-center`}
-                      >
-                        <Typography
-                          variant="small"
-                          className={`font-normal ${theme.text}`}
-                        >
-                          {row[header.key] ?? "-"}
-                        </Typography>
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="p-8 text-center">
-              <Typography color="gray" className={theme.text}>
-                No forecast data loaded. Click "Import Forecast" to upload an
-                Excel file.
-              </Typography>
-            </div>
-          )}
-        </CardBody>
+{/* Forecast Table */}
+<CardBody className="overflow-x-auto p-0">
+  {loading ? (
+    <div className="flex justify-center items-center h-64">
+      <Spinner className="h-12 w-12" />
+    </div>
+  ) : filteredRows.length > 0 ? (
+    <div className={`border-2 ${theme.borderColor} rounded-lg m-4`}>
+      <table className="w-full min-w-max table-auto text-left">
+        <thead className={`border-b-2 ${theme.borderColor}`}>
+          <tr>
+            {filteredHeaders.map((header, index) => {
+              let thClasses = `${theme.tableHeaderBg} p-4 text-center`;
+              if (index < filteredHeaders.length - 1) {
+                thClasses += ` border-r ${theme.borderColor}`;
+              }
+              if (header.key === "product_code") {
+                thClasses = thClasses.replace('text-center', 'text-left');
+              } else if (header.key === "description") {
+                thClasses = thClasses.replace('text-center', 'text-left');
+              }
+              return (
+                <th key={header.key} className={thClasses}>
+                  <Typography variant="small" className={`font-semibold leading-none ${theme.text}`}>
+                    {header.label}
+                  </Typography>
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {filteredRows.map((row, rowIndex) => (
+            <tr key={rowIndex} className={theme.hoverBg}>
+              {filteredHeaders.map((header, colIndex) => {
+                const isLast = colIndex === filteredHeaders.length - 1;
+                const align = header.key === "product_code" || header.key === "description" ? "left" : "center";
+                const tdClasses = `p-2 border-b ${theme.borderColor} text-${align}${!isLast ? ' border-r' : ''}`;
+
+                return (
+                  <td key={header.key} className={tdClasses}>
+                    <Typography variant="small" className={`font-normal ${theme.text}`}>
+                      {row[header.key] ?? "-"}
+                    </Typography>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <div className="p-8 text-center">
+      <Typography color="gray" className={theme.text}>
+        No forecast data loaded. Click "Import Forecast" to upload an Excel file.
+      </Typography>
+    </div>
+  )}
+</CardBody>
       </Card>
 
       <ExcelImportModal
