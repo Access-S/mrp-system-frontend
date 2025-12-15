@@ -1,38 +1,34 @@
 // src/components/pages/ForecastsPage.tsx
 
 // BLOCK 1: Imports
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Button,
   Typography,
   Card,
   CardBody,
-  ButtonGroup,
   Spinner,
+  Input,
 } from "@material-tailwind/react";
-import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ExcelImportModal } from "../modals/ExcelImportModal";
 import { getAllForecastsTable, importForecastData } from "../../services/forecast.service";
 import toast from "react-hot-toast";
 
-// BLOCK 2: Constants
-type TimeHorizon = 4 | 6 | 9 | 12 | "All";
-const TIME_HORIZONS: TimeHorizon[] = [4, 6, 9, 12, "All"];
-
-// BLOCK 3: Main ForecastsPage Component
+// BLOCK 2: Main ForecastsPage Component
 export function ForecastsPage() {
-  // BLOCK 4: State Management
+  // BLOCK 3: State Management
   const { theme } = useTheme();
-  const [activeHorizon, setActiveHorizon] = useState<TimeHorizon>("All");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [tableData, setTableData] = useState<{
     headers: { key: string; label: string }[];
     rows: Record<string, any>[];
   } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // BLOCK 5: Handlers and Effects
+  // BLOCK 4: Handlers and Effects
   const handleOpenImportModal = () => setIsImportModalOpen((cur) => !cur);
 
   const fetchData = async () => {
@@ -60,31 +56,25 @@ export function ForecastsPage() {
       await importForecastData(file);
       toast.dismiss(loadingToast);
       toast.success("Forecast data imported successfully! Refreshing data...");
-      fetchData(); // Re-fetch the data to show the new/updated forecasts
+      fetchData();
     } catch (error: any) {
       toast.dismiss(loadingToast);
       toast.error(`Import failed: ${error.message}`);
     }
   };
 
-  // Filter columns based on time horizon
-  const filteredHeaders = tableData
-    ? activeHorizon === "All"
-      ? tableData.headers
-      : tableData.headers.slice(0, 2 + (activeHorizon as number)) // 2 = product + description
-    : [];
+  // Filter rows based on search query
+  const filteredRows = useMemo(() => {
+    if (!tableData || !searchQuery) return tableData?.rows || [];
 
-  const filteredRows = tableData
-    ? tableData.rows.map(row => {
-        const newRow: Record<string, any> = {};
-        filteredHeaders.forEach(h => {
-          newRow[h.key] = row[h.key];
-        });
-        return newRow;
-      })
-    : [];
+    const q = searchQuery.toLowerCase();
+    return tableData.rows.filter(row =>
+      (row.product_code?.toString() || "").toLowerCase().includes(q) ||
+      (row.description?.toString() || "").toLowerCase().includes(q)
+    );
+  }, [tableData, searchQuery]);
 
-  // BLOCK 6: Render Logic
+  // BLOCK 5: Render Logic
   return (
     <>
       <Card className={`w-full ${theme.cards} shadow-sm`}>
@@ -115,90 +105,89 @@ export function ForecastsPage() {
           </div>
         </div>
 
-        {/* Time Horizon Toggles */}
-        <div
-          className={`flex flex-wrap items-center justify-between p-4 border-b ${theme.borderColor}`}
-        >
-          <Typography variant="h6" className={theme.text}>
-            View Horizon
-          </Typography>
-          <ButtonGroup variant="outlined">
-            {TIME_HORIZONS.map((horizon) => (
-              <Button
-                key={horizon}
-                onClick={() => setActiveHorizon(horizon)}
-                className={
-                  activeHorizon === horizon
-                    ? "bg-gray-200 dark:bg-gray-700"
-                    : ""
-                }
-              >
-                {horizon === "All" ? "All" : `${horizon}m`}
-              </Button>
-            ))}
-          </ButtonGroup>
+        {/* Search Bar */}
+        <div className={`p-4 border-b ${theme.borderColor}`}>
+          <Input
+            label="Search by Product Code or Description"
+            icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            color={theme.isDark ? "white" : "black"}
+          />
         </div>
 
-{/* Forecast Table */}
-<CardBody className="overflow-x-auto p-0">
-  {loading ? (
-    <div className="flex justify-center items-center h-64">
-      <Spinner className="h-12 w-12" />
-    </div>
-  ) : filteredRows.length > 0 ? (
-    <div className={`border-2 ${theme.borderColor} rounded-lg m-4`}>
-      <table className="w-full min-w-max table-auto text-left">
-        <thead className={`border-b-2 ${theme.borderColor}`}>
-          <tr>
-            {filteredHeaders.map((header, index) => {
-              let thClasses = `${theme.tableHeaderBg} p-4 text-center`;
-              if (index < filteredHeaders.length - 1) {
-                thClasses += ` border-r ${theme.borderColor}`;
-              }
-              if (header.key === "product_code") {
-                thClasses = thClasses.replace('text-center', 'text-left');
-              } else if (header.key === "description") {
-                thClasses = thClasses.replace('text-center', 'text-left');
-              }
-              return (
-                <th key={header.key} className={thClasses}>
-                  <Typography variant="small" className={`font-semibold leading-none ${theme.text}`}>
-                    {header.label}
-                  </Typography>
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredRows.map((row, rowIndex) => (
-            <tr key={rowIndex} className={theme.hoverBg}>
-              {filteredHeaders.map((header, colIndex) => {
-                const isLast = colIndex === filteredHeaders.length - 1;
-                const align = header.key === "product_code" || header.key === "description" ? "left" : "center";
-                const tdClasses = `p-2 border-b ${theme.borderColor} text-${align}${!isLast ? ' border-r' : ''}`;
+        {/* Forecast Table */}
+        <CardBody className="overflow-x-auto p-0">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <Spinner className="h-12 w-12" />
+            </div>
+          ) : filteredRows.length > 0 ? (
+            <div className={`border-2 ${theme.borderColor} rounded-lg m-4`}>
+              <table className="w-full min-w-max table-auto text-left border-collapse">
+                <thead className={`border-b-2 ${theme.borderColor}`}>
+                  <tr>
+                    {tableData?.headers.map((header, index) => {
+                      // Center-align everything by default
+                      let align = "center";
+                      if (header.key === "description") {
+                        align = "left";
+                      }
 
-                return (
-                  <td key={header.key} className={tdClasses}>
-                    <Typography variant="small" className={`font-normal ${theme.text}`}>
-                      {row[header.key] ?? "-"}
-                    </Typography>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  ) : (
-    <div className="p-8 text-center">
-      <Typography color="gray" className={theme.text}>
-        No forecast data loaded. Click "Import Forecast" to upload an Excel file.
-      </Typography>
-    </div>
-  )}
-</CardBody>
+                      let thClasses = `${theme.tableHeaderBg} p-4 text-${align}`;
+                      if (index < (tableData?.headers.length || 0) - 1) {
+                        thClasses += ` border-r ${theme.borderColor}`;
+                      }
+
+                      return (
+                        <th key={header.key} className={thClasses}>
+                          <Typography
+                            variant="small"
+                            className={`font-semibold leading-none ${theme.text}`}
+                          >
+                            {header.label}
+                          </Typography>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRows.map((row, rowIndex) => (
+                    <tr key={rowIndex} className={theme.hoverBg}>
+                      {tableData?.headers.map((header, colIndex) => {
+                        const isLast = colIndex === (tableData?.headers.length || 0) - 1;
+                        let align = "center";
+                        if (header.key === "description") {
+                          align = "left";
+                        }
+
+                        const tdClasses = `p-2 border-b ${theme.borderColor} text-${align}${!isLast ? ' border-r' : ''}`;
+
+                        return (
+                          <td key={header.key} className={tdClasses}>
+                            <Typography
+                              variant="small"
+                              className={`font-normal ${theme.text}`}
+                            >
+                              {row[header.key] ?? "-"}
+                            </Typography>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-8 text-center">
+              <Typography color="gray" className={theme.text}>
+                No forecast data loaded. Click "Import Forecast" to upload an Excel file.
+              </Typography>
+            </div>
+          )}
+        </CardBody>
       </Card>
 
       <ExcelImportModal
