@@ -4,7 +4,6 @@
 import { supabase } from "../supabase.config";
 import { handleApiError } from "./api.service";
 import * as XLSX from "xlsx";
-import { Forecast } from "../types/mrp.types";
 
 // BLOCK 2: Forecast Service Class
 class ForecastService {
@@ -26,16 +25,14 @@ class ForecastService {
     };
 
     const month = monthMap[parts[0].toLowerCase()];
-    // Handle both '25' and '2025' year formats
     const yearPart = parts[1];
     const year = yearPart.length === 2 ? `20${yearPart}` : yearPart;
 
     if (!month || isNaN(parseInt(year))) return null;
-
     return `${year}-${month}`;
   }
 
-/**
+  /**
    * Imports forecast data from Excel file to Backend API
    * @param file - Excel file to import
    * @returns Promise<{successCount: number, errorCount: number, errors: string[]}>
@@ -52,23 +49,21 @@ class ForecastService {
       const workbook = XLSX.read(data, { cellDates: true });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-      // FIXED: Read as 2D array and manually find headers
       const rawData: any[][] = XLSX.utils.sheet_to_json(worksheet, {
-        header: 1, // Get as 2D array
+        header: 1,
         raw: false,
       });
 
       console.log("Raw Excel data (first 5 rows):", rawData.slice(0, 5));
 
-      // Manually find header row (row with "Product", "Description")
       let headerRowIndex = -1;
       for (let i = 0; i < Math.min(5, rawData.length); i++) {
         const row = rawData[i];
         if (row && Array.isArray(row)) {
-          const hasProduct = row.some(cell => 
+          const hasProduct = row.some(cell =>
             cell && typeof cell === 'string' && cell.toLowerCase().includes('product')
           );
-          const hasDescription = row.some(cell => 
+          const hasDescription = row.some(cell =>
             cell && typeof cell === 'string' && cell.toLowerCase().includes('description')
           );
           if (hasProduct && hasDescription) {
@@ -79,14 +74,12 @@ class ForecastService {
       }
 
       if (headerRowIndex === -1) {
-        console.error("Could not find header row. First 5 rows:", rawData.slice(0, 5));
-        throw new Error("Could not find header row with 'Product' and 'Description' columns in Excel file.");
+        throw new Error("Could not find header row with 'Product' and 'Description' columns.");
       }
 
       const headers = rawData[headerRowIndex];
       const dataRows = rawData.slice(headerRowIndex + 1);
 
-      // Convert to object array for backend
       const jsonData = dataRows.map(row => {
         const obj: any = {};
         headers.forEach((header, index) => {
@@ -99,32 +92,17 @@ class ForecastService {
       console.log("Headers found:", headers);
 
       if (!jsonData || jsonData.length === 0) {
-        throw new Error("No data found in the Excel file after the header row.");
+        throw new Error("No data found after header row.");
       }
 
-      // Now we know headers are correct
-      const productCodeHeader = headers.find(h => 
+      const productCodeHeader = headers.find(h =>
         h && typeof h === 'string' && h.toLowerCase().includes('product')
       );
-      
-      const descriptionHeader = headers.find(h => 
-        h && typeof h === 'string' && h.toLowerCase().includes('description')
-      );
-
-      console.log("Product column found:", productCodeHeader);
-      console.log("Description column found:", descriptionHeader);
 
       if (!productCodeHeader) {
-        throw new Error(
-          `Could not find a 'Product' column in the file. Headers: ${headers.join(", ")}`
-        );
+        throw new Error(`Could not find 'Product' column. Headers: ${headers.join(", ")}`);
       }
 
-      let successCount = 0;
-      let errorCount = 0;
-      const errors: string[] = [];
-
-      // Send data to backend API
       const formData = new FormData();
       formData.append('forecastFile', file);
       formData.append('data', JSON.stringify(jsonData));
@@ -141,20 +119,13 @@ class ForecastService {
       }
 
       const result = await response.json();
-      
-      // Adjust based on your backend response format
       if (result.success) {
-        successCount = result.successCount || jsonData.length;
+        const successCount = result.debug?.recordsInserted || jsonData.length;
         console.log(`✅ Forecast import completed: ${successCount} records imported`);
+        return { successCount, errorCount: 0, errors: [] };
       } else {
         throw new Error(result.message || 'Import failed');
       }
-
-      return { 
-        successCount, 
-        errorCount, 
-        errors: errors.slice(0, 10)
-      };
 
     } catch (error) {
       console.error('❌ Forecast import failed:', error);
@@ -163,13 +134,12 @@ class ForecastService {
   }
 
   /**
-   * Fetches all forecast documents from Backend API
-   * @returns Promise<Forecast[]> - Array of forecast objects
+   * Fetches the full forecast table data (headers + rows) from backend
+   * Matches the structure returned by your Express API
    */
-  async getAllForecasts(): Promise<Forecast[]> {
+  async getAllForecastsTable() {
     try {
       console.log('📊 Fetching all forecasts...');
-
       const response = await fetch('https://mrp-1.onrender.com/api/forecasts');
       
       if (!response.ok) {
@@ -178,249 +148,30 @@ class ForecastService {
 
       const result = await response.json();
       
-      // Handle your actual API response format
-      if (result.success && result.tableData && Array.isArray(result.tableData.rows)) {
+      if (result.success && result.tableData) {
         console.log(`✅ Fetched ${result.tableData.rows.length} forecasts`);
-        return result.tableData.rows.map((item: any) => this.mapApiToForecast(item));
+        return result.tableData; // { headers: [...], rows: [...] }
       }
       
       console.warn('Unexpected API response format:', result);
-      return [];
+      return { headers: [], rows: [] };
     } catch (error) {
       console.error('❌ Error fetching forecasts:', error);
       throw new Error(handleApiError(error));
     }
   }
-  /**
-   * Gets forecast for a specific product
-   * @param productCode - Product code to get forecast for
-   * @returns Promise<Forecast | null>
-   */
-  async getForecastByProductCode(productCode: string): Promise<Forecast | null> {
-    try {
-      if (!productCode) {
-        throw new Error('Product code is required');
-      }
 
-      const response = await fetch(`https://mrp-1.onrender.com/api/forecasts/${encodeURIComponent(productCode)}`);
-      
-      if (!response.ok) {
-        if (response.status === 404) {
-          console.warn(`⚠️ Forecast not found for product: ${productCode}`);
-          return null;
-        }
-        throw new Error('Failed to fetch forecast');
-      }
-
-      const result = await response.json();
-      
-      if (result.success && result.data) {
-        console.log(`✅ Found forecast for product: ${productCode}`);
-        return this.mapApiToForecast(result.data);
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('❌ Error fetching forecast by product code:', error);
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  /**
-   * Gets forecast data for a specific month across all products
-   * @param month - Month in YYYY-MM format
-   * @returns Promise<{productCode: string, forecast: number, description: string}[]>
-   */
-  async getForecastByMonth(month: string): Promise<{
-    productCode: string;
-    forecast: number;
-    description: string;
-  }[]> {
-    try {
-      if (!month || !/^\d{4}-\d{2}$/.test(month)) {
-        throw new Error('Month must be in YYYY-MM format');
-      }
-
-      const response = await fetch(`https://mrp-1.onrender.com/api/forecasts/month/${month}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch monthly forecasts');
-      }
-
-      const result = await response.json();
-      
-      if (result.success && Array.isArray(result.data)) {
-        console.log(`✅ Found ${result.data.length} products with forecast for ${month}`);
-        return result.data.map((item: any) => ({
-          productCode: item.product_code || item.productCode,
-          description: item.description || 'N/A',
-          forecast: item.forecast || item.monthly_forecast?.[month] || 0
-        }));
-      }
-      
-      return [];
-    } catch (error) {
-      console.error('❌ Error fetching forecast by month:', error);
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  /**
-   * Updates forecast for a specific product and month
-   * @param productCode - Product code
-   * @param month - Month in YYYY-MM format
-   * @param forecast - Forecast value
-   * @returns Promise<Forecast>
-   */
-  async updateForecast(productCode: string, month: string, forecast: number): Promise<Forecast> {
-    try {
-      if (!productCode || !month || forecast < 0) {
-        throw new Error('Invalid parameters for forecast update');
-      }
-
-      const response = await fetch(`https://mrp-1.onrender.com/api/forecasts/${encodeURIComponent(productCode)}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          month,
-          forecast
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update forecast');
-      }
-
-      const result = await response.json();
-      
-      if (result.success && result.data) {
-        console.log(`✅ Updated forecast for ${productCode} - ${month}: ${forecast}`);
-        return this.mapApiToForecast(result.data);
-      }
-      
-      throw new Error('Failed to update forecast');
-    } catch (error) {
-      console.error('❌ Error updating forecast:', error);
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  /**
-   * Gets forecast summary statistics
-   * @returns Promise<{totalProducts: number, totalMonths: number, avgForecast: number}>
-   */
-  async getForecastSummary(): Promise<{
-    totalProducts: number;
-    totalMonths: number;
-    avgForecast: number;
-    topProducts: { productCode: string; totalForecast: number }[];
-  }> {
-    try {
-      const response = await fetch('https://mrp-1.onrender.com/api/forecasts/summary');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch forecast summary');
-      }
-
-      const result = await response.json();
-      
-      if (result.success && result.data) {
-        console.log('✅ Forecast summary fetched');
-        return {
-          totalProducts: result.data.totalProducts || 0,
-          totalMonths: result.data.totalMonths || 0,
-          avgForecast: result.data.avgForecast || 0,
-          topProducts: result.data.topProducts || []
-        };
-      }
-      
-      // Return default if API not implemented yet
-      return {
-        totalProducts: 0,
-        totalMonths: 0,
-        avgForecast: 0,
-        topProducts: []
-      };
-    } catch (error) {
-      console.error('❌ Error getting forecast summary:', error);
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  /**
-   * Searches forecasts by product code or description
-   * @param searchTerm - Term to search for
-   * @param limit - Maximum number of results
-   * @returns Promise<Forecast[]>
-   */
-  async searchForecasts(searchTerm: string, limit: number = 50): Promise<Forecast[]> {
-    try {
-      if (!searchTerm || searchTerm.trim().length < 2) {
-        throw new Error('Search term must be at least 2 characters');
-      }
-
-      const response = await fetch(`https://mrp-1.onrender.com/api/forecasts/search?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to search forecasts');
-      }
-
-      const result = await response.json();
-      
-      if (result.success && Array.isArray(result.data)) {
-        console.log(`✅ Search for "${searchTerm}" returned ${result.data.length} forecasts`);
-        return result.data.map((item: any) => this.mapApiToForecast(item));
-      }
-      
-      return [];
-    } catch (error) {
-      console.error('❌ Error searching forecasts:', error);
-      throw new Error(handleApiError(error));
-    }
-  }
-
-   /**
-   * Maps API response to Forecast interface
-   * @param data - Raw data from API
-   * @returns Forecast object
-   */
-  private mapApiToForecast(data: any): Forecast {
-    // Handle different possible field names from your API
-    return {
-      id: data.id || data.product_code,
-      productCode: data.product_code || data.productCode,
-      description: data.description || 'N/A',
-      monthlyForecast: data.monthly_forecast || data.monthlyForecast || {},
-      createdAt: data.created_at || data.createdAt,
-      updatedAt: data.updated_at || data.updatedAt
-    };
-  }
-  
-  /**
-   * Maps Supabase data to Forecast interface (keep for backward compatibility)
-   * @param data - Raw data from Supabase
-   * @returns Forecast object
-   */
-  private mapSupabaseToForecast(data: any): Forecast {
-    return this.mapApiToForecast(data);
-  }
+  // You can keep other methods if needed, but they are not used in ForecastsPage
 }
 
 // BLOCK 3: Export singleton instance
 export const forecastService = new ForecastService();
 
-// BLOCK 4: Export individual functions for backward compatibility
+// BLOCK 4: Export individual functions
 export const importForecastData = (file: File) => forecastService.importForecastData(file);
-export const getAllForecasts = () => forecastService.getAllForecasts();
-export const getForecastByProductCode = (productCode: string) => forecastService.getForecastByProductCode(productCode);
-export const getForecastByMonth = (month: string) => forecastService.getForecastByMonth(month);
-export const updateForecast = (productCode: string, month: string, forecast: number) => forecastService.updateForecast(productCode, month, forecast);
-export const getForecastSummary = () => forecastService.getForecastSummary();
-export const searchForecasts = (searchTerm: string, limit?: number) => forecastService.searchForecasts(searchTerm, limit);
+export const getAllForecastsTable = () => forecastService.getAllForecastsTable();
 
-// BLOCK 5: Utility functions
+// BLOCK 5: Utility functions (unchanged)
 export const parseMonthHeader = (header: string): string | null => {
   if (typeof header !== "string") return null;
   const parts = header.trim().split("-");
@@ -454,7 +205,6 @@ export const validateForecastData = (data: {
     errors.push('At least one monthly forecast is required');
   }
 
-  // Validate month formats and values
   Object.entries(data.monthlyForecast).forEach(([month, value]) => {
     if (!/^\d{4}-\d{2}$/.test(month)) {
       errors.push(`Invalid month format: ${month}. Use YYYY-MM format.`);
@@ -558,6 +308,3 @@ export const getForecastColor = (value: number, max: number): string => {
 // BLOCK 6: Export the service class
 export { ForecastService };
 export default forecastService;
-
-// BLOCK 7: Type exports for convenience
-export type { Forecast } from '../types/mrp.types';

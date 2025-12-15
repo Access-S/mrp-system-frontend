@@ -1,5 +1,7 @@
+// src/components/pages/ForecastsPage.tsx
+
 // BLOCK 1: Imports
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Typography,
@@ -11,11 +13,7 @@ import {
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ExcelImportModal } from "../modals/ExcelImportModal";
-import {
-  importForecastData,
-  getAllForecasts,
-} from "../../services/forecast.service";
-import { Forecast } from "../../types/mrp.types";
+import { getAllForecastsTable, importForecastData } from "../../services/forecast.service";
 import toast from "react-hot-toast";
 
 // BLOCK 2: Constants
@@ -26,9 +24,12 @@ const TIME_HORIZONS: TimeHorizon[] = [4, 6, 9, 12, "All"];
 export function ForecastsPage() {
   // BLOCK 4: State Management
   const { theme } = useTheme();
-  const [activeHorizon, setActiveHorizon] = useState<TimeHorizon>(6);
+  const [activeHorizon, setActiveHorizon] = useState<TimeHorizon>("All");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [forecasts, setForecasts] = useState<Forecast[]>([]);
+  const [tableData, setTableData] = useState<{
+    headers: { key: string; label: string }[];
+    rows: Record<string, any>[];
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   // BLOCK 5: Handlers and Effects
@@ -36,9 +37,15 @@ export function ForecastsPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const data = await getAllForecasts();
-    setForecasts(data);
-    setLoading(false);
+    try {
+      const data = await getAllForecastsTable();
+      setTableData(data);
+    } catch (error) {
+      console.error("Failed to fetch forecasts:", error);
+      toast.error("Failed to load forecast data");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -60,48 +67,22 @@ export function ForecastsPage() {
     }
   };
 
-  // --- DYNAMIC COLUMN AND DATA LOGIC ---
-  const { tableHeaders, tableRows } = useMemo(() => {
-    if (forecasts.length === 0) {
-      return { tableHeaders: [], tableRows: [] };
-    }
+  // Filter columns based on time horizon
+  const filteredHeaders = tableData
+    ? activeHorizon === "All"
+      ? tableData.headers
+      : tableData.headers.slice(0, 2 + (activeHorizon as number)) // 2 = product + description
+    : [];
 
-    // Get all unique month headers from the data and sort them
-    const allMonths = new Set<string>();
-    forecasts.forEach((f) => {
-      Object.keys(f.monthlyForecast).forEach((month) => allMonths.add(month));
-    });
-    const sortedMonths = Array.from(allMonths).sort();
-
-    // Determine which months to show based on the active horizon
-    const monthsToShow =
-      activeHorizon === "All"
-        ? sortedMonths
-        : sortedMonths.slice(0, activeHorizon);
-
-    // Create the table headers
-    const tableHeaders = [
-      "Product Code",
-      "Description",
-      ...monthsToShow.map((m) =>
-        new Date(m + "-02").toLocaleDateString("en-US", {
-          month: "short",
-          year: "2-digit",
-        })
-      ),
-    ];
-
-    // Create the table rows
-    const tableRows = forecasts.map((forecast) => ({
-      productCode: forecast.productCode,
-      description: forecast.description,
-      monthlyData: monthsToShow.map(
-        (month) => forecast.monthlyForecast[month] || 0
-      ),
-    }));
-
-    return { tableHeaders, tableRows };
-  }, [forecasts, activeHorizon]);
+  const filteredRows = tableData
+    ? tableData.rows.map(row => {
+        const newRow: Record<string, any> = {};
+        filteredHeaders.forEach(h => {
+          newRow[h.key] = row[h.key];
+        });
+        return newRow;
+      })
+    : [];
 
   // BLOCK 6: Render Logic
   return (
@@ -164,54 +145,38 @@ export function ForecastsPage() {
             <div className="flex justify-center items-center h-64">
               <Spinner className="h-12 w-12" />
             </div>
-          ) : tableRows.length > 0 ? (
+          ) : filteredRows.length > 0 ? (
             <table className="w-full min-w-max table-auto text-left">
               <thead>
                 <tr>
-                  {tableHeaders.map((head) => (
+                  {filteredHeaders.map((header) => (
                     <th
-                      key={head}
+                      key={header.key}
                       className={`border-b-2 ${theme.borderColor} ${theme.tableHeaderBg} p-4`}
                     >
                       <Typography
                         variant="small"
                         className={`font-semibold leading-none ${theme.text}`}
                       >
-                        {head}
+                        {header.label}
                       </Typography>
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {tableRows.map((row, index) => (
+                {filteredRows.map((row, index) => (
                   <tr key={index} className={theme.hoverBg}>
-                    <td className={`p-4 border-b ${theme.borderColor}`}>
-                      <Typography
-                        variant="small"
-                        className={`font-bold ${theme.text}`}
-                      >
-                        {row.productCode}
-                      </Typography>
-                    </td>
-                    <td className={`p-4 border-b ${theme.borderColor}`}>
-                      <Typography
-                        variant="small"
-                        className={`font-normal ${theme.text}`}
-                      >
-                        {row.description}
-                      </Typography>
-                    </td>
-                    {row.monthlyData.map((data, dataIndex) => (
+                    {filteredHeaders.map((header) => (
                       <td
-                        key={dataIndex}
+                        key={header.key}
                         className={`p-4 border-b ${theme.borderColor} text-center`}
                       >
                         <Typography
                           variant="small"
                           className={`font-normal ${theme.text}`}
                         >
-                          {data}
+                          {row[header.key] ?? "-"}
                         </Typography>
                       </td>
                     ))}
