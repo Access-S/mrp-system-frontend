@@ -161,7 +161,31 @@ class ForecastService {
     }
   }
 
-  // You can keep other methods if needed, but they are not used in ForecastsPage
+  /**
+ * Fetches forecasts in the format expected by InventoryPage:
+ * { productCode, description, monthlyForecast }
+ */
+async getAllForecasts() {
+  const tableData = await this.getAllForecastsTable();
+  
+  return tableData.rows.map(row => {
+    const { product_code, description, ...rest } = row;
+    
+    // Extract only valid YYYY-MM keys as monthlyForecast
+    const monthlyForecast: Record<string, number> = {};
+    for (const [key, value] of Object.entries(rest)) {
+      if (/^\d{4}-\d{2}$/.test(key) && typeof value === 'number') {
+        monthlyForecast[key] = value;
+      }
+    }
+
+    return {
+      productCode: product_code || '',
+      description: description || '',
+      monthlyForecast,
+    };
+  });
+}
 }
 
 // BLOCK 3: Export singleton instance
@@ -308,3 +332,4 @@ export const getForecastColor = (value: number, max: number): string => {
 // BLOCK 6: Export the service class
 export { ForecastService };
 export default forecastService;
+export const getAllForecasts = () => forecastService.getAllForecasts();
