@@ -1,3 +1,5 @@
+//src/services/inventory.service.ts
+
 // BLOCK 1: Imports
 import { supabase } from "../supabase.config";
 import { apiClient, handleApiError, ApiResponse } from "./api.service";
@@ -7,25 +9,25 @@ import * as XLSX from "xlsx";
 // BLOCK 2: Inventory Service Class
 class InventoryService {
 
-  /**
-   * Fetches all SOH records from the backend API
-   * @returns Promise<Component[]> - Array of inventory components
-   */
-  async getAllSoh(): Promise<Component[]> {
-    try {
-      const response: ApiResponse<Component[]> = await apiClient.get('/soh');
-      
-      if (response.success && response.data) {
-        console.log(`✅ Fetched ${response.data.length} SOH records from API`);
-        return response.data;
-      }
-      
-      throw new Error('Failed to fetch SOH records');
-    } catch (error) {
-      console.error('❌ Error fetching SOH records:', error);
-      throw new Error(handleApiError(error));
+/**
+ * Fetches all SOH records from the backend API
+ * @returns Promise<Component[]> - Array of inventory components
+ */
+async getAllSoh(): Promise<Component[]> {
+  try {
+    const response: ApiResponse<any> = await apiClient.get('/soh'); // ← Change type to any
+    
+    if (response.success && Array.isArray(response.data)) {
+      console.log(`✅ Fetched ${response.data.length} SOH records from API`);
+      return response.data; // ✅ Return the array, not the whole response
     }
+    
+    throw new Error('Failed to fetch SOH records');
+  } catch (error) {
+    console.error('❌ Error fetching SOH records:', error);
+    throw new Error(handleApiError(error));
   }
+}
 
   /**
    * Gets SOH summary statistics
