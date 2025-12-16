@@ -1,3 +1,5 @@
+//src/services/api.service.ts
+
 // BLOCK 1: Imports
 import { PurchaseOrder } from '../types/mrp.types';
 
@@ -214,11 +216,22 @@ export const deletePo = async (poId: string): Promise<ApiResponse<void>> => {
 };
 
 // BLOCK 7: Products API
-export const fetchAllProducts = async (): Promise<ApiResponse<any[]>> => {
-  return apiClient.get<ApiResponse<any[]>>('/products');
+export const fetchAllProducts = async (): Promise<any[]> => {
+  try {
+    const response: ApiResponse<any[]> = await apiClient.get('/products');
+    
+    if (response.success && Array.isArray(response.data)) {
+      return response.data; // ✅ Return only the array
+    }
+    
+    throw new Error('Failed to fetch products: invalid response format');
+  } catch (error) {
+    console.error('Error in fetchAllProducts:', error);
+    throw error;
+  }
 };
 
-export const fetchBomForProduct = async (productCode: string): Promise<ApiResponse<any[]>> => {
+export const fetchBomForProduct = async (productCode: string): Promise<any[]> => {
   if (!productCode) {
     throw new Error('Product code is required');
   }
