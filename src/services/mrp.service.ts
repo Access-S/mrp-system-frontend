@@ -631,10 +631,8 @@ export { MrpService };
 export default mrpService;
 
 export type {
-  MonthlyProjection,
-  InventoryProjection,
-  MrpSummary,
   Product,
   Forecast,
   Component
 } from '../types/mrp.types';
+
