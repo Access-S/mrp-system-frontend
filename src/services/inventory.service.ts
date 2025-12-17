@@ -20,16 +20,16 @@ async getAllSoh(): Promise<Component[]> {
     if (response.success && Array.isArray(response.data)) {
       // ✅ Map backend's 'product_id' to frontend's expected 'partCode' for MRP compatibility
       const sohWithPartCode = response.data.map(item => ({
-        ...item,
-        partCode: item.product_id || item.part_code || '',
-        stock: item.stock_on_hand || 0,
-        safetyStock: item.safety_stock || 0,
-        supplierId: item.supplier_id || 'unknown',
-        partType: item.part_type || 'N/A',
-        perShipper: item.per_shipper || 0,
-        createdAt: item.created_at,
-        updatedAt: item.updated_at
-      }));
+  ...item,
+  partCode: String(item.product_id || item.part_code || '').trim(), // ✅ Force string + trim
+  stock: item.stock_on_hand || 0,
+  safetyStock: item.safety_stock || 0,
+  supplierId: item.supplier_id || 'unknown',
+  partType: (item.part_type || 'N/A').trim(),
+  perShipper: item.per_shipper || 0,
+  createdAt: item.created_at,
+  updatedAt: item.updated_at
+}));
       
       console.log(`✅ Fetched ${sohWithPartCode.length} SOH records with partCode mapping`);
       return sohWithPartCode;
