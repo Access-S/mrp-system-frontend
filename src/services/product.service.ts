@@ -1,3 +1,5 @@
+//src/services/product.service.ts
+
 // BLOCK 1: Imports
 import { supabase } from "../supabase.config";
 import { apiClient, handleApiError, ApiResponse } from "./api.service";
@@ -11,20 +13,33 @@ class ProductService {
    * @returns A promise that resolves to an array of Product objects
    */
   async getAllProducts(): Promise<Product[]> {
-    try {
-      const response: ApiResponse<Product[]> = await apiClient.get('/products');
+  try {
+    const response: ApiResponse<Product[]> = await apiClient.get('/products');
+    
+    if (response.success && response.data) {
+      console.log(`✅ Fetched ${response.data.length} products from API`);
       
-      if (response.success && response.data) {
-        console.log(`✅ Fetched ${response.data.length} products from API`);
-        return response.data;
-      }
+      // 🔍 ADD THIS DEBUG LOG
+      console.log('🔍 DEBUG: First product from API:', response.data[0]);
+      console.log('🔍 DEBUG: First product components:', response.data[0]?.components);
+      console.log('🔍 DEBUG: Sample of all products with component counts:', 
+        response.data.slice(0, 3).map(p => ({
+          productCode: p.productCode,
+          description: p.description,
+          componentCount: p.components?.length || 0,
+          components: p.components
+        }))
+      );
       
-      throw new Error('Failed to fetch products');
-    } catch (error) {
-      console.error('❌ Error fetching products:', error);
-      throw new Error(handleApiError(error));
+      return response.data;
     }
+    
+    throw new Error('Failed to fetch products');
+  } catch (error) {
+    console.error('❌ Error fetching products:', error);
+    throw new Error(handleApiError(error));
   }
+}
 
   /**
    * Fetches a single product by ID directly from Supabase
