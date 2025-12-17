@@ -1,18 +1,8 @@
 .
-├── README.md
-├── eslint.config.js
-├── index.html
-├── package-lock.json
-├── package.json
-├── postcss.config.js
-├── project-structure.txt
 ├── public
 │   └── vite.svg
 ├── src
-│   ├── App.tsx
 │   ├── components
-│   │   ├── PaginationControls.tsx
-│   │   ├── Sidebar.tsx
 │   │   ├── dialogs
 │   │   │   ├── ConfirmationDialog.tsx
 │   │   │   └── FormAlert.tsx
@@ -24,17 +14,17 @@
 │   │   │   ├── BomDetailModal.tsx
 │   │   │   ├── ExcelImportModal.tsx
 │   │   │   └── PoDetailModal.tsx
-│   │   └── pages
-│   │       ├── DashboardPage.tsx
-│   │       ├── ForecastsPage.tsx
-│   │       ├── InventoryPage.tsx
-│   │       ├── ProductsPage.tsx
-│   │       ├── PurchaseOrdersPage.tsx
-│   │       └── SohPage.tsx
+│   │   ├── pages
+│   │   │   ├── DashboardPage.tsx
+│   │   │   ├── ForecastsPage.tsx
+│   │   │   ├── InventoryPage.tsx
+│   │   │   ├── ProductsPage.tsx
+│   │   │   ├── PurchaseOrdersPage.tsx
+│   │   │   └── SohPage.tsx
+│   │   ├── PaginationControls.tsx
+│   │   └── Sidebar.tsx
 │   ├── contexts
 │   │   └── ThemeContext.tsx
-│   ├── index.css
-│   ├── main.tsx
 │   ├── services
 │   │   ├── api.service.ts
 │   │   ├── dashboard.service.ts
@@ -45,13 +35,24 @@
 │   │   └── purchaseOrder.service.ts
 │   ├── styles
 │   │   └── themes.ts
-│   ├── supabase.config.ts
 │   ├── types
 │   │   └── mrp.types.ts
+│   ├── App.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   ├── supabase.config.ts
 │   └── vite-env.d.ts
+├── README.md
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── project-structure.txt
+├── render.yaml
 ├── tailwind.config.js
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.ts
 
-12 directories, 43 files
+12 directories, 44 files
