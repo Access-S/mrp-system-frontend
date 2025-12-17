@@ -1,3 +1,5 @@
+//src/services/mrp.service.ts
+
 // BLOCK 1: Imports
 import { Product, Forecast, Component } from "../types/mrp.types";
 import { productService } from "./product.service";
@@ -41,19 +43,20 @@ export interface MrpSummary {
 // BLOCK 3: MRP Service Class
 class MrpService {
 
-  /**
-   * The main MRP calculation engine
-   * @param components - Array of components (SOH data)
-   * @param products - Array of products with BOM data
-   * @param forecasts - Array of forecasts
-   * @returns Array of inventory projections
-   */
   calculateInventoryProjections(
     components: Component[],
     products: Product[],
     forecasts: Forecast[]
   ): InventoryProjection[] {
     console.log('🔄 Starting MRP calculations...');
+    
+    // 🔍 ADD DEBUG LOGS HERE - Check input data
+    console.log('🔍 DEBUG: Input components:', components.length);
+    console.log('🔍 DEBUG: Input products:', products.length);
+    console.log('🔍 DEBUG: Input forecasts:', forecasts.length);
+    console.log('🔍 DEBUG: Sample component:', components[0]);
+    console.log('🔍 DEBUG: Sample product:', products[0]);
+    console.log('🔍 DEBUG: Sample forecast:', forecasts[0]);
 
     const componentMasterMap = new Map<
       string,
@@ -72,9 +75,8 @@ class MrpService {
       );
       if (!forecast) return;
 
-      // Use the product-level `unitsPerShipper` for all calculations
       const unitsPerShipper = product.unitsPerShipper || 0;
-      if (unitsPerShipper === 0) return; // Cannot calculate demand if this is zero
+      if (unitsPerShipper === 0) return;
 
       product.components.forEach((bomItem) => {
         if (bomItem.partType === "Bulk - Supplied") return;
@@ -94,7 +96,6 @@ class MrpService {
         componentData.descriptions.add(bomItem.partDescription);
 
         for (const month in forecast.monthlyForecast) {
-          // The forecast is for PRODUCTS (shippers), not pieces
           const forecastQtyInShippers = forecast.monthlyForecast[month];
           const requiredComponents = forecastQtyInShippers * bomItem.perShipper;
 
@@ -103,6 +104,38 @@ class MrpService {
         }
       });
     });
+
+    // 🔍 ADD DEBUG LOGS HERE - After map is populated
+    console.log('🔍 DEBUG: componentMasterMap size:', componentMasterMap.size);
+    console.log('🔍 DEBUG: componentMasterMap keys (first 5):', Array.from(componentMasterMap.keys()).slice(0, 5));
+    console.log('🔍 DEBUG: Components partCodes (first 5):', components.slice(0, 5).map(c => c.partCode));
+    
+    // 🔍 Check for matching issues
+    const componentsWithDemand = components.filter(c => componentMasterMap.has(c.partCode));
+    console.log('🔍 DEBUG: Components with demand:', componentsWithDemand.length);
+    console.log('🔍 DEBUG: Components without demand:', components.length - componentsWithDemand.length);
+    
+    if (componentsWithDemand.length === 0) {
+      console.log('⚠️ WARNING: No components matched between SOH and BOM data!');
+      console.log('🔍 DEBUG: Checking partCode format differences...');
+      
+      const sampleSohPartCode = components[0]?.partCode;
+      const sampleBomPartCode = Array.from(componentMasterMap.keys())[0];
+      
+      console.log('🔍 SOH partCode sample:', {
+        value: sampleSohPartCode,
+        type: typeof sampleSohPartCode,
+        trimmed: sampleSohPartCode?.trim(),
+        lowercase: sampleSohPartCode?.toLowerCase()
+      });
+      
+      console.log('🔍 BOM partCode sample:', {
+        value: sampleBomPartCode,
+        type: typeof sampleBomPartCode,
+        trimmed: sampleBomPartCode?.trim(),
+        lowercase: sampleBomPartCode?.toLowerCase()
+      });
+    }
 
     // Step 2: Create the final projections for components that we have stock for
     const inventoryProjections: InventoryProjection[] = [];

@@ -1,3 +1,6 @@
+//src/components/pages/InventoryPage.tsx
+
+
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Typography,

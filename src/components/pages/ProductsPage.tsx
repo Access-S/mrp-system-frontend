@@ -1,3 +1,5 @@
+//src/components/pages/ProductsPage.tsx
+
 // BLOCK 1: Imports
 import React, { useState, useEffect, useMemo } from "react";
 import {
