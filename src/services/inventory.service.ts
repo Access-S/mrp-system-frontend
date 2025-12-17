@@ -15,11 +15,24 @@ class InventoryService {
  */
 async getAllSoh(): Promise<Component[]> {
   try {
-    const response: ApiResponse<any> = await apiClient.get('/soh'); // ← Change type to any
+    const response: ApiResponse<any[]> = await apiClient.get('/soh');
     
     if (response.success && Array.isArray(response.data)) {
-      console.log(`✅ Fetched ${response.data.length} SOH records from API`);
-      return response.data; // ✅ Return the array, not the whole response
+      // ✅ Map backend's 'product_id' to frontend's expected 'partCode' for MRP compatibility
+      const sohWithPartCode = response.data.map(item => ({
+        ...item,
+        partCode: item.product_id || item.part_code || '',
+        stock: item.stock_on_hand || 0,
+        safetyStock: item.safety_stock || 0,
+        supplierId: item.supplier_id || 'unknown',
+        partType: item.part_type || 'N/A',
+        perShipper: item.per_shipper || 0,
+        createdAt: item.created_at,
+        updatedAt: item.updated_at
+      }));
+      
+      console.log(`✅ Fetched ${sohWithPartCode.length} SOH records with partCode mapping`);
+      return sohWithPartCode;
     }
     
     throw new Error('Failed to fetch SOH records');
@@ -28,7 +41,6 @@ async getAllSoh(): Promise<Component[]> {
     throw new Error(handleApiError(error));
   }
 }
-
   /**
    * Gets SOH summary statistics
    * @returns Promise<{totalRecords: number, latestImport: any}>
