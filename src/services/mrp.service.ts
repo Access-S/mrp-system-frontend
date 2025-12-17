@@ -267,7 +267,7 @@ class MrpService {
         projections,
         overallHealth,
         recommendedAction,
-        priority,
+        priority, 
         totalAnnualDemand: Math.round(totalAnnualDemand * 100) / 100,
         averageMonthlyDemand: Math.round(averageMonthlyDemand * 100) / 100
       });
