@@ -53,6 +53,7 @@
 ├── tailwind.config.js
 ├── tsconfig.json
 ├── tsconfig.node.json
+├── update-structure.sh
 └── vite.config.ts
 
-12 directories, 44 files
+12 directories, 45 files
