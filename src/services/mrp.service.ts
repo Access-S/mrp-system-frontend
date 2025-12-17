@@ -1,13 +1,21 @@
 //src/services/mrp.service.ts
 
+// ============================================================================
 // BLOCK 1: Imports
+// ============================================================================
 import { Product, Forecast, Component } from "../types/mrp.types";
 import { productService } from "./product.service";
 import { forecastService } from "./forecast.service";
 import { inventoryService } from "./inventory.service";
 import { handleApiError } from "./api.service";
 
-// BLOCK 2: Interface for the Engine's Output
+// ============================================================================
+// BLOCK 2: Interface Definitions for MRP Engine Output
+// ============================================================================
+
+/**
+ * Represents monthly projection data for a component
+ */
 export interface MonthlyProjection {
   month: string;
   totalDemand: number;
@@ -17,6 +25,9 @@ export interface MonthlyProjection {
   daysOfCoverage: number;
 }
 
+/**
+ * Represents complete inventory projection for a component
+ */
 export interface InventoryProjection {
   component: Component;
   skusUsedIn: string[];
@@ -31,6 +42,9 @@ export interface InventoryProjection {
   averageMonthlyDemand: number;
 }
 
+/**
+ * Summary statistics for MRP analysis
+ */
 export interface MrpSummary {
   totalComponents: number;
   healthyCount: number;
@@ -40,15 +54,22 @@ export interface MrpSummary {
   criticalComponents: InventoryProjection[];
 }
 
+// ============================================================================
 // BLOCK 3: MRP Service Class
+// ============================================================================
+
 class MrpService {
 
+  // --------------------------------------------------------------------------
+  // Main MRP Calculation Engine
+  // --------------------------------------------------------------------------
+
   /**
-   * The main MRP calculation engine
-   * @param components - Array of components (SOH data)
+   * Calculates inventory projections based on BOMs, forecasts, and current stock
+   * @param components - Array of components with current stock levels (SOH data)
    * @param products - Array of products with BOM data
-   * @param forecasts - Array of forecasts
-   * @returns Array of inventory projections
+   * @param forecasts - Array of monthly forecasts per product
+   * @returns Array of inventory projections with demand calculations
    */
   calculateInventoryProjections(
     components: Component[],
@@ -56,15 +77,8 @@ class MrpService {
     forecasts: Forecast[]
   ): InventoryProjection[] {
     console.log('🔄 Starting MRP calculations...');
-    
-    // 🔍 DEBUG: Check input data
-    console.log('🔍 DEBUG: Input components:', components.length);
-    console.log('🔍 DEBUG: Input products:', products.length);
-    console.log('🔍 DEBUG: Input forecasts:', forecasts.length);
-    console.log('🔍 DEBUG: Sample component:', components[0]);
-    console.log('🔍 DEBUG: Sample product:', products[0]);
-    console.log('🔍 DEBUG: Sample forecast:', forecasts[0]);
 
+    // Initialize component master map for demand aggregation
     const componentMasterMap = new Map<
       string,
       {
@@ -75,60 +89,24 @@ class MrpService {
       }
     >();
 
-    // Step 1: Aggregate data from BOMs and Forecasts
-    console.log('🔍 DEBUG: Starting product loop...');
-    
-    products.forEach((product, index) => {
-      // 🔍 DEBUG: First product details
-      if (index === 0) {
-        console.log('🔍 DEBUG: First product details:', {
-          productCode: product.productCode,
-          description: product.description,
-          unitsPerShipper: product.unitsPerShipper,
-          hasComponents: !!product.components,
-          componentsLength: product.components?.length,
-          componentsArray: product.components,
-          allKeys: Object.keys(product)
-        });
-      }
-
+    // STEP 1: Aggregate demand from all BOMs and forecasts
+    products.forEach((product) => {
+      // Find matching forecast for this product
       const forecast = forecasts.find(
         (f) => f.productCode === product.productCode
       );
-      
-      if (!forecast) {
-        if (index === 0) console.log('🔍 DEBUG: No forecast found for first product');
-        return;
-      }
+      if (!forecast) return;
 
-      // Use the product-level `unitsPerShipper` for all calculations
+      // Validate units per shipper
       const unitsPerShipper = product.unitsPerShipper || 0;
-      if (unitsPerShipper === 0) {
-        if (index === 0) console.log('🔍 DEBUG: First product has zero unitsPerShipper');
-        return;
-      }
+      if (unitsPerShipper === 0) return;
 
-      // 🔍 DEBUG: Check if components exist
-      if (!product.components || product.components.length === 0) {
-        if (index < 3) console.log(`🔍 DEBUG: Product ${product.productCode} has no components`);
-        return;
-      }
-
-      if (index === 0) {
-        console.log(`🔍 DEBUG: Processing ${product.components.length} components for product ${product.productCode}`);
-      }
-
-      product.components.forEach((bomItem, bomIndex) => {
-        // 🔍 DEBUG: First BOM item
-        if (index === 0 && bomIndex === 0) {
-          console.log('🔍 DEBUG: First BOM item:', bomItem);
-        }
-
-        if (bomItem.partType === "Bulk - Supplied") {
-          if (index === 0 && bomIndex === 0) console.log('🔍 DEBUG: First BOM item is Bulk - Supplied, skipping');
-          return;
-        }
+      // Process each BOM component
+      product.components.forEach((bomItem) => {
+        // Skip bulk supplied items
+        if (bomItem.partType === "Bulk - Supplied") return;
         
+        // Initialize component in map if not exists
         if (!componentMasterMap.has(bomItem.partCode)) {
           componentMasterMap.set(bomItem.partCode, {
             demand: {},
@@ -136,19 +114,16 @@ class MrpService {
             partTypes: new Set(),
             descriptions: new Set(),
           });
-          
-          if (componentMasterMap.size <= 3) {
-            console.log(`🔍 DEBUG: Added to map: ${bomItem.partCode}`);
-          }
         }
         
+        // Get component data reference
         const componentData = componentMasterMap.get(bomItem.partCode)!;
         componentData.skus.add(product.productCode);
         componentData.partTypes.add(bomItem.partType);
         componentData.descriptions.add(bomItem.partDescription);
 
+        // Calculate monthly demand for this component
         for (const month in forecast.monthlyForecast) {
-          // The forecast is for PRODUCTS (shippers), not pieces
           const forecastQtyInShippers = forecast.monthlyForecast[month];
           const requiredComponents = forecastQtyInShippers * bomItem.perShipper;
 
@@ -158,41 +133,7 @@ class MrpService {
       });
     });
 
-    console.log('🔍 DEBUG: Finished product loop');
-    
-    // 🔍 DEBUG: After map is populated
-    console.log('🔍 DEBUG: componentMasterMap size:', componentMasterMap.size);
-    console.log('🔍 DEBUG: componentMasterMap keys (first 5):', Array.from(componentMasterMap.keys()).slice(0, 5));
-    console.log('🔍 DEBUG: Components partCodes (first 5):', components.slice(0, 5).map(c => c.partCode));
-    
-    // 🔍 Check for matching issues
-    const componentsWithDemand = components.filter(c => componentMasterMap.has(c.partCode));
-    console.log('🔍 DEBUG: Components with demand:', componentsWithDemand.length);
-    console.log('🔍 DEBUG: Components without demand:', components.length - componentsWithDemand.length);
-    
-    if (componentsWithDemand.length === 0) {
-      console.log('⚠️ WARNING: No components matched between SOH and BOM data!');
-      console.log('🔍 DEBUG: Checking partCode format differences...');
-      
-      const sampleSohPartCode = components[0]?.partCode;
-      const sampleBomPartCode = Array.from(componentMasterMap.keys())[0];
-      
-      console.log('🔍 SOH partCode sample:', {
-        value: sampleSohPartCode,
-        type: typeof sampleSohPartCode,
-        trimmed: sampleSohPartCode?.trim(),
-        lowercase: sampleSohPartCode?.toLowerCase()
-      });
-      
-      console.log('🔍 BOM partCode sample:', {
-        value: sampleBomPartCode,
-        type: typeof sampleBomPartCode,
-        trimmed: sampleBomPartCode?.trim(),
-        lowercase: sampleBomPartCode?.toLowerCase()
-      });
-    }
-
-    // Step 2: Create the final projections for components that we have stock for
+    // STEP 2: Create inventory projections for components with stock
     const inventoryProjections: InventoryProjection[] = [];
 
     components.forEach((component) => {
@@ -202,7 +143,7 @@ class MrpService {
       let currentSoh = component.stock;
       const sortedMonths = Object.keys(componentData.demand).sort();
 
-      // Calculate various demand metrics
+      // Calculate demand metrics
       const fourMonthDemand = sortedMonths
         .slice(0, 4)
         .reduce((sum, month) => sum + (componentData.demand[month] || 0), 0);
@@ -216,7 +157,7 @@ class MrpService {
 
       const netFourMonthDemand = Math.max(0, fourMonthDemand - currentSoh);
 
-      // Determine overall health
+      // Determine health status and priority
       let overallHealth: "Healthy" | "Risk" | "Shortage";
       let priority: "High" | "Medium" | "Low";
       let recommendedAction: string;
@@ -235,7 +176,7 @@ class MrpService {
         recommendedAction = `URGENT: Order ${Math.ceil(netFourMonthDemand)} units immediately`;
       }
 
-      // Calculate monthly projections with enhanced metrics
+      // Calculate monthly projections
       const projections: MonthlyProjection[] = sortedMonths.map((month) => {
         const demand = componentData.demand[month];
         const coveragePercentage = demand > 0 ? Math.min(1, currentSoh / demand) * 100 : 100;
@@ -258,6 +199,7 @@ class MrpService {
         };
       });
 
+      // Add to projections array
       inventoryProjections.push({
         component,
         skusUsedIn: Array.from(componentData.skus),
@@ -267,7 +209,7 @@ class MrpService {
         projections,
         overallHealth,
         recommendedAction,
-        priority, 
+        priority,
         totalAnnualDemand: Math.round(totalAnnualDemand * 100) / 100,
         averageMonthlyDemand: Math.round(averageMonthlyDemand * 100) / 100
       });
@@ -277,9 +219,13 @@ class MrpService {
     return inventoryProjections;
   }
 
+  // --------------------------------------------------------------------------
+  // Complete MRP Analysis
+  // --------------------------------------------------------------------------
+
   /**
    * Runs a complete MRP analysis by fetching all required data
-   * @returns Promise<InventoryProjection[]>
+   * @returns Promise resolving to array of inventory projections
    */
   async runCompleteAnalysis(): Promise<InventoryProjection[]> {
     try {
@@ -305,10 +251,14 @@ class MrpService {
     }
   }
 
+  // --------------------------------------------------------------------------
+  // Summary and Statistics
+  // --------------------------------------------------------------------------
+
   /**
-   * Gets MRP summary statistics
+   * Generates summary statistics from MRP projections
    * @param projections - Array of inventory projections
-   * @returns MrpSummary object
+   * @returns Summary object with key metrics
    */
   getMrpSummary(projections: InventoryProjection[]): MrpSummary {
     const healthyCount = projections.filter(p => p.overallHealth === 'Healthy').length;
@@ -332,11 +282,12 @@ class MrpService {
     };
   }
 
+  // --------------------------------------------------------------------------
+  // Filtering and Search
+  // --------------------------------------------------------------------------
+
   /**
    * Filters projections by health status
-   * @param projections - Array of inventory projections
-   * @param health - Health status to filter by
-   * @returns Filtered array of projections
    */
   filterByHealth(
     projections: InventoryProjection[], 
@@ -346,10 +297,7 @@ class MrpService {
   }
 
   /**
-   * Filters projections by priority
-   * @param projections - Array of inventory projections
-   * @param priority - Priority to filter by
-   * @returns Filtered array of projections
+   * Filters projections by priority level
    */
   filterByPriority(
     projections: InventoryProjection[], 
@@ -359,10 +307,7 @@ class MrpService {
   }
 
   /**
-   * Searches projections by part code or description
-   * @param projections - Array of inventory projections
-   * @param searchTerm - Term to search for
-   * @returns Filtered array of projections
+   * Searches projections by part code, description, or SKU
    */
   searchProjections(projections: InventoryProjection[], searchTerm: string): InventoryProjection[] {
     if (!searchTerm || searchTerm.trim().length < 2) {
@@ -377,10 +322,12 @@ class MrpService {
     );
   }
 
+  // --------------------------------------------------------------------------
+  // Purchase Recommendations
+  // --------------------------------------------------------------------------
+
   /**
    * Generates purchase recommendations based on MRP analysis
-   * @param projections - Array of inventory projections
-   * @returns Array of purchase recommendations
    */
   generatePurchaseRecommendations(projections: InventoryProjection[]): {
     partCode: string;
@@ -400,7 +347,6 @@ class MrpService {
         recommendedQuantity: Math.ceil(p.netFourMonthDemand),
         priority: p.priority,
         reason: p.recommendedAction,
-        // estimatedCost could be calculated if you have pricing data
       }))
       .sort((a, b) => {
         const priorityOrder = { High: 3, Medium: 2, Low: 1 };
@@ -408,10 +354,12 @@ class MrpService {
       });
   }
 
+  // --------------------------------------------------------------------------
+  // Data Export
+  // --------------------------------------------------------------------------
+
   /**
-   * Exports MRP data to a format suitable for Excel/CSV
-   * @param projections - Array of inventory projections
-   * @returns Array of objects suitable for export
+   * Exports MRP data in a format suitable for Excel/CSV
    */
   exportMrpData(projections: InventoryProjection[]): any[] {
     return projections.map(p => ({
@@ -427,7 +375,6 @@ class MrpService {
       'Total Annual Demand': p.totalAnnualDemand,
       'Average Monthly Demand': p.averageMonthlyDemand,
       'Recommended Action': p.recommendedAction,
-      // Add monthly projections as separate columns
       ...p.projections.reduce((acc, proj, index) => {
         acc[`Month ${index + 1} Demand`] = proj.totalDemand;
         acc[`Month ${index + 1} Coverage %`] = proj.coveragePercentage;
@@ -438,10 +385,16 @@ class MrpService {
   }
 }
 
-// BLOCK 4: Export singleton instance
+// ============================================================================
+// BLOCK 4: Export Singleton Instance
+// ============================================================================
+
 export const mrpService = new MrpService();
 
-// BLOCK 5: Export individual functions for backward compatibility
+// ============================================================================
+// BLOCK 5: Export Individual Functions (Backward Compatibility)
+// ============================================================================
+
 export const calculateInventoryProjections = (
   components: Component[],
   products: Product[],
@@ -461,13 +414,22 @@ export const generatePurchaseRecommendations = (projections: InventoryProjection
 export const exportMrpData = (projections: InventoryProjection[]) => 
   mrpService.exportMrpData(projections);
 
-// BLOCK 6: Utility functions for MRP calculations
+// ============================================================================
+// BLOCK 6: Utility Functions for MRP Calculations
+// ============================================================================
+
+/**
+ * Calculates days of coverage based on current stock and monthly demand
+ */
 export const calculateDaysOfCoverage = (currentStock: number, monthlyDemand: number): number => {
-  if (monthlyDemand <= 0) return 999; // Infinite coverage
+  if (monthlyDemand <= 0) return 999;
   const dailyDemand = monthlyDemand / 30;
   return Math.floor(currentStock / dailyDemand);
 };
 
+/**
+ * Calculates reorder point based on average demand and lead time
+ */
 export const calculateReorderPoint = (
   averageDemand: number, 
   leadTimeDays: number = 30, 
@@ -477,6 +439,9 @@ export const calculateReorderPoint = (
   return Math.ceil((dailyDemand * leadTimeDays) + safetyStock);
 };
 
+/**
+ * Calculates Economic Order Quantity (EOQ)
+ */
 export const calculateEconomicOrderQuantity = (
   annualDemand: number,
   orderingCost: number = 50,
@@ -486,6 +451,9 @@ export const calculateEconomicOrderQuantity = (
   return Math.ceil(Math.sqrt((2 * annualDemand * orderingCost) / holdingCostPerUnit));
 };
 
+/**
+ * Returns color code for health status
+ */
 export const getHealthColor = (health: "Healthy" | "Risk" | "Shortage"): string => {
   switch (health) {
     case 'Healthy': return 'green';
@@ -495,6 +463,9 @@ export const getHealthColor = (health: "Healthy" | "Risk" | "Shortage"): string 
   }
 };
 
+/**
+ * Returns color code for priority level
+ */
 export const getPriorityColor = (priority: "High" | "Medium" | "Low"): string => {
   switch (priority) {
     case 'High': return 'red';
@@ -504,12 +475,18 @@ export const getPriorityColor = (priority: "High" | "Medium" | "Low"): string =>
   }
 };
 
+/**
+ * Formats coverage percentage for display
+ */
 export const formatCoverage = (percentage: number): string => {
   if (percentage >= 100) return '100%';
   if (percentage <= 0) return '0%';
   return `${Math.round(percentage)}%`;
 };
 
+/**
+ * Formats demand numbers with K/M suffixes
+ */
 export const formatDemand = (demand: number): string => {
   if (demand >= 1000000) {
     return `${(demand / 1000000).toFixed(1)}M`;
@@ -520,6 +497,13 @@ export const formatDemand = (demand: number): string => {
   return Math.round(demand).toString();
 };
 
+// ============================================================================
+// BLOCK 7: Validation Functions
+// ============================================================================
+
+/**
+ * Validates MRP input data for completeness and correctness
+ */
 export const validateMrpInputs = (
   components: Component[],
   products: Product[],
@@ -592,6 +576,13 @@ export const validateMrpInputs = (
   };
 };
 
+// ============================================================================
+// BLOCK 8: Report Generation
+// ============================================================================
+
+/**
+ * Generates executive MRP report with key findings and recommendations
+ */
 export const generateMrpReport = (projections: InventoryProjection[]): {
   executiveSummary: string;
   keyFindings: string[];
@@ -632,11 +623,13 @@ export const generateMrpReport = (projections: InventoryProjection[]): {
   };
 };
 
-// BLOCK 7: Export the service class
+// ============================================================================
+// BLOCK 9: Service and Type Exports
+// ============================================================================
+
 export { MrpService };
 export default mrpService;
 
-// BLOCK 8: Type exports for convenience
 export type {
   MonthlyProjection,
   InventoryProjection,
