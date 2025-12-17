@@ -43,6 +43,13 @@ export interface MrpSummary {
 // BLOCK 3: MRP Service Class
 class MrpService {
 
+  /**
+   * The main MRP calculation engine
+   * @param components - Array of components (SOH data)
+   * @param products - Array of products with BOM data
+   * @param forecasts - Array of forecasts
+   * @returns Array of inventory projections
+   */
   calculateInventoryProjections(
     components: Component[],
     products: Product[],
@@ -50,7 +57,7 @@ class MrpService {
   ): InventoryProjection[] {
     console.log('🔄 Starting MRP calculations...');
     
-    // 🔍 ADD DEBUG LOGS HERE - Check input data
+    // 🔍 DEBUG: Check input data
     console.log('🔍 DEBUG: Input components:', components.length);
     console.log('🔍 DEBUG: Input products:', products.length);
     console.log('🔍 DEBUG: Input forecasts:', forecasts.length);
@@ -69,17 +76,58 @@ class MrpService {
     >();
 
     // Step 1: Aggregate data from BOMs and Forecasts
-    products.forEach((product) => {
+    console.log('🔍 DEBUG: Starting product loop...');
+    
+    products.forEach((product, index) => {
+      // 🔍 DEBUG: First product details
+      if (index === 0) {
+        console.log('🔍 DEBUG: First product details:', {
+          productCode: product.productCode,
+          description: product.description,
+          unitsPerShipper: product.unitsPerShipper,
+          hasComponents: !!product.components,
+          componentsLength: product.components?.length,
+          componentsArray: product.components,
+          allKeys: Object.keys(product)
+        });
+      }
+
       const forecast = forecasts.find(
         (f) => f.productCode === product.productCode
       );
-      if (!forecast) return;
+      
+      if (!forecast) {
+        if (index === 0) console.log('🔍 DEBUG: No forecast found for first product');
+        return;
+      }
 
+      // Use the product-level `unitsPerShipper` for all calculations
       const unitsPerShipper = product.unitsPerShipper || 0;
-      if (unitsPerShipper === 0) return;
+      if (unitsPerShipper === 0) {
+        if (index === 0) console.log('🔍 DEBUG: First product has zero unitsPerShipper');
+        return;
+      }
 
-      product.components.forEach((bomItem) => {
-        if (bomItem.partType === "Bulk - Supplied") return;
+      // 🔍 DEBUG: Check if components exist
+      if (!product.components || product.components.length === 0) {
+        if (index < 3) console.log(`🔍 DEBUG: Product ${product.productCode} has no components`);
+        return;
+      }
+
+      if (index === 0) {
+        console.log(`🔍 DEBUG: Processing ${product.components.length} components for product ${product.productCode}`);
+      }
+
+      product.components.forEach((bomItem, bomIndex) => {
+        // 🔍 DEBUG: First BOM item
+        if (index === 0 && bomIndex === 0) {
+          console.log('🔍 DEBUG: First BOM item:', bomItem);
+        }
+
+        if (bomItem.partType === "Bulk - Supplied") {
+          if (index === 0 && bomIndex === 0) console.log('🔍 DEBUG: First BOM item is Bulk - Supplied, skipping');
+          return;
+        }
         
         if (!componentMasterMap.has(bomItem.partCode)) {
           componentMasterMap.set(bomItem.partCode, {
@@ -88,6 +136,10 @@ class MrpService {
             partTypes: new Set(),
             descriptions: new Set(),
           });
+          
+          if (componentMasterMap.size <= 3) {
+            console.log(`🔍 DEBUG: Added to map: ${bomItem.partCode}`);
+          }
         }
         
         const componentData = componentMasterMap.get(bomItem.partCode)!;
@@ -96,6 +148,7 @@ class MrpService {
         componentData.descriptions.add(bomItem.partDescription);
 
         for (const month in forecast.monthlyForecast) {
+          // The forecast is for PRODUCTS (shippers), not pieces
           const forecastQtyInShippers = forecast.monthlyForecast[month];
           const requiredComponents = forecastQtyInShippers * bomItem.perShipper;
 
@@ -105,7 +158,9 @@ class MrpService {
       });
     });
 
-    // 🔍 ADD DEBUG LOGS HERE - After map is populated
+    console.log('🔍 DEBUG: Finished product loop');
+    
+    // 🔍 DEBUG: After map is populated
     console.log('🔍 DEBUG: componentMasterMap size:', componentMasterMap.size);
     console.log('🔍 DEBUG: componentMasterMap keys (first 5):', Array.from(componentMasterMap.keys()).slice(0, 5));
     console.log('🔍 DEBUG: Components partCodes (first 5):', components.slice(0, 5).map(c => c.partCode));
