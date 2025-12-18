@@ -221,7 +221,20 @@ export const fetchAllProducts = async (): Promise<any[]> => {
     const response: ApiResponse<any[]> = await apiClient.get('/products');
     
     if (response.success && Array.isArray(response.data)) {
-      return response.data; // ✅ Return only the array
+      // ✅ Map snake_case → expected frontend fields
+      return response.data.map(item => ({
+        id: item.id,                    // for BOM modal
+        product_code: item.product_code,
+        description: item.description,
+        hourly_run_rate: item.hourly_run_rate,
+        // Add other fields as needed
+        units_per_shipper: item.units_per_shipper,
+        daily_run_rate: item.daily_run_rate,
+        mins_per_shipper: item.mins_per_shipper,
+        price_per_shipper: item.price_per_shipper,
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      }));
     }
     
     throw new Error('Failed to fetch products: invalid response format');
