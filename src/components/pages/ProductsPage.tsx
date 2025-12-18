@@ -103,10 +103,22 @@ useEffect(() => {
                         <IconButton variant="text" size="sm" onClick={() => handleOpenBomModal(product)}>
                           <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
                         </IconButton>
-                      </td>
-                      <td className={getCellClasses()}><Typography variant="small" className={`font-bold ${theme.text}`}>{product.product_code}</Typography></td>
-                      <td className={getCellClasses(false, 'left')}><Typography variant="small" className={`font-normal ${theme.text}`}>{product.description}</Typography></td>
-                      <td className={getCellClasses(true)}><Typography variant="small" className={`font-normal ${theme.text}`}>{product.hourly_run_rate ? Number(product.hourly_run_rate).toFixed(2) : "N/A"}</Typography></td>
+                      // In the table rows
+<td className={getCellClasses()}>
+  <Typography variant="small" className={`font-bold ${theme.text}`}>
+    {product.product_code || '-'}
+  </Typography>
+</td>
+<td className={getCellClasses(false, 'left')}>
+  <Typography variant="small" className={`font-normal ${theme.text}`}>
+    {product.description || '-'}
+  </Typography>
+</td>
+<td className={getCellClasses(true)}>
+  <Typography variant="small" className={`font-normal ${theme.text}`}>
+    {product.hourly_run_rate ? Number(product.hourly_run_rate).toFixed(2) : "N/A"}
+  </Typography>
+</td>
                     </tr>
                   );
                 })}
