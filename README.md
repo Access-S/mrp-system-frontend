@@ -6,3 +6,13 @@ Additional references:
 * [Getting started with Vite](https://vitejs.dev/guide/)
 * [Tailwind documentation](https://tailwindcss.com/docs/installation)
 
+Quick Reference for Future Use
+Update Frontend Structure:
+
+
+cd /workspaces/mrp-system-frontend
+./update-structure.sh
+
+
+cd /workspaces/mrp-system-backend
+./update-structure.sh

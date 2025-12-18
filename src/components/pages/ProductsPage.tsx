@@ -33,14 +33,14 @@ useEffect(() => {
 }, []);
 
   const filteredProducts = useMemo(() => {
-    if (!searchQuery) return products;
-    const lowercasedQuery = searchQuery.toLowerCase();
-    return products.filter(
-      (product) =>
-        product.product_code.toLowerCase().includes(lowercasedQuery) ||
-        product.description.toLowerCase().includes(lowercasedQuery)
-    );
-  }, [products, searchQuery]);
+  if (!searchQuery) return products;
+  const lowercasedQuery = searchQuery.toLowerCase();
+  return products.filter(
+    (product) =>
+      product.productCode.toLowerCase().includes(lowercasedQuery) ||  // ✅ CHANGED
+      product.description.toLowerCase().includes(lowercasedQuery)
+  );
+}, [products, searchQuery]);
 
   const handleOpenBomModal = (product: any | null) => {
     setProductToView(product);
@@ -110,17 +110,17 @@ useEffect(() => {
         </td>
         <td className={getCellClasses()}>
           <Typography variant="small" className={`font-bold ${theme.text}`}>
-            {product.product_code || '-'}
+            {product.productCode || '-'}  {/* ✅ CHANGED from product_code */}
           </Typography>
         </td>
         <td className={getCellClasses(false, 'left')}>
           <Typography variant="small" className={`font-normal ${theme.text}`}>
-            {product.description || '-'}
+            {product.description || '-'}  {/* ✅ Already correct */}
           </Typography>
         </td>
         <td className={getCellClasses(true)}>
           <Typography variant="small" className={`font-normal ${theme.text}`}>
-            {product.hourly_run_rate ? Number(product.hourly_run_rate).toFixed(2) : 'N/A'}
+            {product.hourlyRunRate ? Number(product.hourlyRunRate).toFixed(2) : 'N/A'}  {/* ✅ CHANGED from hourly_run_rate */}
           </Typography>
         </td>
       </tr>
