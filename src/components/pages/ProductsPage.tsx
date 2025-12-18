@@ -88,41 +88,45 @@ useEffect(() => {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((product) => {
-                  // --- BODY CELLS HAVE TIGHT PADDING (p-2) ---
-                  const getCellClasses = (isLast = false, align = 'center') => {
-                    let classes = `p-1 border-b ${theme.borderColor} text-${align}`; // Use p-2 for tight rows
-                    if (!isLast) {
-                      classes += ` border-r`;
-                    }
-                    return classes;
-                  };
-                  return (
-                    <tr key={product.id} className={theme.hoverBg}>
-                      <td className={getCellClasses()}>
-                        <IconButton variant="text" size="sm" onClick={() => handleOpenBomModal(product)}>
-                          <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
-                        </IconButton>
-                      // In the table rows
-<td className={getCellClasses()}>
-  <Typography variant="small" className={`font-bold ${theme.text}`}>
-    {product.product_code || '-'}
-  </Typography>
-</td>
-<td className={getCellClasses(false, 'left')}>
-  <Typography variant="small" className={`font-normal ${theme.text}`}>
-    {product.description || '-'}
-  </Typography>
-</td>
-<td className={getCellClasses(true)}>
-  <Typography variant="small" className={`font-normal ${theme.text}`}>
-    {product.hourly_run_rate ? Number(product.hourly_run_rate).toFixed(2) : "N/A"}
-  </Typography>
-</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
+  {filteredProducts.map((product) => {
+    const getCellClasses = (isLast = false, align = 'center') => {
+      let classes = `p-1 border-b ${theme.borderColor} text-${align}`;
+      if (!isLast) {
+        classes += ` border-r ${theme.borderColor}`;
+      }
+      return classes;
+    };
+
+    return (
+      <tr key={product.id} className={theme.hoverBg}>
+        <td className={getCellClasses()}>
+          <IconButton
+            variant="text"
+            size="sm"
+            onClick={() => handleOpenBomModal(product)}
+          >
+            <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
+          </IconButton>
+        </td>
+        <td className={getCellClasses()}>
+          <Typography variant="small" className={`font-bold ${theme.text}`}>
+            {product.product_code || '-'}
+          </Typography>
+        </td>
+        <td className={getCellClasses(false, 'left')}>
+          <Typography variant="small" className={`font-normal ${theme.text}`}>
+            {product.description || '-'}
+          </Typography>
+        </td>
+        <td className={getCellClasses(true)}>
+          <Typography variant="small" className={`font-normal ${theme.text}`}>
+            {product.hourly_run_rate ? Number(product.hourly_run_rate).toFixed(2) : 'N/A'}
+          </Typography>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
             </table>
           </div>
           {filteredProducts.length === 0 && !loading && (
