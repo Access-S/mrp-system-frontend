@@ -1,3 +1,5 @@
+//src/components/modals/BomDetailModal.tsx
+
 // BLOCK 1: Imports
 import React, { useState, useEffect } from "react";
 import {
@@ -20,9 +22,9 @@ export function BomDetailModal({ open, handleOpen, product }: BomDetailModalProp
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (open && product?.product_code && components.length === 0) {  // ✅ Changed from product?.id
+    if (open && product?.productCode && components.length === 0) {  // ✅ Changed to productCode
       setIsLoading(true);
-      fetchBomForProduct(product.product_code)  // ✅ Changed from product.id
+      fetchBomForProduct(product.productCode)  // ✅ Changed to productCode
         .then(response => {
           // Handle API response format: { success: true, data: [...] }
           if (response.success && Array.isArray(response.data)) {
@@ -42,13 +44,12 @@ export function BomDetailModal({ open, handleOpen, product }: BomDetailModalProp
   return (
     <Dialog open={open} handler={handleOpen} size="lg">
       <DialogHeader>
-        BOM for: {product?.product_code} - {product?.description}
+        BOM for: {product?.productCode} - {product?.description}  {/* ✅ Changed to productCode */}
       </DialogHeader>
       <DialogBody divider>
         {isLoading ? (
           <div className="flex justify-center items-center h-48"><Spinner /></div>
         ) : components.length > 0 ? (
-          // --- THIS IS THE STYLING FIX ---
           <div className={`border-2 ${theme.borderColor} rounded-lg`}>
             <table className="w-full min-w-max table-auto text-left">
               <thead className={`border-b-2 ${theme.borderColor}`}>
@@ -63,11 +64,27 @@ export function BomDetailModal({ open, handleOpen, product }: BomDetailModalProp
                 {components.map((comp, index) => {
                   const isLastRow = index === components.length - 1;
                   return (
-                    <tr key={comp.part_code} className={theme.hoverBg}>
-                      <td className={`p-2 border-r ${isLastRow ? '' : `border-b`} ${theme.borderColor}`}><Typography variant="small" className={`font-mono ${theme.text}`}>{comp.part_code}</Typography></td>
-                      <td className={`p-2 border-r ${isLastRow ? '' : `border-b`} ${theme.borderColor}`}><Typography variant="small" className={theme.text}>{comp.part_description}</Typography></td>
-                      <td className={`p-2 border-r ${isLastRow ? '' : `border-b`} ${theme.borderColor}`}><Typography variant="small" className={`${theme.text} opacity-80`}>{comp.part_type}</Typography></td>
-                      <td className={`p-2 text-center ${isLastRow ? '' : `border-b`} ${theme.borderColor}`}><Typography variant="small" className={`font-semibold ${theme.text}`}>{comp.per_shipper}</Typography></td>
+                    <tr key={comp.partCode} className={theme.hoverBg}>  {/* ✅ Changed to partCode */}
+                      <td className={`p-2 border-r ${isLastRow ? '' : `border-b`} ${theme.borderColor}`}>
+                        <Typography variant="small" className={`font-mono ${theme.text}`}>
+                          {comp.partCode}  {/* ✅ Changed to partCode */}
+                        </Typography>
+                      </td>
+                      <td className={`p-2 border-r ${isLastRow ? '' : `border-b`} ${theme.borderColor}`}>
+                        <Typography variant="small" className={theme.text}>
+                          {comp.partDescription}  {/* ✅ Changed to partDescription */}
+                        </Typography>
+                      </td>
+                      <td className={`p-2 border-r ${isLastRow ? '' : `border-b`} ${theme.borderColor}`}>
+                        <Typography variant="small" className={`${theme.text} opacity-80`}>
+                          {comp.partType}  {/* ✅ Changed to partType */}
+                        </Typography>
+                      </td>
+                      <td className={`p-2 text-center ${isLastRow ? '' : `border-b`} ${theme.borderColor}`}>
+                        <Typography variant="small" className={`font-semibold ${theme.text}`}>
+                          {comp.perShipper}  {/* ✅ Changed to perShipper */}
+                        </Typography>
+                      </td>
                     </tr>
                   )
                 })}
