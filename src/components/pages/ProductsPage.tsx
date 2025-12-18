@@ -21,16 +21,16 @@ export function ProductsPage() {
 
   const TABLE_HEAD = ["View", "Product Code", "Description", "Hourly Run Rate"];
 
-  useEffect(() => {
-    setLoading(true);
-    fetchAllProducts()
-      .then(response => {
-        // response is { success: true, data: [], message?: string }
-        setProducts(response.data || []);  // ← EXTRACT .data
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+useEffect(() => {
+  setLoading(true);
+  fetchAllProducts()
+    .then(productsArray => {
+      // ✅ CORRECT: productsArray is already the array
+      setProducts(productsArray || []);
+    })
+    .catch(console.error)
+    .finally(() => setLoading(false));
+}, []);
 
   const filteredProducts = useMemo(() => {
     if (!searchQuery) return products;
