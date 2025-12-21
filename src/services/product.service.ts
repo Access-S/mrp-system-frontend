@@ -5,6 +5,17 @@ import { supabase } from "../supabase.config";
 import { apiClient, handleApiError, ApiResponse } from "./api.service";
 import { Product, BomComponent } from "../types/mrp.types";
 
+// BLOCK 1.5: Interfaces
+export interface CreateProductData {
+  productCode: string;
+  description: string;
+  unitsPerShipper?: number;
+  dailyRunRate?: number;
+  hourlyRunRate?: number;
+  minsPerShipper?: number;
+  pricePerShipper?: number;
+}
+
 // BLOCK 2: Product Service Class
 class ProductService {
   
@@ -125,6 +136,27 @@ class ProductService {
   }
 
   /**
+ * Creates a new product via the backend API
+ * @param productData - Product data to create
+ * @returns A promise that resolves to the created Product
+ */
+async createProduct(productData: CreateProductData): Promise<Product> {
+  try {
+    const response: ApiResponse<Product> = await apiClient.post('/products', productData);
+    
+    if (response.success && response.data) {
+      console.log(`✅ Created product: ${response.data.productCode}`);
+      return response.data;
+    }
+    
+    throw new Error('Failed to create product');
+  } catch (error) {
+    console.error('❌ Error creating product:', error);
+    throw new Error(handleApiError(error));
+  }
+}
+
+  /**
    * Searches products with advanced filtering
    * @param searchTerm - Term to search in product code and description
    * @param limit - Maximum number of results (default: 50)
@@ -220,6 +252,7 @@ export const getProductsByCode = (productCode: string) => productService.getProd
 export const getBomForProduct = (productId: string) => productService.getBomForProduct(productId);
 export const searchProducts = (searchTerm: string, limit?: number) => productService.searchProducts(searchTerm, limit);
 export const getLowStockProducts = (threshold?: number) => productService.getLowStockProducts(threshold);
+export const createProduct = (productData: CreateProductData) => productService.createProduct(productData);
 
 // BLOCK 5: Export the service class
 export default productService;
