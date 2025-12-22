@@ -14,6 +14,7 @@ import {
   Option
 } from "@material-tailwind/react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { bomService } from "../../services/bom.service";
 
 // BLOCK 2: Interface
 interface AddBomComponentModalProps {
@@ -49,12 +50,12 @@ export function AddBomComponentModal({
     perShipper: 0
   });
 
-  // BLOCK 5: Handlers
-  const handleChange = (field: string, value: string | number) => {
+// BLOCK 5: Handlers
+const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError(null);
   };
-
+  
   const handleSubmit = async () => {
     // Validation
     if (!formData.partCode.trim()) {
@@ -69,18 +70,13 @@ export function AddBomComponentModal({
       setError("Quantity per shipper must be greater than 0");
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
-      // TODO: Implement API call when backend is ready
-      // await bomService.addComponent(productCode, formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      console.log('Adding component:', { productCode, ...formData });
+      // ✅ Use real API call
+      await bomService.addComponent(productCode, formData);
       
       // Reset form
       setFormData({
@@ -98,7 +94,7 @@ export function AddBomComponentModal({
       setLoading(false);
     }
   };
-
+  
   const handleClose = () => {
     if (!loading) {
       // Reset form on close
