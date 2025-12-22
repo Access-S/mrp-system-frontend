@@ -22,7 +22,11 @@ import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
 import { productService } from "../../services/product.service";
 
 // BLOCK 2: Main ProductsPage Component
-export function ProductsPage() {
+interface ProductsPageProps {
+  onViewProduct?: (productCode: string) => void;  // ✅ Add this interface
+}
+
+export function ProductsPage({ onViewProduct }: ProductsPageProps) {  // ✅ Accept prop
   const { theme } = useTheme();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -229,71 +233,78 @@ const loadProducts = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((product) => {
-                  const getCellClasses = (isLast = false, align = 'center') => {
-                    let classes = `p-1 border-b ${theme.borderColor} text-${align}`;
-                    if (!isLast) {
-                      classes += ` border-r ${theme.borderColor}`;
-                    }
-                    return classes;
-                  };
+  {filteredProducts.map((product) => {
+    const getCellClasses = (isLast = false, align = 'center') => {
+      let classes = `p-1 border-b ${theme.borderColor} text-${align}`;
+      if (!isLast) {
+        classes += ` border-r ${theme.borderColor}`;
+      }
+      return classes;
+    };
 
-                  return (
-                    <tr key={product.id} className={theme.hoverBg}>
-                      <td className={getCellClasses()}>
-                        <div className="flex gap-1 justify-center">
-                          <IconButton
-                            variant="text"
-                            size="sm"
-                            onClick={() => handleOpenBomModal(product)}
-                            title="View BOM"
-                          >
-                            <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
-                          </IconButton>
-                          <IconButton
-                            variant="text"
-                            size="sm"
-                            onClick={() => {
-                              setProductToEdit(product);
-                              setIsEditModalOpen(true);
-                            }}
-                            title="Edit Product"
-                          >
-                            <PencilIcon className={`h-5 w-5 ${theme.text}`} />
-                          </IconButton>
-                          <IconButton
-                            variant="text"
-                            size="sm"
-                            onClick={() => {
-                              setProductToDelete(product);
-                              setIsDeleteDialogOpen(true);
-                            }}
-                            title="Delete Product"
-                            color="red"
-                          >
-                            <TrashIcon className={`h-5 w-5`} />
-                          </IconButton>
-                        </div>
-                      </td>
-                      <td className={getCellClasses()}>
-                        <Typography variant="small" className={`font-bold ${theme.text}`}>
-                          {product.productCode || '-'}
-                        </Typography>
-                      </td>
-                      <td className={getCellClasses(false, 'left')}>
-                        <Typography variant="small" className={`font-normal ${theme.text}`}>
-                          {product.description || '-'}
-                        </Typography>
-                      </td>
-                      <td className={getCellClasses(true)}>
-                        <Typography variant="small" className={`font-normal ${theme.text}`}>
-                          {product.hourlyRunRate ? Number(product.hourlyRunRate).toFixed(2) : 'N/A'}
-                        </Typography>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
+    return (
+      <tr key={product.id} className={theme.hoverBg}>
+        <td className={getCellClasses()}>
+          <div className="flex gap-1 justify-center">
+            <IconButton
+              variant="text"
+              size="sm"
+              onClick={() => handleOpenBomModal(product)}
+              title="View BOM"
+            >
+              <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
+            </IconButton>
+            <IconButton
+              variant="text"
+              size="sm"
+              onClick={() => {
+                setProductToEdit(product);
+                setIsEditModalOpen(true);
+              }}
+              title="Edit Product"
+            >
+              <PencilIcon className={`h-5 w-5 ${theme.text}`} />
+            </IconButton>
+            <IconButton
+              variant="text"
+              size="sm"
+              onClick={() => {
+                setProductToDelete(product);
+                setIsDeleteDialogOpen(true);
+              }}
+              title="Delete Product"
+              color="red"
+            >
+              <TrashIcon className={`h-5 w-5`} />
+            </IconButton>
+          </div>
+        </td>
+        
+        {/* ✅ UPDATED: Make Product Code clickable */}
+        <td className={getCellClasses()}>
+          <Typography 
+            variant="small" 
+            className={`font-bold ${theme.text} cursor-pointer hover:text-blue-500 transition-colors`}
+            onClick={() => onViewProduct?.(product.productCode)}  // ✅ Click handler
+          >
+            {product.productCode || '-'}
+          </Typography>
+        </td>
+        
+        <td className={getCellClasses(false, 'left')}>
+          <Typography variant="small" className={`font-normal ${theme.text}`}>
+            {product.description || '-'}
+          </Typography>
+        </td>
+        <td className={getCellClasses(true)}>
+          <Typography variant="small" className={`font-normal ${theme.text}`}>
+            {product.hourlyRunRate ? Number(product.hourlyRunRate).toFixed(2) : 'N/A'}
+          </Typography>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
             </table>
           </div>
           {filteredProducts.length === 0 && !loading && (
