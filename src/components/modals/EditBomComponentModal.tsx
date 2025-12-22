@@ -14,6 +14,7 @@ import {
   Option
 } from "@material-tailwind/react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { bomService } from "../../services/bom.service";
 
 // BLOCK 2: Interface
 interface EditBomComponentModalProps {
@@ -63,12 +64,12 @@ export function EditBomComponentModal({
     }
   }, [component]);
 
-  // BLOCK 6: Handlers
-  const handleChange = (field: string, value: string | number) => {
+// BLOCK 6: Handlers
+const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError(null);
   };
-
+  
   const handleSubmit = async () => {
     // Validation
     if (!formData.partDescription.trim()) {
@@ -79,22 +80,17 @@ export function EditBomComponentModal({
       setError("Quantity per shipper must be greater than 0");
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
-      // TODO: Implement API call when backend is ready
-      // await bomService.updateComponent(productCode, formData.partCode, {
-      //   partDescription: formData.partDescription,
-      //   partType: formData.partType,
-      //   perShipper: formData.perShipper
-      // });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      console.log('Updating component:', { productCode, ...formData });
+      // ✅ Use real API call
+      await bomService.updateComponent(productCode, formData.partCode, {
+        partDescription: formData.partDescription,
+        partType: formData.partType as 'RAW_MATERIAL' | 'COMPONENT' | 'PACKAGING' | 'CONSUMABLE',
+        perShipper: formData.perShipper
+      });
       
       onSuccess();
       onClose();
@@ -104,7 +100,7 @@ export function EditBomComponentModal({
       setLoading(false);
     }
   };
-
+  
   const handleClose = () => {
     if (!loading) {
       setError(null);
