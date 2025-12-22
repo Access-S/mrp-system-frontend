@@ -1,9 +1,12 @@
+//src/App.tsx
+
 // BLOCK 1: Imports
-import React, { useState } from "react"; // <-- THIS LINE WAS MISSING. I APOLOGIZE.
+import React, { useState } from "react";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { Sidebar } from "./components/Sidebar";
 import { DashboardPage } from "./components/pages/DashboardPage";
 import { ProductsPage } from "./components/pages/ProductsPage";
+import { ProductDetailPage } from "./components/pages/ProductDetailPage";
 import { PurchaseOrdersPage } from "./components/pages/PurchaseOrdersPage";
 import { ForecastsPage } from "./components/pages/ForecastsPage";
 import SohPage from "./components/pages/SohPage";
@@ -15,6 +18,7 @@ import { createPortal } from "react-dom";
 export type Page =
   | "dashboard"
   | "products"
+  | "product-detail"  // ✅ Add this new page type
   | "purchase-orders"
   | "inventory"
   | "forecasts"
@@ -50,16 +54,30 @@ function ToasterPortal() {
 function AppLayout() {
   const { theme } = useTheme();
   const [activePage, setActivePage] = useState<Page>("dashboard");
+  const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);  // ✅ Add this
 
   const pageTitles: Record<Page, string> = {
     dashboard: "Dashboard",
     products: "Products (BOM)",
+    "product-detail": `Product Details${selectedProductCode ? `: ${selectedProductCode}` : ''}`,  // ✅ Add this
     "purchase-orders": "Purchase Orders",
     inventory: "Inventory Planning Dashboard",
     forecasts: "Sales Forecasts",
     soh: "Stock On Hand",
     analytics: "Analytics",
     reporting: "Reporting"
+  };
+
+  // ✅ Add this handler function
+  const handleViewProduct = (productCode: string) => {
+    setSelectedProductCode(productCode);
+    setActivePage("product-detail");
+  };
+
+  // ✅ Add this handler to go back
+  const handleBackToProducts = () => {
+    setSelectedProductCode(null);
+    setActivePage("products");
   };
 
   return (
@@ -77,7 +95,13 @@ function AppLayout() {
       
       <main className="p-4 md:p-8">
         {activePage === "dashboard" && <DashboardPage />}
-        {activePage === "products" && <ProductsPage />}
+        {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}  {/* ✅ Pass handler */}
+        {activePage === "product-detail" && selectedProductCode && (
+          <ProductDetailPage 
+            productCode={selectedProductCode} 
+            onBack={handleBackToProducts}
+          />
+        )}  {/* ✅ Add this */}
         {activePage === "purchase-orders" && <PurchaseOrdersPage />}
         {activePage === "forecasts" && <ForecastsPage />}
         {activePage === "soh" && <SohPage />}
