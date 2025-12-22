@@ -11,6 +11,8 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { MagnifyingGlassIcon, ArrowTopRightOnSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { BomDetailModal } from "../modals/BomDetailModal";
 import { CreateProductForm } from "../forms/CreateProductForm";
+import { PencilIcon } from "@heroicons/react/24/outline";
+import { EditProductForm } from "../forms/EditProductForm";
 
 // BLOCK 2: Main ProductsPage Component
 export function ProductsPage() {
@@ -21,8 +23,10 @@ export function ProductsPage() {
   const [productToView, setProductToView] = useState<any | null>(null);
   const [isBomModalOpen, setIsBomModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<any | null>(null);
 
-  const TABLE_HEAD = ["View", "Product Code", "Description", "Hourly Run Rate"];
+  const TABLE_HEAD = ["Actions", "Product Code", "Description", "Hourly Run Rate"];
 
   // BLOCK 3: Fetch Products
   useEffect(() => {
@@ -203,14 +207,28 @@ export function ProductsPage() {
                   return (
                     <tr key={product.id} className={theme.hoverBg}>
                       <td className={getCellClasses()}>
-                        <IconButton
-                          variant="text"
-                          size="sm"
-                          onClick={() => handleOpenBomModal(product)}
-                        >
-                          <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
-                        </IconButton>
-                      </td>
+  <div className="flex gap-1 justify-center">
+    <IconButton
+      variant="text"
+      size="sm"
+      onClick={() => handleOpenBomModal(product)}
+      title="View BOM"
+    >
+      <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
+    </IconButton>
+    <IconButton
+      variant="text"
+      size="sm"
+      onClick={() => {
+        setProductToEdit(product);
+        setIsEditModalOpen(true);
+      }}
+      title="Edit Product"
+    >
+      <PencilIcon className={`h-5 w-5 ${theme.text}`} />
+    </IconButton>
+  </div>
+</td>
                       <td className={getCellClasses()}>
                         <Typography variant="small" className={`font-bold ${theme.text}`}>
                           {product.productCode || '-'}
@@ -253,6 +271,15 @@ export function ProductsPage() {
         open={isCreateModalOpen}
         handleOpen={() => setIsCreateModalOpen(false)}
         onProductCreated={loadProducts}
+      />
+      <EditProductForm
+        open={isEditModalOpen}
+        handleOpen={() => {
+        setIsEditModalOpen(false);
+        setProductToEdit(null);
+        }}
+        product={productToEdit}
+        onProductUpdated={loadProducts}
       />
     </>
   );

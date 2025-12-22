@@ -15,6 +15,14 @@ export interface CreateProductData {
   minsPerShipper?: number;
   pricePerShipper?: number;
 }
+export interface UpdateProductData {
+  description?: string;
+  unitsPerShipper?: number;
+  dailyRunRate?: number;
+  hourlyRunRate?: number;
+  minsPerShipper?: number;
+  pricePerShipper?: number;
+}
 
 // BLOCK 2: Product Service Class
 class ProductService {
@@ -156,6 +164,28 @@ async createProduct(productData: CreateProductData): Promise<Product> {
   }
 }
 
+/**
+ * Updates an existing product via the backend API
+ * @param productCode - Product code to update
+ * @param productData - Partial product data to update
+ * @returns A promise that resolves to the updated Product
+ */
+async updateProduct(productCode: string, productData: UpdateProductData): Promise<Product> {
+  try {
+    const response: ApiResponse<Product> = await apiClient.patch(`/products/${productCode}`, productData);
+    
+    if (response.success && response.data) {
+      console.log(`✅ Updated product: ${productCode}`);
+      return response.data;
+    }
+    
+    throw new Error('Failed to update product');
+  } catch (error) {
+    console.error('❌ Error updating product:', error);
+    throw new Error(handleApiError(error));
+  }
+}
+
   /**
    * Searches products with advanced filtering
    * @param searchTerm - Term to search in product code and description
@@ -253,6 +283,7 @@ export const getBomForProduct = (productId: string) => productService.getBomForP
 export const searchProducts = (searchTerm: string, limit?: number) => productService.searchProducts(searchTerm, limit);
 export const getLowStockProducts = (threshold?: number) => productService.getLowStockProducts(threshold);
 export const createProduct = (productData: CreateProductData) => productService.createProduct(productData);
+export const updateProduct = (productCode: string, productData: UpdateProductData) => productService.updateProduct(productCode, productData);
 
 // BLOCK 5: Export the service class
 export default productService;
