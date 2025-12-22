@@ -28,14 +28,13 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
 
   const TABLE_HEAD = ["Product Code", "Description"];
 
-  // BLOCK 3: Fetch Products
+// BLOCK 3: Fetch Products
 useEffect(() => {
   loadProducts();
 }, []);
 
 const loadProducts = () => {
   setLoading(true);
-  setDeleteLoading(false);
   
   fetchAllProducts()
     .then(productsArray => {
