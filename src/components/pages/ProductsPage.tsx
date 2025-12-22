@@ -8,11 +8,18 @@ import {
 import { Product } from "../../types/mrp.types";
 import { fetchAllProducts } from "../../services/api.service";
 import { useTheme } from "../../contexts/ThemeContext";
-import { MagnifyingGlassIcon, ArrowTopRightOnSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { 
+  MagnifyingGlassIcon, 
+  ArrowTopRightOnSquareIcon, 
+  PlusIcon,
+  PencilIcon,
+  TrashIcon
+} from "@heroicons/react/24/outline";
 import { BomDetailModal } from "../modals/BomDetailModal";
 import { CreateProductForm } from "../forms/CreateProductForm";
-import { PencilIcon } from "@heroicons/react/24/outline";
 import { EditProductForm } from "../forms/EditProductForm";
+import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
+import { productService } from "../../services/product.service";
 
 // BLOCK 2: Main ProductsPage Component
 export function ProductsPage() {
@@ -25,6 +32,9 @@ export function ProductsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<any | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<any | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const TABLE_HEAD = ["Actions", "Product Code", "Description", "Hourly Run Rate"];
 
@@ -71,9 +81,27 @@ export function ProductsPage() {
     };
   }, [products]);
 
+  // BLOCK 6: Handler Functions
   const handleOpenBomModal = (product: any | null) => {
     setProductToView(product);
     setIsBomModalOpen(!!product);
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!productToDelete?.productCode) return;
+    
+    setDeleteLoading(true);
+    try {
+      await productService.deleteProduct(productToDelete.productCode);
+      loadProducts();
+      setIsDeleteDialogOpen(false);
+      setProductToDelete(null);
+    } catch (error: any) {
+      console.error('Failed to delete product:', error);
+      alert(error.message || 'Failed to delete product');
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   if (loading) {
@@ -82,7 +110,7 @@ export function ProductsPage() {
 
   return (
     <>
-      {/* BLOCK 6: Stats Dashboard */}
+      {/* BLOCK 7: Stats Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Total Products Card */}
         <Card className={`${theme.cards} shadow-sm`}>
@@ -145,7 +173,7 @@ export function ProductsPage() {
         </Card>
       </div>
 
-      {/* BLOCK 7: Action Bar */}
+      {/* BLOCK 8: Action Bar */}
       <div className="flex justify-between items-center mb-4">
         <Typography variant="h5" className={theme.text}>
           Products List
@@ -160,7 +188,7 @@ export function ProductsPage() {
         </Button>
       </div>
 
-      {/* BLOCK 8: Products Table */}
+      {/* BLOCK 9: Products Table */}
       <Card className={`h-full w-full ${theme.cards} shadow-sm`}>
         <div className={`p-4 border-b ${theme.borderColor}`}>
           <Input
@@ -207,28 +235,40 @@ export function ProductsPage() {
                   return (
                     <tr key={product.id} className={theme.hoverBg}>
                       <td className={getCellClasses()}>
-  <div className="flex gap-1 justify-center">
-    <IconButton
-      variant="text"
-      size="sm"
-      onClick={() => handleOpenBomModal(product)}
-      title="View BOM"
-    >
-      <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
-    </IconButton>
-    <IconButton
-      variant="text"
-      size="sm"
-      onClick={() => {
-        setProductToEdit(product);
-        setIsEditModalOpen(true);
-      }}
-      title="Edit Product"
-    >
-      <PencilIcon className={`h-5 w-5 ${theme.text}`} />
-    </IconButton>
-  </div>
-</td>
+                        <div className="flex gap-1 justify-center">
+                          <IconButton
+                            variant="text"
+                            size="sm"
+                            onClick={() => handleOpenBomModal(product)}
+                            title="View BOM"
+                          >
+                            <ArrowTopRightOnSquareIcon className={`h-5 w-5 ${theme.text}`} />
+                          </IconButton>
+                          <IconButton
+                            variant="text"
+                            size="sm"
+                            onClick={() => {
+                              setProductToEdit(product);
+                              setIsEditModalOpen(true);
+                            }}
+                            title="Edit Product"
+                          >
+                            <PencilIcon className={`h-5 w-5 ${theme.text}`} />
+                          </IconButton>
+                          <IconButton
+                            variant="text"
+                            size="sm"
+                            onClick={() => {
+                              setProductToDelete(product);
+                              setIsDeleteDialogOpen(true);
+                            }}
+                            title="Delete Product"
+                            color="red"
+                          >
+                            <TrashIcon className={`h-5 w-5`} />
+                          </IconButton>
+                        </div>
+                      </td>
                       <td className={getCellClasses()}>
                         <Typography variant="small" className={`font-bold ${theme.text}`}>
                           {product.productCode || '-'}
@@ -260,7 +300,7 @@ export function ProductsPage() {
         </CardBody>
       </Card>
       
-      {/* BLOCK 9: Modals */}
+      {/* BLOCK 10: Modals */}
       <BomDetailModal
         open={isBomModalOpen}
         handleOpen={() => handleOpenBomModal(null)}
@@ -272,14 +312,27 @@ export function ProductsPage() {
         handleOpen={() => setIsCreateModalOpen(false)}
         onProductCreated={loadProducts}
       />
+
       <EditProductForm
         open={isEditModalOpen}
         handleOpen={() => {
-        setIsEditModalOpen(false);
-        setProductToEdit(null);
+          setIsEditModalOpen(false);
+          setProductToEdit(null);
         }}
         product={productToEdit}
         onProductUpdated={loadProducts}
+      />
+
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        title="Delete Product"
+        message={`Are you sure you want to delete product "${productToDelete?.productCode}"? This action cannot be undone.`}
+        onConfirm={handleDeleteProduct}
+        onCancel={() => {
+          setIsDeleteDialogOpen(false);
+          setProductToDelete(null);
+        }}
+        loading={deleteLoading}
       />
     </>
   );
