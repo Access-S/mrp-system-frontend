@@ -15,6 +15,7 @@ export interface CreateProductData {
   minsPerShipper?: number;
   pricePerShipper?: number;
 }
+
 export interface UpdateProductData {
   description?: string;
   unitsPerShipper?: number;
@@ -186,6 +187,27 @@ async updateProduct(productCode: string, productData: UpdateProductData): Promis
   }
 }
 
+/**
+ * Deletes a product via the backend API
+ * @param productCode - Product code to delete
+ * @returns A promise that resolves when deletion is complete
+ */
+async deleteProduct(productCode: string): Promise<void> {
+  try {
+    const response: ApiResponse<void> = await apiClient.delete(`/products/${productCode}`);
+    
+    if (response.success) {
+      console.log(`✅ Deleted product: ${productCode}`);
+      return;
+    }
+    
+    throw new Error('Failed to delete product');
+  } catch (error) {
+    console.error('❌ Error deleting product:', error);
+    throw new Error(handleApiError(error));
+  }
+}
+
   /**
    * Searches products with advanced filtering
    * @param searchTerm - Term to search in product code and description
@@ -284,6 +306,7 @@ export const searchProducts = (searchTerm: string, limit?: number) => productSer
 export const getLowStockProducts = (threshold?: number) => productService.getLowStockProducts(threshold);
 export const createProduct = (productData: CreateProductData) => productService.createProduct(productData);
 export const updateProduct = (productCode: string, productData: UpdateProductData) => productService.updateProduct(productCode, productData);
+export const deleteProduct = (productCode: string) => productService.deleteProduct(productCode);
 
 // BLOCK 5: Export the service class
 export default productService;
