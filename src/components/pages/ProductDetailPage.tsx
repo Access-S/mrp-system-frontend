@@ -15,7 +15,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { productService } from "../../services/product.service";
 import { ProductInfoTab } from "../tabs/ProductInfoTab";
 import { BomManagementTab } from "../tabs/BomManagementTab";
-import { ElasticTabs } from "../ui/ElasticTabs";  // ✅ Add this import
+import { ElasticTabsGlass } from "../ui/ElasticTabsGlass";
 
 // BLOCK 2: Interface
 interface ProductDetailPageProps {
@@ -114,11 +114,11 @@ return (
       </Card>
   
       {/* Elastic Tabs Section */}
-      <ElasticTabs 
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+        <ElasticTabsGlass 
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
   
       {/* Tab Content Section */}
       <Card className={`${theme.cards} shadow-sm`}>
