@@ -141,7 +141,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
   // BLOCK 9: Info Row Component
   const InfoRow = ({ label, value }: { label: string; value: string | number }) => (
     <div className={`flex border-b ${theme.borderColor} last:border-b-0`}>
-      <div className={`w-1/3 px-4 py-3 ${theme.isDark ? 'bg-gray-800/30' : 'bg-gray-50/50'}`}>
+      <div className={`w-1/3 px-4 py-3 ${theme.isDark ? 'bg-gray-800/30' : 'bg-gray-50/50'} border-r ${theme.borderColor}`}>
         <Typography variant="small" className={`${theme.text} opacity-70 font-medium`}>
           {label}
         </Typography>
@@ -157,51 +157,68 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
   // BLOCK 10: Main Render
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className={`flex items-center justify-between p-4 rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm border ${theme.borderColor}`}>
-        <div className="flex items-center gap-4">
-          <IconButton
-            variant="text"
+      {/* Page Header with Breadcrumb */}
+      <div className="space-y-4">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2">
+          <Typography 
+            variant="small" 
+            className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity`}
             onClick={onBack}
-            className={theme.text}
           >
-            <ArrowLeftIcon className="h-5 w-5" />
-          </IconButton>
-          <div>
-            <Typography variant="small" className={`${theme.text} opacity-60`}>
-              Products
-            </Typography>
-            <Typography variant="h5" className={`${theme.text} font-bold`}>
-              PRODUCT: {product.productCode}
-            </Typography>
-          </div>
+            Products (BOM)
+          </Typography>
+          <Typography variant="small" className={`${theme.text} opacity-40`}>
+            &gt;
+          </Typography>
+          <Typography variant="small" className={`${theme.text} font-medium`}>
+            Product Details
+          </Typography>
         </div>
-        
-        {/* Actions Menu */}
-        <Menu placement="bottom-end">
-          <MenuHandler>
-            <Button variant="outlined" className="flex items-center gap-2">
-              Actions
-              <EllipsisVerticalIcon className="h-4 w-4" />
-            </Button>
-          </MenuHandler>
-          <MenuList>
-            <MenuItem 
-              className="flex items-center gap-2"
-              onClick={() => setIsEditProductOpen(true)}
+
+        {/* Main Product Header */}
+        <div className={`flex items-center justify-between p-5 rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm border ${theme.borderColor}`}>
+          <div className="flex items-center gap-4">
+            <IconButton
+              variant="text"
+              onClick={onBack}
+              className={theme.text}
             >
-              <PencilIcon className="h-4 w-4" />
-              Edit Product
-            </MenuItem>
-            <MenuItem 
-              className="flex items-center gap-2 text-red-500"
-              onClick={() => setIsDeleteProductOpen(true)}
-            >
-              <TrashIcon className="h-4 w-4" />
-              Delete Product
-            </MenuItem>
-          </MenuList>
-        </Menu>
+              <ArrowLeftIcon className="h-5 w-5" />
+            </IconButton>
+            <div>
+              <Typography variant="h4" className={`${theme.text} font-bold`}>
+                {product.productCode} - {product.description}
+              </Typography>
+            </div>
+          </div>
+          
+          {/* Actions Menu */}
+          <Menu placement="bottom-end">
+            <MenuHandler>
+              <Button variant="outlined" className="flex items-center gap-2">
+                Actions
+                <EllipsisVerticalIcon className="h-4 w-4" />
+              </Button>
+            </MenuHandler>
+            <MenuList>
+              <MenuItem 
+                className="flex items-center gap-2"
+                onClick={() => setIsEditProductOpen(true)}
+              >
+                <PencilIcon className="h-4 w-4" />
+                Edit Product
+              </MenuItem>
+              <MenuItem 
+                className="flex items-center gap-2 text-red-500"
+                onClick={() => setIsDeleteProductOpen(true)}
+              >
+                <TrashIcon className="h-4 w-4" />
+                Delete Product
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </div>
       </div>
 
       {/* Product Information Section */}
@@ -243,16 +260,16 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
               <table className="w-full">
                 <thead>
                   <tr className={`${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
-                    <th className={`px-4 py-3 text-left border-b ${theme.borderColor}`}>
+                    <th className={`px-4 py-3 text-left border-b border-r ${theme.borderColor}`}>
                       <Typography variant="small" className={`${theme.text} font-semibold`}>Part #</Typography>
                     </th>
-                    <th className={`px-4 py-3 text-left border-b ${theme.borderColor}`}>
+                    <th className={`px-4 py-3 text-left border-b border-r ${theme.borderColor}`}>
                       <Typography variant="small" className={`${theme.text} font-semibold`}>Description</Typography>
                     </th>
-                    <th className={`px-4 py-3 text-left border-b ${theme.borderColor}`}>
+                    <th className={`px-4 py-3 text-left border-b border-r ${theme.borderColor}`}>
                       <Typography variant="small" className={`${theme.text} font-semibold`}>Type</Typography>
                     </th>
-                    <th className={`px-4 py-3 text-center border-b ${theme.borderColor}`}>
+                    <th className={`px-4 py-3 text-center border-b border-r ${theme.borderColor}`}>
                       <Typography variant="small" className={`${theme.text} font-semibold`}>Qty</Typography>
                     </th>
                     <th className={`px-4 py-3 text-center border-b ${theme.borderColor}`}>
@@ -266,17 +283,17 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
                       key={comp.partCode} 
                       className={`${theme.hoverBg} border-b ${theme.borderColor} last:border-b-0`}
                     >
-                      <td className="px-4 py-3">
+                      <td className={`px-4 py-3 border-r ${theme.borderColor}`}>
                         <Typography variant="small" className={`${theme.text} font-mono font-bold`}>
                           {comp.partCode}
                         </Typography>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className={`px-4 py-3 border-r ${theme.borderColor}`}>
                         <Typography variant="small" className={theme.text}>
                           {comp.partDescription}
                         </Typography>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className={`px-4 py-3 border-r ${theme.borderColor}`}>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
                           comp.partType === 'RAW_MATERIAL' 
                             ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
@@ -289,7 +306,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
                           {comp.partType?.replace('_', ' ') || 'N/A'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className={`px-4 py-3 text-center border-r ${theme.borderColor}`}>
                         <Typography variant="small" className={`${theme.text} font-semibold`}>
                           {comp.perShipper}
                         </Typography>
@@ -338,7 +355,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
         </CardBody>
       </Card>
 
-      {/* Stock Information Section (Placeholder) */}
+      {/* Stock Information Section */}
       <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
         <SectionHeader title="Stock Information" />
         <CardBody className="p-0">
