@@ -8,14 +8,26 @@ import {
   Typography,
   Button,
   Spinner,
-  IconButton
+  IconButton,
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem
 } from "@material-tailwind/react";
 import { useTheme } from "../../contexts/ThemeContext";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { 
+  ArrowLeftIcon, 
+  PencilIcon, 
+  TrashIcon,
+  EllipsisVerticalIcon,
+  PlusIcon
+} from "@heroicons/react/24/outline";
 import { productService } from "../../services/product.service";
-import { ProductInfoTab } from "../tabs/ProductInfoTab";
-import { BomManagementTab } from "../tabs/BomManagementTab";
-import { ElasticTabsMaterial } from "../ui/ElasticTabsMaterial";
+import { bomService } from "../../services/bom.service";
+import { EditProductForm } from "../forms/EditProductForm";
+import { AddBomComponentModal } from "../modals/AddBomComponentModal";
+import { EditBomComponentModal } from "../modals/EditBomComponentModal";
+import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
 
 // BLOCK 2: Interface
 interface ProductDetailPageProps {
@@ -26,33 +38,72 @@ interface ProductDetailPageProps {
 // BLOCK 3: Main Component
 export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProps) {
   const { theme } = useTheme();
-  const [activeTab, setActiveTab] = useState("info");
   const [product, setProduct] = useState<any | null>(null);
+  const [components, setComponents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Modal states
+  const [isEditProductOpen, setIsEditProductOpen] = useState(false);
+  const [isAddBomOpen, setIsAddBomOpen] = useState(false);
+  const [isEditBomOpen, setIsEditBomOpen] = useState(false);
+  const [isDeleteProductOpen, setIsDeleteProductOpen] = useState(false);
+  const [isDeleteBomOpen, setIsDeleteBomOpen] = useState(false);
+  
+  const [selectedComponent, setSelectedComponent] = useState<any | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // BLOCK 4: Fetch Product Data
+  // BLOCK 4: Fetch Data
   useEffect(() => {
     loadProductData();
   }, [productCode]);
 
   const loadProductData = () => {
     setLoading(true);
-    productService.getAllProducts()
-      .then(products => {
+    
+    Promise.all([
+      productService.getAllProducts(),
+      productService.getBomForProduct(productCode)
+    ])
+      .then(([products, bomData]) => {
         const foundProduct = products.find(p => p.productCode === productCode);
         setProduct(foundProduct || null);
+        
+        const bomArray = bomData?.data || bomData || [];
+        setComponents(Array.isArray(bomArray) ? bomArray : []);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   };
 
-// BLOCK 5: Tab Configuration
-const tabs = [
-    { label: "Product Info", value: "info" },
-    { label: "Bill of Materials", value: "bom" },
-    { label: "Inventory", value: "inventory", disabled: true },
-    { label: "Purchase Orders", value: "po", disabled: true }
-  ];
+  // BLOCK 5: Delete Handlers
+  const handleDeleteProduct = async () => {
+    setDeleteLoading(true);
+    try {
+      await productService.deleteProduct(productCode);
+      onBack();
+    } catch (error: any) {
+      alert(error.message || 'Failed to delete product');
+    } finally {
+      setDeleteLoading(false);
+      setIsDeleteProductOpen(false);
+    }
+  };
+
+  const handleDeleteComponent = async () => {
+    if (!selectedComponent?.partCode) return;
+    
+    setDeleteLoading(true);
+    try {
+      await bomService.deleteComponent(productCode, selectedComponent.partCode);
+      setIsDeleteBomOpen(false);
+      setSelectedComponent(null);
+      loadProductData();
+    } catch (error: any) {
+      alert(error.message || 'Failed to delete component');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   // BLOCK 6: Loading State
   if (loading) {
@@ -77,76 +128,279 @@ const tabs = [
     );
   }
 
-  // BLOCK 8: Main Render
-return (
+  // BLOCK 8: Section Header Component
+  const SectionHeader = ({ title, action }: { title: string; action?: React.ReactNode }) => (
+    <div className={`flex justify-between items-center px-4 py-3 border-b ${theme.borderColor} ${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+      <Typography variant="h6" className={`${theme.text} font-semibold uppercase text-sm tracking-wide`}>
+        {title}
+      </Typography>
+      {action}
+    </div>
+  );
+
+  // BLOCK 9: Info Row Component
+  const InfoRow = ({ label, value }: { label: string; value: string | number }) => (
+    <div className={`flex border-b ${theme.borderColor} last:border-b-0`}>
+      <div className={`w-1/3 px-4 py-3 ${theme.isDark ? 'bg-gray-800/30' : 'bg-gray-50/50'}`}>
+        <Typography variant="small" className={`${theme.text} opacity-70 font-medium`}>
+          {label}
+        </Typography>
+      </div>
+      <div className="w-2/3 px-4 py-3">
+        <Typography variant="small" className={`${theme.text} font-medium`}>
+          {value || '-'}
+        </Typography>
+      </div>
+    </div>
+  );
+
+  // BLOCK 10: Main Render
+  return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <Card className={`${theme.cards} shadow-sm`}>
-        <CardBody className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <IconButton
-                variant="text"
-                onClick={onBack}
-                className={theme.text}
-              >
-                <ArrowLeftIcon className="h-6 w-6" />
-              </IconButton>
-              <div>
-                <Typography variant="h4" className={`${theme.text} font-bold`}>
-                  {product.productCode}
-                </Typography>
-                <Typography variant="small" className={`${theme.text} opacity-70`}>
-                  {product.description}
-                </Typography>
-              </div>
-            </div>
-            <div className="text-right">
-              <Typography variant="small" className={`${theme.text} opacity-70`}>
-                Hourly Run Rate
-              </Typography>
-              <Typography variant="h5" className={`${theme.text} font-bold`}>
-                {product.hourlyRunRate ? product.hourlyRunRate.toFixed(2) : 'N/A'}
-              </Typography>
-            </div>
+      {/* Page Header */}
+      <div className={`flex items-center justify-between p-4 rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm border ${theme.borderColor}`}>
+        <div className="flex items-center gap-4">
+          <IconButton
+            variant="text"
+            onClick={onBack}
+            className={theme.text}
+          >
+            <ArrowLeftIcon className="h-5 w-5" />
+          </IconButton>
+          <div>
+            <Typography variant="small" className={`${theme.text} opacity-60`}>
+              Products
+            </Typography>
+            <Typography variant="h5" className={`${theme.text} font-bold`}>
+              PRODUCT: {product.productCode}
+            </Typography>
           </div>
+        </div>
+        
+        {/* Actions Menu */}
+        <Menu placement="bottom-end">
+          <MenuHandler>
+            <Button variant="outlined" className="flex items-center gap-2">
+              Actions
+              <EllipsisVerticalIcon className="h-4 w-4" />
+            </Button>
+          </MenuHandler>
+          <MenuList>
+            <MenuItem 
+              className="flex items-center gap-2"
+              onClick={() => setIsEditProductOpen(true)}
+            >
+              <PencilIcon className="h-4 w-4" />
+              Edit Product
+            </MenuItem>
+            <MenuItem 
+              className="flex items-center gap-2 text-red-500"
+              onClick={() => setIsDeleteProductOpen(true)}
+            >
+              <TrashIcon className="h-4 w-4" />
+              Delete Product
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      </div>
+
+      {/* Product Information Section */}
+      <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+        <SectionHeader title="Product Information" />
+        <CardBody className="p-0">
+          <InfoRow label="Product Code" value={product.productCode} />
+          <InfoRow label="Description" value={product.description} />
+          <InfoRow label="Units Per Shipper" value={product.unitsPerShipper} />
+          <InfoRow label="Price Per Shipper" value={product.pricePerShipper ? `$${product.pricePerShipper.toFixed(2)}` : '-'} />
         </CardBody>
       </Card>
-  
-      {/* Elastic Tabs Section */}
-        <ElasticTabsMaterial 
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+
+      {/* Bill of Materials Section */}
+      <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+        <SectionHeader 
+          title="Bill of Materials (BOM)" 
+          action={
+            <Button 
+              size="sm" 
+              className="flex items-center gap-1"
+              color="blue"
+              onClick={() => setIsAddBomOpen(true)}
+            >
+              <PlusIcon className="h-4 w-4" />
+              Add
+            </Button>
+          }
         />
-  
-      {/* Tab Content Section */}
-      <Card className={`${theme.cards} shadow-sm`}>
-        <CardBody className="p-6">
-          {activeTab === "info" && (
-            <ProductInfoTab 
-              product={product} 
-              onUpdate={loadProductData}
-            />
-          )}
-          {activeTab === "bom" && (
-            <BomManagementTab 
-              product={product}
-              onUpdate={loadProductData}
-            />
-          )}
-          {activeTab === "inventory" && (
-            <Typography className={theme.text}>
-              Inventory tracking coming soon...
-            </Typography>
-          )}
-          {activeTab === "po" && (
-            <Typography className={theme.text}>
-              Purchase orders related to this product coming soon...
-            </Typography>
+        <CardBody className="p-0">
+          {components.length === 0 ? (
+            <div className="p-8 text-center">
+              <Typography className={`${theme.text} opacity-60`}>
+                No components in BOM. Click "Add" to add components.
+              </Typography>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className={`${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+                    <th className={`px-4 py-3 text-left border-b ${theme.borderColor}`}>
+                      <Typography variant="small" className={`${theme.text} font-semibold`}>Part #</Typography>
+                    </th>
+                    <th className={`px-4 py-3 text-left border-b ${theme.borderColor}`}>
+                      <Typography variant="small" className={`${theme.text} font-semibold`}>Description</Typography>
+                    </th>
+                    <th className={`px-4 py-3 text-left border-b ${theme.borderColor}`}>
+                      <Typography variant="small" className={`${theme.text} font-semibold`}>Type</Typography>
+                    </th>
+                    <th className={`px-4 py-3 text-center border-b ${theme.borderColor}`}>
+                      <Typography variant="small" className={`${theme.text} font-semibold`}>Qty</Typography>
+                    </th>
+                    <th className={`px-4 py-3 text-center border-b ${theme.borderColor}`}>
+                      <Typography variant="small" className={`${theme.text} font-semibold`}>Actions</Typography>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {components.map((comp, index) => (
+                    <tr 
+                      key={comp.partCode} 
+                      className={`${theme.hoverBg} border-b ${theme.borderColor} last:border-b-0`}
+                    >
+                      <td className="px-4 py-3">
+                        <Typography variant="small" className={`${theme.text} font-mono font-bold`}>
+                          {comp.partCode}
+                        </Typography>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Typography variant="small" className={theme.text}>
+                          {comp.partDescription}
+                        </Typography>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          comp.partType === 'RAW_MATERIAL' 
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                            : comp.partType === 'COMPONENT'
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                            : comp.partType === 'PACKAGING'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                        }`}>
+                          {comp.partType?.replace('_', ' ') || 'N/A'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Typography variant="small" className={`${theme.text} font-semibold`}>
+                          {comp.perShipper}
+                        </Typography>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-center gap-1">
+                          <IconButton
+                            variant="text"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedComponent(comp);
+                              setIsEditBomOpen(true);
+                            }}
+                          >
+                            <PencilIcon className={`h-4 w-4 ${theme.text}`} />
+                          </IconButton>
+                          <IconButton
+                            variant="text"
+                            size="sm"
+                            color="red"
+                            onClick={() => {
+                              setSelectedComponent(comp);
+                              setIsDeleteBomOpen(true);
+                            }}
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </IconButton>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardBody>
       </Card>
+
+      {/* Production Information Section */}
+      <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+        <SectionHeader title="Production Information" />
+        <CardBody className="p-0">
+          <InfoRow label="Hourly Run Rate" value={product.hourlyRunRate ? `${product.hourlyRunRate} units/hr` : '-'} />
+          <InfoRow label="Daily Run Rate" value={product.dailyRunRate ? `${product.dailyRunRate} units/day` : '-'} />
+          <InfoRow label="Minutes Per Shipper" value={product.minsPerShipper ? `${product.minsPerShipper} mins` : '-'} />
+        </CardBody>
+      </Card>
+
+      {/* Stock Information Section (Placeholder) */}
+      <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+        <SectionHeader title="Stock Information" />
+        <CardBody className="p-0">
+          <InfoRow label="On Hand" value="Coming soon..." />
+          <InfoRow label="Reserved" value="Coming soon..." />
+          <InfoRow label="Available" value="Coming soon..." />
+          <InfoRow label="On Order" value="Coming soon..." />
+        </CardBody>
+      </Card>
+
+      {/* BLOCK 11: Modals */}
+      <EditProductForm
+        open={isEditProductOpen}
+        handleOpen={() => setIsEditProductOpen(false)}
+        product={product}
+        onProductUpdated={loadProductData}
+      />
+
+      <AddBomComponentModal
+        open={isAddBomOpen}
+        onClose={() => setIsAddBomOpen(false)}
+        productCode={productCode}
+        onSuccess={loadProductData}
+      />
+
+      <EditBomComponentModal
+        open={isEditBomOpen}
+        onClose={() => {
+          setIsEditBomOpen(false);
+          setSelectedComponent(null);
+        }}
+        productCode={productCode}
+        component={selectedComponent}
+        onSuccess={loadProductData}
+      />
+
+      <ConfirmationDialog
+        open={isDeleteProductOpen}
+        title="Delete Product"
+        message={`Are you sure you want to delete product "${productCode}"? This will also delete all BOM components. This action cannot be undone.`}
+        onConfirm={handleDeleteProduct}
+        onCancel={() => setIsDeleteProductOpen(false)}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmColor="red"
+        loading={deleteLoading}
+      />
+
+      <ConfirmationDialog
+        open={isDeleteBomOpen}
+        title="Delete Component"
+        message={`Are you sure you want to delete component "${selectedComponent?.partCode}" from BOM?`}
+        onConfirm={handleDeleteComponent}
+        onCancel={() => {
+          setIsDeleteBomOpen(false);
+          setSelectedComponent(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmColor="red"
+        loading={deleteLoading}
+      />
     </div>
   );
 }
