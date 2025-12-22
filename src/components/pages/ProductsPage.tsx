@@ -305,39 +305,43 @@ export function ProductsPage() {
       </Card>
       
       {/* BLOCK 10: Modals */}
-      <BomDetailModal
-        open={isBomModalOpen}
-        handleOpen={() => handleOpenBomModal(null)}
-        product={productToView}
-      />
+<BomDetailModal
+  open={isBomModalOpen}
+  handleOpen={() => handleOpenBomModal(null)}
+  product={productToView}
+/>
 
-      <CreateProductForm
-        open={isCreateModalOpen}
-        handleOpen={() => setIsCreateModalOpen(false)}
-        onProductCreated={loadProducts}
-      />
+<CreateProductForm
+  open={isCreateModalOpen}
+  handleOpen={() => setIsCreateModalOpen(false)}
+  onProductCreated={() => {
+    loadProducts();
+  }}
+/>
 
-      <EditProductForm
-        open={isEditModalOpen}
-        handleOpen={() => {
-          setIsEditModalOpen(false);
-          setProductToEdit(null);
-        }}
-        product={productToEdit}
-        onProductUpdated={loadProducts}
-      />
+<EditProductForm
+  open={isEditModalOpen}
+  handleOpen={() => {
+    setIsEditModalOpen(false);
+    setProductToEdit(null);
+  }}
+  product={productToEdit}
+  onProductUpdated={() => {
+    loadProducts();
+  }}
+/>
 
-      <ConfirmationDialog
-        open={isDeleteDialogOpen}
-        title="Delete Product"
-        message={`Are you sure you want to delete product "${productToDelete?.productCode}"? This action cannot be undone.`}
-        onConfirm={handleDeleteProduct}
-        onCancel={() => {
-          setIsDeleteDialogOpen(false);
-          setProductToDelete(null);
-        }}
-        loading={deleteLoading}
-      />
+<ConfirmationDialog
+  open={isDeleteDialogOpen}
+  title="Delete Product"
+  message={`Are you sure you want to delete product "${productToDelete?.productCode}"? This action cannot be undone.`}
+  onConfirm={handleDeleteProduct}
+  onCancel={() => {
+    setIsDeleteDialogOpen(false);
+    setProductToDelete(null);
+  }}
+  loading={deleteLoading}
+/>
     </>
   );
 }
