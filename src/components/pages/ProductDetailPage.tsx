@@ -48,10 +48,10 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
 
 // BLOCK 5: Tab Configuration
 const tabs = [
-    { label: "Product Info", value: "info", icon: "📋" },
-    { label: "Bill of Materials", value: "bom", icon: "🔧" },
-    { label: "Inventory", value: "inventory", icon: "📦", disabled: true },
-    { label: "Purchase Orders", value: "po", icon: "📄", disabled: true }
+    { label: "Product Info", value: "info" },
+    { label: "Bill of Materials", value: "bom" },
+    { label: "Inventory", value: "inventory", disabled: true },
+    { label: "Purchase Orders", value: "po", disabled: true }
   ];
 
   // BLOCK 6: Loading State

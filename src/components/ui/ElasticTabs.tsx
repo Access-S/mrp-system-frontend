@@ -8,7 +8,6 @@ import { useTheme } from "../../contexts/ThemeContext";
 interface Tab {
   label: string;
   value: string;
-  icon?: string;
   disabled?: boolean;
 }
 
@@ -56,28 +55,33 @@ export function ElasticTabs({ tabs, activeTab, onTabChange }: ElasticTabsProps) 
 
   // BLOCK 6: Render
   return (
-    <div className="flex justify-center mb-6">
+    <div className="flex justify-start">  {/* ✅ Changed to justify-start for left alignment */}
       <nav 
         ref={tabsRef}
         className={`
           relative inline-flex items-center
-          px-1 py-1
+          px-1.5 py-1.5
           rounded-full
-          ${theme.isDark ? 'bg-gray-800' : 'bg-white'}
-          shadow-lg
+          ${theme.isDark ? 'bg-gray-800' : 'bg-gray-100'}
         `}
         style={{
-          boxShadow: '0px 5px 20px rgba(0,0,0,0.1)'
+          boxShadow: theme.isDark 
+            ? '0px 4px 15px rgba(0,0,0,0.3)' 
+            : '0px 4px 15px rgba(0,0,0,0.08)'
         }}
       >
         {/* Animated Selector */}
         <div 
-          className="absolute h-[calc(100%-8px)] rounded-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] z-0"
+          className={`
+            absolute h-[calc(100%-12px)] rounded-full 
+            transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] 
+            z-0
+            ${theme.isDark ? 'bg-blue-600' : 'bg-blue-500'}
+          `}
           style={{
             left: `${selectorStyle.left}px`,
             width: `${selectorStyle.width}px`,
-            top: '4px',
-            background: 'linear-gradient(45deg, #05abe0 0%, #8200f4 100%)'
+            top: '6px'
           }}
         />
 
@@ -90,8 +94,8 @@ export function ElasticTabs({ tabs, activeTab, onTabChange }: ElasticTabsProps) 
             disabled={tab.disabled}
             className={`
               relative z-10
-              px-5 py-2.5
-              text-sm font-medium
+              px-6 py-3
+              text-base font-semibold
               rounded-full
               transition-colors duration-300
               ${tab.disabled 
@@ -102,14 +106,11 @@ export function ElasticTabs({ tabs, activeTab, onTabChange }: ElasticTabsProps) 
                 ? 'text-white'
                 : theme.isDark 
                   ? 'text-gray-400 hover:text-gray-200' 
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-gray-600 hover:text-gray-800'
               }
             `}
           >
-            <span className="flex items-center gap-2">
-              {tab.icon && <span>{tab.icon}</span>}
-              {tab.label}
-            </span>
+            {tab.label}
           </button>
         ))}
       </nav>
