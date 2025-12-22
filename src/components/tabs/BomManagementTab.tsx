@@ -19,6 +19,7 @@ import {
   TrashIcon
 } from "@heroicons/react/24/outline";
 import { productService } from "../../services/product.service";
+import { bomService } from "../../services/bom.service";
 import { AddBomComponentModal } from "../modals/AddBomComponentModal";
 import { EditBomComponentModal } from "../modals/EditBomComponentModal";
 import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
@@ -82,19 +83,25 @@ export function BomManagementTab({ product, onUpdate }: BomManagementTabProps) {
     );
   });
 
-  // BLOCK 6: Handle Delete
-  const handleDeleteComponent = () => {
+// BLOCK 6: Handle Delete
+const handleDeleteComponent = async () => {
     if (!selectedComponent?.partCode) return;
     
     setDeleteLoading(true);
-    // TODO: Implement delete API call when backend is ready
-    // For now, just close dialog
-    setTimeout(() => {
+    try {
+      // ✅ Use real API call
+      await bomService.deleteComponent(product.productCode, selectedComponent.partCode);
+      
       setIsDeleteDialogOpen(false);
       setSelectedComponent(null);
-      setDeleteLoading(false);
       loadBomComponents();
-    }, 500);
+      onUpdate(); // Refresh parent component
+    } catch (error: any) {
+      console.error('Failed to delete component:', error);
+      alert(error.message || 'Failed to delete component');
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   // BLOCK 7: Calculate Statistics
