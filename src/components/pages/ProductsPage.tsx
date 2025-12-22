@@ -306,6 +306,7 @@ const loadProducts = () => {
         </CardBody>
       </Card>
       
+      
       {/* BLOCK 10: Modals */}
 <BomDetailModal
   open={isBomModalOpen}
@@ -316,9 +317,7 @@ const loadProducts = () => {
 <CreateProductForm
   open={isCreateModalOpen}
   handleOpen={() => setIsCreateModalOpen(false)}
-  onProductCreated={() => {
-    loadProducts();
-  }}
+  onProductCreated={() => loadProducts()}
 />
 
 <EditProductForm
@@ -328,9 +327,7 @@ const loadProducts = () => {
     setProductToEdit(null);
   }}
   product={productToEdit}
-  onProductUpdated={() => {
-    loadProducts();
-  }}
+  onProductUpdated={() => loadProducts()}
 />
 
 <ConfirmationDialog
@@ -342,6 +339,9 @@ const loadProducts = () => {
     setIsDeleteDialogOpen(false);
     setProductToDelete(null);
   }}
+  confirmText="Delete"
+  cancelText="Cancel"
+  confirmColor="red"
   loading={deleteLoading}
 />
     </>
