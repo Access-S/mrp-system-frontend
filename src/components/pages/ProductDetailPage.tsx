@@ -6,11 +6,6 @@ import {
   Card,
   CardBody,
   Typography,
-  Tabs,
-  TabsHeader,
-  TabsBody,
-  Tab,
-  TabPanel,
   Button,
   Spinner,
   IconButton
@@ -20,6 +15,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { productService } from "../../services/product.service";
 import { ProductInfoTab } from "../tabs/ProductInfoTab";
 import { BomManagementTab } from "../tabs/BomManagementTab";
+import { ElasticTabs } from "../ui/ElasticTabs";  // ✅ Add this import
 
 // BLOCK 2: Interface
 interface ProductDetailPageProps {
@@ -50,8 +46,8 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
       .finally(() => setLoading(false));
   };
 
-  // BLOCK 5: Tab Configuration
-  const tabs = [
+// BLOCK 5: Tab Configuration
+const tabs = [
     { label: "Product Info", value: "info", icon: "📋" },
     { label: "Bill of Materials", value: "bom", icon: "🔧" },
     { label: "Inventory", value: "inventory", icon: "📦", disabled: true },
@@ -82,7 +78,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
   }
 
   // BLOCK 8: Main Render
-  return (
+return (
     <div className="space-y-6">
       {/* Header Section */}
       <Card className={`${theme.cards} shadow-sm`}>
@@ -116,57 +112,39 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         </CardBody>
       </Card>
-
-      {/* Tabs Section */}
+  
+      {/* Elastic Tabs Section */}
+      <ElasticTabs 
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+  
+      {/* Tab Content Section */}
       <Card className={`${theme.cards} shadow-sm`}>
-        <CardBody className="p-0">
-          <Tabs value={activeTab}>
-            <TabsHeader
-              className={`${theme.tableHeaderBg} rounded-none border-b ${theme.borderColor}`}
-              indicatorProps={{
-                className: "bg-blue-500 shadow-none"
-              }}
-            >
-              {tabs.map(({ label, value, icon, disabled }) => (
-                <Tab
-                  key={value}
-                  value={value}
-                  onClick={() => !disabled && setActiveTab(value)}
-                  disabled={disabled}
-                  className={`${theme.text} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span>{icon}</span>
-                    <span>{label}</span>
-                  </div>
-                </Tab>
-              ))}
-            </TabsHeader>
-            <TabsBody>
-              <TabPanel value="info" className="p-6">
-                <ProductInfoTab 
-                  product={product} 
-                  onUpdate={loadProductData}
-                />
-              </TabPanel>
-              <TabPanel value="bom" className="p-6">
-                <BomManagementTab 
-                  product={product}
-                  onUpdate={loadProductData}
-                />
-              </TabPanel>
-              <TabPanel value="inventory" className="p-6">
-                <Typography className={theme.text}>
-                  Inventory tracking coming soon...
-                </Typography>
-              </TabPanel>
-              <TabPanel value="po" className="p-6">
-                <Typography className={theme.text}>
-                  Purchase orders related to this product coming soon...
-                </Typography>
-              </TabPanel>
-            </TabsBody>
-          </Tabs>
+        <CardBody className="p-6">
+          {activeTab === "info" && (
+            <ProductInfoTab 
+              product={product} 
+              onUpdate={loadProductData}
+            />
+          )}
+          {activeTab === "bom" && (
+            <BomManagementTab 
+              product={product}
+              onUpdate={loadProductData}
+            />
+          )}
+          {activeTab === "inventory" && (
+            <Typography className={theme.text}>
+              Inventory tracking coming soon...
+            </Typography>
+          )}
+          {activeTab === "po" && (
+            <Typography className={theme.text}>
+              Purchase orders related to this product coming soon...
+            </Typography>
+          )}
         </CardBody>
       </Card>
     </div>
