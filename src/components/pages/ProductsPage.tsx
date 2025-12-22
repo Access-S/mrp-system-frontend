@@ -43,14 +43,17 @@ export function ProductsPage() {
     loadProducts();
   }, []);
 
-  const loadProducts = () => {
+  const loadProducts = async () => {
     setLoading(true);
-    fetchAllProducts()
-      .then(productsArray => {
-        setProducts(productsArray || []);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    try {
+      const productsArray = await fetchAllProducts();
+      setProducts(productsArray || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      setDeleteLoading(false); // Reset delete loading too
+    }
   };
 
   // BLOCK 4: Filter Products
@@ -93,15 +96,16 @@ export function ProductsPage() {
     setDeleteLoading(true);
     try {
       await productService.deleteProduct(productToDelete.productCode);
-      loadProducts();
       setIsDeleteDialogOpen(false);
       setProductToDelete(null);
+      // Call loadProducts directly instead of passing it
+      await loadProducts();
     } catch (error: any) {
       console.error('Failed to delete product:', error);
       alert(error.message || 'Failed to delete product');
-    } finally {
-      setDeleteLoading(false);
+      setDeleteLoading(false); // Only set false on error
     }
+    // Don't set loading false here - let loadProducts finish first
   };
 
   if (loading) {
