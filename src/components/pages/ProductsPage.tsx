@@ -39,22 +39,24 @@ export function ProductsPage() {
   const TABLE_HEAD = ["Actions", "Product Code", "Description", "Hourly Run Rate"];
 
   // BLOCK 3: Fetch Products
-  useEffect(() => {
-    loadProducts();
-  }, []);
+useEffect(() => {
+  loadProducts();
+}, []);
 
-  const loadProducts = async () => {
-    setLoading(true);
-    try {
-      const productsArray = await fetchAllProducts();
+const loadProducts = () => {
+  setLoading(true);
+  setDeleteLoading(false);
+  
+  fetchAllProducts()
+    .then(productsArray => {
       setProducts(productsArray || []);
-    } catch (error) {
-      console.error(error);
-    } finally {
       setLoading(false);
-      setDeleteLoading(false); // Reset delete loading too
-    }
-  };
+    })
+    .catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
+};
 
   // BLOCK 4: Filter Products
   const filteredProducts = useMemo(() => {
