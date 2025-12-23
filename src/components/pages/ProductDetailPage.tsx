@@ -153,92 +153,94 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
 return (
   <div className="space-y-6">
     {/* Menu Bar - DaisyUI Style */}
-    <ul className={`menu lg:menu-horizontal rounded-lg p-1 ${theme.isDark ? 'bg-gray-800' : 'bg-gray-200'}`}>
-      {/* Edit Product */}
-      <li>
-        <a 
-          className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-300'} rounded-lg`}
-          onClick={() => setIsEditProductOpen(true)}
-        >
-          <PencilIcon className="h-4 w-4" />
-          Edit Product
-        </a>
-      </li>
+    <div className={`rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-base-200'}`}>
+      <ul className="menu menu-horizontal px-1">
+        {/* Edit Product */}
+        <li>
+          <a 
+            className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}
+            onClick={() => setIsEditProductOpen(true)}
+          >
+            <PencilIcon className="h-4 w-4" />
+            Edit Product
+          </a>
+        </li>
 
-      {/* Delete Product */}
-      <li>
-        <a 
-          className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-300'} rounded-lg`}
-          onClick={() => setIsDeleteProductOpen(true)}
-        >
-          <TrashIcon className="h-4 w-4" />
-          Delete Product
-        </a>
-      </li>
+        {/* Delete Product */}
+        <li>
+          <a 
+            className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}
+            onClick={() => setIsDeleteProductOpen(true)}
+          >
+            <TrashIcon className="h-4 w-4" />
+            Delete Product
+          </a>
+        </li>
 
-      {/* Parts - Dropdown */}
-      <li>
-        <details>
-          <summary className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-300'} rounded-lg`}>
-            Parts
-          </summary>
-          <ul className={`${theme.isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg z-20`}>
-            <li>
-              <a 
-                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                onClick={() => console.log('View Parts clicked')}
-              >
-                View Parts
-              </a>
-            </li>
-            <li>
-              <a 
-                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                onClick={() => console.log('Add Part clicked')}
-              >
-                Add Part
-              </a>
-            </li>
-          </ul>
-        </details>
-      </li>
+        {/* Parts - Dropdown */}
+        <li>
+          <details>
+            <summary className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}>
+              Parts
+            </summary>
+            <ul className={`z-20 ${theme.isDark ? 'bg-gray-800' : 'bg-base-100'} rounded-lg shadow-lg`}>
+              <li>
+                <a 
+                  className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}
+                  onClick={() => console.log('View Parts clicked')}
+                >
+                  View Parts
+                </a>
+              </li>
+              <li>
+                <a 
+                  className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}
+                  onClick={() => console.log('Add Part clicked')}
+                >
+                  Add Part
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
 
-      {/* Edit BOM - Dropdown */}
-      <li>
-        <details>
-          <summary className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-300'} rounded-lg`}>
-            Edit BOM
-          </summary>
-          <ul className={`${theme.isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg z-20`}>
-            <li>
-              <a 
-                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                onClick={() => setIsAddBomOpen(true)}
-              >
-                <PlusIcon className="h-4 w-4" />
-                Add Component
-              </a>
-            </li>
-            <li>
-              <a 
-                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                onClick={() => console.log('Import BOM clicked')}
-              >
-                Import BOM
-              </a>
-            </li>
-            <li>
-              <a 
-                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                onClick={() => console.log('Export BOM clicked')}
-              >
-                Export BOM
-              </a>
-            </li>
-          </ul>
-        </details>
-      </li>
-    </ul>
+        {/* Edit BOM - Dropdown */}
+        <li>
+          <details>
+            <summary className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}>
+              Edit BOM
+            </summary>
+            <ul className={`z-20 ${theme.isDark ? 'bg-gray-800' : 'bg-base-100'} rounded-lg shadow-lg`}>
+              <li>
+                <a 
+                  className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}
+                  onClick={() => setIsAddBomOpen(true)}
+                >
+                  <PlusIcon className="h-4 w-4" />
+                  Add Component
+                </a>
+              </li>
+              <li>
+                <a 
+                  className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}
+                  onClick={() => console.log('Import BOM clicked')}
+                >
+                  Import BOM
+                </a>
+              </li>
+              <li>
+                <a 
+                  className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : ''}`}
+                  onClick={() => console.log('Export BOM clicked')}
+                >
+                  Export BOM
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+      </ul>
+    </div>
 
     {/* Product Information Section */}
     <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
