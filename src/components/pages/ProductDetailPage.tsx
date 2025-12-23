@@ -128,31 +128,31 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
     );
   }
 
-  // BLOCK 8: Section Header Component
-  const SectionHeader = ({ title, action }: { title: string; action?: React.ReactNode }) => (
-    <div className={`flex justify-between items-center px-4 py-3 border-b ${theme.borderColor} ${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
-      <Typography variant="h6" className={`${theme.text} font-semibold uppercase text-sm tracking-wide`}>
-        {title}
-      </Typography>
-      {action}
-    </div>
-  );
+    // BLOCK 8: Section Header Component
+    const SectionHeader = ({ title, action }: { title: string; action?: React.ReactNode }) => (
+      <div className={`flex justify-between items-center px-4 py-3 ${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+        <Typography variant="h6" className={`${theme.text} font-semibold uppercase text-sm tracking-wide`}>
+          {title}
+        </Typography>
+        {action}
+      </div>
+    );
 
-  // BLOCK 9: Info Row Component
-  const InfoRow = ({ label, value }: { label: string; value: string | number }) => (
-    <div className={`flex border-b ${theme.borderColor} last:border-b-0`}>
-      <div className={`w-1/3 px-4 py-3 ${theme.isDark ? 'bg-gray-800/30' : 'bg-gray-50/50'} border-r ${theme.borderColor}`}>
-        <Typography variant="small" className={`${theme.text} opacity-70 font-medium`}>
-          {label}
-        </Typography>
-      </div>
-      <div className="w-2/3 px-4 py-3">
-        <Typography variant="small" className={`${theme.text} font-medium`}>
-          {value || '-'}
-        </Typography>
-      </div>
-    </div>
-  );
+      // BLOCK 9: Info Row Component
+        const InfoRow = ({ label, value }: { label: string; value: string | number }) => (
+          <div className={`flex border-b-2 ${theme.borderColor} last:border-b-0`}>
+            <div className={`w-1/3 px-4 py-3 ${theme.isDark ? 'bg-gray-800/30' : 'bg-gray-50/50'} border-r-2 ${theme.borderColor}`}>
+              <Typography variant="small" className={`${theme.text} opacity-70 font-medium`}>
+                {label}
+              </Typography>
+            </div>
+            <div className="w-2/3 px-4 py-3">
+              <Typography variant="small" className={`${theme.text} font-medium`}>
+                {value || '-'}
+              </Typography>
+            </div>
+          </div>
+        );
 
   // BLOCK 10: Main Render
   return (
@@ -221,150 +221,156 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
         </div>
       </div>
 
-      {/* Product Information Section */}
-      <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-        <SectionHeader title="Product Information" />
-        <CardBody className="p-0">
-          <InfoRow label="Product Code" value={product.productCode} />
-          <InfoRow label="Description" value={product.description} />
-          <InfoRow label="Units Per Shipper" value={product.unitsPerShipper} />
-          <InfoRow label="Price Per Shipper" value={product.pricePerShipper ? `$${product.pricePerShipper.toFixed(2)}` : '-'} />
-        </CardBody>
-      </Card>
-
-      {/* Bill of Materials Section */}
-      <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-        <SectionHeader 
-          title="Bill of Materials (BOM)" 
-          action={
-            <Button 
-              size="sm" 
-              className="flex items-center gap-1"
-              color="blue"
-              onClick={() => setIsAddBomOpen(true)}
-            >
-              <PlusIcon className="h-4 w-4" />
-              Add
-            </Button>
-          }
-        />
-        <CardBody className="p-0">
-          {components.length === 0 ? (
-            <div className="p-8 text-center">
-              <Typography className={`${theme.text} opacity-60`}>
-                No components in BOM. Click "Add" to add components.
-              </Typography>
+        {/* Product Information Section */}
+        <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+          <SectionHeader title="Product Information" />
+          <CardBody className="p-4">
+            <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
+              <InfoRow label="Product Code" value={product.productCode} />
+              <InfoRow label="Description" value={product.description} />
+              <InfoRow label="Units Per Shipper" value={product.unitsPerShipper} />
+              <InfoRow label="Price Per Shipper" value={product.pricePerShipper ? `$${product.pricePerShipper.toFixed(2)}` : '-'} />
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className={`${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
-                    <th className={`px-4 py-3 text-left border-b border-r ${theme.borderColor}`}>
-                      <Typography variant="small" className={`${theme.text} font-semibold`}>Part #</Typography>
-                    </th>
-                    <th className={`px-4 py-3 text-left border-b border-r ${theme.borderColor}`}>
-                      <Typography variant="small" className={`${theme.text} font-semibold`}>Description</Typography>
-                    </th>
-                    <th className={`px-4 py-3 text-left border-b border-r ${theme.borderColor}`}>
-                      <Typography variant="small" className={`${theme.text} font-semibold`}>Type</Typography>
-                    </th>
-                    <th className={`px-4 py-3 text-center border-b border-r ${theme.borderColor}`}>
-                      <Typography variant="small" className={`${theme.text} font-semibold`}>Qty</Typography>
-                    </th>
-                    <th className={`px-4 py-3 text-center border-b ${theme.borderColor}`}>
-                      <Typography variant="small" className={`${theme.text} font-semibold`}>Actions</Typography>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {components.map((comp, index) => (
-                    <tr 
-                      key={comp.partCode} 
-                      className={`${theme.hoverBg} border-b ${theme.borderColor} last:border-b-0`}
-                    >
-                      <td className={`px-4 py-3 border-r ${theme.borderColor}`}>
-                        <Typography variant="small" className={`${theme.text} font-mono font-bold`}>
-                          {comp.partCode}
-                        </Typography>
-                      </td>
-                      <td className={`px-4 py-3 border-r ${theme.borderColor}`}>
-                        <Typography variant="small" className={theme.text}>
-                          {comp.partDescription}
-                        </Typography>
-                      </td>
-                      <td className={`px-4 py-3 border-r ${theme.borderColor}`}>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          comp.partType === 'RAW_MATERIAL' 
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                            : comp.partType === 'COMPONENT'
-                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                            : comp.partType === 'PACKAGING'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                        }`}>
-                          {comp.partType?.replace('_', ' ') || 'N/A'}
-                        </span>
-                      </td>
-                      <td className={`px-4 py-3 text-center border-r ${theme.borderColor}`}>
-                        <Typography variant="small" className={`${theme.text} font-semibold`}>
-                          {comp.perShipper}
-                        </Typography>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center gap-1">
-                          <IconButton
-                            variant="text"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedComponent(comp);
-                              setIsEditBomOpen(true);
-                            }}
-                          >
-                            <PencilIcon className={`h-4 w-4 ${theme.text}`} />
-                          </IconButton>
-                          <IconButton
-                            variant="text"
-                            size="sm"
-                            color="red"
-                            onClick={() => {
-                              setSelectedComponent(comp);
-                              setIsDeleteBomOpen(true);
-                            }}
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </IconButton>
-                        </div>
-                      </td>
+          </CardBody>
+        </Card>
+
+        {/* Bill of Materials Section */}
+        <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+          <SectionHeader 
+            title="Bill of Materials (BOM)" 
+            action={
+              <Button 
+                size="sm" 
+                className="flex items-center gap-1"
+                color="blue"
+                onClick={() => setIsAddBomOpen(true)}
+              >
+                <PlusIcon className="h-4 w-4" />
+                Add
+              </Button>
+            }
+          />
+          <CardBody className="p-4">
+            {components.length === 0 ? (
+              <div className={`p-8 text-center border-2 ${theme.borderColor} rounded-lg`}>
+                <Typography className={`${theme.text} opacity-60`}>
+                  No components in BOM. Click "Add" to add components.
+                </Typography>
+              </div>
+            ) : (
+              <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
+                <table className="w-full">
+                  <thead>
+                    <tr className={`${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+                      <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
+                        <Typography variant="small" className={`${theme.text} font-semibold`}>Part #</Typography>
+                      </th>
+                      <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
+                        <Typography variant="small" className={`${theme.text} font-semibold`}>Description</Typography>
+                      </th>
+                      <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
+                        <Typography variant="small" className={`${theme.text} font-semibold`}>Type</Typography>
+                      </th>
+                      <th className={`px-4 py-3 text-center border-b-2 border-r-2 ${theme.borderColor}`}>
+                        <Typography variant="small" className={`${theme.text} font-semibold`}>Qty</Typography>
+                      </th>
+                      <th className={`px-4 py-3 text-center border-b-2 ${theme.borderColor}`}>
+                        <Typography variant="small" className={`${theme.text} font-semibold`}>Actions</Typography>
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {components.map((comp, index) => (
+                      <tr 
+                        key={comp.partCode} 
+                        className={`${theme.hoverBg} border-b-2 ${theme.borderColor} last:border-b-0`}
+                      >
+                        <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
+                          <Typography variant="small" className={`${theme.text} font-mono font-bold`}>
+                            {comp.partCode}
+                          </Typography>
+                        </td>
+                        <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
+                          <Typography variant="small" className={theme.text}>
+                            {comp.partDescription}
+                          </Typography>
+                        </td>
+                        <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            comp.partType === 'RAW_MATERIAL' 
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                              : comp.partType === 'COMPONENT'
+                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                              : comp.partType === 'PACKAGING'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                          }`}>
+                            {comp.partType?.replace('_', ' ') || 'N/A'}
+                          </span>
+                        </td>
+                        <td className={`px-4 py-3 text-center border-r-2 ${theme.borderColor}`}>
+                          <Typography variant="small" className={`${theme.text} font-semibold`}>
+                            {comp.perShipper}
+                          </Typography>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex justify-center gap-1">
+                            <IconButton
+                              variant="text"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedComponent(comp);
+                                setIsEditBomOpen(true);
+                              }}
+                            >
+                              <PencilIcon className={`h-4 w-4 ${theme.text}`} />
+                            </IconButton>
+                            <IconButton
+                              variant="text"
+                              size="sm"
+                              color="red"
+                              onClick={() => {
+                                setSelectedComponent(comp);
+                                setIsDeleteBomOpen(true);
+                              }}
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </IconButton>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        {/* Production Information Section */}
+        <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+          <SectionHeader title="Production Information" />
+          <CardBody className="p-4">
+            <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
+              <InfoRow label="Hourly Run Rate" value={product.hourlyRunRate ? `${product.hourlyRunRate} units/hr` : '-'} />
+              <InfoRow label="Daily Run Rate" value={product.dailyRunRate ? `${product.dailyRunRate} units/day` : '-'} />
+              <InfoRow label="Minutes Per Shipper" value={product.minsPerShipper ? `${product.minsPerShipper} mins` : '-'} />
             </div>
-          )}
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
 
-      {/* Production Information Section */}
-      <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-        <SectionHeader title="Production Information" />
-        <CardBody className="p-0">
-          <InfoRow label="Hourly Run Rate" value={product.hourlyRunRate ? `${product.hourlyRunRate} units/hr` : '-'} />
-          <InfoRow label="Daily Run Rate" value={product.dailyRunRate ? `${product.dailyRunRate} units/day` : '-'} />
-          <InfoRow label="Minutes Per Shipper" value={product.minsPerShipper ? `${product.minsPerShipper} mins` : '-'} />
-        </CardBody>
-      </Card>
-
-      {/* Stock Information Section */}
-      <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-        <SectionHeader title="Stock Information" />
-        <CardBody className="p-0">
-          <InfoRow label="On Hand" value="Coming soon..." />
-          <InfoRow label="Reserved" value="Coming soon..." />
-          <InfoRow label="Available" value="Coming soon..." />
-          <InfoRow label="On Order" value="Coming soon..." />
-        </CardBody>
-      </Card>
+        {/* Stock Information Section */}
+        <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+          <SectionHeader title="Stock Information" />
+          <CardBody className="p-4">
+            <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
+              <InfoRow label="On Hand" value="Coming soon..." />
+              <InfoRow label="Reserved" value="Coming soon..." />
+              <InfoRow label="Available" value="Coming soon..." />
+              <InfoRow label="On Order" value="Coming soon..." />
+            </div>
+          </CardBody>
+        </Card>
 
       {/* BLOCK 11: Modals */}
       <EditProductForm
