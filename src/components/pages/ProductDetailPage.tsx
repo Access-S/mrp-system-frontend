@@ -152,49 +152,64 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
   // BLOCK 10: Main Render
 return (
   <div className="space-y-6">
-    {/* Action Dropdown - Top Right */}
-    <div className="flex justify-end">
-      <div className="dropdown dropdown-end">
-        <div 
-          tabIndex={0} 
-          role="button" 
-          className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
-            theme.isDark 
-              ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-          } transition-colors`}
-        >
-          Actions
-          <EllipsisVerticalIcon className="h-4 w-4" />
-        </div>
-        <ul 
-          tabIndex={0} 
-          className={`dropdown-content menu rounded-lg z-10 w-52 p-2 shadow-lg mt-2 ${
-            theme.isDark ? 'bg-gray-800' : 'bg-white'
-          } border ${theme.borderColor}`}
-        >
-          <li>
-            <a 
-              className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer ${
-                theme.isDark ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-700'
-              }`}
-              onClick={() => setIsEditProductOpen(true)}
-            >
-              <PencilIcon className="h-4 w-4" />
-              Edit Product
-            </a>
-          </li>
-          <li>
-            <a 
-              className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-red-500 hover:bg-red-50`}
-              onClick={() => setIsDeleteProductOpen(true)}
-            >
-              <TrashIcon className="h-4 w-4" />
-              Delete Product
-            </a>
-          </li>
-        </ul>
-      </div>
+    {/* Menu Bar - All Action Buttons */}
+    <div className={`flex items-center gap-3 p-3 rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-gray-100'} border ${theme.borderColor}`}>
+      {/* Edit Product Button */}
+      <button 
+        className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
+          theme.isDark 
+            ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+            : 'bg-white hover:bg-gray-50 text-gray-800'
+        } transition-colors border ${theme.borderColor}`}
+        onClick={() => setIsEditProductOpen(true)}
+      >
+        <PencilIcon className="h-4 w-4" />
+        Edit Product
+      </button>
+
+      {/* Delete Product Button */}
+      <button 
+        className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
+          theme.isDark 
+            ? 'bg-red-900 hover:bg-red-800 text-red-200' 
+            : 'bg-red-50 hover:bg-red-100 text-red-600'
+        } transition-colors border ${theme.isDark ? 'border-red-800' : 'border-red-200'}`}
+        onClick={() => setIsDeleteProductOpen(true)}
+      >
+        <TrashIcon className="h-4 w-4" />
+        Delete Product
+      </button>
+
+      {/* Divider */}
+      <div className={`w-px h-8 ${theme.isDark ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
+
+      {/* Parts Button */}
+      <button 
+        className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
+          theme.isDark 
+            ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+            : 'bg-white hover:bg-gray-50 text-gray-800'
+        } transition-colors border ${theme.borderColor}`}
+        onClick={() => {
+          // Future functionality
+          console.log('Parts clicked');
+        }}
+      >
+        Parts
+      </button>
+
+      {/* Edit BOM Button */}
+      <button 
+        className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
+          theme.isDark 
+            ? 'bg-blue-900 hover:bg-blue-800 text-blue-200' 
+            : 'bg-blue-50 hover:bg-blue-100 text-blue-600'
+        } transition-colors border ${theme.isDark ? 'border-blue-800' : 'border-blue-200'}`}
+        onClick={() => setIsAddBomOpen(true)}
+      >
+        <PlusIcon className="h-4 w-4" />
+        Edit BOM
+      </button>
     </div>
 
     {/* Product Information Section */}
@@ -212,25 +227,12 @@ return (
 
     {/* Bill of Materials Section */}
     <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-      <SectionHeader 
-        title="Bill of Materials (BOM)" 
-        action={
-          <Button 
-            size="sm" 
-            className="flex items-center gap-1"
-            color="blue"
-            onClick={() => setIsAddBomOpen(true)}
-          >
-            <PlusIcon className="h-4 w-4" />
-            Add
-          </Button>
-        }
-      />
+      <SectionHeader title="Bill of Materials (BOM)" />
       <CardBody className="p-4">
         {components.length === 0 ? (
           <div className={`p-8 text-center border-2 ${theme.borderColor} rounded-lg`}>
             <Typography className={`${theme.text} opacity-60`}>
-              No components in BOM. Click "Add" to add components.
+              No components in BOM. Click "Edit BOM" to add components.
             </Typography>
           </div>
         ) : (
