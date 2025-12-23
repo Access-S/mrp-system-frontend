@@ -8,15 +8,10 @@ import {
   Typography,
   Button,
   Spinner,
-  IconButton,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem
+  IconButton
 } from "@material-tailwind/react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { 
-  ArrowLeftIcon, 
   PencilIcon, 
   TrashIcon,
   EllipsisVerticalIcon,
@@ -155,275 +150,256 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
         );
 
   // BLOCK 10: Main Render
-  return (
-    <div className="space-y-6">
-      {/* Page Header with Breadcrumb */}
-      <div className="space-y-4">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2">
-          <Typography 
-            variant="small" 
-            className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity`}
-            onClick={onBack}
-          >
-            Products (BOM)
-          </Typography>
-          <Typography variant="small" className={`${theme.text} opacity-40`}>
-            &gt;
-          </Typography>
-          <Typography variant="small" className={`${theme.text} font-medium`}>
-            Product Details
-          </Typography>
+return (
+  <div className="space-y-6">
+    {/* Action Dropdown - Top Right */}
+    <div className="flex justify-end">
+      <div className="dropdown dropdown-end">
+        <div 
+          tabIndex={0} 
+          role="button" 
+          className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
+            theme.isDark 
+              ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+          } transition-colors`}
+        >
+          Actions
+          <EllipsisVerticalIcon className="h-4 w-4" />
         </div>
-
-        {/* Main Product Header */}
-          <div className={`flex items-center justify-between p-5 rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm border ${theme.borderColor}`}>
-            <div className="flex items-center gap-4">
-              <IconButton
-                variant="text"
-                onClick={onBack}
-                className={theme.text}
-              >
-                <ArrowLeftIcon className="h-5 w-5" />
-              </IconButton>
-              <div>
-                <Typography variant="h4" className={`${theme.text} font-bold`}>
-                  {product.productCode} - {product.description}
-                </Typography>
-              </div>
-            </div>
-            
-            {/* Actions Menu */}
-            <Menu placement="bottom-end">
-              <MenuHandler>
-                <Button variant="outlined" className="flex items-center gap-2">
-                  Actions
-                  <EllipsisVerticalIcon className="h-4 w-4" />
-                </Button>
-              </MenuHandler>
-              <MenuList>
-                <MenuItem 
-                  className="flex items-center gap-2"
-                  onClick={() => setIsEditProductOpen(true)}
-                >
-                  <PencilIcon className="h-4 w-4" />
-                  Edit Product
-                </MenuItem>
-                <MenuItem 
-                  className="flex items-center gap-2 text-red-500"
-                  onClick={() => setIsDeleteProductOpen(true)}
-                >
-                  <TrashIcon className="h-4 w-4" />
-                  Delete Product
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          </div>
+        <ul 
+          tabIndex={0} 
+          className={`dropdown-content menu rounded-lg z-10 w-52 p-2 shadow-lg mt-2 ${
+            theme.isDark ? 'bg-gray-800' : 'bg-white'
+          } border ${theme.borderColor}`}
+        >
+          <li>
+            <a 
+              className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer ${
+                theme.isDark ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 text-gray-700'
+              }`}
+              onClick={() => setIsEditProductOpen(true)}
+            >
+              <PencilIcon className="h-4 w-4" />
+              Edit Product
+            </a>
+          </li>
+          <li>
+            <a 
+              className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-red-500 hover:bg-red-50`}
+              onClick={() => setIsDeleteProductOpen(true)}
+            >
+              <TrashIcon className="h-4 w-4" />
+              Delete Product
+            </a>
+          </li>
+        </ul>
       </div>
-
-        {/* Product Information Section */}
-        <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-          <SectionHeader title="Product Information" />
-          <CardBody className="p-4">
-            <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
-              <InfoRow label="Product Code" value={product.productCode} />
-              <InfoRow label="Description" value={product.description} />
-              <InfoRow label="Units Per Shipper" value={product.unitsPerShipper} />
-              <InfoRow label="Price Per Shipper" value={product.pricePerShipper ? `$${product.pricePerShipper.toFixed(2)}` : '-'} />
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Bill of Materials Section */}
-        <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-          <SectionHeader 
-            title="Bill of Materials (BOM)" 
-            action={
-              <Button 
-                size="sm" 
-                className="flex items-center gap-1"
-                color="blue"
-                onClick={() => setIsAddBomOpen(true)}
-              >
-                <PlusIcon className="h-4 w-4" />
-                Add
-              </Button>
-            }
-          />
-          <CardBody className="p-4">
-            {components.length === 0 ? (
-              <div className={`p-8 text-center border-2 ${theme.borderColor} rounded-lg`}>
-                <Typography className={`${theme.text} opacity-60`}>
-                  No components in BOM. Click "Add" to add components.
-                </Typography>
-              </div>
-            ) : (
-              <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
-                <table className="w-full">
-                  <thead>
-                    <tr className={`${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
-                      <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
-                        <Typography variant="small" className={`${theme.text} font-semibold`}>Part #</Typography>
-                      </th>
-                      <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
-                        <Typography variant="small" className={`${theme.text} font-semibold`}>Description</Typography>
-                      </th>
-                      <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
-                        <Typography variant="small" className={`${theme.text} font-semibold`}>Type</Typography>
-                      </th>
-                      <th className={`px-4 py-3 text-center border-b-2 border-r-2 ${theme.borderColor}`}>
-                        <Typography variant="small" className={`${theme.text} font-semibold`}>Qty</Typography>
-                      </th>
-                      <th className={`px-4 py-3 text-center border-b-2 ${theme.borderColor}`}>
-                        <Typography variant="small" className={`${theme.text} font-semibold`}>Actions</Typography>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {components.map((comp, index) => (
-                      <tr 
-                        key={comp.partCode} 
-                        className={`${theme.hoverBg} border-b-2 ${theme.borderColor} last:border-b-0`}
-                      >
-                        <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
-                          <Typography variant="small" className={`${theme.text} font-mono font-bold`}>
-                            {comp.partCode}
-                          </Typography>
-                        </td>
-                        <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
-                          <Typography variant="small" className={theme.text}>
-                            {comp.partDescription}
-                          </Typography>
-                        </td>
-                        <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            comp.partType === 'RAW_MATERIAL' 
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                              : comp.partType === 'COMPONENT'
-                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                              : comp.partType === 'PACKAGING'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                          }`}>
-                            {comp.partType?.replace('_', ' ') || 'N/A'}
-                          </span>
-                        </td>
-                        <td className={`px-4 py-3 text-center border-r-2 ${theme.borderColor}`}>
-                          <Typography variant="small" className={`${theme.text} font-semibold`}>
-                            {comp.perShipper}
-                          </Typography>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex justify-center gap-1">
-                            <IconButton
-                              variant="text"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedComponent(comp);
-                                setIsEditBomOpen(true);
-                              }}
-                            >
-                              <PencilIcon className={`h-4 w-4 ${theme.text}`} />
-                            </IconButton>
-                            <IconButton
-                              variant="text"
-                              size="sm"
-                              color="red"
-                              onClick={() => {
-                                setSelectedComponent(comp);
-                                setIsDeleteBomOpen(true);
-                              }}
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                            </IconButton>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardBody>
-        </Card>
-
-        {/* Production Information Section */}
-        <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-          <SectionHeader title="Production Information" />
-          <CardBody className="p-4">
-            <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
-              <InfoRow label="Hourly Run Rate" value={product.hourlyRunRate ? `${product.hourlyRunRate} units/hr` : '-'} />
-              <InfoRow label="Daily Run Rate" value={product.dailyRunRate ? `${product.dailyRunRate} units/day` : '-'} />
-              <InfoRow label="Minutes Per Shipper" value={product.minsPerShipper ? `${product.minsPerShipper} mins` : '-'} />
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Stock Information Section */}
-        <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
-          <SectionHeader title="Stock Information" />
-          <CardBody className="p-4">
-            <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
-              <InfoRow label="On Hand" value="Coming soon..." />
-              <InfoRow label="Reserved" value="Coming soon..." />
-              <InfoRow label="Available" value="Coming soon..." />
-              <InfoRow label="On Order" value="Coming soon..." />
-            </div>
-          </CardBody>
-        </Card>
-
-      {/* BLOCK 11: Modals */}
-      <EditProductForm
-        open={isEditProductOpen}
-        handleOpen={() => setIsEditProductOpen(false)}
-        product={product}
-        onProductUpdated={loadProductData}
-      />
-
-      <AddBomComponentModal
-        open={isAddBomOpen}
-        onClose={() => setIsAddBomOpen(false)}
-        productCode={productCode}
-        onSuccess={loadProductData}
-      />
-
-      <EditBomComponentModal
-        open={isEditBomOpen}
-        onClose={() => {
-          setIsEditBomOpen(false);
-          setSelectedComponent(null);
-        }}
-        productCode={productCode}
-        component={selectedComponent}
-        onSuccess={loadProductData}
-      />
-
-      <ConfirmationDialog
-        open={isDeleteProductOpen}
-        title="Delete Product"
-        message={`Are you sure you want to delete product "${productCode}"? This will also delete all BOM components. This action cannot be undone.`}
-        onConfirm={handleDeleteProduct}
-        onCancel={() => setIsDeleteProductOpen(false)}
-        confirmText="Delete"
-        cancelText="Cancel"
-        confirmColor="red"
-        loading={deleteLoading}
-      />
-
-      <ConfirmationDialog
-        open={isDeleteBomOpen}
-        title="Delete Component"
-        message={`Are you sure you want to delete component "${selectedComponent?.partCode}" from BOM?`}
-        onConfirm={handleDeleteComponent}
-        onCancel={() => {
-          setIsDeleteBomOpen(false);
-          setSelectedComponent(null);
-        }}
-        confirmText="Delete"
-        cancelText="Cancel"
-        confirmColor="red"
-        loading={deleteLoading}
-      />
     </div>
-  );
+
+    {/* Product Information Section */}
+    <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+      <SectionHeader title="Product Information" />
+      <CardBody className="p-4">
+        <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
+          <InfoRow label="Product Code" value={product.productCode} />
+          <InfoRow label="Description" value={product.description} />
+          <InfoRow label="Units Per Shipper" value={product.unitsPerShipper} />
+          <InfoRow label="Price Per Shipper" value={product.pricePerShipper ? `$${product.pricePerShipper.toFixed(2)}` : '-'} />
+        </div>
+      </CardBody>
+    </Card>
+
+    {/* Bill of Materials Section */}
+    <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+      <SectionHeader 
+        title="Bill of Materials (BOM)" 
+        action={
+          <Button 
+            size="sm" 
+            className="flex items-center gap-1"
+            color="blue"
+            onClick={() => setIsAddBomOpen(true)}
+          >
+            <PlusIcon className="h-4 w-4" />
+            Add
+          </Button>
+        }
+      />
+      <CardBody className="p-4">
+        {components.length === 0 ? (
+          <div className={`p-8 text-center border-2 ${theme.borderColor} rounded-lg`}>
+            <Typography className={`${theme.text} opacity-60`}>
+              No components in BOM. Click "Add" to add components.
+            </Typography>
+          </div>
+        ) : (
+          <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
+            <table className="w-full">
+              <thead>
+                <tr className={`${theme.isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+                  <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
+                    <Typography variant="small" className={`${theme.text} font-semibold`}>Part #</Typography>
+                  </th>
+                  <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
+                    <Typography variant="small" className={`${theme.text} font-semibold`}>Description</Typography>
+                  </th>
+                  <th className={`px-4 py-3 text-left border-b-2 border-r-2 ${theme.borderColor}`}>
+                    <Typography variant="small" className={`${theme.text} font-semibold`}>Type</Typography>
+                  </th>
+                  <th className={`px-4 py-3 text-center border-b-2 border-r-2 ${theme.borderColor}`}>
+                    <Typography variant="small" className={`${theme.text} font-semibold`}>Qty</Typography>
+                  </th>
+                  <th className={`px-4 py-3 text-center border-b-2 ${theme.borderColor}`}>
+                    <Typography variant="small" className={`${theme.text} font-semibold`}>Actions</Typography>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {components.map((comp) => (
+                  <tr 
+                    key={comp.partCode} 
+                    className={`${theme.hoverBg} border-b-2 ${theme.borderColor} last:border-b-0`}
+                  >
+                    <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
+                      <Typography variant="small" className={`${theme.text} font-mono font-bold`}>
+                        {comp.partCode}
+                      </Typography>
+                    </td>
+                    <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
+                      <Typography variant="small" className={theme.text}>
+                        {comp.partDescription}
+                      </Typography>
+                    </td>
+                    <td className={`px-4 py-3 border-r-2 ${theme.borderColor}`}>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        comp.partType === 'RAW_MATERIAL' 
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          : comp.partType === 'COMPONENT'
+                          ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                          : comp.partType === 'PACKAGING'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                      }`}>
+                        {comp.partType?.replace('_', ' ') || 'N/A'}
+                      </span>
+                    </td>
+                    <td className={`px-4 py-3 text-center border-r-2 ${theme.borderColor}`}>
+                      <Typography variant="small" className={`${theme.text} font-semibold`}>
+                        {comp.perShipper}
+                      </Typography>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-center gap-1">
+                        <IconButton
+                          variant="text"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedComponent(comp);
+                            setIsEditBomOpen(true);
+                          }}
+                        >
+                          <PencilIcon className={`h-4 w-4 ${theme.text}`} />
+                        </IconButton>
+                        <IconButton
+                          variant="text"
+                          size="sm"
+                          color="red"
+                          onClick={() => {
+                            setSelectedComponent(comp);
+                            setIsDeleteBomOpen(true);
+                          }}
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </IconButton>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardBody>
+    </Card>
+
+    {/* Production Information Section */}
+    <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+      <SectionHeader title="Production Information" />
+      <CardBody className="p-4">
+        <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
+          <InfoRow label="Hourly Run Rate" value={product.hourlyRunRate ? `${product.hourlyRunRate} units/hr` : '-'} />
+          <InfoRow label="Daily Run Rate" value={product.dailyRunRate ? `${product.dailyRunRate} units/day` : '-'} />
+          <InfoRow label="Minutes Per Shipper" value={product.minsPerShipper ? `${product.minsPerShipper} mins` : '-'} />
+        </div>
+      </CardBody>
+    </Card>
+
+    {/* Stock Information Section */}
+    <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
+      <SectionHeader title="Stock Information" />
+      <CardBody className="p-4">
+        <div className={`border-2 ${theme.borderColor} rounded-lg overflow-hidden`}>
+          <InfoRow label="On Hand" value="Coming soon..." />
+          <InfoRow label="Reserved" value="Coming soon..." />
+          <InfoRow label="Available" value="Coming soon..." />
+          <InfoRow label="On Order" value="Coming soon..." />
+        </div>
+      </CardBody>
+    </Card>
+
+    {/* BLOCK 11: Modals */}
+    <EditProductForm
+      open={isEditProductOpen}
+      handleOpen={() => setIsEditProductOpen(false)}
+      product={product}
+      onProductUpdated={loadProductData}
+    />
+
+    <AddBomComponentModal
+      open={isAddBomOpen}
+      onClose={() => setIsAddBomOpen(false)}
+      productCode={productCode}
+      onSuccess={loadProductData}
+    />
+
+    <EditBomComponentModal
+      open={isEditBomOpen}
+      onClose={() => {
+        setIsEditBomOpen(false);
+        setSelectedComponent(null);
+      }}
+      productCode={productCode}
+      component={selectedComponent}
+      onSuccess={loadProductData}
+    />
+
+    <ConfirmationDialog
+      open={isDeleteProductOpen}
+      title="Delete Product"
+      message={`Are you sure you want to delete product "${productCode}"? This will also delete all BOM components. This action cannot be undone.`}
+      onConfirm={handleDeleteProduct}
+      onCancel={() => setIsDeleteProductOpen(false)}
+      confirmText="Delete"
+      cancelText="Cancel"
+      confirmColor="red"
+      loading={deleteLoading}
+    />
+
+    <ConfirmationDialog
+      open={isDeleteBomOpen}
+      title="Delete Component"
+      message={`Are you sure you want to delete component "${selectedComponent?.partCode}" from BOM?`}
+      onConfirm={handleDeleteComponent}
+      onCancel={() => {
+        setIsDeleteBomOpen(false);
+        setSelectedComponent(null);
+      }}
+      confirmText="Delete"
+      cancelText="Cancel"
+      confirmColor="red"
+      loading={deleteLoading}
+    />
+  </div>
+);
 }
