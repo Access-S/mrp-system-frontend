@@ -177,48 +177,48 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
         </div>
 
         {/* Main Product Header */}
-        <div className={`flex items-center justify-between p-5 rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm border ${theme.borderColor}`}>
-          <div className="flex items-center gap-4">
-            <IconButton
-              variant="text"
-              onClick={onBack}
-              className={theme.text}
-            >
-              <ArrowLeftIcon className="h-5 w-5" />
-            </IconButton>
-            <div>
-              <Typography variant="h4" className={`${theme.text} font-bold`}>
-                {product.productCode} - {product.description}
-              </Typography>
+          <div className={`flex items-center justify-between p-5 rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm border ${theme.borderColor}`}>
+            <div className="flex items-center gap-4">
+              <IconButton
+                variant="text"
+                onClick={onBack}
+                className={theme.text}
+              >
+                <ArrowLeftIcon className="h-5 w-5" />
+              </IconButton>
+              <div>
+                <Typography variant="h4" className={`${theme.text} font-bold`}>
+                  {product.productCode} - {product.description}
+                </Typography>
+              </div>
             </div>
+            
+            {/* Actions Menu */}
+            <Menu placement="bottom-end">
+              <MenuHandler>
+                <Button variant="outlined" className="flex items-center gap-2">
+                  Actions
+                  <EllipsisVerticalIcon className="h-4 w-4" />
+                </Button>
+              </MenuHandler>
+              <MenuList>
+                <MenuItem 
+                  className="flex items-center gap-2"
+                  onClick={() => setIsEditProductOpen(true)}
+                >
+                  <PencilIcon className="h-4 w-4" />
+                  Edit Product
+                </MenuItem>
+                <MenuItem 
+                  className="flex items-center gap-2 text-red-500"
+                  onClick={() => setIsDeleteProductOpen(true)}
+                >
+                  <TrashIcon className="h-4 w-4" />
+                  Delete Product
+                </MenuItem>
+              </MenuList>
+            </Menu>
           </div>
-          
-          {/* Actions Menu */}
-          <Menu placement="bottom-end">
-            <MenuHandler>
-              <Button variant="outlined" className="flex items-center gap-2">
-                Actions
-                <EllipsisVerticalIcon className="h-4 w-4" />
-              </Button>
-            </MenuHandler>
-            <MenuList>
-              <MenuItem 
-                className="flex items-center gap-2"
-                onClick={() => setIsEditProductOpen(true)}
-              >
-                <PencilIcon className="h-4 w-4" />
-                Edit Product
-              </MenuItem>
-              <MenuItem 
-                className="flex items-center gap-2 text-red-500"
-                onClick={() => setIsDeleteProductOpen(true)}
-              >
-                <TrashIcon className="h-4 w-4" />
-                Delete Product
-              </MenuItem>
-            </MenuList>
-          </Menu>
-        </div>
       </div>
 
         {/* Product Information Section */}

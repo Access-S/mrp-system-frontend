@@ -15,7 +15,7 @@ import { CreateProductForm } from "../forms/CreateProductForm";
 
 // BLOCK 2: Main ProductsPage Component
 interface ProductsPageProps {
-  onViewProduct?: (productCode: string) => void;
+  onViewProduct?: (productCode: string, description?: string) => void;
 }
 
 export function ProductsPage({ onViewProduct }: ProductsPageProps) {
@@ -166,13 +166,13 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
                   })}
                 </tr>
               </thead>
-              <tbody>
+               <tbody>
                 {filteredProducts.map((product) => {
                   return (
                     <tr 
                       key={product.id} 
                       className={`${theme.hoverBg} cursor-pointer transition-colors`}
-                      onClick={() => onViewProduct?.(product.productCode)}
+                      onClick={() => onViewProduct?.(product.productCode, product.description)}
                     >
                       <td className={`p-4 border-b border-r ${theme.borderColor} text-center`}>
                         <Typography variant="small" className={`font-bold ${theme.text}`}>

@@ -54,12 +54,13 @@ function ToasterPortal() {
 function AppLayout() {
   const { theme } = useTheme();
   const [activePage, setActivePage] = useState<Page>("dashboard");
-  const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);  // ✅ Add this
+  const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
+  const [selectedProductDescription, setSelectedProductDescription] = useState<string | null>(null);
 
   const pageTitles: Record<Page, string> = {
     dashboard: "Dashboard",
     products: "Products (BOM)",
-    "product-detail": `Product Details${selectedProductCode ? `: ${selectedProductCode}` : ''}`,  // ✅ Add this
+    "product-detail": "",  // Empty - we'll use breadcrumb instead
     "purchase-orders": "Purchase Orders",
     inventory: "Inventory Planning Dashboard",
     forecasts: "Sales Forecasts",
@@ -68,16 +69,45 @@ function AppLayout() {
     reporting: "Reporting"
   };
 
-  // ✅ Add this handler function
-  const handleViewProduct = (productCode: string) => {
+  // Handler to view product
+  const handleViewProduct = (productCode: string, description?: string) => {
     setSelectedProductCode(productCode);
+    setSelectedProductDescription(description || null);
     setActivePage("product-detail");
   };
 
-  // ✅ Add this handler to go back
+  // Handler to go back
   const handleBackToProducts = () => {
     setSelectedProductCode(null);
+    setSelectedProductDescription(null);
     setActivePage("products");
+  };
+
+  // Render breadcrumb for product detail page
+  const renderNavbarContent = () => {
+    if (activePage === "product-detail" && selectedProductCode) {
+      return (
+        <div className="flex items-center gap-2">
+          <span 
+            className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity`}
+            onClick={handleBackToProducts}
+          >
+            Products (BOM)
+          </span>
+          <span className={`${theme.text} opacity-40`}>&gt;</span>
+          <span className={`${theme.text} font-bold`}>
+            {selectedProductCode}
+            {selectedProductDescription && ` - ${selectedProductDescription}`}
+          </span>
+        </div>
+      );
+    }
+    
+    return (
+      <h1 className={`text-2xl font-bold ${theme.text}`}>
+        {pageTitles[activePage]}
+      </h1>
+    );
   };
 
   return (
@@ -88,20 +118,18 @@ function AppLayout() {
         className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 sticky top-0 z-10`}
       >
         <Sidebar activePage={activePage} setActivePage={setActivePage} />
-        <h1 className={`text-2xl font-bold ${theme.text}`}>
-          {pageTitles[activePage]}
-        </h1>
+        {renderNavbarContent()}
       </div>
       
       <main className="p-4 md:p-8">
         {activePage === "dashboard" && <DashboardPage />}
-        {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}  {/* ✅ Pass handler */}
+        {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
         {activePage === "product-detail" && selectedProductCode && (
           <ProductDetailPage 
             productCode={selectedProductCode} 
             onBack={handleBackToProducts}
           />
-        )}  {/* ✅ Add this */}
+        )}
         {activePage === "purchase-orders" && <PurchaseOrdersPage />}
         {activePage === "forecasts" && <ForecastsPage />}
         {activePage === "soh" && <SohPage />}
