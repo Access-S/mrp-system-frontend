@@ -149,68 +149,96 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         );
 
-  // BLOCK 10: Main Render
+// BLOCK 10: Main Render
 return (
   <div className="space-y-6">
-    {/* Menu Bar - All Action Buttons */}
-    <div className={`flex items-center gap-3 p-3 rounded-lg ${theme.isDark ? 'bg-gray-800' : 'bg-gray-100'} border ${theme.borderColor}`}>
-      {/* Edit Product Button */}
-      <button 
-        className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
-          theme.isDark 
-            ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-            : 'bg-white hover:bg-gray-50 text-gray-800'
-        } transition-colors border ${theme.borderColor}`}
-        onClick={() => setIsEditProductOpen(true)}
-      >
-        <PencilIcon className="h-4 w-4" />
-        Edit Product
-      </button>
+    {/* Menu Bar - DaisyUI Style */}
+    <ul className={`menu lg:menu-horizontal rounded-lg p-1 ${theme.isDark ? 'bg-gray-800' : 'bg-gray-200'}`}>
+      {/* Edit Product */}
+      <li>
+        <a 
+          className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-300'} rounded-lg`}
+          onClick={() => setIsEditProductOpen(true)}
+        >
+          <PencilIcon className="h-4 w-4" />
+          Edit Product
+        </a>
+      </li>
 
-      {/* Delete Product Button */}
-      <button 
-        className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
-          theme.isDark 
-            ? 'bg-red-900 hover:bg-red-800 text-red-200' 
-            : 'bg-red-50 hover:bg-red-100 text-red-600'
-        } transition-colors border ${theme.isDark ? 'border-red-800' : 'border-red-200'}`}
-        onClick={() => setIsDeleteProductOpen(true)}
-      >
-        <TrashIcon className="h-4 w-4" />
-        Delete Product
-      </button>
+      {/* Delete Product */}
+      <li>
+        <a 
+          className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-300'} rounded-lg`}
+          onClick={() => setIsDeleteProductOpen(true)}
+        >
+          <TrashIcon className="h-4 w-4" />
+          Delete Product
+        </a>
+      </li>
 
-      {/* Divider */}
-      <div className={`w-px h-8 ${theme.isDark ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
+      {/* Parts - Dropdown */}
+      <li>
+        <details>
+          <summary className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-300'} rounded-lg`}>
+            Parts
+          </summary>
+          <ul className={`${theme.isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg z-20`}>
+            <li>
+              <a 
+                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => console.log('View Parts clicked')}
+              >
+                View Parts
+              </a>
+            </li>
+            <li>
+              <a 
+                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => console.log('Add Part clicked')}
+              >
+                Add Part
+              </a>
+            </li>
+          </ul>
+        </details>
+      </li>
 
-      {/* Parts Button */}
-      <button 
-        className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
-          theme.isDark 
-            ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-            : 'bg-white hover:bg-gray-50 text-gray-800'
-        } transition-colors border ${theme.borderColor}`}
-        onClick={() => {
-          // Future functionality
-          console.log('Parts clicked');
-        }}
-      >
-        Parts
-      </button>
-
-      {/* Edit BOM Button */}
-      <button 
-        className={`px-4 py-2 rounded-lg font-medium cursor-pointer flex items-center gap-2 ${
-          theme.isDark 
-            ? 'bg-blue-900 hover:bg-blue-800 text-blue-200' 
-            : 'bg-blue-50 hover:bg-blue-100 text-blue-600'
-        } transition-colors border ${theme.isDark ? 'border-blue-800' : 'border-blue-200'}`}
-        onClick={() => setIsAddBomOpen(true)}
-      >
-        <PlusIcon className="h-4 w-4" />
-        Edit BOM
-      </button>
-    </div>
+      {/* Edit BOM - Dropdown */}
+      <li>
+        <details>
+          <summary className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-300'} rounded-lg`}>
+            Edit BOM
+          </summary>
+          <ul className={`${theme.isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg z-20`}>
+            <li>
+              <a 
+                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => setIsAddBomOpen(true)}
+              >
+                <PlusIcon className="h-4 w-4" />
+                Add Component
+              </a>
+            </li>
+            <li>
+              <a 
+                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => console.log('Import BOM clicked')}
+              >
+                Import BOM
+              </a>
+            </li>
+            <li>
+              <a 
+                className={`${theme.isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => console.log('Export BOM clicked')}
+              >
+                Export BOM
+              </a>
+            </li>
+          </ul>
+        </details>
+      </li>
+    </ul>
 
     {/* Product Information Section */}
     <Card className={`${theme.cards} shadow-sm overflow-hidden`}>
@@ -232,7 +260,7 @@ return (
         {components.length === 0 ? (
           <div className={`p-8 text-center border-2 ${theme.borderColor} rounded-lg`}>
             <Typography className={`${theme.text} opacity-60`}>
-              No components in BOM. Click "Edit BOM" to add components.
+              No components in BOM. Click "Edit BOM" → "Add Component" to add components.
             </Typography>
           </div>
         ) : (
