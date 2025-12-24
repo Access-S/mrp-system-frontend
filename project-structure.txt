@@ -1,59 +1,78 @@
 .
-├── public
-│   └── vite.svg
-├── src
-│   ├── components
-│   │   ├── dialogs
-│   │   │   ├── ConfirmationDialog.tsx
-│   │   │   └── FormAlert.tsx
-│   │   ├── forms
-│   │   │   ├── CreatePoForm.tsx
-│   │   │   ├── DespatchPoForm.tsx
-│   │   │   └── EditPoForm.tsx
-│   │   ├── modals
-│   │   │   ├── BomDetailModal.tsx
-│   │   │   ├── ExcelImportModal.tsx
-│   │   │   └── PoDetailModal.tsx
-│   │   ├── pages
-│   │   │   ├── DashboardPage.tsx
-│   │   │   ├── ForecastsPage.tsx
-│   │   │   ├── InventoryPage.tsx
-│   │   │   ├── ProductsPage.tsx
-│   │   │   ├── PurchaseOrdersPage.tsx
-│   │   │   └── SohPage.tsx
-│   │   ├── PaginationControls.tsx
-│   │   └── Sidebar.tsx
-│   ├── contexts
-│   │   └── ThemeContext.tsx
-│   ├── services
-│   │   ├── api.service.ts
-│   │   ├── dashboard.service.ts
-│   │   ├── forecast.service.ts
-│   │   ├── inventory.service.ts
-│   │   ├── mrp.service.ts
-│   │   ├── product.service.ts
-│   │   └── purchaseOrder.service.ts
-│   ├── styles
-│   │   └── themes.ts
-│   ├── types
-│   │   └── mrp.types.ts
-│   ├── App.tsx
-│   ├── index.css
-│   ├── main.tsx
-│   ├── supabase.config.ts
-│   └── vite-env.d.ts
-├── README.md
-├── eslint.config.js
-├── index.html
-├── package-lock.json
-├── package.json
-├── postcss.config.js
-├── project-structure.txt
-├── render.yaml
-├── tailwind.config.js
-├── tsconfig.json
-├── tsconfig.node.json
-├── update-structure.sh
-└── vite.config.ts
-
-12 directories, 45 files
+dist
+.env.local
+.env.production
+eslint.config.js
+.git
+.gitignore
+.idx
+.idx/dev.nix
+index.html
+node_modules
+package.json
+package-lock.json
+postcss.config.js
+project-structure.txt
+public
+public/vite.svg
+README.md
+render.yaml
+src
+src/App.tsx
+src/components
+src/components/dialogs
+src/components/dialogs/ConfirmationDialog.tsx
+src/components/dialogs/FormAlert.tsx
+src/components/forms
+src/components/forms/CreatePoForm.tsx
+src/components/forms/CreateProductForm.tsx
+src/components/forms/DespatchPoForm.tsx
+src/components/forms/EditPoForm.tsx
+src/components/forms/EditProductForm.tsx
+src/components/modals
+src/components/modals/AddBomComponentModal.tsx
+src/components/modals/BomDetailModal.tsx
+src/components/modals/EditBomComponentModal.tsx
+src/components/modals/ExcelImportModal.tsx
+src/components/modals/PoDetailModal.tsx
+src/components/pages
+src/components/pages/DashboardPage.tsx
+src/components/pages/ForecastsPage.tsx
+src/components/pages/InventoryPage.tsx
+src/components/pages/ProductDetailPage.tsx
+src/components/pages/ProductsPage.tsx
+src/components/pages/PurchaseOrdersPage.tsx
+src/components/pages/SohPage.tsx
+src/components/PaginationControls.tsx
+src/components/Sidebar.tsx
+src/components/tabs
+src/components/tabs/BomManagementTab.tsx
+src/components/tabs/ProductInfoTab.tsx
+src/components/ui
+src/components/ui/ElasticTabsGlass.tsx
+src/components/ui/ElasticTabsMaterial.tsx
+src/components/ui/ElasticTabs.tsx
+src/contexts
+src/contexts/ThemeContext.tsx
+src/index.css
+src/main.tsx
+src/services
+src/services/api.service.ts
+src/services/bom.service.ts
+src/services/dashboard.service.ts
+src/services/forecast.service.ts
+src/services/inventory.service.ts
+src/services/mrp.service.ts
+src/services/product.service.ts
+src/services/purchaseOrder.service.ts
+src/styles
+src/styles/themes.ts
+src/supabase.config.ts
+src/types
+src/types/mrp.types.ts
+src/vite-env.d.ts
+tailwind.config.js
+tsconfig.json
+tsconfig.node.json
+update-structure.sh
+vite.config.ts
