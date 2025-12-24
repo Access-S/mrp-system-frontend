@@ -22,6 +22,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [themeName, setThemeName] = useState<ThemeName>("classic");
 
+  // NEW: Sync with DaisyUI theme system
+  useEffect(() => {
+    const currentTheme = themes[themeName];
+    const daisyTheme = currentTheme.isDark ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", daisyTheme);
+  }, [themeName]);
+
   // Dynamically inject scrollbar styles into the document head
   useEffect(() => {
     const currentTheme = themes[themeName];

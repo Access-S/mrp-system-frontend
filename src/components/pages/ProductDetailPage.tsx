@@ -152,12 +152,15 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
         // BLOCK 10: Main Render
         return (
           <div className="space-y-6">
-            {/* Menu Bar - Explicit Light Grey Styling */}
-            <ul className="menu menu-horizontal bg-gray-200 rounded-box w-full text-gray-700 font-medium shadow-sm">
+            {/* Menu Bar - Now synced with DaisyUI theme */}
+            <ul className="menu menu-horizontal bg-base-200 rounded-box w-full font-medium shadow-sm">
               
               {/* Edit Product */}
               <li>
-                <a onClick={() => setIsEditProductOpen(true)} className="hover:bg-gray-300">
+                <a 
+                  onClick={() => setIsEditProductOpen(true)} 
+                  className="flex items-center gap-2"
+                >
                   <PencilIcon className="h-4 w-4" />
                   Edit Product
                 </a>
@@ -165,19 +168,25 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
 
               {/* Delete Product */}
               <li>
-                <a onClick={() => setIsDeleteProductOpen(true)} className="text-red-600 hover:bg-red-100 hover:text-red-700">
+                <a 
+                  onClick={() => setIsDeleteProductOpen(true)} 
+                  className="text-error hover:bg-error/10"
+                >
                   <TrashIcon className="h-4 w-4" />
                   Delete Product
                 </a>
               </li>
 
+              {/* Divider */}
+              <div className="divider divider-horizontal mx-0"></div>
+
               {/* Parts - Dropdown */}
               <li>
                 <details>
-                  <summary className="hover:bg-gray-300">Parts</summary>
-                  <ul className="bg-white text-gray-700 p-2 z-20 shadow-lg rounded-box w-52 border border-gray-200 mt-2">
-                    <li><a className="hover:bg-gray-100" onClick={() => console.log('View Parts')}>View Parts</a></li>
-                    <li><a className="hover:bg-gray-100" onClick={() => console.log('Add Part')}>Add Part</a></li>
+                  <summary>Parts</summary>
+                  <ul className="bg-base-100 rounded-box z-20 shadow-lg w-52 p-2">
+                    <li><a onClick={() => console.log('View Parts')}>View Parts</a></li>
+                    <li><a onClick={() => console.log('Add Part')}>Add Part</a></li>
                   </ul>
                 </details>
               </li>
@@ -185,16 +194,16 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
               {/* Edit BOM - Dropdown */}
               <li>
                 <details>
-                  <summary className="hover:bg-gray-300">Edit BOM</summary>
-                  <ul className="bg-white text-gray-700 p-2 z-20 shadow-lg rounded-box w-52 border border-gray-200 mt-2">
+                  <summary>Edit BOM</summary>
+                  <ul className="bg-base-100 rounded-box z-20 shadow-lg w-52 p-2">
                     <li>
-                      <a className="hover:bg-gray-100" onClick={() => setIsAddBomOpen(true)}>
+                      <a onClick={() => setIsAddBomOpen(true)}>
                         <PlusIcon className="h-4 w-4" />
                         Add Component
                       </a>
                     </li>
-                    <li><a className="hover:bg-gray-100" onClick={() => console.log('Import')}>Import BOM</a></li>
-                    <li><a className="hover:bg-gray-100" onClick={() => console.log('Export')}>Export BOM</a></li>
+                    <li><a onClick={() => console.log('Import')}>Import BOM</a></li>
+                    <li><a onClick={() => console.log('Export')}>Export BOM</a></li>
                   </ul>
                 </details>
               </li>
