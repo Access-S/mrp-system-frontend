@@ -110,11 +110,11 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
     );
   }
 
-  // BLOCK 9: Main Render
+    // BLOCK 9: Main Render
   return (
     <>
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-50 flex items-center bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 justify-between">
+      {/* Sticky Header - Island 1 - NOW ROUNDED ON BOTTOM */}
+      <header className="sticky top-0 z-50 flex items-center bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 justify-between rounded-b-xl md:rounded-none">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
@@ -142,9 +142,11 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
         </div>
       </header>
 
-      <main className="pb-24">
-       {/* BLOCK 10: Hero Section - PERFECT HORIZONTAL ALIGNMENT */}
-        <div className="mx-4 mt-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+    
+      <main className="pb-24 mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
+
+       {/* BLOCK 10: Hero Section - FULL WIDTH LIKE HEADER */}
+        <div className="mt-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="px-6 py-6">
             <div className="flex gap-6 items-start">
               <div className="bg-gray-200 border-2 border-dashed border-slate-300 rounded-xl w-28 h-28 flex-shrink-0" />
@@ -164,12 +166,12 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         </div>
 
-                {/* BLOCK 11: Specifications Grid - PERFECT HORIZONTAL ALIGNMENT */}
-        <div className="mx-4 mt-6">
+                {/* BLOCK 11: Specifications Grid - FULL WIDTH LIKE HEADER */}
+        <div className="mt-6">
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 px-6 pb-3">
             Product Specifications
           </h3>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
             <div className="grid grid-cols-2">
               <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
                 <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Product Code</p>
@@ -207,8 +209,8 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         </div>
 
-       {/* BLOCK 12: BOM Table - PERFECT HORIZONTAL ALIGNMENT (FINAL) */}
-        <div className="mx-4 mt-6">
+               {/* BLOCK 12: BOM Table - FULL WIDTH LIKE HEADER (FINAL) */}
+        <div className="mt-6">
           <div className="flex items-center justify-between pb-3 px-6">
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
               BOM Components
@@ -218,7 +220,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
             </span>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
             <div className="px-6 pt-2 pb-6">
               {components.length === 0 ? (
                 <div className="flex items-center justify-center h-32">
@@ -256,10 +258,22 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-right">{comp.perShipper}</td>
                           <td className="px-6 py-4 text-center">
-                            <button onClick={() => { setSelectedComponent(comp); setIsEditBomOpen(true); }} className="text-slate-600 hover:text-blue-600 dark:hover:text-blue-400 mr-4">
+                            <button
+                              onClick={() => {
+                                setSelectedComponent(comp);
+                                setIsEditBomOpen(true);
+                              }}
+                              className="text-slate-600 hover:text-blue-600 dark:hover:text-blue-400 mr-4"
+                            >
                               <PencilIcon className="h-4 w-4" />
                             </button>
-                            <button onClick={() => { setSelectedComponent(comp); setIsDeleteBomOpen(true); }} className="text-slate-600 hover:text-red-600 dark:hover:text-red-400">
+                            <button
+                              onClick={() => {
+                                setSelectedComponent(comp);
+                                setIsDeleteBomOpen(true);
+                              }}
+                              className="text-slate-600 hover:text-red-600 dark:hover:text-red-400"
+                            >
                               <TrashIcon className="h-4 w-4" />
                             </button>
                           </td>
