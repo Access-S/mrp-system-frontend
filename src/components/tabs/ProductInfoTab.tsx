@@ -1,41 +1,33 @@
-//src/components/tabs/ProductInfoTab.tsx
+// src/components/tabs/ProductInfoTab.tsx
 
-// BLOCK 1: Imports
 import React, { useState, useEffect } from "react";
-import {
-  Input,
-  Button,
-  Typography,
-  Card,
-  CardBody
-} from "@material-tailwind/react";
+import { PencilIcon, CheckIcon, XMarkIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "../../contexts/ThemeContext";
-import { productService, UpdateProductData } from "../../services/product.service";
-import { PencilIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { productService } from "../../services/product.service";
 
-// BLOCK 2: Interface
 interface ProductInfoTabProps {
   product: any;
   onUpdate: () => void;
+  onBack?: () => void; // optional if you have navigation
 }
 
-// BLOCK 3: Main Component
-export function ProductInfoTab({ product, onUpdate }: ProductInfoTabProps) {
+export function ProductInfoTab({ product, onUpdate, onBack }: ProductInfoTabProps) {
   const { theme } = useTheme();
+  const isDark = theme.isDark;
+
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [formData, setFormData] = useState({
     description: "",
     unitsPerShipper: 0,
     dailyRunRate: 0,
     hourlyRunRate: 0,
     minsPerShipper: 0,
-    pricePerShipper: 0
+    pricePerShipper: 0,
   });
 
-  // BLOCK 4: Initialize Form Data
   useEffect(() => {
     if (product) {
       setFormData({
@@ -44,233 +36,198 @@ export function ProductInfoTab({ product, onUpdate }: ProductInfoTabProps) {
         dailyRunRate: product.dailyRunRate || 0,
         hourlyRunRate: product.hourlyRunRate || 0,
         minsPerShipper: product.minsPerShipper || 0,
-        pricePerShipper: product.pricePerShipper || 0
+        pricePerShipper: product.pricePerShipper || 0,
       });
     }
   }, [product]);
 
-  // BLOCK 5: Handlers
   const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError(null);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.description.trim()) {
       setError("Description is required");
       return;
     }
 
     setSaving(true);
-    setError(null);
-
-    productService.updateProduct(product.productCode, formData)
-      .then(() => {
-        setIsEditing(false);
-        onUpdate();
-      })
-      .catch(err => {
-        setError(err.message || "Failed to update product");
-      })
-      .finally(() => {
-        setSaving(false);
-      });
+    try {
+      await productService.updateProduct(product.productCode, formData);
+      setIsEditing(false);
+      onUpdate();
+    } catch (err: any) {
+      setError(err.message || "Failed to update product");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    // Reset to original values
     setFormData({
       description: product.description || "",
       unitsPerShipper: product.unitsPerShipper || 0,
       dailyRunRate: product.dailyRunRate || 0,
       hourlyRunRate: product.hourlyRunRate || 0,
       minsPerShipper: product.minsPerShipper || 0,
-      pricePerShipper: product.pricePerShipper || 0
+      pricePerShipper: product.pricePerShipper || 0,
     });
     setIsEditing(false);
     setError(null);
   };
 
-  // BLOCK 6: Render
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Action Buttons */}
-      <div className="flex justify-between items-center">
-        <Typography variant="h5" className={theme.text}>
-          Product Information
-        </Typography>
+    <>
+      {/* Header - Exactly like your dream sample */}
+      <header className="sticky top-0 z-50 flex items-center bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 justify-between">
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+            </button>
+          )}
+          <h2 className="text-lg font-bold tracking-tight">Product Details</h2>
+        </div>
+
         {!isEditing ? (
-          <Button
-            size="sm"
-            className="flex items-center gap-2"
+          <button
             onClick={() => setIsEditing(true)}
-            color="blue"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors"
           >
             <PencilIcon className="h-4 w-4" />
             Edit
-          </Button>
+          </button>
         ) : (
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outlined"
-              className="flex items-center gap-2"
+            <button
               onClick={handleCancel}
               disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50"
             >
               <XMarkIcon className="h-4 w-4" />
               Cancel
-            </Button>
-            <Button
-              size="sm"
-              className="flex items-center gap-2"
+            </button>
+            <button
               onClick={handleSave}
-              loading={saving}
-              color="green"
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-lg transition-colors disabled:opacity-50"
             >
-              <CheckIcon className="h-4 w-4" />
+              {saving ? (
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              ) : (
+                <CheckIcon className="h-4 w-4" />
+              )}
               Save Changes
-            </Button>
+            </button>
           </div>
         )}
-      </div>
+      </header>
 
-      {/* Error Message */}
-      {error && (
-        <Card className="bg-red-50 border border-red-200">
-          <CardBody className="p-3">
-            <Typography color="red" className="text-sm">
-              {error}
-            </Typography>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* Product Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Product Code (Read-only) */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Product Code
-          </Typography>
-          <Input
-            value={product.productCode}
-            disabled
-            color={theme.isDark ? "white" : "black"}
-            className="opacity-100"
-          />
+      <main className="pb-24">
+        {/* Profile Header */}
+        <div className="p-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <div className="flex gap-5 items-start">
+            <div className="bg-gray-200 border-2 border-dashed rounded-xl w-28 h-28 flex-shrink-0" />
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold tracking-tight">{product.description || "Untitled Product"}</h1>
+                <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
+                  Active
+                </span>
+              </div>
+              <p className="text-slate-600 dark:text-slate-400 font-medium">SKU: {product.productCode}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-500">
+                Updated: {product.updatedAt ? formatDate(product.updatedAt) : "Never"}
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Description */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Description *
-          </Typography>
-          <Input
-            value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-            disabled={!isEditing}
-            color={theme.isDark ? "white" : "black"}
-          />
+        {/* Product Specifications Grid */}
+        <div className="mt-6">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 px-6 pb-3">
+            Product Specifications
+          </h3>
+          <div className="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+            <div className="grid grid-cols-2">
+              {/* Product Code */}
+              <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Product Code</p>
+                <p className="text-sm font-semibold">{product.productCode}</p>
+              </div>
+              <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Description</p>
+                <p className="text-sm font-semibold">{product.description || "—"}</p>
+              </div>
+
+              {/* Units Per Shipper */}
+              <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Units Per Shipper</p>
+                <p className="text-sm font-semibold">{formData.unitsPerShipper || "—"}</p>
+              </div>
+              <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Price Per Shipper</p>
+                <p className="text-sm font-semibold">${formData.pricePerShipper.toFixed(2)}</p>
+              </div>
+
+              {/* Daily Run Rate */}
+              <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Daily Run Rate</p>
+                <p className="text-sm font-semibold">{formData.dailyRunRate || "—"}</p>
+              </div>
+              <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Hourly Run Rate</p>
+                <p className="text-sm font-semibold">{formData.hourlyRunRate || "—"}</p>
+              </div>
+
+              {/* Mins Per Shipper */}
+              <div className="flex flex-col gap-1 border-r border-slate-100 dark:border-slate-800 p-5">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Minutes Per Shipper</p>
+                <p className="text-sm font-semibold">{formData.minsPerShipper || "—"}</p>
+              </div>
+              <div className="flex flex-col gap-1 p-5">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Created</p>
+                <p className="text-sm font-semibold">{product.createdAt ? formatDate(product.createdAt) : "—"}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Units Per Shipper */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Units Per Shipper
-          </Typography>
-          <Input
-            type="number"
-            value={formData.unitsPerShipper}
-            onChange={(e) => handleChange("unitsPerShipper", Number(e.target.value))}
-            disabled={!isEditing}
-            color={theme.isDark ? "white" : "black"}
-          />
-        </div>
+        {/* Error Message */}
+        {error && (
+          <div className="mx-6 mt-6">
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-4">
+              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+            </div>
+          </div>
+        )}
 
-        {/* Daily Run Rate */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Daily Run Rate
-          </Typography>
-          <Input
-            type="number"
-            value={formData.dailyRunRate}
-            onChange={(e) => handleChange("dailyRunRate", Number(e.target.value))}
-            disabled={!isEditing}
-            color={theme.isDark ? "white" : "black"}
-          />
-        </div>
-
-        {/* Hourly Run Rate */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Hourly Run Rate
-          </Typography>
-          <Input
-            type="number"
-            value={formData.hourlyRunRate}
-            onChange={(e) => handleChange("hourlyRunRate", Number(e.target.value))}
-            disabled={!isEditing}
-            color={theme.isDark ? "white" : "black"}
-          />
-        </div>
-
-        {/* Mins Per Shipper */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Minutes Per Shipper
-          </Typography>
-          <Input
-            type="number"
-            value={formData.minsPerShipper}
-            onChange={(e) => handleChange("minsPerShipper", Number(e.target.value))}
-            disabled={!isEditing}
-            color={theme.isDark ? "white" : "black"}
-          />
-        </div>
-
-        {/* Price Per Shipper */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Price Per Shipper ($)
-          </Typography>
-          <Input
-            type="number"
-            step="0.01"
-            value={formData.pricePerShipper}
-            onChange={(e) => handleChange("pricePerShipper", Number(e.target.value))}
-            disabled={!isEditing}
-            color={theme.isDark ? "white" : "black"}
-          />
-        </div>
-
-        {/* Created At (Read-only) */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Created At
-          </Typography>
-          <Input
-            value={product.createdAt ? new Date(product.createdAt).toLocaleString() : 'N/A'}
-            disabled
-            color={theme.isDark ? "white" : "black"}
-            className="opacity-100"
-          />
-        </div>
-
-        {/* Updated At (Read-only) */}
-        <div>
-          <Typography variant="small" className={`${theme.text} opacity-70 mb-2`}>
-            Last Updated
-          </Typography>
-          <Input
-            value={product.updatedAt ? new Date(product.updatedAt).toLocaleString() : 'N/A'}
-            disabled
-            color={theme.isDark ? "white" : "black"}
-            className="opacity-100"
-          />
-        </div>
-      </div>
-    </div>
+        {/* Future BOM Section (ready when you are) */}
+        {/* <div className="mt-8 px-6">
+          <div className="flex items-center justify-between pb-3">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">BOM Components</h3>
+            <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">0 Items</span>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+            <p className="text-center text-slate-500 py-12">No components added yet</p>
+          </div>
+        </div> */}
+      </main>
+    </>
   );
 }
