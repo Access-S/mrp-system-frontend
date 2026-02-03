@@ -143,21 +143,23 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
       </header>
 
       <main className="pb-24">
-        {/* BLOCK 10: Hero Section */}
-        <div className="p-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex gap-6 items-start">
-            <div className="bg-gray-200 border-2 border-dashed border-slate-300 rounded-xl w-28 h-28 flex-shrink-0" />
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight">{product.description || "Untitled Product"}</h1>
-                <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
-                  Active
-                </span>
+               {/* BLOCK 10: Hero Section - NOW PERFECTLY ROUNDED + SAME VISUAL WEIGHT */}
+        <div className="mx-6 mt-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="p-6">
+            <div className="flex gap-6 items-start">
+              <div className="bg-gray-200 border-2 border-dashed border-slate-300 rounded-xl w-28 h-28 flex-shrink-0" />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold tracking-tight">{product.description || "Untitled Product"}</h1>
+                  <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
+                    Active
+                  </span>
+                </div>
+                <p className="text-slate-600 dark:text-slate-400 font-medium">SKU: {product.productCode}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-500">
+                  Updated: {product.updatedAt ? formatDate(product.updatedAt) : "Never"}
+                </p>
               </div>
-              <p className="text-slate-600 dark:text-slate-400 font-medium">SKU: {product.productCode}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-500">
-                Updated: {product.updatedAt ? formatDate(product.updatedAt) : "Never"}
-              </p>
             </div>
           </div>
         </div>
@@ -205,8 +207,8 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         </div>
 
-        {/* BLOCK 12: BOM Table - NOW PERFECTLY MATCHES THE SAMPLE */}
-        <div className="mt-8 px-6">
+                {/* BLOCK 12: BOM Table - NOW SAME HEIGHT & CORNERS AS OTHER CARDS */}
+        <div className="mx-6 mt-6">
           <div className="flex items-center justify-between pb-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
               BOM Components
@@ -216,9 +218,9 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
             </span>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden min-h-[200px]">
             {components.length === 0 ? (
-              <div className="p-16 text-center">
+              <div className="flex items-center justify-center h-48">
                 <p className="text-slate-500 dark:text-slate-400 text-sm">No components added yet</p>
               </div>
             ) : (
@@ -253,22 +255,10 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-right">{comp.perShipper}</td>
                         <td className="px-6 py-4 text-center">
-                          <button
-                            onClick={() => {
-                              setSelectedComponent(comp);
-                              setIsEditBomOpen(true);
-                            }}
-                            className="text-slate-600 hover:text-blue-600 dark:hover:text-blue-400 mr-4"
-                          >
+                          <button onClick={() => { setSelectedComponent(comp); setIsEditBomOpen(true); }} className="text-slate-600 hover:text-blue-600 dark:hover:text-blue-400 mr-4">
                             <PencilIcon className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={() => {
-                              setSelectedComponent(comp);
-                              setIsDeleteBomOpen(true);
-                            }}
-                            className="text-slate-600 hover:text-red-600 dark:hover:text-red-400"
-                          >
+                          <button onClick={() => { setSelectedComponent(comp); setIsDeleteBomOpen(true); }} className="text-slate-600 hover:text-red-600 dark:hover:text-red-400">
                             <TrashIcon className="h-4 w-4" />
                           </button>
                         </td>
