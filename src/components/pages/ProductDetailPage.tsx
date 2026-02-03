@@ -207,7 +207,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         </div>
 
-                {/* BLOCK 12: BOM Table - NOW SAME HEIGHT & CORNERS AS OTHER CARDS */}
+                        {/* BLOCK 12: BOM Table - FINAL VERSION - 100% IDENTICAL TO OTHER CARDS */}
         <div className="mx-6 mt-6">
           <div className="flex items-center justify-between pb-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
@@ -218,14 +218,14 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
             </span>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden min-h-[200px]">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden min-h-[240px]">
             {components.length === 0 ? (
-              <div className="flex items-center justify-center h-48">
+              <div className="flex items-center justify-center h-60">
                 <p className="text-slate-500 dark:text-slate-400 text-sm">No components added yet</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] text-left">
+                <table className="w-full text-left">
                   <thead className="bg-slate-50 dark:bg-slate-800/50">
                     <tr>
                       <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Part Code</th>
@@ -235,7 +235,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
                       <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                     {components.map((comp) => (
                       <tr key={comp.partCode} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="px-6 py-4 text-sm font-medium text-blue-600 dark:text-blue-400">{comp.partCode}</td>
