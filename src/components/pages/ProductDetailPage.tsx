@@ -284,6 +284,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
                 </table>
               </div>
             )}
+          </div>
          </div>  
         </div> 
       </main>
