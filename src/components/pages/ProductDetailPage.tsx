@@ -114,7 +114,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
 return (
   <div className="space-y-6">
     {/* Sticky Header - Same Width as Islands */}
-    <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 -mx-0 px-6 py-4 -mt-6 mb-6">
+    <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm -mx-0 px-6 py-4 -mt-6 mb-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
