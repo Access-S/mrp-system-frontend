@@ -110,7 +110,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
     );
   }
 
- // BLOCK 9: Main Render - FIXED WIDTH ALIGNMENT
+  // BLOCK 9: Main Render - FIXED WIDTH ALIGNMENT
 return (
   <div className="space-y-6">
     {/* Sticky Header - Same Width as Islands */}
