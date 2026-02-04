@@ -166,7 +166,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         </div>
 
-                {/* BLOCK 11: Specifications Grid - FULL WIDTH LIKE HEADER */}
+                 {/* BLOCK 11: Specifications Grid - FULL WIDTH LIKE HEADER */}
         <div className="mt-6">
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 px-6 pb-3">
             Product Specifications
@@ -209,7 +209,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         </div>
 
-               {/* BLOCK 12: BOM Table - FULL WIDTH LIKE HEADER (FINAL) */}
+                {/* BLOCK 12: BOM Table - FULL WIDTH LIKE HEADER (FINAL) */}
         <div className="mt-6">
           <div className="flex items-center justify-between pb-3 px-6">
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
