@@ -110,39 +110,39 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
     );
   }
 
-  // BLOCK 9: Main Render - COMPLETELY RESTRUCTURED
-  return (
-    <div className="relative">
-      {/* Sticky Header - Full Width, No Padding Parent */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 -mx-4 md:-mx-8 px-4 md:px-8 py-4 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-            </button>
-            <h2 className="text-xl font-bold tracking-tight">Product Details</h2>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsAddBomOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xl transition-colors"
-            >
-              <PlusIcon className="h-4 w-4" />
-              Add Component
-            </button>
-            <button
-              onClick={() => setIsDeleteProductOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors"
-            >
-              <TrashIcon className="h-4 w-4" />
-              Delete Product
-            </button>
-          </div>
+ // BLOCK 9: Main Render - FIXED WIDTH ALIGNMENT
+return (
+  <div className="space-y-6">
+    {/* Sticky Header - Same Width as Islands */}
+    <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 -mx-0 px-6 py-4 -mt-6 mb-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onBack}
+            className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+          </button>
+          <h2 className="text-xl font-bold tracking-tight">Product Details</h2>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsAddBomOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xl transition-colors"
+          >
+            <PlusIcon className="h-4 w-4" />
+            Add Component
+          </button>
+          <button
+            onClick={() => setIsDeleteProductOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors"
+          >
+            <TrashIcon className="h-4 w-4" />
+            Delete Product
+          </button>
         </div>
       </div>
+    </div>
 
       {/* Content Islands - All Same Width */}
       <div className="space-y-6">
