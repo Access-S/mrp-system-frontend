@@ -110,7 +110,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
     );
   }
 
-  // BLOCK 9: Main Render
+  // BLOCK 9: Main Render - FIXED & CLEAN (matches ProductsPage style)
   return (
     <>
       {/* Sticky Header - Island 1 */}
@@ -142,6 +142,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="p-6">
         <div className="space-y-6">
 
@@ -207,48 +208,9 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
               </div>
             </div>
           </div>
-        </div>        {/* BLOCK 11: Specifications Grid - CLEAN & RESPONSIVE LIKE PRODUCTS PAGE */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-          <div className="p-6">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-4">
-              Product Specifications
-            </h3>
-            <div className="grid grid-cols-2">
-              <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Product Code</p>
-                <p className="text-sm font-semibold">{product.productCode}</p>
-              </div>
-              <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Description</p>
-                <p className="text-sm font-semibold">{product.description || "—"}</p>
-              </div>
-              <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Units Per Shipper</p>
-                <p className="text-sm font-semibold">{product.unitsPerShipper || "—"}</p>
-              </div>
-              <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Price Per Shipper</p>
-                <p className="text-sm font-semibold">${Number(product.pricePerShipper || 0).toFixed(2)}</p>
-              </div>
-              <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Daily Run Rate</p>
-                <p className="text-sm font-semibold">{product.dailyRunRate || "—"} units/day</p>
-              </div>
-              <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Hourly Run Rate</p>
-                <p className="text-sm font-semibold">{product.hourlyRunRate || "—"} units/hr</p>
-              </div>
-              <div className="flex flex-col gap-1 border-r border-slate-100 dark:border-slate-800 p-5">
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Minutes Per Shipper</p>
-                <p className="text-sm font-semibold">{product.minsPerShipper || "—"} mins</p>
-              </div>
-              <div className="flex flex-col gap-1 p-5">
-                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Created</p>
-                <p className="text-sm font-semibold">{product.createdAt ? formatDate(product.createdAt) : "—"}</p>
-              </div>
-            </div>
-          </div>
         </div>
+
+        
         {/* BLOCK 12: BOM Table - CLEAN & RESPONSIVE LIKE PRODUCTS PAGE (FINAL) */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="p-6">
