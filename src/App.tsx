@@ -115,7 +115,7 @@ function AppLayout() {
       className={`min-h-screen ${theme.background} transition-all duration-500`}
     >
       <div
-        className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 sticky top-0 z-10`}
+       className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 sticky top-0 z-20`}
       >
         <Sidebar activePage={activePage} setActivePage={setActivePage} />
         {renderNavbarContent()}

@@ -110,11 +110,12 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
     );
   }
 
-  // BLOCK 9: Main Render - FIXED & CLEAN (matches ProductsPage style)
-  return (
-    <>
-      {/* Sticky Header - Island 1 */}
-      <header className="sticky top-0 z-50 flex items-center bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 justify-between">
+// BLOCK 9: Main Render - FINAL FIX
+return (
+  <>
+    {/* Sticky Header - Island 1 - FIXED FOR DRAWER */}
+    <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
@@ -140,11 +141,14 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
             Delete Product
           </button>
         </div>
-      </header>
+      </div>
+    </header>
 
-      {/* Main Content */}
-      <main className="p-6">
-        <div className="space-y-6">
+    {/* Main Content */}
+    <main className="p-6">
+      <div className="space-y-6">
+
+  
 
         {/* BLOCK 10: Hero Section - CLEAN LIKE PRODUCTS PAGE */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
