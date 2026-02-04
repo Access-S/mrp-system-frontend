@@ -210,7 +210,7 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
           </div>
         </div>
 
-        
+
         {/* BLOCK 12: BOM Table - CLEAN & RESPONSIVE LIKE PRODUCTS PAGE (FINAL) */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="p-6">
@@ -284,12 +284,17 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
                 </table>
               </div>
             )}
-          </div>
-        </div>
+         </div>  
+        </div> 
       </main>
 
       {/* BLOCK 13: Modals */}
-      <AddBomComponentModal open={isAddBomOpen} onClose={() => setIsAddBomOpen(false)} productCode={productCode} onSuccess={loadProductData} />
+      <AddBomComponentModal 
+        open={isAddBomOpen} 
+        onClose={() => setIsAddBomOpen(false)} 
+        productCode={productCode} 
+        onSuccess={loadProductData} 
+      />
       <EditBomComponentModal
         open={isEditBomOpen}
         onClose={() => {
