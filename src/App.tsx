@@ -121,7 +121,7 @@ function AppLayout() {
         {renderNavbarContent()}
       </div>
       
-      <main className="p-4 md:p-8">
+      <main className="pb-10"> 
         {activePage === "dashboard" && <DashboardPage />}
         {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
         {activePage === "product-detail" && selectedProductCode && (
