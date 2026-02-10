@@ -175,35 +175,35 @@ return (
           <div className="grid grid-cols-2">
             <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
               <p className="text-base font-medium uppercase text-slate-500 dark:text-slate-400">Product Code</p>
-              <p className="text-sm font-semibold">{product.productCode}</p>
+              <p className="text-base font-semibold">{product.productCode}</p>
             </div>
             <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
               <p className="text-base font-medium uppercase text-slate-500 dark:text-slate-400">Description</p>
-              <p className="text-sm font-semibold">{product.description || "—"}</p>
+              <p className="text-base font-semibold">{product.description || "—"}</p>
             </div>
             <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
               <p className="text-base font-medium uppercase text-slate-500 dark:text-slate-400">Units Per Shipper</p>
-              <p className="text-sm font-semibold">{product.unitsPerShipper || "—"}</p>
+              <p className="text-base font-semibold">{product.unitsPerShipper || "—"}</p>
             </div>
             <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
               <p className="text-base font-medium uppercase text-slate-500 dark:text-slate-400">Price Per Shipper</p>
-              <p className="text-sm font-semibold">${Number(product.pricePerShipper || 0).toFixed(2)}</p>
+              <p className="text-base font-semibold">${Number(product.pricePerShipper || 0).toFixed(2)}</p>
             </div>
             <div className="flex flex-col gap-1 border-b border-r border-slate-100 dark:border-slate-800 p-5">
               <p className="text-base font-medium uppercase text-slate-500 dark:text-slate-400">Daily Run Rate</p>
-              <p className="text-sm font-semibold">{product.dailyRunRate || "—"} units/day</p>
+              <p className="text-base font-semibold">{product.dailyRunRate || "—"} units/day</p>
             </div>
             <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 p-5">
               <p className="text-base font-medium uppercase text-slate-500 dark:text-slate-400">Hourly Run Rate</p>
-              <p className="text-sm font-semibold">{product.hourlyRunRate || "—"} units/hr</p>
+              <p className="text-base font-semibold">{product.hourlyRunRate || "—"} units/hr</p>
             </div>
             <div className="flex flex-col gap-1 border-r border-slate-100 dark:border-slate-800 p-5">
               <p className="text-base font-medium uppercase text-slate-500 dark:text-slate-400">Minutes Per Shipper</p>
-              <p className="text-sm font-semibold">{product.minsPerShipper || "—"} mins</p>
+              <p className="text-base font-semibold">{product.minsPerShipper || "—"} mins</p>
             </div>
             <div className="flex flex-col gap-1 p-5">
               <p className="text-base font-medium uppercase text-slate-500 dark:text-slate-400">Created</p>
-              <p className="text-sm font-semibold">{product.createdAt ? formatDate(product.createdAt) : "—"}</p>
+              <p className="text-base font-semibold">{product.createdAt ? formatDate(product.createdAt) : "—"}</p>
             </div>
           </div>
         </div>
