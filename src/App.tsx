@@ -14,6 +14,7 @@ import SohPage from "./components/pages/SohPage";
 import { InventoryPage } from "./components/pages/InventoryPage";
 import { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 // BLOCK 2: Type Definitions
 export type Page =
@@ -83,30 +84,45 @@ function AppLayout() {
   };
 
   const renderNavbarContent = () => {
-    if (activePage === "product-detail" && selectedProductCode) {
-      return (
+  if (activePage === "product-detail" && selectedProductCode) {
+    return (
+      <div className="flex items-center gap-4 w-full">
+        {/* Back Button */}
+        <button
+          onClick={handleBackToProducts}
+          className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+        </button>
+        
+        {/* Breadcrumb */}
         <div className="flex items-center gap-2">
           <span 
-            className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity`}
+            className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity text-base`}
             onClick={handleBackToProducts}
           >
-            Products (BOM)
+            Products
           </span>
-          <span className={`${theme.text} opacity-40`}>&gt;</span>
-          <span className={`${theme.text} font-bold`}>
-            {selectedProductCode}
-            {selectedProductDescription && ` - ${selectedProductDescription}`}
+          <span className={`${theme.text} opacity-40`}>›</span>
+          <span className={`${theme.text} font-semibold text-base`}>
+            {selectedProductDescription || selectedProductCode}
           </span>
         </div>
-      );
-    }
-    
-    return (
-      <h1 className={`text-2xl font-bold ${theme.text}`}>
-        {pageTitles[activePage]}
-      </h1>
+        
+        {/* Active Badge */}
+        <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
+          Active
+        </span>
+      </div>
     );
-  };
+  }
+  
+  return (
+    <h1 className={`text-2xl font-bold ${theme.text}`}>
+      {pageTitles[activePage]}
+    </h1>
+  );
+};
 
   return (
     <div className={`flex min-h-screen ${theme.background} transition-all duration-500`}>

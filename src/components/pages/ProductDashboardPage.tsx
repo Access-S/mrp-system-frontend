@@ -121,36 +121,6 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
     );
   }
 
-  return (
-    <>
-         {/* Sticky Header with Breadcrumb - FIXED ALIGNMENT */}
-            <header className="sticky top-0 z-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 -mx-4 md:-mx-8 px-4 md:px-8 py-4 mb-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                <button
-                    onClick={onBack}
-                    className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                >
-                    <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                </button>
-                <div className="flex items-center gap-2 text-base">
-                    <span className="text-slate-400 dark:text-slate-500">Products</span>
-                    <span className="text-slate-300 dark:text-slate-600">›</span>
-                    <span className="text-slate-800 dark:text-slate-200 font-semibold">{product.description || productCode}</span>
-                </div>
-                <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
-                    Active
-                </span>
-                </div>
-                <div className="flex items-center gap-3">
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm">
-                    <BoltIcon className="h-4 w-4" />
-                    QUICK ACTIONS
-                </button>
-                </div>
-            </div>
-            </header>
-
       <div className="p-6 space-y-6">
         {/* Top Row: 4 Widget Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
