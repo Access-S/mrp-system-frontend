@@ -110,7 +110,7 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
     );
   }
 
-  if (!product) {
+    if (!product) {
     return (
       <div className="p-10 text-center">
         <p className="text-xl font-medium text-slate-600 dark:text-slate-400">Product not found: {productCode}</p>
@@ -121,7 +121,9 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
     );
   }
 
-      <div className="p-6 space-y-6">
+  return (
+    <>
+      <div className="space-y-6">
         {/* Top Row: 4 Widget Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           
