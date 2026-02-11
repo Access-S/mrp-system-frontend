@@ -7,6 +7,7 @@ import { Sidebar } from "./components/Sidebar";
 import { DashboardPage } from "./components/pages/DashboardPage";
 import { ProductsPage } from "./components/pages/ProductsPage";
 import { ProductDetailPage } from "./components/pages/ProductDetailPage";
+import { ProductDashboardPage } from "./components/pages/ProductDashboardPage";
 import { PurchaseOrdersPage } from "./components/pages/PurchaseOrdersPage";
 import { ForecastsPage } from "./components/pages/ForecastsPage";
 import SohPage from "./components/pages/SohPage";
@@ -125,7 +126,7 @@ function AppLayout() {
         {activePage === "dashboard" && <DashboardPage />}
         {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
         {activePage === "product-detail" && selectedProductCode && (
-          <ProductDetailPage 
+          <ProductDashboardPage  // Changed from ProductDetailPage
             productCode={selectedProductCode} 
             onBack={handleBackToProducts}
           />
