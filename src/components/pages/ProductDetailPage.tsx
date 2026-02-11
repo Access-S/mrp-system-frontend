@@ -173,31 +173,31 @@ return (
           </h3>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
             <div className="grid grid-cols-2">
-              <div className="flex flex-col gap-1 border-b-2 border-r-2 border-slate-700 dark:border-slate-400 p-5">
+              <div className="flex flex-col gap-1 border-b-4 border-r-4 border-slate-800 dark:border-slate-300 p-5">
                 <p className="text-base font-semibold uppercase text-slate-500 dark:text-slate-400">Product Code</p>
                 <p className="text-base font-medium">{product.productCode}</p>
               </div>
-              <div className="flex flex-col gap-1 border-b border-slate-300 dark:border-slate-600 p-5">
+              <div className="flex flex-col gap-1 border-b-4 border-r-4 border-slate-800 dark:border-slate-300 p-5">
                 <p className="text-base font-semibold uppercase text-slate-500 dark:text-slate-400">Description</p>
                 <p className="text-base font-medium">{product.description || "—"}</p>
               </div>
-              <div className="flex flex-col gap-1 border-b-2 border-r-2 border-slate-700 dark:border-slate-400 p-5">
+              <div className="flex flex-col gap-1 border-b-4 border-r-4 border-slate-800 dark:border-slate-300 p-5">
                 <p className="text-base font-semibold uppercase text-slate-500 dark:text-slate-400">Units Per Shipper</p>
                 <p className="text-base font-medium">{product.unitsPerShipper || "—"}</p>
               </div>
-              <div className="flex flex-col gap-1 border-b border-slate-300 dark:border-slate-600 p-5">
+              <div className="flex flex-col gap-1 border-b-4 border-r-4 border-slate-800 dark:border-slate-300 p-5">
                 <p className="text-base font-semibold uppercase text-slate-500 dark:text-slate-400">Price Per Shipper</p>
                 <p className="text-base font-medium">${Number(product.pricePerShipper || 0).toFixed(2)}</p>
               </div>
-              <div className="flex flex-col gap-1 border-b-2 border-r-2 border-slate-700 dark:border-slate-400 p-5">
+              <div className="flex flex-col gap-1 border-b-4 border-r-4 border-slate-800 dark:border-slate-300 p-5">
                 <p className="text-base font-semibold uppercase text-slate-500 dark:text-slate-400">Daily Run Rate</p>
                 <p className="text-base font-medium">{product.dailyRunRate || "—"} units/day</p>
               </div>
-              <div className="flex flex-col gap-1 border-b border-slate-300 dark:border-slate-600 p-5">
+              <div className="flex flex-col gap-1 border-b-4 border-r-4 border-slate-800 dark:border-slate-300 p-5">
                 <p className="text-base font-semibold uppercase text-slate-500 dark:text-slate-400">Hourly Run Rate</p>
                 <p className="text-base font-medium">{product.hourlyRunRate || "—"} units/hr</p>
               </div>
-              <div className="flex flex-col gap-1 border-r border-slate-300 dark:border-slate-600 p-5">
+              <div className="flex flex-col gap-1 border-b-4 border-r-4 border-slate-800 dark:border-slate-300 p-5">
                 <p className="text-base font-semibold uppercase text-slate-500 dark:text-slate-400">Minutes Per Shipper</p>
                 <p className="text-base font-medium">{product.minsPerShipper || "—"} mins</p>
               </div>
