@@ -133,17 +133,17 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
             >
               <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
             </button>
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-2 text-base">
               <span className="text-slate-400 dark:text-slate-500">Products</span>
               <span className="text-slate-300 dark:text-slate-600">›</span>
               <span className="text-slate-800 dark:text-slate-200 font-semibold">{product.description || productCode}</span>
             </div>
-            <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-green-200 dark:border-green-800">
+            <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
               Active
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm">
+            <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm">
               <BoltIcon className="h-4 w-4" />
               QUICK ACTIONS
             </button>
@@ -169,20 +169,20 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
             />
             <WidgetBody className="space-y-4">
               <div className="flex flex-col gap-0.5">
-                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Product Code</label>
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{product.productCode}</span>
+                <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Product Code</label>
+                <span className="text-base font-semibold text-slate-700 dark:text-slate-300">{product.productCode}</span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Description</label>
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{product.description || "—"}</span>
+                <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Description</label>
+                <span className="text-base font-semibold text-slate-700 dark:text-slate-300">{product.description || "—"}</span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Units Per Shipper</label>
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{product.unitsPerShipper || "—"}</span>
+                <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Units Per Shipper</label>
+                <span className="text-base font-semibold text-slate-700 dark:text-slate-300">{product.unitsPerShipper || "—"}</span>
               </div>
               <div className="flex flex-col gap-0.5 border-t border-slate-100 dark:border-slate-800 pt-3">
-                <label className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">Price Per Shipper</label>
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">${Number(product.pricePerShipper || 0).toFixed(2)}</span>
+                <label className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase">Price Per Shipper</label>
+                <span className="text-base font-semibold text-slate-700 dark:text-slate-300">${Number(product.pricePerShipper || 0).toFixed(2)}</span>
               </div>
             </WidgetBody>
           </WidgetCard>
@@ -200,35 +200,35 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
             />
             <WidgetBody>
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-base">
                   <span className="text-slate-500 dark:text-slate-400">Total Items</span>
                   <span className="font-bold text-slate-700 dark:text-slate-300">{totalComponents} Parts</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-base">
                   <span className="text-slate-500 dark:text-slate-400">BOM Status</span>
                   <span className="font-bold text-green-600 dark:text-green-400">Complete</span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-4">
                   <div className="bg-blue-600 h-full" style={{ width: `${totalComponents > 0 ? 100 : 0}%` }}></div>
                 </div>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center">
+                <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
                   BOM completion: {totalComponents > 0 ? "100%" : "0%"}
                 </p>
                 <div className="pt-4 space-y-2">
                   {rawMaterialsCount > 0 && (
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <div className="flex items-center gap-2 text-base text-slate-600 dark:text-slate-400">
                       <span className="w-2 h-2 rounded-full bg-blue-400"></span>
                       <span>{rawMaterialsCount} Raw Materials</span>
                     </div>
                   )}
                   {subAssembliesCount > 0 && (
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <div className="flex items-center gap-2 text-base text-slate-600 dark:text-slate-400">
                       <span className="w-2 h-2 rounded-full bg-purple-400"></span>
                       <span>{subAssembliesCount} Components</span>
                     </div>
                   )}
                   {packagingCount > 0 && (
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <div className="flex items-center gap-2 text-base text-slate-600 dark:text-slate-400">
                       <span className="w-2 h-2 rounded-full bg-green-400"></span>
                       <span>{packagingCount} Packaging</span>
                     </div>
@@ -246,19 +246,19 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
             />
             <WidgetBody className="flex flex-col gap-4">
               <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Hourly Run Rate</p>
-                <p className="text-xl font-bold text-slate-800 dark:text-slate-200">
-                  {product.hourlyRunRate || "—"} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">pcs/hr</span>
+                <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Hourly Run Rate</p>
+                <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                  {product.hourlyRunRate || "—"} <span className="text-base font-normal text-slate-500 dark:text-slate-400">pcs/hr</span>
                 </p>
               </div>
               <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Daily Capacity</p>
-                <p className="text-xl font-bold text-slate-800 dark:text-slate-200">
-                  {product.dailyRunRate || "—"} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">pcs/day</span>
+                <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Daily Capacity</p>
+                <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                  {product.dailyRunRate || "—"} <span className="text-base font-normal text-slate-500 dark:text-slate-400">pcs/day</span>
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                <ClockIcon className="h-4 w-4 text-green-500" />
+              <div className="flex items-center gap-2 text-base text-slate-500 dark:text-slate-400">
+                <ClockIcon className="h-5 w-5 text-green-500" />
                 {product.minsPerShipper || "—"} mins per shipper
               </div>
             </WidgetBody>
@@ -268,27 +268,27 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
           <WidgetCard>
             <WidgetHeader title="Quick Actions" />
             <WidgetBody className="space-y-3">
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
-                <DocumentDuplicateIcon className="h-4 w-4 text-slate-400" />
+              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
+                <DocumentDuplicateIcon className="h-5 w-5 text-slate-400" />
                 <span>Clone Product</span>
               </button>
               <button 
                 onClick={() => setIsAddBomOpen(true)}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-semibold rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
               >
-                <PlusIcon className="h-4 w-4" />
+                <PlusIcon className="h-5 w-5" />
                 <span>Add BOM Component</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
-                <ClipboardDocumentListIcon className="h-4 w-4 text-slate-400" />
+              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
+                <ClipboardDocumentListIcon className="h-5 w-5 text-slate-400" />
                 <span>Generate Requirements</span>
               </button>
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button 
                   onClick={() => setIsDeleteProductOpen(true)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg text-red-600 dark:text-red-400 border border-red-50 dark:border-red-950 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-semibold rounded-lg text-red-600 dark:text-red-400 border border-red-50 dark:border-red-950 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                 >
-                  <TrashIcon className="h-4 w-4" />
+                  <TrashIcon className="h-5 w-5" />
                   <span>Delete Product</span>
                 </button>
               </div>
@@ -302,8 +302,8 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
             <WidgetCard>
               <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200">Component Details</h2>
-                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 uppercase">
+                  <h2 className="text-base font-bold text-slate-800 dark:text-slate-200">Component Details</h2>
+                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 uppercase">
                     {totalComponents} Core Items
                   </span>
                 </div>
@@ -311,11 +311,11 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
               <div className="overflow-x-auto">
                 {components.length === 0 ? (
                   <div className="flex items-center justify-center h-48">
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">No components added yet</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-base">No components added yet</p>
                   </div>
                 ) : (
-                  <table className="w-full text-left text-sm">
-                    <thead className={`${theme.tableHeaderBg} text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider`}>
+                  <table className="w-full text-left text-base">
+                    <thead className={`${theme.tableHeaderBg} text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider`}>
                       <tr>
                         <th className="px-6 py-3">Part Code</th>
                         <th className="px-6 py-3">Description</th>
@@ -352,7 +352,7 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
                                 }}
                                 className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400"
                               >
-                                <PencilIcon className="h-4 w-4" />
+                                <PencilIcon className="h-5 w-5" />
                               </button>
                               <button 
                                 onClick={() => {
@@ -361,7 +361,7 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
                                 }}
                                 className="text-slate-400 hover:text-red-500"
                               >
-                                <TrashIcon className="h-4 w-4" />
+                                <TrashIcon className="h-5 w-5" />
                               </button>
                             </div>
                           </td>
