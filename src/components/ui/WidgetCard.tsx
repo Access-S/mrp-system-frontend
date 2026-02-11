@@ -24,10 +24,10 @@ interface WidgetHeaderProps {
 
 export function WidgetHeader({ title, icon, actions, badge }: WidgetHeaderProps) {
   return (
-    <div className="px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+    <div className="px-4 py-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between shrink-0">
       <div className="flex items-center gap-2">
         {icon && <span className="text-blue-600 dark:text-blue-400">{icon}</span>}
-        <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+        <h3 className="text-base font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
           {title}
         </h3>
         {badge}
