@@ -209,82 +209,87 @@ return (
             </div>
           </div>
 
-      {/* BLOCK 12: BOM Table - LARGER FONTS & PADDING */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
-            BOM Components
-          </h3>
-          <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-800">
-            {components.length} Items
-          </span>
-        </div>
+{/* BLOCK 12: BOM Table - WITH BLACK BORDERS */}
+<div className="space-y-3">
+  <div className="flex items-center justify-between px-1">
+    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
+      BOM Components
+    </h3>
+    <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-800">
+      {components.length} Items
+    </span>
+  </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-          {components.length === 0 ? (
-            <div className="flex items-center justify-center h-48">
-              <p className="text-slate-500 dark:text-slate-400 text-sm">No components added yet</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left">
-                <thead className="bg-slate-100 dark:bg-slate-700">
-                  <tr>
-                    <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Part Code</th>
-                    <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Description</th>
-                    <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Qty</th>
-                    <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {components.map((comp) => (
-                    <tr key={comp.partCode} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="px-6 py-5 text-base font-medium text-blue-600 dark:text-blue-400">{comp.partCode}</td>
-                      <td className="px-6 py-5 text-base text-slate-600 dark:text-slate-300">{comp.partDescription || "—"}</td>
-                      <td className="px-6 py-5">
-                        <span className={`px-2.5 py-1 rounded text-xs font-medium ${
-                          comp.partType === "RAW_MATERIAL"
-                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300"
-                            : comp.partType === "COMPONENT"
-                            ? "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300"
-                            : comp.partType === "PACKAGING"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
-                            : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
-                        }`}>
-                          {comp.partType?.replace("_", " ") || "N/A"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5 text-base font-semibold text-right">{comp.perShipper}</td>
-                      <td className="px-6 py-5 text-center">
-                        <button
-                          onClick={() => {
-                            setSelectedComponent(comp);
-                            setIsEditBomOpen(true);
-                          }}
-                          className="text-slate-600 hover:text-blue-600 dark:hover:text-blue-400 mr-4"
-                        >
-                          <PencilIcon className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedComponent(comp);
-                            setIsDeleteBomOpen(true);
-                          }}
-                          className="text-slate-600 hover:text-red-600 dark:hover:text-red-400"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    {components.length === 0 ? (
+      <div className="flex items-center justify-center h-48">
+        <p className="text-slate-500 dark:text-slate-400 text-sm">No components added yet</p>
       </div>
-    </div>
+    ) : (
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[640px] text-left border-collapse">
+          <thead className="bg-slate-100 dark:bg-slate-700">
+            <tr>
+              <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Part Code</th>
+              <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Description</th>
+              <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Type</th>
+              <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white text-right">Qty</th>
+              <th className="px-6 py-5 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b-2 border-black dark:border-white text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {components.map((comp, index) => (
+              <tr key={comp.partCode} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                <td className={`px-6 py-5 text-base font-medium text-blue-600 dark:text-blue-400 border-r-2 border-black dark:border-white ${index !== components.length - 1 ? 'border-b-2 border-black dark:border-white' : ''}`}>
+                  {comp.partCode}
+                </td>
+                <td className={`px-6 py-5 text-base text-slate-600 dark:text-slate-300 border-r-2 border-black dark:border-white ${index !== components.length - 1 ? 'border-b-2 border-black dark:border-white' : ''}`}>
+                  {comp.partDescription || "—"}
+                </td>
+                <td className={`px-6 py-5 border-r-2 border-black dark:border-white ${index !== components.length - 1 ? 'border-b-2 border-black dark:border-white' : ''}`}>
+                  <span className={`px-2.5 py-1 rounded text-xs font-medium ${
+                    comp.partType === "RAW_MATERIAL"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300"
+                      : comp.partType === "COMPONENT"
+                      ? "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300"
+                      : comp.partType === "PACKAGING"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
+                      : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                  }`}>
+                    {comp.partType?.replace("_", " ") || "N/A"}
+                  </span>
+                </td>
+                <td className={`px-6 py-5 text-base font-semibold text-right border-r-2 border-black dark:border-white ${index !== components.length - 1 ? 'border-b-2 border-black dark:border-white' : ''}`}>
+                  {comp.perShipper}
+                </td>
+                <td className={`px-6 py-5 text-center ${index !== components.length - 1 ? 'border-b-2 border-black dark:border-white' : ''}`}>
+                  <button
+                    onClick={() => {
+                      setSelectedComponent(comp);
+                      setIsEditBomOpen(true);
+                    }}
+                    className="text-slate-600 hover:text-blue-600 dark:hover:text-blue-400 mr-4"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedComponent(comp);
+                      setIsDeleteBomOpen(true);
+                    }}
+                    className="text-slate-600 hover:text-red-600 dark:hover:text-red-400"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+</div>
 
     {/* BLOCK 13: Modals */}
     <AddBomComponentModal 
