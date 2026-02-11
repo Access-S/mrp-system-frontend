@@ -51,7 +51,7 @@ function ToasterPortal() {
   return mountNode ? createPortal(toaster, mountNode) : toaster;
 }
 
-// BLOCK 4: AppLayout Component (Full-Width)
+// BLOCK 4: AppLayout Component - FIXED FOR PERMANENT SIDEBAR
 function AppLayout() {
   const { theme } = useTheme();
   const [activePage, setActivePage] = useState<Page>("dashboard");
@@ -61,7 +61,7 @@ function AppLayout() {
   const pageTitles: Record<Page, string> = {
     dashboard: "Dashboard",
     products: "Products (BOM)",
-    "product-detail": "",  // Empty - we'll use breadcrumb instead
+    "product-detail": "",
     "purchase-orders": "Purchase Orders",
     inventory: "Inventory Planning Dashboard",
     forecasts: "Sales Forecasts",
@@ -70,21 +70,18 @@ function AppLayout() {
     reporting: "Reporting"
   };
 
-  // Handler to view product
   const handleViewProduct = (productCode: string, description?: string) => {
     setSelectedProductCode(productCode);
     setSelectedProductDescription(description || null);
     setActivePage("product-detail");
   };
 
-  // Handler to go back
   const handleBackToProducts = () => {
     setSelectedProductCode(null);
     setSelectedProductDescription(null);
     setActivePage("products");
   };
 
-  // Render breadcrumb for product detail page
   const renderNavbarContent = () => {
     if (activePage === "product-detail" && selectedProductCode) {
       return (
@@ -112,30 +109,33 @@ function AppLayout() {
   };
 
   return (
-    <div
-      className={`min-h-screen ${theme.background} transition-all duration-500`}
-    >
-      <div
-       className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 sticky top-0 z-20`}
-      >
-        <Sidebar activePage={activePage} setActivePage={setActivePage} />
-        {renderNavbarContent()}
-      </div>
+    <div className={`flex min-h-screen ${theme.background} transition-all duration-500`}>
+      {/* Sidebar - Only rendered once */}
+      <Sidebar activePage={activePage} setActivePage={setActivePage} />
       
-      <main className="p-4 md:p-8">
-        {activePage === "dashboard" && <DashboardPage />}
-        {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
-        {activePage === "product-detail" && selectedProductCode && (
-          <ProductDashboardPage  // Changed from ProductDetailPage
-            productCode={selectedProductCode} 
-            onBack={handleBackToProducts}
-          />
-        )}
-        {activePage === "purchase-orders" && <PurchaseOrdersPage />}
-        {activePage === "forecasts" && <ForecastsPage />}
-        {activePage === "soh" && <SohPage />}
-        {activePage === "inventory" && <InventoryPage />}
-      </main>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-auto">
+        {/* Top Navbar */}
+        <div className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 sticky top-0 z-20`}>
+          {renderNavbarContent()}
+        </div>
+        
+        {/* Page Content */}
+        <main className="flex-1 p-4 md:p-8">
+          {activePage === "dashboard" && <DashboardPage />}
+          {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
+          {activePage === "product-detail" && selectedProductCode && (
+            <ProductDashboardPage
+              productCode={selectedProductCode} 
+              onBack={handleBackToProducts}
+            />
+          )}
+          {activePage === "purchase-orders" && <PurchaseOrdersPage />}
+          {activePage === "forecasts" && <ForecastsPage />}
+          {activePage === "soh" && <SohPage />}
+          {activePage === "inventory" && <InventoryPage />}
+        </main>
+      </div>
     </div>
   );
 }
