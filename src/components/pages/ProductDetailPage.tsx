@@ -209,7 +209,7 @@ return (
             </div>
           </div>
 
-            {/* BLOCK 12: BOM Table - WITH BLACK BORDERS */}
+                        {/* BLOCK 12: BOM Table - WITH THEME BACKGROUND */}
             <div className="space-y-3">
               <div className="flex items-center justify-between px-1">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">
@@ -228,13 +228,13 @@ return (
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[640px] text-left border-collapse">
-                       <thead>
-                        <tr style={{ backgroundColor: '#f1f5f9' }} className="bg-slate-50 dark:bg-slate-800/50">
-                          <th className="px-6 py-5 text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Part Code</th>
-                          <th className="px-6 py-5 text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Description</th>
-                          <th className="px-6 py-5 text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Type</th>
-                          <th className="px-6 py-5 text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white text-right">Qty</th>
-                          <th className="px-6 py-5 text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b-2 border-black dark:border-white text-center">Actions</th>
+                      <thead>
+                        <tr className={theme.tableHeaderBg}>
+                          <th className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Part Code</th>
+                          <th className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Description</th>
+                          <th className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white">Type</th>
+                          <th className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b-2 border-r-2 border-black dark:border-white text-right">Qty</th>
+                          <th className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b-2 border-black dark:border-white text-center">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
