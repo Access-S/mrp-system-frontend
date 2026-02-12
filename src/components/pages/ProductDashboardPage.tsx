@@ -265,7 +265,7 @@ const bomCosts = {
           </WidgetBody>
         </WidgetCard>
 
-        // Widget 2: BOM Summary - Updated Layout
+      {/*Widget 2: BOM Summary - Updated Layout*/}
 <WidgetCard>
   <WidgetHeader
     title="BOM Summary"
