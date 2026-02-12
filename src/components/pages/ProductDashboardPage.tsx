@@ -348,7 +348,7 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
               </div>
             </WidgetCard>
           </div>
-        </div>
+         </div>
       </div>
 
       {/* Modals */}
