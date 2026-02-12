@@ -1,14 +1,5 @@
 // BLOCK 1: Imports
-import React, { useState, useRef, useEffect } from "react";
-import {
-  IconButton,
-  Typography,
-  List,
-  ListItem,
-  ListItemPrefix,
-  Drawer,
-  Card,
-} from "@material-tailwind/react";
+import React, { useState } from "react";
 import {
   PresentationChartBarIcon,
   UserCircleIcon,
@@ -86,38 +77,29 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// Block 4: Smooth Height Accordion - FIXED
-interface AnimatedAccordionProps {
+// BLOCK 4: Custom Accordion Component (No Material Tailwind)
+interface AccordionProps {
   isOpen: boolean;
+  onToggle: () => void;
   header: React.ReactNode;
   children: React.ReactNode;
-  onToggle: () => void;
 }
 
-function AnimatedAccordion({ isOpen, header, children, onToggle }: AnimatedAccordionProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number>(0);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      const contentHeight = contentRef.current.scrollHeight;
-      setHeight(contentHeight);
-    }
-  }, [children, isOpen]);
-
+function Accordion({ isOpen, onToggle, header, children }: AccordionProps) {
   return (
     <div className="w-full">
       <div onClick={onToggle} className="cursor-pointer select-none">
         {header}
       </div>
       <div
-        className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
-        style={{
-          maxHeight: isOpen ? `${height}px` : '0px',
-        }}
+        className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
+          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+        }`}
       >
-        <div ref={contentRef}>
-          {children}
+        <div className="overflow-hidden">
+          <div onClick={(e) => e.stopPropagation()}>
+            {children}
+          </div>
         </div>
       </div>
     </div>
@@ -151,178 +133,169 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
       }
     };
 
+    const menuItemClass = (isActive: boolean) => `
+      flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors cursor-pointer
+      ${isActive 
+        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium' 
+        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+      }
+    `;
+
+    const subMenuItemClass = (isActive: boolean, isDisabled?: boolean) => `
+      flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
+      ${isDisabled 
+        ? 'opacity-50 cursor-not-allowed' 
+        : 'cursor-pointer'
+      }
+      ${isActive 
+        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+      }
+    `;
+
     return (
       <>
+        {/* Header */}
         <div className="mb-6 flex items-center gap-4 p-4">
           <div className={`h-8 w-8 rounded-lg ${theme.isDark ? 'bg-blue-500' : 'bg-blue-600'} flex items-center justify-center text-white font-bold text-sm`}>
             MRP
           </div>
-          <Typography variant="h5" className={theme.sidebarText}>
+          <span className={`text-xl font-bold ${theme.sidebarText}`}>
             MRP System
-          </Typography>
+          </span>
         </div>
 
-        <div className="flex-1">
-          <List className={theme.sidebarText}>
-            <ListItem onClick={onClick("dashboard")} selected={activePage === "dashboard"}>
-              <ListItemPrefix>
-                <PresentationChartBarIcon className={`h-5 w-5 ${theme.sidebarText}`} />
-              </ListItemPrefix>
-              <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>Dashboard</Typography>
-            </ListItem>
+        {/* Main Menu */}
+        <div className="flex-1 px-2">
+          <nav className="space-y-1">
+            {/* Dashboard */}
+            <div onClick={onClick("dashboard")} className={menuItemClass(activePage === "dashboard")}>
+              <PresentationChartBarIcon className="h-5 w-5" />
+              <span>Dashboard</span>
+            </div>
 
+            {/* Menu Groups */}
             {MENU_GROUPS.map((group) => (
-              <AnimatedAccordion
+              <Accordion
                 key={group.id}
                 isOpen={openAccordion === group.id}
                 onToggle={() => toggleAccordion(group.id)}
                 header={
-                  <ListItem className="p-0" selected={openAccordion === group.id}>
-                    <div className="flex items-center w-full p-3">
-                      <ListItemPrefix>
-                        <group.icon className={`h-5 w-5 ${theme.sidebarText}`} />
-                      </ListItemPrefix>
-                      <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
-                        {group.label}
-                      </Typography>
-                      <ChevronDownIcon
-                        strokeWidth={2.5}
-                        className={`h-4 w-4 transition-transform duration-300 ${
-                          openAccordion === group.id ? "rotate-180" : ""
-                        }`}
-                      />
-                    </div>
-                  </ListItem>
-                }
-              >
-                <div onClick={(e) => e.stopPropagation()}>
-                  <List className="p-0 pl-4 py-1">
-                    {group.items.map((item) => (
-                      <ListItem
-                        key={item.id}
-                        onClick={onClick(item.id)}
-                        selected={activePage === item.id}
-                        disabled={item.disabled}
-                      >
-                        <ListItemPrefix>
-                          <item.icon className={`h-4 w-4 ${theme.sidebarText}`} />
-                        </ListItemPrefix>
-                        {item.label}
-                      </ListItem>
-                    ))}
-                  </List>
-                </div>
-              </AnimatedAccordion>
-            ))}
-          </List>
-        </div>
-
-        <div className="mt-auto">
-          <hr className={`my-4 ${theme.isDark ? 'border-slate-700' : 'border-gray-300'}`} />
-          <List className={theme.sidebarText}>
-            <ListItem>
-              <ListItemPrefix>
-                <UserCircleIcon className={`h-5 w-5 ${theme.sidebarText}`} />
-              </ListItemPrefix>
-              Profile
-            </ListItem>
-
-            <AnimatedAccordion
-              isOpen={openAccordion === "settings"}
-              onToggle={() => toggleAccordion("settings")}
-              header={
-                <ListItem className="p-0" selected={openAccordion === "settings"}>
-                  <div className="flex items-center w-full p-3">
-                    <ListItemPrefix>
-                      <Cog6ToothIcon className={`h-5 w-5 ${theme.sidebarText}`} />
-                    </ListItemPrefix>
-                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
-                      Settings
-                    </Typography>
+                  <div className={menuItemClass(openAccordion === group.id)}>
+                    <group.icon className="h-5 w-5" />
+                    <span className="flex-1">{group.label}</span>
                     <ChevronDownIcon
-                      strokeWidth={2.5}
                       className={`h-4 w-4 transition-transform duration-300 ${
-                        openAccordion === "settings" ? "rotate-180" : ""
+                        openAccordion === group.id ? "rotate-180" : ""
                       }`}
                     />
                   </div>
-                </ListItem>
+                }
+              >
+                <div className="ml-4 mt-1 space-y-1">
+                  {group.items.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={item.disabled ? undefined : onClick(item.id)}
+                      className={subMenuItemClass(activePage === item.id, item.disabled)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="text-sm">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </Accordion>
+            ))}
+          </nav>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="mt-auto px-2">
+          <hr className={`my-4 ${theme.isDark ? 'border-slate-700' : 'border-gray-300'}`} />
+          <nav className="space-y-1">
+            {/* Profile */}
+            <div className={menuItemClass(false)}>
+              <UserCircleIcon className="h-5 w-5" />
+              <span>Profile</span>
+            </div>
+
+            {/* Settings Accordion */}
+            <Accordion
+              isOpen={openAccordion === "settings"}
+              onToggle={() => toggleAccordion("settings")}
+              header={
+                <div className={menuItemClass(openAccordion === "settings")}>
+                  <Cog6ToothIcon className="h-5 w-5" />
+                  <span className="flex-1">Settings</span>
+                  <ChevronDownIcon
+                    className={`h-4 w-4 transition-transform duration-300 ${
+                      openAccordion === "settings" ? "rotate-180" : ""
+                    }`}
+                  />
+                </div>
               }
             >
-              <div onClick={(e) => e.stopPropagation()}>
-                <List className="p-0 py-1">
-                  {SETTINGS_ITEMS.map((item) => (
-                    <ListItem key={item}>
-                      <ListItemPrefix>
-                        <ChevronRightIcon strokeWidth={3} className={`h-3 w-5 ${theme.sidebarText}`} />
-                      </ListItemPrefix>
-                      {item}
-                    </ListItem>
-                  ))}
+              <div className="ml-4 mt-1 space-y-1">
+                {SETTINGS_ITEMS.map((item) => (
+                  <div key={item} className={subMenuItemClass(false)}>
+                    <ChevronRightIcon className="h-3 w-3" />
+                    <span className="text-sm">{item}</span>
+                  </div>
+                ))}
 
-                  <AnimatedAccordion
-                    isOpen={settingsOpen}
-                    onToggle={() => setSettingsOpen(!settingsOpen)}
-                    header={
-                      <ListItem className="p-0 pl-4" selected={settingsOpen}>
-                        <div className="flex items-center w-full p-2">
-                          <ListItemPrefix>
-                            <PaintBrushIcon className={`h-4 w-4 ${theme.sidebarText}`} />
-                          </ListItemPrefix>
-                          <Typography className={`mr-auto font-normal text-sm ${theme.sidebarText}`}>
-                            Themes
-                          </Typography>
-                          <ChevronDownIcon
-                            strokeWidth={2.5}
-                            className={`h-3 w-3 transition-transform duration-300 ${
-                              settingsOpen ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </ListItem>
-                    }
-                  >
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <List className="p-0 pl-4">
-                        {Object.entries(themes).map(([key, themeOption]) => (
-                          <ListItem
-                            key={key}
-                            className={`${theme.sidebarText} pl-8 py-2 ${
-                              themeName === key ? (theme.isDark ? "bg-gray-700" : theme.activeRowBg) : ""
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setThemeName(key as keyof typeof themes);
-                            }}
-                          >
-                            <ListItemPrefix>
-                              <div className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 border-2 ${
-                                theme.isDark ? "border-gray-400" : "border-gray-700"
-                              }`}>
-                                <div className={`w-2 h-2 rounded-full transition-transform duration-200 ${
-                                  theme.isDark ? "bg-gray-200" : "bg-gray-800"
-                                } ${themeName === key ? "scale-100" : "scale-0"}`} />
-                              </div>
-                            </ListItemPrefix>
-                            <Typography className={`text-xs ${theme.sidebarText} ${themeName === key ? "font-medium" : ""}`}>
-                              {themeOption.name}
-                            </Typography>
-                          </ListItem>
-                        ))}
-                      </List>
+                {/* Themes Nested Accordion */}
+                <Accordion
+                  isOpen={settingsOpen}
+                  onToggle={() => setSettingsOpen(!settingsOpen)}
+                  header={
+                    <div className={`${subMenuItemClass(settingsOpen)} pl-0`}>
+                      <PaintBrushIcon className="h-4 w-4" />
+                      <span className="text-sm flex-1">Themes</span>
+                      <ChevronDownIcon
+                        className={`h-3 w-3 transition-transform duration-300 ${
+                          settingsOpen ? "rotate-180" : ""
+                        }`}
+                      />
                     </div>
-                  </AnimatedAccordion>
-                </List>
+                  }
+                >
+                  <div className="ml-6 mt-1 space-y-1">
+                    {Object.entries(themes).map(([key, themeOption]) => (
+                      <div
+                        key={key}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setThemeName(key as keyof typeof themes);
+                        }}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                          themeName === key
+                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                        }`}
+                      >
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center border-2 ${
+                          theme.isDark ? "border-gray-400" : "border-gray-700"
+                        }`}>
+                          <div className={`w-2 h-2 rounded-full transition-transform duration-200 ${
+                            theme.isDark ? "bg-gray-200" : "bg-gray-800"
+                          } ${themeName === key ? "scale-100" : "scale-0"}`} />
+                        </div>
+                        <span className={`text-xs ${themeName === key ? "font-medium" : ""}`}>
+                          {themeOption.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </Accordion>
               </div>
-            </AnimatedAccordion>
+            </Accordion>
 
-            <ListItem>
-              <ListItemPrefix>
-                <PowerIcon className={`h-5 w-5 ${theme.sidebarText}`} />
-              </ListItemPrefix>
-              Log Out
-            </ListItem>
-          </List>
+            {/* Logout */}
+            <div className={menuItemClass(false)}>
+              <PowerIcon className="h-5 w-5" />
+              <span>Log Out</span>
+            </div>
+          </nav>
         </div>
       </>
     );
@@ -330,33 +303,53 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
 
   return (
     <>
-      <IconButton
-        variant="text"
-        size="lg"
+      {/* Mobile Toggle Button */}
+      <button
         onClick={() => setIsDrawerOpen(true)}
-        className={`${theme.text} lg:hidden fixed top-4 left-4 z-50`}
+        className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg ${theme.cards} border ${
+          theme.isDark ? 'border-slate-700' : 'border-slate-200'
+        } shadow-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors`}
         aria-label="Open sidebar"
       >
-        <Bars3Icon className="h-8 w-8 stroke-2" />
-      </IconButton>
+        <Bars3Icon className="h-6 w-6" />
+      </button>
 
-      <Drawer open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} className="lg:hidden">
-        <div className={`h-full w-full ${theme.cards}`}>
-          <Card color="transparent" shadow={false} className={`h-full w-full p-4 ${theme.cards} flex flex-col overflow-y-auto rounded-none`}>
-            <div className="flex justify-end mb-2">
-              <IconButton variant="text" onClick={() => setIsDrawerOpen(false)} aria-label="Close sidebar">
-                <XMarkIcon className="h-6 w-6" />
-              </IconButton>
+      {/* Mobile Drawer */}
+      {isDrawerOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+            onClick={() => setIsDrawerOpen(false)}
+          />
+          
+          {/* Drawer */}
+          <div className={`lg:hidden fixed inset-y-0 left-0 w-64 ${theme.cards} z-50 transform transition-transform duration-300 ease-in-out ${
+            isDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}>
+            <div className="h-full flex flex-col overflow-y-auto p-4">
+              <div className="flex justify-end mb-2">
+                <button
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  aria-label="Close sidebar"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+              <NavContent isMobile />
             </div>
-            <NavContent isMobile />
-          </Card>
-        </div>
-      </Drawer>
+          </div>
+        </>
+      )}
 
+      {/* Desktop Sidebar */}
       <aside className={`hidden lg:flex flex-col w-64 ${theme.cards} border-r ${
         theme.isDark ? 'border-slate-700' : 'border-slate-200'
       } h-screen sticky top-0 overflow-y-auto`}>
-        <NavContent />
+        <div className="flex flex-col h-full p-4">
+          <NavContent />
+        </div>
       </aside>
     </>
   );
