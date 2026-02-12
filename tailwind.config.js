@@ -1,22 +1,11 @@
-//tailwind.config.js
+const withMT = require("@material-tailwind/react/utils/withMT");
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+module.exports = withMT({
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {
-      // Add custom transition timing if needed
-      transitionDuration: {
-        '300': '300ms',
-      },
-      transitionTimingFunction: {
-        'in-out': 'cubic-bezier(0.4, 0, 0.2, 1)',
-      },
-    },
+    extend: {},
   },
-  plugins: [
-    require("daisyui")
-  ],
+  plugins: [require("daisyui")],
   daisyui: {
     themes: [
       {
@@ -54,4 +43,4 @@ module.exports = {
     ],
     darkTheme: "dark",
   },
-};
+});
