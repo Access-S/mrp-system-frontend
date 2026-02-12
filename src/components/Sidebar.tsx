@@ -74,25 +74,38 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// Accordion Component with proper animation
+// Fixed Accordion Component with smooth open AND close animation
 const Accordion: React.FC<{
   isOpen: boolean;
   children: React.ReactNode;
 }> = ({ isOpen, children }) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number>(0);
+  const [height, setHeight] = useState<string>("0px");
 
   useEffect(() => {
-    if (contentRef.current) {
-      setHeight(isOpen ? contentRef.current.scrollHeight : 0);
+    if (!contentRef.current) return;
+
+    if (isOpen) {
+      // Opening: set to scrollHeight
+      const scrollHeight = contentRef.current.scrollHeight;
+      setHeight(`${scrollHeight}px`);
+    } else {
+      // Closing: first set to current scrollHeight, then to 0 after a frame
+      const scrollHeight = contentRef.current.scrollHeight;
+      setHeight(`${scrollHeight}px`);
+      
+      // Use requestAnimationFrame to ensure browser has rendered the height change
+      requestAnimationFrame(() => {
+        setHeight("0px");
+      });
     }
-  }, [isOpen, children]);
+  }, [isOpen]);
 
   return (
     <div
       style={{
-        maxHeight: `${height}px`,
-        transition: "max-height 0.3s ease-in-out",
+        maxHeight: height,
+        transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         overflow: "hidden",
       }}
     >
