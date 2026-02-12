@@ -77,66 +77,24 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-<<<<<<< HEAD
 // BLOCK 4: Custom Accordion Component (No Material Tailwind)
 interface AccordionProps {
-=======
-// Block 4: Smooth Accordion with Delayed Height Calculation
-interface AnimatedAccordionProps {
->>>>>>> 7a8372c (fix: improve accordion animation with inline transitions)
   isOpen: boolean;
   onToggle: () => void;
   header: React.ReactNode;
   children: React.ReactNode;
 }
 
-<<<<<<< HEAD
 function Accordion({ isOpen, onToggle, header, children }: AccordionProps) {
-=======
-function AnimatedAccordion({ isOpen, header, children, onToggle }: AnimatedAccordionProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number>(0);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      // Force reflow before measuring
-      contentRef.current.style.display = 'block';
-      const contentHeight = contentRef.current.scrollHeight;
-      setHeight(contentHeight);
-    }
-  }, [children, isOpen]);
-
-  // Recalculate on window resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (contentRef.current && isOpen) {
-        const contentHeight = contentRef.current.scrollHeight;
-        setHeight(contentHeight);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isOpen]);
-
->>>>>>> 7a8372c (fix: improve accordion animation with inline transitions)
   return (
     <div className="w-full">
       <div onClick={onToggle} className="cursor-pointer select-none">
         {header}
       </div>
       <div
-<<<<<<< HEAD
         className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
           isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
         }`}
-=======
-        className="overflow-hidden"
-        style={{
-          maxHeight: isOpen ? `${height}px` : '0px',
-          transition: 'max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
->>>>>>> 7a8372c (fix: improve accordion animation with inline transitions)
       >
         <div className="overflow-hidden">
           <div onClick={(e) => e.stopPropagation()}>
