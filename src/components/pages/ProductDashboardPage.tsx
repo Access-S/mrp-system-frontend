@@ -216,22 +216,24 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
               title="Production Rates"
               icon={<ChartBarIcon className="h-4 w-4" />}
             />
-            <WidgetBody className="flex flex-col gap-4">
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
-                <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Hourly Run Rate</p>
-                <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
-                  {product.hourlyRunRate || "—"} <span className="text-base font-normal text-slate-500 dark:text-slate-400">pcs/hr</span>
-                </p>
-              </div>
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
-                <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Daily Capacity</p>
-                <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
-                  {product.dailyRunRate || "—"} <span className="text-base font-normal text-slate-500 dark:text-slate-400">pcs/day</span>
-                </p>
-              </div>
-              <div className="flex items-center gap-2 text-base text-slate-500 dark:text-slate-400">
-                <ClockIcon className="h-5 w-5 text-green-500" />
-                {product.minsPerShipper || "—"} mins per shipper
+            <WidgetBody>
+              <div className="flex flex-col gap-4">
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Hourly Run Rate</p>
+                  <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                    {product.hourlyRunRate || "—"} <span className="text-base font-normal text-slate-500 dark:text-slate-400">pcs/hr</span>
+                  </p>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Daily Capacity</p>
+                  <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                    {product.dailyRunRate || "—"} <span className="text-base font-normal text-slate-500 dark:text-slate-400">pcs/day</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-base text-slate-500 dark:text-slate-400">
+                  <ClockIcon className="h-5 w-5 text-green-500" />
+                  {product.minsPerShipper || "—"} mins per shipper
+                </div>
               </div>
             </WidgetBody>
           </WidgetCard>
@@ -239,34 +241,35 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
           {/* Widget 4: Quick Actions */}
           <WidgetCard>
             <WidgetHeader title="Quick Actions" />
-            <WidgetBody className="space-y-3">
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
-                <DocumentDuplicateIcon className="h-5 w-5 text-slate-400" />
-                <span>Clone Product</span>
-              </button>
-              <button 
-                onClick={() => setIsAddBomOpen(true)}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-semibold rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
-              >
-                <PlusIcon className="h-5 w-5" />
-                <span>Add BOM Component</span>
-              </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
-                <ClipboardDocumentListIcon className="h-5 w-5 text-slate-400" />
-                <span>Generate Requirements</span>
-              </button>
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                <button 
-                  onClick={() => setIsDeleteProductOpen(true)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-semibold rounded-lg text-red-600 dark:text-red-400 border border-red-50 dark:border-red-950 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                  <span>Delete Product</span>
+            <WidgetBody>
+              <div className="space-y-3">
+                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
+                  <DocumentDuplicateIcon className="h-5 w-5 text-slate-400" />
+                  <span>Clone Product</span>
                 </button>
+                <button 
+                  onClick={() => setIsAddBomOpen(true)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-semibold rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                  <span>Add BOM Component</span>
+                </button>
+                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
+                  <ClipboardDocumentListIcon className="h-5 w-5 text-slate-400" />
+                  <span>Generate Requirements</span>
+                </button>
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <button 
+                    onClick={() => setIsDeleteProductOpen(true)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-base font-semibold rounded-lg text-red-600 dark:text-red-400 border border-red-50 dark:border-red-950 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                    <span>Delete Product</span>
+                  </button>
+                </div>
               </div>
             </WidgetBody>
           </WidgetCard>
-        </div>
 
         {/* Bottom Row: Component Details Table */}
         <div className="grid grid-cols-12 gap-6">
