@@ -86,7 +86,7 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// Block 4: Simple Max-Height Accordion
+// Block 4: Smooth Height Accordion with Auto Measurement
 interface AnimatedAccordionProps {
   isOpen: boolean;
   header: React.ReactNode;
@@ -95,6 +95,16 @@ interface AnimatedAccordionProps {
 }
 
 function AnimatedAccordion({ isOpen, header, children, onToggle }: AnimatedAccordionProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number>(0);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const contentHeight = contentRef.current.scrollHeight;
+      setHeight(contentHeight);
+    }
+  }, [children, isOpen]);
+
   return (
     <div className="w-full">
       <div onClick={onToggle} className="cursor-pointer select-none">
@@ -103,11 +113,13 @@ function AnimatedAccordion({ isOpen, header, children, onToggle }: AnimatedAccor
       <div
         className="overflow-hidden transition-all duration-300 ease-in-out"
         style={{
-          maxHeight: isOpen ? '500px' : '0px',
+          maxHeight: isOpen ? `${height}px` : '0px',
           opacity: isOpen ? 1 : 0,
         }}
       >
-        {children}
+        <div ref={contentRef}>
+          {children}
+        </div>
       </div>
     </div>
   );
