@@ -270,7 +270,7 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
               </div>
             </WidgetBody>
           </WidgetCard>
-
+        </div>               
         {/* Bottom Row: Component Details Table */}
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12">
