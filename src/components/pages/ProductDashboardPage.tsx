@@ -160,22 +160,22 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
   const formatCurrency = (value: number | undefined) => 
     `$${Number(value || 0).toFixed(2)}`;
 
-  // BOM metrics
-  const totalComponents = components.length;
-  const rawMaterialsCount = components.filter(c => c.partType === "RAW_MATERIAL").length;
-  const subAssembliesCount = components.filter(c => c.partType === "COMPONENT").length;
-  const packagingCount = components.filter(c => c.partType === "PACKAGING").length;
-  const totalCost = components.reduce((sum, c) => sum + (c.cost || 0) * c.perShipper, 0);
+ // BOM metrics - existing
+const totalComponents = components.length;
+const rawMaterialsCount = components.filter(c => c.partType === "RAW_MATERIAL").length;
+const subAssembliesCount = components.filter(c => c.partType === "COMPONENT").length;
+const packagingCount = components.filter(c => c.partType === "PACKAGING").length;
 
-  const getBomStatus = () => {
-    if (totalComponents === 0) return { text: "Empty", color: "text-slate-500 dark:text-slate-400", width: 0 };
-    // Add your actual validation logic here
-    return { text: "Complete", color: "text-green-600 dark:text-green-400", width: 100 };
-  };
-
-  const bomStatus = getBomStatus();
-
-  // === Render States ===
+// BOM Costs - placeholder for now, will come from Quotes later
+// TODO: Replace with actual quote data when available
+const bomCosts = {
+  labour: 0,        // Will come from labour quotes
+  packaging: packagingCount * 2.50,  // Placeholder calculation
+  consumables: totalComponents * 1.20,  // Placeholder calculation
+  get total() {
+    return this.labour + this.packaging + this.consumables;
+  }
+};
   
   if (loading) {
     return (
@@ -265,74 +265,109 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
           </WidgetBody>
         </WidgetCard>
 
-        {/* Widget 2: BOM Summary - Now with Cost like Inspiration */}
-        <WidgetCard>
-          <WidgetHeader
-            title="BOM Summary"
-            icon={<Squares2X2Icon className="h-4 w-4" />}
-            actions={
-              <>
-                <MiniActionButton 
-                  onClick={() => openModal("addBom")} 
-                  icon={<PlusIcon className="h-4 w-4" />} 
-                  title="Add Component"
-                  aria-label="Add BOM component"
-                />
-                <MiniActionButton 
-                  onClick={() => {}} // Add full BOM view handler
-                  icon={<ArrowLeftIcon className="h-4 w-4 rotate-180" />} 
-                  title="Full BOM View"
-                  aria-label="Open full BOM view"
-                />
-              </>
-            }
-          />
-          <WidgetBody>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">Total Items</span>
-                <span className="font-bold text-slate-700 dark:text-slate-300">
-                  {totalComponents} Parts
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">BOM Cost</span>
-                <span className="font-bold text-green-600 dark:text-green-400">
-                  {formatCurrency(totalCost)}
-                </span>
-              </div>
-              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-4">
-                <div 
-                  className="bg-blue-600 h-full transition-all duration-500" 
-                  style={{ width: `${bomStatus.width}%` }} 
-                />
-              </div>
-              <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
-                BOM completion: {bomStatus.width}%
-              </p>
-              <div className="pt-4 space-y-2">
-                {rawMaterialsCount > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                    <span className="w-2 h-2 rounded-full bg-blue-400" />
-                    <span>{rawMaterialsCount} Raw Materials</span>
-                  </div>
-                )}
-                {subAssembliesCount > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                    <span className="w-2 h-2 rounded-full bg-orange-400" />
-                    <span>{subAssembliesCount} Sub-assemblies</span>
-                  </div>
-                )}
-                {packagingCount > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                    <span className="w-2 h-2 rounded-full bg-green-400" />
-                    <span>{packagingCount} Packaging</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </WidgetBody>
-        </WidgetCard>
+        // Widget 2: BOM Summary - Updated Layout
+<WidgetCard>
+  <WidgetHeader
+    title="BOM Summary"
+    icon={<Squares2X2Icon className="h-4 w-4" />}
+    actions={
+      <>
+        <MiniActionButton 
+          onClick={() => openModal("addBom")} 
+          icon={<PlusIcon className="h-4 w-4" />} 
+          title="Add Component"
+          aria-label="Add BOM component"
+        />
+        <MiniActionButton 
+          onClick={() => {}} 
+          icon={<ArrowLeftIcon className="h-4 w-4 rotate-180" />} 
+          title="Full BOM View"
+          aria-label="Open full BOM view"
+        />
+      </>
+    }
+  />
+  <WidgetBody>
+    <div className="space-y-4">
+      {/* Total Items */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-slate-500 dark:text-slate-400">Total Items</span>
+        <span className="font-bold text-slate-700 dark:text-slate-300">
+          {totalComponents} Parts
+        </span>
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
+      {/* Cost Breakdown */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-orange-400" />
+            Labour Cost
+          </span>
+          <span className="font-bold text-slate-700 dark:text-slate-300">
+            {formatCurrency(bomCosts.labour)}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-400" />
+            Packaging Material
+          </span>
+          <span className="font-bold text-slate-700 dark:text-slate-300">
+            {formatCurrency(bomCosts.packaging)}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-purple-400" />
+            Consumables
+          </span>
+          <span className="font-bold text-slate-700 dark:text-slate-300">
+            {formatCurrency(bomCosts.consumables)}
+          </span>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
+      {/* Total Cost */}
+      <div className="flex items-center justify-between text-base">
+        <span className="font-semibold text-slate-700 dark:text-slate-300">Total BOM Cost</span>
+        <span className="font-bold text-green-600 dark:text-green-400 text-lg">
+          {formatCurrency(bomCosts.total)}
+        </span>
+      </div>
+
+      {/* Component Breakdown */}
+      <div className="pt-2 space-y-2">
+        {rawMaterialsCount > 0 && (
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-blue-400" />
+            <span>{rawMaterialsCount} Raw Materials</span>
+          </div>
+        )}
+        {subAssembliesCount > 0 && (
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-orange-400" />
+            <span>{subAssembliesCount} Sub-assemblies</span>
+          </div>
+        )}
+        {packagingCount > 0 && (
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-green-400" />
+            <span>{packagingCount} Packaging Items</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </WidgetBody>
+</WidgetCard>
 
         {/* Widget 3: Production Rates */}
         <WidgetCard>
