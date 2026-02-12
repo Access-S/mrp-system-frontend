@@ -142,7 +142,14 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
   };
 
   const NavContent = ({ isMobile = false }: { isMobile?: boolean }) => {
-    const onClick = (page: Page) => (isMobile ? () => handleNavClick(page) : () => setActivePage(page));
+    const onClick = (page: Page) => (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (isMobile) {
+        handleNavClick(page);
+      } else {
+        setActivePage(page);
+      }
+    };
 
     return (
       <>
@@ -188,21 +195,23 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                   </ListItem>
                 }
               >
-                <List className="p-0 pl-4 py-1">
-                  {group.items.map((item) => (
-                    <ListItem
-                      key={item.id}
-                      onClick={onClick(item.id)}
-                      selected={activePage === item.id}
-                      disabled={item.disabled}
-                    >
-                      <ListItemPrefix>
-                        <item.icon className={`h-4 w-4 ${theme.sidebarText}`} />
-                      </ListItemPrefix>
-                      {item.label}
-                    </ListItem>
-                  ))}
-                </List>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <List className="p-0 pl-4 py-1">
+                    {group.items.map((item) => (
+                      <ListItem
+                        key={item.id}
+                        onClick={onClick(item.id)}
+                        selected={activePage === item.id}
+                        disabled={item.disabled}
+                      >
+                        <ListItemPrefix>
+                          <item.icon className={`h-4 w-4 ${theme.sidebarText}`} />
+                        </ListItemPrefix>
+                        {item.label}
+                      </ListItem>
+                    ))}
+                  </List>
+                </div>
               </AnimatedAccordion>
             ))}
           </List>
@@ -240,64 +249,71 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                 </ListItem>
               }
             >
-              <List className="p-0 py-1">
-                {SETTINGS_ITEMS.map((item) => (
-                  <ListItem key={item}>
-                    <ListItemPrefix>
-                      <ChevronRightIcon strokeWidth={3} className={`h-3 w-5 ${theme.sidebarText}`} />
-                    </ListItemPrefix>
-                    {item}
-                  </ListItem>
-                ))}
-
-                <AnimatedAccordion
-                  isOpen={settingsOpen}
-                  onToggle={() => setSettingsOpen(!settingsOpen)}
-                  header={
-                    <ListItem className="p-0 pl-4" selected={settingsOpen}>
-                      <div className="flex items-center w-full p-2">
-                        <ListItemPrefix>
-                          <PaintBrushIcon className={`h-4 w-4 ${theme.sidebarText}`} />
-                        </ListItemPrefix>
-                        <Typography className={`mr-auto font-normal text-sm ${theme.sidebarText}`}>
-                          Themes
-                        </Typography>
-                        <ChevronDownIcon
-                          strokeWidth={2.5}
-                          className={`h-3 w-3 transition-transform duration-300 ${
-                            settingsOpen ? "rotate-180" : ""
-                          }`}
-                        />
-                      </div>
+              <div onClick={(e) => e.stopPropagation()}>
+                <List className="p-0 py-1">
+                  {SETTINGS_ITEMS.map((item) => (
+                    <ListItem key={item}>
+                      <ListItemPrefix>
+                        <ChevronRightIcon strokeWidth={3} className={`h-3 w-5 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      {item}
                     </ListItem>
-                  }
-                >
-                  <List className="p-0 pl-4">
-                    {Object.entries(themes).map(([key, themeOption]) => (
-                      <ListItem
-                        key={key}
-                        className={`${theme.sidebarText} pl-8 py-2 ${
-                          themeName === key ? (theme.isDark ? "bg-gray-700" : theme.activeRowBg) : ""
-                        }`}
-                        onClick={() => setThemeName(key as keyof typeof themes)}
-                      >
-                        <ListItemPrefix>
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 border-2 ${
-                            theme.isDark ? "border-gray-400" : "border-gray-700"
-                          }`}>
-                            <div className={`w-2 h-2 rounded-full transition-transform duration-200 ${
-                              theme.isDark ? "bg-gray-200" : "bg-gray-800"
-                            } ${themeName === key ? "scale-100" : "scale-0"}`} />
-                          </div>
-                        </ListItemPrefix>
-                        <Typography className={`text-xs ${theme.sidebarText} ${themeName === key ? "font-medium" : ""}`}>
-                          {themeOption.name}
-                        </Typography>
+                  ))}
+
+                  <AnimatedAccordion
+                    isOpen={settingsOpen}
+                    onToggle={() => setSettingsOpen(!settingsOpen)}
+                    header={
+                      <ListItem className="p-0 pl-4" selected={settingsOpen}>
+                        <div className="flex items-center w-full p-2">
+                          <ListItemPrefix>
+                            <PaintBrushIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                          </ListItemPrefix>
+                          <Typography className={`mr-auto font-normal text-sm ${theme.sidebarText}`}>
+                            Themes
+                          </Typography>
+                          <ChevronDownIcon
+                            strokeWidth={2.5}
+                            className={`h-3 w-3 transition-transform duration-300 ${
+                              settingsOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </div>
                       </ListItem>
-                    ))}
-                  </List>
-                </AnimatedAccordion>
-              </List>
+                    }
+                  >
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <List className="p-0 pl-4">
+                        {Object.entries(themes).map(([key, themeOption]) => (
+                          <ListItem
+                            key={key}
+                            className={`${theme.sidebarText} pl-8 py-2 ${
+                              themeName === key ? (theme.isDark ? "bg-gray-700" : theme.activeRowBg) : ""
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setThemeName(key as keyof typeof themes);
+                            }}
+                          >
+                            <ListItemPrefix>
+                              <div className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 border-2 ${
+                                theme.isDark ? "border-gray-400" : "border-gray-700"
+                              }`}>
+                                <div className={`w-2 h-2 rounded-full transition-transform duration-200 ${
+                                  theme.isDark ? "bg-gray-200" : "bg-gray-800"
+                                } ${themeName === key ? "scale-100" : "scale-0"}`} />
+                              </div>
+                            </ListItemPrefix>
+                            <Typography className={`text-xs ${theme.sidebarText} ${themeName === key ? "font-medium" : ""}`}>
+                              {themeOption.name}
+                            </Typography>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </div>
+                  </AnimatedAccordion>
+                </List>
+              </div>
             </AnimatedAccordion>
 
             <ListItem>
