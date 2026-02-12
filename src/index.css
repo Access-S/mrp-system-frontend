@@ -1,32 +1,37 @@
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/*
-  ==========================================================================
-   BASE STYLES & RESPONSIVE TYPOGRAPHY
-  ==========================================================================
-*/
+/* Force height transitions to work */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Override any library that tries to disable transitions */
+  * {
+    @apply transition-none;
+  }
+  
+  /* Re-enable only for specific properties we want */
+  .transition-height {
+    transition-property: height;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+}
+
+/* Your existing styles */
 :root {
-  /* Define a base font size for the app */
   font-size: 16px;
 }
 
-/* Apply responsive font sizes to table elements */
 th, td {
-  /* 
-    Preferred size is 0.8vw (0.8% of viewport width).
-    Minimum size is 12px.
-    Maximum size is 15px (just under 1rem).
-  */
   font-size: clamp(12px, 0.8vw, 15px);
 }
 
-/*
-  ==========================================================================
-   GLOBAL OVERRIDE FOR REACT HOT TOAST
-  ==========================================================================
-*/
 .go2138849764 {
   z-index: 9999 !important;
 }
