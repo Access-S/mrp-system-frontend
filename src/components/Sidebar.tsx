@@ -52,14 +52,6 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
-interface SmoothAccordionProps {
-  open: boolean;
-  onToggle: () => void;
-  header: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}
-
 // BLOCK 3: Menu Configuration
 const MENU_GROUPS: MenuGroup[] = [
   {
@@ -94,29 +86,63 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// BLOCK 4: Smooth Accordion Component
-function SmoothAccordion({ open, onToggle, header, children, className = "" }: SmoothAccordionProps) {
+// BLOCK 4: Custom Animated Accordion Component
+interface AnimatedAccordionProps {
+  isOpen: boolean;
+  header: React.ReactNode;
+  children: React.ReactNode;
+  onToggle: () => void;
+}
+
+function AnimatedAccordion({ isOpen, header, children, onToggle }: AnimatedAccordionProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(0);
+  const [height, setHeight] = useState<number | undefined>(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (contentRef.current) {
-      setHeight(open ? contentRef.current.scrollHeight : 0);
+      const scrollHeight = contentRef.current.scrollHeight;
+      
+      if (isOpen) {
+        setIsAnimating(true);
+        setHeight(scrollHeight);
+        const timer = setTimeout(() => {
+          setHeight(undefined); // Switch to auto after animation
+          setIsAnimating(false);
+        }, 300);
+        return () => clearTimeout(timer);
+      } else {
+        setIsAnimating(true);
+        setHeight(scrollHeight); // Set to current height first
+        // Force reflow
+        contentRef.current.offsetHeight;
+        setHeight(0);
+        const timer = setTimeout(() => {
+          setIsAnimating(false);
+        }, 300);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [open]);
+  }, [isOpen]);
 
   return (
-    <div className={className}>
-      <div onClick={onToggle} className="cursor-pointer">
+    <div className="w-full">
+      <div onClick={onToggle} className="cursor-pointer select-none">
         {header}
       </div>
-        <div 
-          className="overflow-hidden transition-height"
-          style={{ height }}
-         >
-        <div ref={contentRef}>
-          {children}
-        </div>
+      <div
+        ref={contentRef}
+        className="overflow-hidden"
+        style={{
+          height: height === undefined ? (isOpen ? 'auto' : 0) : height,
+          transition: isAnimating ? 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)' : undefined,
+          opacity: isOpen || height !== 0 ? 1 : 0,
+          transitionProperty: 'height, opacity',
+          transitionDuration: '300ms',
+          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        {children}
       </div>
     </div>
   );
@@ -163,9 +189,9 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
             </ListItem>
 
             {MENU_GROUPS.map((group) => (
-              <SmoothAccordion
+              <AnimatedAccordion
                 key={group.id}
-                open={openAccordion === group.id}
+                isOpen={openAccordion === group.id}
                 onToggle={() => toggleAccordion(group.id)}
                 header={
                   <ListItem className="p-0" selected={openAccordion === group.id}>
@@ -193,7 +219,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                       onClick={onClick(item.id)}
                       selected={activePage === item.id}
                       disabled={item.disabled}
-                      className="transition-colors duration-200"
                     >
                       <ListItemPrefix>
                         <item.icon className={`h-4 w-4 ${theme.sidebarText}`} />
@@ -202,7 +227,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                     </ListItem>
                   ))}
                 </List>
-              </SmoothAccordion>
+              </AnimatedAccordion>
             ))}
           </List>
         </div>
@@ -217,8 +242,8 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
               Profile
             </ListItem>
 
-            <SmoothAccordion
-              open={openAccordion === "settings"}
+            <AnimatedAccordion
+              isOpen={openAccordion === "settings"}
               onToggle={() => toggleAccordion("settings")}
               header={
                 <ListItem className="p-0" selected={openAccordion === "settings"}>
@@ -226,7 +251,9 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                     <ListItemPrefix>
                       <Cog6ToothIcon className={`h-5 w-5 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>Settings</Typography>
+                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                      Settings
+                    </Typography>
                     <ChevronDownIcon
                       strokeWidth={2.5}
                       className={`h-4 w-4 transition-transform duration-300 ${
@@ -247,8 +274,8 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                   </ListItem>
                 ))}
 
-                <SmoothAccordion
-                  open={settingsOpen}
+                <AnimatedAccordion
+                  isOpen={settingsOpen}
                   onToggle={() => setSettingsOpen(!settingsOpen)}
                   header={
                     <ListItem className="p-0 pl-4" selected={settingsOpen}>
@@ -293,9 +320,9 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                       </ListItem>
                     ))}
                   </List>
-                </SmoothAccordion>
+                </AnimatedAccordion>
               </List>
-            </SmoothAccordion>
+            </AnimatedAccordion>
 
             <ListItem>
               <ListItemPrefix>
