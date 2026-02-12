@@ -1,14 +1,11 @@
 // BLOCK 1: Imports
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   IconButton,
   Typography,
   List,
   ListItem,
   ListItemPrefix,
-  Accordion,
-  AccordionHeader,
-  AccordionBody,
   Drawer,
   Card,
 } from "@material-tailwind/react";
@@ -55,6 +52,14 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
+interface SmoothAccordionProps {
+  open: boolean;
+  onToggle: () => void;
+  header: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}
+
 // BLOCK 3: Menu Configuration
 const MENU_GROUPS: MenuGroup[] = [
   {
@@ -89,7 +94,35 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// BLOCK 4: Component
+// BLOCK 4: Smooth Accordion Component
+function SmoothAccordion({ open, onToggle, header, children, className = "" }: SmoothAccordionProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setHeight(open ? contentRef.current.scrollHeight : 0);
+    }
+  }, [open]);
+
+  return (
+    <div className={className}>
+      <div onClick={onToggle} className="cursor-pointer">
+        {header}
+      </div>
+      <div 
+        className="overflow-hidden transition-all duration-300 ease-in-out"
+        style={{ height }}
+      >
+        <div ref={contentRef}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// BLOCK 5: Component
 export function Sidebar({ activePage, setActivePage }: SidebarProps) {
   const [openAccordion, setOpenAccordion] = useState<string>("");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -130,42 +163,46 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
             </ListItem>
 
             {MENU_GROUPS.map((group) => (
-              <Accordion
+              <SmoothAccordion
                 key={group.id}
                 open={openAccordion === group.id}
-                icon={
-                  <ChevronDownIcon
-                    strokeWidth={2.5}
-                    className={`mx-auto h-4 w-4 transition-transform ${openAccordion === group.id ? "rotate-180" : ""}`}
-                  />
+                onToggle={() => toggleAccordion(group.id)}
+                header={
+                  <ListItem className="p-0" selected={openAccordion === group.id}>
+                    <div className="flex items-center w-full p-3">
+                      <ListItemPrefix>
+                        <group.icon className={`h-5 w-5 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                        {group.label}
+                      </Typography>
+                      <ChevronDownIcon
+                        strokeWidth={2.5}
+                        className={`h-4 w-4 transition-transform duration-300 ${
+                          openAccordion === group.id ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+                  </ListItem>
                 }
               >
-                <ListItem className="p-0" selected={openAccordion === group.id}>
-                  <AccordionHeader onClick={() => toggleAccordion(group.id)} className="border-b-0 p-3">
-                    <ListItemPrefix>
-                      <group.icon className={`h-5 w-5 ${theme.sidebarText}`} />
-                    </ListItemPrefix>
-                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>{group.label}</Typography>
-                  </AccordionHeader>
-                </ListItem>
-                <AccordionBody className="py-1">
-                  <List className="p-0 pl-4">
-                    {group.items.map((item) => (
-                      <ListItem
-                        key={item.id}
-                        onClick={onClick(item.id)}
-                        selected={activePage === item.id}
-                        disabled={item.disabled}
-                      >
-                        <ListItemPrefix>
-                          <item.icon className={`h-4 w-4 ${theme.sidebarText}`} />
-                        </ListItemPrefix>
-                        {item.label}
-                      </ListItem>
-                    ))}
-                  </List>
-                </AccordionBody>
-              </Accordion>
+                <List className="p-0 pl-4 py-1">
+                  {group.items.map((item) => (
+                    <ListItem
+                      key={item.id}
+                      onClick={onClick(item.id)}
+                      selected={activePage === item.id}
+                      disabled={item.disabled}
+                      className="transition-colors duration-200"
+                    >
+                      <ListItemPrefix>
+                        <item.icon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      {item.label}
+                    </ListItem>
+                  ))}
+                </List>
+              </SmoothAccordion>
             ))}
           </List>
         </div>
@@ -180,75 +217,85 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
               Profile
             </ListItem>
 
-            <Accordion
+            <SmoothAccordion
               open={openAccordion === "settings"}
-              icon={
-                <ChevronDownIcon
-                  strokeWidth={2.5}
-                  className={`mx-auto h-4 w-4 transition-transform ${openAccordion === "settings" ? "rotate-180" : ""}`}
-                />
+              onToggle={() => toggleAccordion("settings")}
+              header={
+                <ListItem className="p-0" selected={openAccordion === "settings"}>
+                  <div className="flex items-center w-full p-3">
+                    <ListItemPrefix>
+                      <Cog6ToothIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>Settings</Typography>
+                    <ChevronDownIcon
+                      strokeWidth={2.5}
+                      className={`h-4 w-4 transition-transform duration-300 ${
+                        openAccordion === "settings" ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+                </ListItem>
               }
             >
-              <ListItem className="p-0" selected={openAccordion === "settings"}>
-                <AccordionHeader onClick={() => toggleAccordion("settings")} className="border-b-0 p-3">
-                  <ListItemPrefix>
-                    <Cog6ToothIcon className={`h-5 w-5 ${theme.sidebarText}`} />
-                  </ListItemPrefix>
-                  <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>Settings</Typography>
-                </AccordionHeader>
-              </ListItem>
-              <AccordionBody className="py-1">
-                <List className="p-0">
-                  {SETTINGS_ITEMS.map((item) => (
-                    <ListItem key={item}>
-                      <ListItemPrefix>
-                        <ChevronRightIcon strokeWidth={3} className={`h-3 w-5 ${theme.sidebarText}`} />
-                      </ListItemPrefix>
-                      {item}
-                    </ListItem>
-                  ))}
+              <List className="p-0 py-1">
+                {SETTINGS_ITEMS.map((item) => (
+                  <ListItem key={item}>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className={`h-3 w-5 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    {item}
+                  </ListItem>
+                ))}
 
-                  <Accordion
-                    open={settingsOpen}
-                    icon={
-                      <ChevronDownIcon
-                        strokeWidth={2.5}
-                        className={`mx-auto h-3 w-3 transition-transform ${settingsOpen ? "rotate-180" : ""}`}
-                      />
-                    }
-                  >
+                <SmoothAccordion
+                  open={settingsOpen}
+                  onToggle={() => setSettingsOpen(!settingsOpen)}
+                  header={
                     <ListItem className="p-0 pl-4" selected={settingsOpen}>
-                      <AccordionHeader onClick={() => setSettingsOpen(!settingsOpen)} className="border-b-0 p-2">
+                      <div className="flex items-center w-full p-2">
                         <ListItemPrefix>
                           <PaintBrushIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                         </ListItemPrefix>
-                        <Typography className={`mr-auto font-normal text-sm ${theme.sidebarText}`}>Themes</Typography>
-                      </AccordionHeader>
+                        <Typography className={`mr-auto font-normal text-sm ${theme.sidebarText}`}>
+                          Themes
+                        </Typography>
+                        <ChevronDownIcon
+                          strokeWidth={2.5}
+                          className={`h-3 w-3 transition-transform duration-300 ${
+                            settingsOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </div>
                     </ListItem>
-                    <AccordionBody className="py-1">
-                      <List className="p-0 pl-4">
-                        {Object.entries(themes).map(([key, themeOption]) => (
-                          <ListItem
-                            key={key}
-                            className={`${theme.sidebarText} pl-8 py-2 ${themeName === key ? (theme.isDark ? "bg-gray-700" : theme.activeRowBg) : ""}`}
-                            onClick={() => setThemeName(key as keyof typeof themes)}
-                          >
-                            <ListItemPrefix>
-                              <div className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 border-2 ${theme.isDark ? "border-gray-400" : "border-gray-700"}`}>
-                                <div className={`w-2 h-2 rounded-full transition-transform duration-200 ${theme.isDark ? "bg-gray-200" : "bg-gray-800"} ${themeName === key ? "scale-100" : "scale-0"}`} />
-                              </div>
-                            </ListItemPrefix>
-                            <Typography className={`text-xs ${theme.sidebarText} ${themeName === key ? "font-medium" : ""}`}>
-                              {themeOption.name}
-                            </Typography>
-                          </ListItem>
-                        ))}
-                      </List>
-                    </AccordionBody>
-                  </Accordion>
-                </List>
-              </AccordionBody>
-            </Accordion>
+                  }
+                >
+                  <List className="p-0 pl-4">
+                    {Object.entries(themes).map(([key, themeOption]) => (
+                      <ListItem
+                        key={key}
+                        className={`${theme.sidebarText} pl-8 py-2 ${
+                          themeName === key ? (theme.isDark ? "bg-gray-700" : theme.activeRowBg) : ""
+                        }`}
+                        onClick={() => setThemeName(key as keyof typeof themes)}
+                      >
+                        <ListItemPrefix>
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 border-2 ${
+                            theme.isDark ? "border-gray-400" : "border-gray-700"
+                          }`}>
+                            <div className={`w-2 h-2 rounded-full transition-transform duration-200 ${
+                              theme.isDark ? "bg-gray-200" : "bg-gray-800"
+                            } ${themeName === key ? "scale-100" : "scale-0"}`} />
+                          </div>
+                        </ListItemPrefix>
+                        <Typography className={`text-xs ${theme.sidebarText} ${themeName === key ? "font-medium" : ""}`}>
+                          {themeOption.name}
+                        </Typography>
+                      </ListItem>
+                    ))}
+                  </List>
+                </SmoothAccordion>
+              </List>
+            </SmoothAccordion>
 
             <ListItem>
               <ListItemPrefix>
@@ -287,7 +334,9 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
         </div>
       </Drawer>
 
-      <aside className={`hidden lg:flex flex-col w-64 ${theme.cards} border-r ${theme.isDark ? 'border-slate-700' : 'border-slate-200'} h-screen sticky top-0 overflow-y-auto`}>
+      <aside className={`hidden lg:flex flex-col w-64 ${theme.cards} border-r ${
+        theme.isDark ? 'border-slate-700' : 'border-slate-200'
+      } h-screen sticky top-0 overflow-y-auto`}>
         <NavContent />
       </aside>
     </>
