@@ -54,13 +54,16 @@ interface MiniActionButtonProps {
   onClick?: () => void;
   icon: React.ReactNode;
   title?: string;
+  "aria-label"?: string;
 }
 
-export function MiniActionButton({ onClick, icon, title }: MiniActionButtonProps) {
+export function MiniActionButton({ onClick, icon, title, "aria-label": ariaLabel }: MiniActionButtonProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
       title={title}
+      aria-label={ariaLabel || title}
       className="p-1.5 rounded-md text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center justify-center"
     >
       {icon}
