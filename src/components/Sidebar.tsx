@@ -110,10 +110,10 @@ function SmoothAccordion({ open, onToggle, header, children, className = "" }: S
       <div onClick={onToggle} className="cursor-pointer">
         {header}
       </div>
-      <div 
-        className="overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ height }}
-      >
+        <div 
+          className="overflow-hidden transition-height"
+          style={{ height }}
+         >
         <div ref={contentRef}>
           {children}
         </div>
