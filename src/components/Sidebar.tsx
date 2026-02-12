@@ -1,4 +1,4 @@
-// BLOCK 1: Imports
+// Sidebar.tsx
 import React, { useState } from "react";
 import {
   PresentationChartBarIcon,
@@ -23,7 +23,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { themes } from "../styles/themes";
 import { Page } from "../App";
 
-// BLOCK 2: Types & Interfaces
+// BLOCK 1: Types & Interfaces
 interface SidebarProps {
   activePage: Page;
   setActivePage: (page: Page) => void;
@@ -43,12 +43,12 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
-// BLOCK 3: Menu Configuration
+// BLOCK 2: Menu Configuration
 const MENU_GROUPS: MenuGroup[] = [
   {
     id: "operations",
     label: "Operations",
-    icon: ShoppingBagIcon, // Changed to match inspiration style
+    icon: ShoppingBagIcon,
     items: [
       { id: "purchase-orders", label: "Purchase Orders", icon: ArchiveBoxIcon },
       { id: "inventory", label: "Inventory", icon: CubeIcon },
@@ -77,69 +77,50 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// BLOCK 4: Animated Accordion Component with Ripple Effect
-interface AccordionProps {
-  isOpen: boolean;
-  onToggle: () => void;
-  header: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}
+// BLOCK 3: Ripple Effect Hook
+const useRipple = () => {
+  const [ripples, setRipples] = useState<Array<{ x: number; y: number; id: number }>>([]);
 
-function Accordion({ isOpen, onToggle, header, children, className = "" }: AccordionProps) {
-  const [rippleStyle, setRippleStyle] = useState<{ x: number; y: number; show: boolean }>({
-    x: 0,
-    y: 0,
-    show: false,
-  });
+  const createRipple = (event: React.MouseEvent<HTMLElement>) => {
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const id = Date.now();
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    setRippleStyle({ x, y, show: true });
-    setTimeout(() => setRippleStyle({ x, y, show: false }), 500);
-    
-    onToggle();
+    setRipples((prev) => [...prev, { x, y, id }]);
+
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((ripple) => ripple.id !== id));
+    }, 600);
   };
 
+  return { ripples, createRipple };
+};
+
+// BLOCK 4: Ripple Component
+const Ripple: React.FC<{ ripples: Array<{ x: number; y: number; id: number }> }> = ({ ripples }) => {
   return (
-    <div className={`w-full ${className}`}>
-      <div 
-        onClick={handleClick} 
-        className="cursor-pointer select-none relative overflow-hidden"
-      >
-        {header}
-        {rippleStyle.show && (
-          <span
-            className="absolute bg-white/30 rounded-full pointer-events-none animate-ripple"
-            style={{
-              left: rippleStyle.x - 10,
-              top: rippleStyle.y - 10,
-              width: '20px',
-              height: '20px',
-            }}
-          />
-        )}
-      </div>
-      <div 
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="pb-1">
-          {children}
-        </div>
-      </div>
-    </div>
+    <>
+      {ripples.map((ripple) => (
+        <span
+          key={ripple.id}
+          className="absolute rounded-full bg-black/10 dark:bg-white/10 pointer-events-none animate-ripple"
+          style={{
+            left: ripple.x - 10,
+            top: ripple.y - 10,
+            width: "20px",
+            height: "20px",
+          }}
+        />
+      ))}
+    </>
   );
-}
+};
 
 // BLOCK 5: Main Sidebar Component
 export function Sidebar({ activePage, setActivePage }: SidebarProps) {
   const [openAccordion, setOpenAccordion] = useState<string>("");
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [themesOpen, setThemesOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -154,242 +135,108 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
     setIsDrawerOpen(false);
   };
 
-  // Inspiration-based styling classes
-  const sidebarClasses = `relative flex h-screen w-full max-w-[20rem] flex-col rounded-none lg:rounded-xl bg-white dark:bg-slate-900 bg-clip-border p-4 text-gray-700 dark:text-gray-200 shadow-xl shadow-blue-gray-900/5 border-r lg:border-r-0 dark:border-slate-700 ${
-    theme.isDark ? 'dark' : ''
+  // Base classes
+  const sidebarClasses = `flex h-screen w-full max-w-[20rem] flex-col bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 shadow-xl border-r dark:border-slate-700 ${
+    theme.isDark ? "dark" : ""
   }`;
 
-  const headerClasses = "p-4 mb-2";
-  const titleClasses = "block font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900 dark:text-white";
-  
-  const menuItemBaseClasses = "flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:bg-blue-gray-50 dark:hover:bg-slate-800 hover:bg-opacity-80 hover:text-blue-gray-900 dark:hover:text-white focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900";
-  
-  const menuItemActiveClasses = "bg-blue-gray-50/50 dark:bg-slate-800/80 text-blue-gray-900 dark:text-white";
-  
-  const subMenuItemClasses = "flex items-center w-full p-2 leading-tight transition-all rounded-lg outline-none text-start hover:bg-blue-gray-50 dark:hover:bg-slate-800 hover:bg-opacity-80 hover:text-blue-gray-900 dark:hover:text-white text-sm";
-  
-  const subMenuItemActiveClasses = "bg-blue-gray-50/50 dark:bg-slate-800/80 text-blue-gray-900 dark:text-white font-medium";
-  
-  const iconClasses = "w-5 h-5 mr-4";
-  const chevronClasses = "w-4 h-4 mx-auto transition-transform";
-  const subChevronClasses = "w-3 h-3 mr-3";
+  const navButtonClasses = `relative overflow-hidden flex items-center w-full p-3 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-slate-800 cursor-pointer select-none`;
 
+  const navButtonActiveClasses = `bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-medium`;
+
+  const subItemClasses = `relative overflow-hidden flex items-center w-full p-2.5 pl-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-slate-800 cursor-pointer text-sm`;
+
+  const subItemActiveClasses = `bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-medium`;
+
+  // BLOCK 6: Nav Content Component
   const NavContent = ({ isMobile = false }: { isMobile?: boolean }) => {
-    const onClick = (page: Page) => (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (item.disabled) return;
-      if (isMobile) {
-        handleNavClick(page);
-      } else {
-        setActivePage(page);
-      }
-    };
+    const dashboardRipple = useRipple();
 
     return (
       <div className="flex flex-col h-full">
-        {/* Header - Always at top */}
-        <div className={headerClasses}>
+        {/* Header */}
+        <div className="p-4 mb-2">
           <div className="flex items-center gap-3">
-            <div className={`h-8 w-8 rounded-lg ${theme.isDark ? 'bg-blue-500' : 'bg-blue-600'} flex items-center justify-center text-white font-bold text-sm`}>
+            <div
+              className={`h-8 w-8 rounded-lg ${
+                theme.isDark ? "bg-blue-500" : "bg-blue-600"
+              } flex items-center justify-center text-white font-bold text-sm shadow-md`}
+            >
               MRP
             </div>
-            <h5 className={titleClasses}>
+            <h5 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight">
               MRP System
             </h5>
           </div>
         </div>
 
-        {/* Main Navigation - Scrollable middle section */}
-        <nav className="flex-1 min-w-[240px] flex-col gap-1 p-2 font-sans text-base font-normal text-blue-gray-700 dark:text-gray-200 overflow-y-auto">
+        {/* Scrollable Middle Section */}
+        <nav className="flex-1 px-2 overflow-y-auto flex flex-col gap-1">
           {/* Dashboard */}
-          <div 
+          <div
             role="button"
-            onClick={onClick("dashboard")}
-            className={`${menuItemBaseClasses} ${activePage === "dashboard" ? menuItemActiveClasses : ''} relative overflow-hidden`}
+            onClick={(e) => {
+              dashboardRipple.createRipple(e);
+              handleNavClick("dashboard");
+            }}
+            className={`${navButtonClasses} ${
+              activePage === "dashboard" ? navButtonActiveClasses : ""
+            }`}
           >
-            <div className="grid mr-4 place-items-center">
-              <PresentationChartBarIcon className="w-5 h-5" />
-            </div>
-            <p className="block mr-auto font-sans text-base antialiased font-normal leading-relaxed">
-              Dashboard
-            </p>
+            <Ripple ripples={dashboardRipple.ripples} />
+            <PresentationChartBarIcon className="w-5 h-5 mr-3" />
+            <span>Dashboard</span>
           </div>
 
           {/* Menu Groups */}
           {MENU_GROUPS.map((group) => (
-            <Accordion
+            <MenuGroupAccordion
               key={group.id}
+              group={group}
               isOpen={openAccordion === group.id}
               onToggle={() => toggleAccordion(group.id)}
-              header={
-                <div 
-                  role="button"
-                  className={`${menuItemBaseClasses} ${openAccordion === group.id ? menuItemActiveClasses : ''}`}
-                >
-                  <div className="grid mr-4 place-items-center">
-                    <group.icon className="w-5 h-5" />
-                  </div>
-                  <p className="block mr-auto font-sans text-base antialiased font-normal leading-relaxed">
-                    {group.label}
-                  </p>
-                  <span className="ml-4">
-                    <ChevronDownIcon
-                      className={`${chevronClasses} ${
-                        openAccordion === group.id ? "rotate-180" : ""
-                      }`}
-                    />
-                  </span>
-                </div>
-              }
-            >
-              <nav className="flex min-w-[240px] flex-col gap-1 p-0 font-sans text-base font-normal text-blue-gray-700 dark:text-gray-300">
-                {group.items.map((item) => (
-                  <div
-                    key={item.id}
-                    role="button"
-                    onClick={item.disabled ? undefined : onClick(item.id)}
-                    className={`${subMenuItemClasses} ${activePage === item.id ? subMenuItemActiveClasses : ''} ${
-                      item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer relative overflow-hidden'
-                    }`}
-                  >
-                    <div className="grid mr-3 place-items-center">
-                      <ChevronRightIcon className="w-3 h-3" />
-                    </div>
-                    <div className="grid mr-3 place-items-center">
-                      <item.icon className="w-4 h-4" />
-                    </div>
-                    {item.label}
-                    {item.disabled && (
-                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">(Soon)</span>
-                    )}
-                  </div>
-                ))}
-              </nav>
-            </Accordion>
+              activePage={activePage}
+              onNavClick={handleNavClick}
+              navButtonClasses={navButtonClasses}
+              navButtonActiveClasses={navButtonActiveClasses}
+              subItemClasses={subItemClasses}
+              subItemActiveClasses={subItemActiveClasses}
+            />
           ))}
         </nav>
 
-        {/* Bottom Section - Fixed at bottom with border */}
-        <div className="mt-auto pt-4 px-2 border-t border-blue-gray-50 dark:border-slate-700">
-          <nav className="flex min-w-[240px] flex-col gap-1 font-sans text-base font-normal text-blue-gray-700 dark:text-gray-200">
+        {/* Bottom Section - Locked to bottom */}
+        <div className="mt-auto pt-4 px-2 border-t border-gray-200 dark:border-slate-700">
+          <nav className="flex flex-col gap-1">
             {/* Profile */}
-            <div 
-              role="button"
-              className={`${menuItemBaseClasses} relative overflow-hidden`}
-            >
-              <div className="grid mr-4 place-items-center">
-                <UserCircleIcon className="w-5 h-5" />
-              </div>
-              <p className="block mr-auto font-sans text-base antialiased font-normal leading-relaxed">
-                Profile
-              </p>
-            </div>
+            <NavButton
+              icon={UserCircleIcon}
+              label="Profile"
+              onClick={() => handleNavClick("dashboard")}
+              navButtonClasses={navButtonClasses}
+            />
 
             {/* Settings Accordion */}
-            <Accordion
+            <SettingsAccordion
               isOpen={openAccordion === "settings"}
               onToggle={() => toggleAccordion("settings")}
-              header={
-                <div 
-                  role="button"
-                  className={`${menuItemBaseClasses} ${openAccordion === "settings" ? menuItemActiveClasses : ''}`}
-                >
-                  <div className="grid mr-4 place-items-center">
-                    <Cog6ToothIcon className="w-5 h-5" />
-                  </div>
-                  <p className="block mr-auto font-sans text-base antialiased font-normal leading-relaxed">
-                    Settings
-                  </p>
-                  <span className="ml-4">
-                    <ChevronDownIcon
-                      className={`${chevronClasses} ${
-                        openAccordion === "settings" ? "rotate-180" : ""
-                      }`}
-                    />
-                  </span>
-                </div>
-              }
-            >
-              <nav className="flex min-w-[240px] flex-col gap-1 p-0 font-sans text-base font-normal text-blue-gray-700 dark:text-gray-300">
-                {SETTINGS_ITEMS.map((item) => (
-                  <div
-                    key={item}
-                    role="button"
-                    className={subMenuItemClasses}
-                  >
-                    <div className="grid mr-3 place-items-center">
-                      <ChevronRightIcon className="w-3 h-3" />
-                    </div>
-                    {item}
-                  </div>
-                ))}
-
-                {/* Themes Nested Accordion */}
-                <Accordion
-                  isOpen={themesOpen}
-                  onToggle={() => setThemesOpen(!themesOpen)}
-                  header={
-                    <div 
-                      role="button"
-                      className={`${subMenuItemClasses} ${themesOpen ? subMenuItemActiveClasses : ''}`}
-                    >
-                      <div className="grid mr-3 place-items-center">
-                        <ChevronRightIcon className={`w-3 h-3 transition-transform ${themesOpen ? 'rotate-90' : ''}`} />
-                      </div>
-                      <div className="grid mr-3 place-items-center">
-                        <PaintBrushIcon className="w-4 h-4" />
-                      </div>
-                      <span className="flex-1 text-left">Themes</span>
-                      <ChevronDownIcon
-                        className={`w-3 h-3 transition-transform ${
-                          themesOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </div>
-                  }
-                >
-                  <div className="ml-6 mt-1 space-y-1">
-                    {Object.entries(themes).map(([key, themeOption]) => (
-                      <div
-                        key={key}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setThemeName(key as keyof typeof themes);
-                        }}
-                        role="button"
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm ${
-                          themeName === key
-                            ? 'bg-blue-gray-50/50 dark:bg-slate-800/80 text-blue-gray-900 dark:text-white font-medium'
-                            : 'text-gray-600 dark:text-gray-400 hover:bg-blue-gray-50 dark:hover:bg-slate-800 hover:bg-opacity-80'
-                        }`}
-                      >
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          theme.isDark ? 'border-gray-400' : 'border-gray-600'
-                        }`}>
-                          <div className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                            theme.isDark ? 'bg-gray-200' : 'bg-gray-800'
-                          } ${themeName === key ? 'scale-100' : 'scale-0'}`} />
-                        </div>
-                        <span>{themeOption.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </Accordion>
-              </nav>
-            </Accordion>
+              themesOpen={themesOpen}
+              setThemesOpen={setThemesOpen}
+              themeName={themeName}
+              setThemeName={setThemeName}
+              theme={theme}
+              navButtonClasses={navButtonClasses}
+              navButtonActiveClasses={navButtonActiveClasses}
+              subItemClasses={subItemClasses}
+            />
 
             {/* Log Out */}
-            <div 
-              role="button"
-              className={menuItemBaseClasses}
-            >
-              <div className="grid mr-4 place-items-center">
-                <PowerIcon className="w-5 h-5" />
-              </div>
-              <p className="block mr-auto font-sans text-base antialiased font-normal leading-relaxed">
-                Log Out
-              </p>
-            </div>
+            <NavButton
+              icon={PowerIcon}
+              label="Log Out"
+              onClick={() => console.log("Logging out...")}
+              navButtonClasses={navButtonClasses}
+            />
           </nav>
         </div>
       </div>
@@ -402,27 +249,29 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
       <button
         onClick={() => setIsDrawerOpen(true)}
         className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-slate-900 border ${
-          theme.isDark ? 'border-slate-700' : 'border-slate-200'
-        } shadow-xl shadow-blue-gray-900/5 hover:bg-blue-gray-50 dark:hover:bg-slate-800 transition-colors`}
+          theme.isDark ? "border-slate-700" : "border-slate-200"
+        } shadow-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors`}
         aria-label="Open sidebar"
       >
         <Bars3Icon className="h-6 w-6 text-gray-700 dark:text-gray-200" />
       </button>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Overlay */}
       {isDrawerOpen && (
         <>
           <div
             className="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
             onClick={() => setIsDrawerOpen(false)}
           />
-          <div className={`lg:hidden fixed inset-y-0 left-0 w-64 ${sidebarClasses} z-50 transform transition-transform duration-300 ease-in-out ${
-            isDrawerOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}>
-            <div className="flex justify-end mb-2 p-2">
+          <div
+            className={`lg:hidden fixed inset-y-0 left-0 w-80 ${sidebarClasses} z-50 transform transition-transform duration-300 ease-in-out ${
+              isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            <div className="flex justify-end p-2">
               <button
                 onClick={() => setIsDrawerOpen(false)}
-                className="p-2 rounded-lg hover:bg-blue-gray-50 dark:hover:bg-slate-800 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
                 aria-label="Close sidebar"
               >
                 <XMarkIcon className="h-6 w-6 text-gray-700 dark:text-gray-200" />
@@ -434,9 +283,270 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
       )}
 
       {/* Desktop Sidebar */}
-      <aside className={`hidden lg:block ${sidebarClasses}`}>
+      <aside className={`hidden lg:flex ${sidebarClasses}`}>
         <NavContent />
       </aside>
     </>
   );
 }
+
+// BLOCK 7: Menu Group Accordion Component
+interface MenuGroupAccordionProps {
+  group: MenuGroup;
+  isOpen: boolean;
+  onToggle: () => void;
+  activePage: Page;
+  onNavClick: (page: Page) => void;
+  navButtonClasses: string;
+  navButtonActiveClasses: string;
+  subItemClasses: string;
+  subItemActiveClasses: string;
+}
+
+const MenuGroupAccordion: React.FC<MenuGroupAccordionProps> = ({
+  group,
+  isOpen,
+  onToggle,
+  activePage,
+  onNavClick,
+  navButtonClasses,
+  navButtonActiveClasses,
+  subItemClasses,
+  subItemActiveClasses,
+}) => {
+  const ripple = useRipple();
+
+  return (
+    <div>
+      <button
+        onClick={(e) => {
+          ripple.createRipple(e);
+          onToggle();
+        }}
+        className={`${navButtonClasses} ${isOpen ? navButtonActiveClasses : ""}`}
+        aria-expanded={isOpen}
+      >
+        <Ripple ripples={ripple.ripples} />
+        <group.icon className="w-5 h-5 mr-3" />
+        <span className="flex-1 text-left">{group.label}</span>
+        <ChevronDownIcon
+          className={`w-4 h-4 transition-transform duration-300 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="py-1">
+          {group.items.map((item) => {
+            const itemRipple = useRipple();
+            return (
+              <div
+                key={item.id}
+                role="button"
+                onClick={(e) => {
+                  if (!item.disabled) {
+                    itemRipple.createRipple(e);
+                    onNavClick(item.id);
+                  }
+                }}
+                className={`${subItemClasses} ${
+                  activePage === item.id ? subItemActiveClasses : ""
+                } ${item.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                {!item.disabled && <Ripple ripples={itemRipple.ripples} />}
+                <ChevronRightIcon className="w-3 h-3 mr-2 opacity-50" />
+                <item.icon className="w-4 h-4 mr-2" />
+                {item.label}
+                {item.disabled && (
+                  <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+                    (Soon)
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// BLOCK 8: Settings Accordion Component
+interface SettingsAccordionProps {
+  isOpen: boolean;
+  onToggle: () => void;
+  themesOpen: boolean;
+  setThemesOpen: (open: boolean) => void;
+  themeName: string;
+  setThemeName: (name: keyof typeof themes) => void;
+  theme: any;
+  navButtonClasses: string;
+  navButtonActiveClasses: string;
+  subItemClasses: string;
+}
+
+const SettingsAccordion: React.FC<SettingsAccordionProps> = ({
+  isOpen,
+  onToggle,
+  themesOpen,
+  setThemesOpen,
+  themeName,
+  setThemeName,
+  theme,
+  navButtonClasses,
+  navButtonActiveClasses,
+  subItemClasses,
+}) => {
+  const ripple = useRipple();
+  const themesRipple = useRipple();
+
+  return (
+    <div>
+      <button
+        onClick={(e) => {
+          ripple.createRipple(e);
+          onToggle();
+        }}
+        className={`${navButtonClasses} ${isOpen ? navButtonActiveClasses : ""}`}
+        aria-expanded={isOpen}
+      >
+        <Ripple ripples={ripple.ripples} />
+        <Cog6ToothIcon className="w-5 h-5 mr-3" />
+        <span className="flex-1 text-left">Settings</span>
+        <ChevronDownIcon
+          className={`w-4 h-4 transition-transform duration-300 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="py-1">
+          {SETTINGS_ITEMS.map((item) => {
+            const settingRipple = useRipple();
+            return (
+              <div
+                key={item}
+                role="button"
+                onClick={(e) => {
+                  settingRipple.createRipple(e);
+                }}
+                className={subItemClasses}
+              >
+                <Ripple ripples={settingRipple.ripples} />
+                <ChevronRightIcon className="w-3 h-3 mr-2 opacity-50" />
+                {item}
+              </div>
+            );
+          })}
+
+          {/* Nested Themes Accordion */}
+          <div>
+            <div
+              role="button"
+              onClick={(e) => {
+                themesRipple.createRipple(e);
+                setThemesOpen(!themesOpen);
+              }}
+              className={subItemClasses}
+            >
+              <Ripple ripples={themesRipple.ripples} />
+              <ChevronRightIcon
+                className={`w-3 h-3 mr-2 opacity-50 transition-transform ${
+                  themesOpen ? "rotate-90" : ""
+                }`}
+              />
+              <PaintBrushIcon className="w-4 h-4 mr-2" />
+              <span className="flex-1">Themes</span>
+              <ChevronDownIcon
+                className={`w-3 h-3 transition-transform ${
+                  themesOpen ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+            <div
+              className={`overflow-hidden transition-all duration-300 ml-6 border-l border-gray-200 dark:border-slate-700 ${
+                themesOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="py-1 pl-3">
+                {Object.entries(themes).map(([key, themeOption]) => {
+                  const themeRipple = useRipple();
+                  return (
+                    <div
+                      key={key}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        themeRipple.createRipple(e);
+                        setThemeName(key as keyof typeof themes);
+                      }}
+                      role="button"
+                      className={`relative overflow-hidden flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm ${
+                        themeName === key
+                          ? "bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-medium"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Ripple ripples={themeRipple.ripples} />
+                      <div
+                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                          theme.isDark ? "border-gray-400" : "border-gray-600"
+                        }`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                            theme.isDark ? "bg-gray-200" : "bg-gray-800"
+                          } ${themeName === key ? "scale-100" : "scale-0"}`}
+                        />
+                      </div>
+                      <span>{themeOption.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// BLOCK 9: Simple Nav Button Component
+interface NavButtonProps {
+  icon: React.ElementType;
+  label: string;
+  onClick: () => void;
+  navButtonClasses: string;
+}
+
+const NavButton: React.FC<NavButtonProps> = ({
+  icon: Icon,
+  label,
+  onClick,
+  navButtonClasses,
+}) => {
+  const ripple = useRipple();
+
+  return (
+    <div
+      role="button"
+      onClick={(e) => {
+        ripple.createRipple(e);
+        onClick();
+      }}
+      className={navButtonClasses}
+    >
+      <Ripple ripples={ripple.ripples} />
+      <Icon className="w-5 h-5 mr-3" />
+      <span>{label}</span>
+    </div>
+  );
+};

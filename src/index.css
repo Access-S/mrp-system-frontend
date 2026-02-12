@@ -36,6 +36,13 @@ th, td {
   }
 }
 
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
 .animate-ripple {
-  animation: ripple 0.5s ease-out;
+  animation: ripple 600ms linear;
 }
