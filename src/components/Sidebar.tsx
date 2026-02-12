@@ -86,7 +86,7 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// BLOCK 4: Custom Animated Accordion Component
+// Block 4: Simple Max-Height Accordion
 interface AnimatedAccordionProps {
   isOpen: boolean;
   header: React.ReactNode;
@@ -95,51 +95,16 @@ interface AnimatedAccordionProps {
 }
 
 function AnimatedAccordion({ isOpen, header, children, onToggle }: AnimatedAccordionProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number | undefined>(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      const scrollHeight = contentRef.current.scrollHeight;
-      
-      if (isOpen) {
-        setIsAnimating(true);
-        setHeight(scrollHeight);
-        const timer = setTimeout(() => {
-          setHeight(undefined); // Switch to auto after animation
-          setIsAnimating(false);
-        }, 300);
-        return () => clearTimeout(timer);
-      } else {
-        setIsAnimating(true);
-        setHeight(scrollHeight); // Set to current height first
-        // Force reflow
-        contentRef.current.offsetHeight;
-        setHeight(0);
-        const timer = setTimeout(() => {
-          setIsAnimating(false);
-        }, 300);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [isOpen]);
-
   return (
     <div className="w-full">
       <div onClick={onToggle} className="cursor-pointer select-none">
         {header}
       </div>
       <div
-        ref={contentRef}
-        className="overflow-hidden"
+        className="overflow-hidden transition-all duration-300 ease-in-out"
         style={{
-          height: height === undefined ? (isOpen ? 'auto' : 0) : height,
-          transition: isAnimating ? 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)' : undefined,
-          opacity: isOpen || height !== 0 ? 1 : 0,
-          transitionProperty: 'height, opacity',
-          transitionDuration: '300ms',
-          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          maxHeight: isOpen ? '500px' : '0px',
+          opacity: isOpen ? 1 : 0,
         }}
       >
         {children}
