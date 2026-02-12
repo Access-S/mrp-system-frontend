@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   PresentationChartBarIcon,
   UserCircleIcon,
@@ -22,7 +22,6 @@ import { useTheme } from "../contexts/ThemeContext";
 import { themes } from "../styles/themes";
 import { Page } from "../App";
 
-// --- Types ---
 interface SidebarProps {
   activePage: Page;
   setActivePage: (page: Page) => void;
@@ -42,7 +41,6 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
-// --- Configuration ---
 const MENU_GROUPS: MenuGroup[] = [
   {
     id: "operations",
@@ -76,249 +74,237 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// --- 1. Robust Ripple Component ---
-// Uses inline styles for animation to bypass Tailwind config issues
-const RippleItem = ({
-  children,
-  onClick,
-  className = "",
-  disabled = false,
-}: {
+// Accordion Component with proper animation
+const Accordion: React.FC<{
+  isOpen: boolean;
   children: React.ReactNode;
-  onClick?: (e: React.MouseEvent) => void;
-  className?: string;
-  disabled?: boolean;
-}) => {
-  const [ripples, setRipples] = useState<{ x: number; y: number; id: number }[]>([]);
+}> = ({ isOpen, children }) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number>(0);
 
   useEffect(() => {
-    if (ripples.length > 0) {
-      const timer = setTimeout(() => setRipples((r) => r.slice(1)), 600);
-      return () => clearTimeout(timer);
+    if (contentRef.current) {
+      setHeight(isOpen ? contentRef.current.scrollHeight : 0);
     }
-  }, [ripples]);
-
-  const addRipple = (e: React.MouseEvent) => {
-    if (disabled) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const id = Date.now();
-    setRipples((prev) => [...prev, { x, y, id }]);
-    if (onClick) onClick(e);
-  };
+  }, [isOpen, children]);
 
   return (
     <div
-      onClick={addRipple}
-      className={`relative overflow-hidden cursor-pointer select-none transition-colors duration-200 ${className} ${
-        disabled ? "opacity-50 cursor-not-allowed" : ""
-      }`}
+      style={{
+        maxHeight: `${height}px`,
+        transition: "max-height 0.3s ease-in-out",
+        overflow: "hidden",
+      }}
     >
-      {children}
-      {ripples.map((r) => (
-        <span
-          key={r.id}
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            left: r.x,
-            top: r.y,
-            transform: "translate(-50%, -50%)",
-            width: "200%", // Large enough to cover button
-            paddingBottom: "200%", // Maintains aspect ratio
-            backgroundColor: "currentColor",
-            opacity: 0.1,
-            animation: "ripple-effect 0.6s linear forwards",
-          }}
-        />
-      ))}
+      <div ref={contentRef}>{children}</div>
     </div>
   );
 };
 
-// --- 2. Bulletproof Accordion (Grid Method) ---
-// This uses inline styles to FORCE the animation, overriding any foreign CSS.
-const Accordion = ({
-  isOpen,
-  onToggle,
-  header,
-  children,
-}: {
-  isOpen: boolean;
-  onToggle: () => void;
-  header: React.ReactNode;
-  children: React.ReactNode;
-}) => {
-  return (
-    <div className="w-full">
-      <RippleItem onClick={onToggle}>{header}</RippleItem>
-      
-      {/* 
-        GRID TRANSITION TRICK: 
-        This animates grid-template-rows from 0fr to 1fr.
-        It is the most robust way to animate height: auto in CSS.
-      */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateRows: isOpen ? "1fr" : "0fr",
-          transition: "grid-template-rows 300ms ease-in-out",
-        }}
-      >
-        <div style={{ overflow: "hidden", minHeight: "0" }}>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- Main Sidebar Component ---
 export function Sidebar({ activePage, setActivePage }: SidebarProps) {
   const [openAccordion, setOpenAccordion] = useState<string>("");
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [themesOpen, setThemesOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const { theme, themeName, setThemeName } = useTheme();
 
-  // Helper styles
-  const itemBase = `flex items-center w-full p-3 leading-tight outline-none text-start hover:bg-blue-gray-50 dark:hover:bg-slate-800 hover:text-blue-gray-900 dark:hover:text-white`;
-  const itemActive = `bg-blue-gray-50 dark:bg-slate-800 text-blue-gray-900 dark:text-white font-medium`;
-  const subItemBase = `flex items-center w-full p-2 pl-9 leading-tight outline-none text-start hover:bg-blue-gray-50 dark:hover:bg-slate-800 hover:text-blue-gray-900 dark:hover:text-white text-sm`;
+  const toggleAccordion = (value: string) => {
+    setOpenAccordion(openAccordion === value ? "" : value);
+  };
 
   const handleNavClick = (page: Page) => {
     setActivePage(page);
-    if (window.innerWidth < 960) setIsDrawerOpen(false);
+    setIsDrawerOpen(false);
   };
+
+  const sidebarClasses = `flex h-screen w-full max-w-[20rem] flex-col bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 shadow-xl border-r dark:border-slate-700`;
 
   const NavContent = () => (
     <div className="flex flex-col h-full">
-      {/* Brand Header */}
-      <div className="p-4 mb-2 flex items-center gap-3">
-        <div className={`h-8 w-8 rounded-lg ${theme.isDark ? "bg-blue-500" : "bg-blue-600"} flex items-center justify-center text-white font-bold text-sm shadow-md`}>
-          MRP
+      {/* Header */}
+      <div className="p-4 mb-2">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-blue-600 dark:bg-blue-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+            MRP
+          </div>
+          <h5 className="text-xl font-semibold text-gray-900 dark:text-white">
+            MRP System
+          </h5>
         </div>
-        <h5 className="block font-sans text-xl font-semibold text-blue-gray-900 dark:text-white">
-          MRP System
-        </h5>
       </div>
 
-      {/* Scrollable Middle */}
-      <div className="flex-1 overflow-y-auto px-3 pb-4">
-        <nav className="flex flex-col gap-1 text-blue-gray-700 dark:text-gray-200">
-          <RippleItem
-            onClick={() => handleNavClick("dashboard")}
-            className={`rounded-lg ${itemBase} ${activePage === "dashboard" ? itemActive : ""}`}
-          >
-            <PresentationChartBarIcon className="w-5 h-5 mr-4" />
-            Dashboard
-          </RippleItem>
+      {/* Scrollable Middle Section */}
+      <nav className="flex-1 px-2 overflow-y-auto flex flex-col gap-1">
+        {/* Dashboard */}
+        <button
+          onClick={() => handleNavClick("dashboard")}
+          className={`flex items-center w-full p-3 rounded-lg transition-all text-left ${
+            activePage === "dashboard"
+              ? "bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-medium"
+              : "hover:bg-blue-50 dark:hover:bg-slate-800"
+          }`}
+        >
+          <PresentationChartBarIcon className="w-5 h-5 mr-3" />
+          <span>Dashboard</span>
+        </button>
 
-          {MENU_GROUPS.map((group) => (
-            <Accordion
-              key={group.id}
-              isOpen={openAccordion === group.id}
-              onToggle={() => setOpenAccordion(openAccordion === group.id ? "" : group.id)}
-              header={
-                <div className={`rounded-lg ${itemBase} ${openAccordion === group.id ? itemActive : ""}`}>
-                  <group.icon className="w-5 h-5 mr-4" />
-                  <span className="flex-1">{group.label}</span>
-                  <ChevronDownIcon
-                    strokeWidth={2.5}
-                    className={`w-4 h-4 ml-auto transition-transform duration-300 ${openAccordion === group.id ? "rotate-180" : ""}`}
-                  />
+        {/* Menu Groups */}
+        {MENU_GROUPS.map((group) => {
+          const isOpen = openAccordion === group.id;
+          return (
+            <div key={group.id}>
+              <button
+                onClick={() => toggleAccordion(group.id)}
+                className={`flex items-center justify-between w-full p-3 rounded-lg transition-all text-left ${
+                  isOpen
+                    ? "bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400"
+                    : "hover:bg-blue-50 dark:hover:bg-slate-800"
+                }`}
+              >
+                <div className="flex items-center">
+                  <group.icon className="w-5 h-5 mr-3" />
+                  <span>{group.label}</span>
                 </div>
-              }
+                <ChevronDownIcon
+                  className="w-4 h-4 transition-transform duration-300"
+                  style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                />
+              </button>
+
+              <Accordion isOpen={isOpen}>
+                <div className="py-1">
+                  {group.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => !item.disabled && handleNavClick(item.id)}
+                      disabled={item.disabled}
+                      className={`flex items-center w-full p-2.5 pl-12 rounded-lg transition-all text-sm text-left ${
+                        activePage === item.id
+                          ? "bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-medium"
+                          : "hover:bg-blue-50 dark:hover:bg-slate-800"
+                      } ${item.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    >
+                      <ChevronRightIcon className="w-3 h-3 mr-2 opacity-50" />
+                      <item.icon className="w-4 h-4 mr-2" />
+                      {item.label}
+                      {item.disabled && (
+                        <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+                          (Soon)
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </Accordion>
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Bottom Section - Locked to bottom */}
+      <div className="mt-auto pt-4 px-2 border-t border-gray-200 dark:border-slate-700">
+        <nav className="flex flex-col gap-1">
+          {/* Profile */}
+          <button
+            onClick={() => handleNavClick("dashboard")}
+            className="flex items-center w-full p-3 rounded-lg transition-all text-left hover:bg-blue-50 dark:hover:bg-slate-800"
+          >
+            <UserCircleIcon className="w-5 h-5 mr-3" />
+            <span>Profile</span>
+          </button>
+
+          {/* Settings Accordion */}
+          <div>
+            <button
+              onClick={() => toggleAccordion("settings")}
+              className={`flex items-center justify-between w-full p-3 rounded-lg transition-all text-left ${
+                openAccordion === "settings"
+                  ? "bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400"
+                  : "hover:bg-blue-50 dark:hover:bg-slate-800"
+              }`}
             >
+              <div className="flex items-center">
+                <Cog6ToothIcon className="w-5 h-5 mr-3" />
+                <span>Settings</span>
+              </div>
+              <ChevronDownIcon
+                className="w-4 h-4 transition-transform duration-300"
+                style={{
+                  transform:
+                    openAccordion === "settings" ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            </button>
+
+            <Accordion isOpen={openAccordion === "settings"}>
               <div className="py-1">
-                {group.items.map((item) => (
-                  <RippleItem
-                    key={item.id}
-                    disabled={item.disabled}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`rounded-lg ${subItemBase} ${activePage === item.id ? itemActive : ""}`}
+                {SETTINGS_ITEMS.map((item) => (
+                  <button
+                    key={item}
+                    className="flex items-center w-full p-2.5 pl-12 rounded-lg transition-all text-sm text-left hover:bg-blue-50 dark:hover:bg-slate-800"
                   >
-                    <ChevronRightIcon strokeWidth={3} className="w-3 h-3 mr-3" />
-                    <item.icon className="w-4 h-4 mr-3 opacity-75" />
-                    {item.label}
-                    {item.disabled && <span className="ml-auto text-[10px] opacity-60">(Soon)</span>}
-                  </RippleItem>
+                    <ChevronRightIcon className="w-3 h-3 mr-2 opacity-50" />
+                    {item}
+                  </button>
                 ))}
+
+                {/* Nested Themes Accordion */}
+                <div>
+                  <button
+                    onClick={() => setThemesOpen(!themesOpen)}
+                    className="flex items-center justify-between w-full p-2.5 pl-12 rounded-lg transition-all text-sm text-left hover:bg-blue-50 dark:hover:bg-slate-800"
+                  >
+                    <div className="flex items-center">
+                      <ChevronRightIcon
+                        className="w-3 h-3 mr-2 opacity-50 transition-transform"
+                        style={{ transform: themesOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+                      />
+                      <PaintBrushIcon className="w-4 h-4 mr-2" />
+                      <span>Themes</span>
+                    </div>
+                    <ChevronDownIcon
+                      className="w-3 h-3 transition-transform"
+                      style={{ transform: themesOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                    />
+                  </button>
+
+                  <Accordion isOpen={themesOpen}>
+                    <div className="ml-6 py-1 border-l border-gray-200 dark:border-slate-700 pl-3">
+                      {Object.entries(themes).map(([key, themeOption]) => (
+                        <button
+                          key={key}
+                          onClick={() => setThemeName(key as keyof typeof themes)}
+                          className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg transition-all text-sm text-left ${
+                            themeName === key
+                              ? "bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-medium"
+                              : "text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-slate-800"
+                          }`}
+                        >
+                          <div className="w-4 h-4 rounded-full border-2 border-gray-400 dark:border-gray-500 flex items-center justify-center">
+                            <div
+                              className={`w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 transition-transform ${
+                                themeName === key ? "scale-100" : "scale-0"
+                              }`}
+                            />
+                          </div>
+                          <span>{themeOption.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </Accordion>
+                </div>
               </div>
             </Accordion>
-          ))}
-        </nav>
-      </div>
+          </div>
 
-      {/* Locked Footer */}
-      <div className="px-3 py-4 border-t border-blue-gray-50 dark:border-slate-700 mt-auto bg-white dark:bg-slate-900">
-        <nav className="flex flex-col gap-1 text-blue-gray-700 dark:text-gray-200">
-          <RippleItem className={`rounded-lg ${itemBase}`}>
-            <UserCircleIcon className="w-5 h-5 mr-4" />
-            Profile
-          </RippleItem>
-
-          <Accordion
-            isOpen={settingsOpen}
-            onToggle={() => setSettingsOpen(!settingsOpen)}
-            header={
-              <div className={`rounded-lg ${itemBase} ${settingsOpen ? itemActive : ""}`}>
-                <Cog6ToothIcon className="w-5 h-5 mr-4" />
-                <span className="flex-1">Settings</span>
-                <ChevronDownIcon
-                  strokeWidth={2.5}
-                  className={`w-4 h-4 ml-auto transition-transform duration-300 ${settingsOpen ? "rotate-180" : ""}`}
-                />
-              </div>
-            }
+          {/* Log Out */}
+          <button
+            onClick={() => console.log("Logging out...")}
+            className="flex items-center w-full p-3 rounded-lg transition-all text-left hover:bg-blue-50 dark:hover:bg-slate-800"
           >
-            <div className="py-1">
-              {SETTINGS_ITEMS.map((item) => (
-                <RippleItem key={item} className={`rounded-lg ${subItemBase}`}>
-                  <ChevronRightIcon strokeWidth={3} className="w-3 h-3 mr-3" />
-                  {item}
-                </RippleItem>
-              ))}
-              
-              {/* Nested Themes - Using the same Grid trick inline */}
-              <div className="relative">
-                <RippleItem
-                  onClick={(e) => { e.stopPropagation(); setThemesOpen(!themesOpen); }}
-                  className={`rounded-lg ${subItemBase} ${themesOpen ? itemActive : ""}`}
-                >
-                  <ChevronRightIcon strokeWidth={3} className={`w-3 h-3 mr-3 transition-transform ${themesOpen ? 'rotate-90' : ''}`} />
-                  <PaintBrushIcon className="w-4 h-4 mr-3 opacity-75" />
-                  <span className="flex-1">Themes</span>
-                  <ChevronDownIcon className={`w-3 h-3 transition-transform ${themesOpen ? "rotate-180" : ""}`} />
-                </RippleItem>
-                
-                {/* Manual Grid Animation for Nested Item */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateRows: themesOpen ? "1fr" : "0fr",
-                  transition: "grid-template-rows 300ms ease-in-out",
-                }}>
-                   <div style={{ overflow: "hidden", minHeight: "0", marginLeft: "1rem", borderLeft: "1px solid #e2e8f0" }}>
-                      {Object.entries(themes).map(([key, themeOption]) => (
-                          <RippleItem
-                            key={key}
-                            onClick={(e) => { e.stopPropagation(); setThemeName(key as keyof typeof themes); }}
-                            className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-gray-50 dark:hover:bg-slate-800"
-                          >
-                            <div className={`w-3 h-3 rounded-full border ${themeName === key ? 'bg-blue-500 border-blue-500' : 'border-gray-400'}`}></div>
-                            {themeOption.name}
-                          </RippleItem>
-                      ))}
-                   </div>
-                </div>
-              </div>
-            </div>
-          </Accordion>
-
-          <RippleItem className={`rounded-lg ${itemBase}`}>
-            <PowerIcon className="w-5 h-5 mr-4" />
-            Log Out
-          </RippleItem>
+            <PowerIcon className="w-5 h-5 mr-3" />
+            <span>Log Out</span>
+          </button>
         </nav>
       </div>
     </div>
@@ -326,49 +312,42 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
 
   return (
     <>
-      {/* 
-        INLINE STYLES FOR RIPPLE ANIMATION
-        This ensures the ripple animation works even if Tailwind purges keyframes.
-      */}
-      <style>{`
-        @keyframes ripple-effect {
-          from { transform: translate(-50%, -50%) scale(0); opacity: 0.5; }
-          to { transform: translate(-50%, -50%) scale(4); opacity: 0; }
-        }
-      `}</style>
-
-      {/* Mobile Toggle */}
+      {/* Mobile Toggle Button */}
       <button
         onClick={() => setIsDrawerOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-40 p-2 rounded-lg bg-white dark:bg-slate-900 shadow-md border border-gray-200"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg"
+        aria-label="Open sidebar"
       >
         <Bars3Icon className="h-6 w-6 text-gray-700 dark:text-gray-200" />
       </button>
 
-      {/* Drawer Overlay */}
+      {/* Mobile Overlay */}
       {isDrawerOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsDrawerOpen(false)}
-        />
+        <>
+          <div
+            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={() => setIsDrawerOpen(false)}
+          />
+          <div
+            className={`lg:hidden fixed inset-y-0 left-0 w-80 ${sidebarClasses} z-50 transition-transform duration-300 ${
+              isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            <div className="flex justify-end p-2">
+              <button
+                onClick={() => setIsDrawerOpen(false)}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            <NavContent />
+          </div>
+        </>
       )}
 
-      {/* Sidebar Container */}
-      <aside
-        className={`
-        fixed inset-y-0 left-0 z-50 w-full max-w-[20rem] 
-        bg-white dark:bg-slate-900 shadow-xl border-r border-blue-gray-100 dark:border-slate-700
-        flex flex-col h-screen
-        transform transition-transform duration-300 ease-in-out
-        ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0 lg:static lg:block
-      `}
-      >
-        <div className="lg:hidden absolute top-2 right-2">
-          <button onClick={() => setIsDrawerOpen(false)} className="p-2 text-gray-500">
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-        </div>
+      {/* Desktop Sidebar */}
+      <aside className={`hidden lg:flex ${sidebarClasses}`}>
         <NavContent />
       </aside>
     </>
