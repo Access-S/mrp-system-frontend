@@ -86,7 +86,7 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// Block 4: Smooth Height Accordion with Auto Measurement
+// Block 4: Smooth Height Accordion - FIXED
 interface AnimatedAccordionProps {
   isOpen: boolean;
   header: React.ReactNode;
@@ -111,10 +111,9 @@ function AnimatedAccordion({ isOpen, header, children, onToggle }: AnimatedAccor
         {header}
       </div>
       <div
-        className="overflow-hidden transition-all duration-300 ease-in-out"
+        className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
         style={{
           maxHeight: isOpen ? `${height}px` : '0px',
-          opacity: isOpen ? 1 : 0,
         }}
       >
         <div ref={contentRef}>
