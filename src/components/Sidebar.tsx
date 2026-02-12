@@ -77,7 +77,7 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
-// BLOCK 4: Animated Accordion Component (Inspired by Material Tailwind)
+// BLOCK 4: Animated Accordion Component with Ripple Effect
 interface AccordionProps {
   isOpen: boolean;
   onToggle: () => void;
@@ -87,17 +87,48 @@ interface AccordionProps {
 }
 
 function Accordion({ isOpen, onToggle, header, children, className = "" }: AccordionProps) {
+  const [rippleStyle, setRippleStyle] = useState<{ x: number; y: number; show: boolean }>({
+    x: 0,
+    y: 0,
+    show: false,
+  });
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setRippleStyle({ x, y, show: true });
+    setTimeout(() => setRippleStyle({ x, y, show: false }), 500);
+    
+    onToggle();
+  };
+
   return (
     <div className={`w-full ${className}`}>
-      <div onClick={onToggle} className="cursor-pointer select-none">
+      <div 
+        onClick={handleClick} 
+        className="cursor-pointer select-none relative overflow-hidden"
+      >
         {header}
+        {rippleStyle.show && (
+          <span
+            className="absolute bg-white/30 rounded-full pointer-events-none animate-ripple"
+            style={{
+              left: rippleStyle.x - 10,
+              top: rippleStyle.y - 10,
+              width: '20px',
+              height: '20px',
+            }}
+          />
+        )}
       </div>
       <div 
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="py-1">
+        <div className="pb-1">
           {children}
         </div>
       </div>
@@ -174,7 +205,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
           <div 
             role="button"
             onClick={onClick("dashboard")}
-            className={`${menuItemBaseClasses} ${activePage === "dashboard" ? menuItemActiveClasses : ''}`}
+            className={`${menuItemBaseClasses} ${activePage === "dashboard" ? menuItemActiveClasses : ''} relative overflow-hidden`}
           >
             <div className="grid mr-4 place-items-center">
               <PresentationChartBarIcon className="w-5 h-5" />
@@ -218,7 +249,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                     role="button"
                     onClick={item.disabled ? undefined : onClick(item.id)}
                     className={`${subMenuItemClasses} ${activePage === item.id ? subMenuItemActiveClasses : ''} ${
-                      item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                      item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer relative overflow-hidden'
                     }`}
                   >
                     <div className="grid mr-3 place-items-center">
@@ -244,7 +275,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
             {/* Profile */}
             <div 
               role="button"
-              className={menuItemBaseClasses}
+              className={`${menuItemBaseClasses} relative overflow-hidden`}
             >
               <div className="grid mr-4 place-items-center">
                 <UserCircleIcon className="w-5 h-5" />
