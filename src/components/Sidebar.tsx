@@ -89,36 +89,73 @@ interface CollapsiblePanelProps {
   isOpen: boolean;
   children: React.ReactNode;
 }
-
 function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [measuredHeight, setMeasuredHeight] = useState(0);
+  const [maxHeight, setMaxHeight] = useState<string>("0px");
+  const isOpenRef = useRef(isOpen);
 
-  // Measure content height whenever children change or panel opens
   useEffect(() => {
-    if (contentRef.current) {
-      setMeasuredHeight(contentRef.current.scrollHeight);
+    const el = contentRef.current;
+    if (!el) return;
+
+    if (isOpen) {
+      // OPENING: measure and set target height
+      const height = el.scrollHeight;
+      setMaxHeight(`${height}px`);
+
+      // After transition completes, set to "none" so nested 
+      // accordions can expand without being clipped
+      const timer = setTimeout(() => {
+        if (isOpenRef.current) {
+          setMaxHeight("none");
+        }
+      }, 310); // slightly longer than transition duration
+
+      return () => clearTimeout(timer);
+    } else {
+      // CLOSING: This is the critical fix
+      // Step 1: Set max-height to current scrollHeight (concrete value)
+      const height = el.scrollHeight;
+      setMaxHeight(`${height}px`);
+
+      // Step 2: Force browser to register the above value
+      // then set to 0 in next frame — gives browser two
+      // concrete values to transition between
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setMaxHeight("0px");
+        });
+      });
     }
-  }, [isOpen, children]);
 
-  // Also re-measure on resize (handles font loading, dynamic content)
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  // Re-measure when children change (e.g., nested accordion opens)
   useEffect(() => {
-    const handleResize = () => {
-      if (contentRef.current) {
-        setMeasuredHeight(contentRef.current.scrollHeight);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    if (isOpen && contentRef.current) {
+      const height = contentRef.current.scrollHeight;
+      setMaxHeight(`${height}px`);
+
+      const timer = setTimeout(() => {
+        if (isOpenRef.current) {
+          setMaxHeight("none");
+        }
+      }, 310);
+
+      return () => clearTimeout(timer);
+    }
+  }, [children, isOpen]);
 
   return (
     <div
       ref={contentRef}
       style={{
-        maxHeight: isOpen ? `${measuredHeight}px` : "0px",
-        overflow: "hidden",
-        transition: "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        maxHeight: maxHeight,
+        overflow: maxHeight === "none" ? "visible" : "hidden",
+        transition: maxHeight === "none"
+          ? "none"
+          : "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
       {children}
