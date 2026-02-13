@@ -31,18 +31,10 @@ th, td {
     opacity: 0.5;
   }
   100% {
-    transform: scale(20);
-    opacity: 0;
-  }
-}
-
-@keyframes ripple {
-  to {
     transform: scale(4);
     opacity: 0;
   }
 }
-
 .animate-ripple {
   animation: ripple 600ms linear;
 }
