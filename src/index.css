@@ -50,40 +50,54 @@ th, td {
   animation: ripple 600ms linear;
 }
 
-/* Sidebar accordion animations */
+/* ============================================
+   PANEL ANIMATIONS - SLOWER & SMOOTHER
+   ============================================ */
 @keyframes slideDown {
-  from {
+  0% {
     max-height: 0;
     opacity: 0;
+    transform: translateY(-8px);
   }
-  to {
-    max-height: var(--panel-height);
+  100% {
+    max-height: var(--panel-height, 500px);
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes slideUp {
-  from {
-    max-height: var(--panel-height);
+  0% {
+    max-height: var(--panel-height, 500px);
     opacity: 1;
+    transform: translateY(0);
   }
-  to {
+  100% {
     max-height: 0;
     opacity: 0;
+    transform: translateY(-8px);
   }
 }
 
 .panel-open {
-  animation: slideDown 300ms ease forwards;
+  animation: slideDown 450ms cubic-bezier(0.2, 0, 0, 1);
+  max-height: var(--panel-height, 500px);
+  opacity: 1;
+  transform: translateY(0);
   overflow: hidden;
 }
 
 .panel-closing {
-  animation: slideUp 300ms ease forwards;
+  animation: slideUp 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
   overflow: hidden;
 }
 
 .panel-closed {
   max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
   overflow: hidden;
 }

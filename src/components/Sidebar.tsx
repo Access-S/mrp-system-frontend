@@ -83,7 +83,7 @@ const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
 // ============================================
 // COLLAPSIBLE PANEL COMPONENT
-// This is the fix — uses max-height + refs
+// Fixed with SLOWER animation (450ms) and smooth easing
 // ============================================
 interface CollapsiblePanelProps {
   isOpen: boolean;
@@ -101,7 +101,6 @@ function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
 
     if (isOpen) {
       // Measure and set CSS variable for animation target
-      // Temporarily make visible to measure
       el.style.maxHeight = "none";
       el.style.position = "absolute";
       el.style.visibility = "hidden";
@@ -229,7 +228,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
             width: "100%",
             padding: "12px",
             borderRadius: "8px",
-            transition: "all 150ms",
             textAlign: "left",
             background:
               activePage === "dashboard"
@@ -281,7 +279,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                   width: "100%",
                   padding: "12px",
                   borderRadius: "8px",
-                  transition: "all 150ms",
                   textAlign: "left",
                   background: isOpen
                     ? isDark
@@ -345,7 +342,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                         width: "100%",
                         padding: "10px 12px 10px 48px",
                         borderRadius: "8px",
-                        transition: "all 150ms",
                         fontSize: "14px",
                         textAlign: "left",
                         background:
@@ -435,7 +431,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
               width: "100%",
               padding: "12px",
               borderRadius: "8px",
-              transition: "all 150ms",
               textAlign: "left",
               background: "transparent",
               color: isDark ? "#e5e7eb" : "#374151",
@@ -466,7 +461,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                 width: "100%",
                 padding: "12px",
                 borderRadius: "8px",
-                transition: "all 150ms",
                 textAlign: "left",
                 background:
                   openAccordion === "settings"
@@ -534,7 +528,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                       width: "100%",
                       padding: "10px 12px 10px 48px",
                       borderRadius: "8px",
-                      transition: "all 150ms",
                       fontSize: "14px",
                       textAlign: "left",
                       background: "transparent",
@@ -574,7 +567,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                       width: "100%",
                       padding: "10px 12px 10px 48px",
                       borderRadius: "8px",
-                      transition: "all 150ms",
                       fontSize: "14px",
                       textAlign: "left",
                       background: "transparent",
@@ -652,7 +644,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                             width: "100%",
                             padding: "8px 12px",
                             borderRadius: "8px",
-                            transition: "all 150ms",
                             fontSize: "14px",
                             textAlign: "left",
                             background:
@@ -730,7 +721,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
               width: "100%",
               padding: "12px",
               borderRadius: "8px",
-              transition: "all 150ms",
               textAlign: "left",
               background: "transparent",
               color: isDark ? "#e5e7eb" : "#374151",
