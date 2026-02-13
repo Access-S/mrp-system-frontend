@@ -227,7 +227,8 @@ const toggleAccordion = (value: string) => {
                 style={{
                   display: 'grid',
                   gridTemplateRows: isOpen ? '1fr' : '0fr',
-                  transition: 'grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'grid-template-rows 2000ms linear',
+              
                 }}
               >
                 <div style={{ overflow: 'hidden', minHeight: 0 }}>
@@ -377,7 +378,7 @@ const toggleAccordion = (value: string) => {
               style={{
                 display: 'grid',
                 gridTemplateRows: openAccordion === "settings" ? '1fr' : '0fr',
-                transition: 'grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'grid-template-rows 2000ms linear',
               }}
             >
               <div style={{ overflow: 'hidden', minHeight: 0 }}>
@@ -466,7 +467,7 @@ const toggleAccordion = (value: string) => {
                       style={{
                         display: 'grid',
                         gridTemplateRows: themesOpen ? '1fr' : '0fr',
-                        transition: 'grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                        transition: 'grid-template-rows 2000ms linear',
                       }}
                     >
                       <div style={{ overflow: 'hidden', minHeight: 0 }}>
