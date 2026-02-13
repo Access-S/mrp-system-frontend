@@ -174,6 +174,7 @@ const toggleAccordion = (value: string) => {
         {/* Menu Groups with Accordion */}
         {MENU_GROUPS.map((group) => {
           const isOpen = openAccordion === group.id;
+            console.log(`🔍 Group "${group.id}": openAccordion="${openAccordion}", isOpen=${isOpen}`);
           return (
             <div key={group.id}>
               <button
