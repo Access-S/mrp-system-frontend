@@ -6,8 +6,9 @@ import "./index.css";
 import { ThemeProvider as MaterialThemeProvider } from "@material-tailwind/react";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  // Remove StrictMode wrapper temporarily for testing
-  <MaterialThemeProvider>
-    <App />
-  </MaterialThemeProvider>
+  <React.StrictMode>
+    <MaterialThemeProvider>
+      <App />
+    </MaterialThemeProvider>
+  </React.StrictMode>
 );

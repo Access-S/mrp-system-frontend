@@ -1,5 +1,10 @@
 // src/components/Sidebar.tsx
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
+import {
+  Accordion,
+  AccordionHeader,
+  AccordionBody,
+} from "@material-tailwind/react";
 import {
   PresentationChartBarIcon,
   UserCircleIcon,
@@ -82,68 +87,6 @@ const MENU_GROUPS: MenuGroup[] = [
 const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
 
 // ============================================
-// COLLAPSIBLE PANEL COMPONENT
-// Fixed with SLOWER animation (450ms) and smooth easing
-// ============================================
-interface CollapsiblePanelProps {
-  isOpen: boolean;
-  children: React.ReactNode;
-}
-function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const isFirstRender = useRef(true);
-
-  // On first render, just set the correct initial state
-  useEffect(() => {
-    const el = contentRef.current;
-    if (!el) return;
-
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      el.style.overflow = "hidden";
-      el.style.maxHeight = isOpen ? "none" : "0px";
-      return;
-    }
-
-    if (isOpen) {
-      // OPENING
-      // Measure height while visible
-      el.style.maxHeight = "none";
-      const targetHeight = el.scrollHeight;
-      
-      // Set to 0 without transition
-      el.style.transition = "none";
-      el.style.maxHeight = "0px";
-      void el.offsetHeight;
-      
-      // Animate to target
-      el.style.transition = "max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)";
-      el.style.maxHeight = `${targetHeight}px`;
-
-      const onEnd = () => {
-        el.style.maxHeight = "none";
-        el.removeEventListener("transitionend", onEnd);
-      };
-      el.addEventListener("transitionend", onEnd);
-      return () => el.removeEventListener("transitionend", onEnd);
-    } else {
-      // CLOSING
-      const h = el.scrollHeight;
-      el.style.transition = "none";
-      el.style.maxHeight = `${h}px`;
-      void el.offsetHeight;
-      el.style.transition = "max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)";
-      el.style.maxHeight = "0px";
-    }
-  }, [isOpen]);
-
-  return (
-    <div ref={contentRef}>
-      {children}
-    </div>
-  );
-}
-// ============================================
 // MAIN SIDEBAR COMPONENT
 // ============================================
 export function Sidebar({ activePage, setActivePage }: SidebarProps) {
@@ -152,11 +95,8 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const { theme, themeName, setThemeName } = useTheme();
-
-  // Use theme context instead of DOM query — this triggers re-renders properly
   const isDark = theme.isDark;
 
-  // Simple toggle — no more double-RAF hack
   const toggleAccordion = useCallback((value: string) => {
     setOpenAccordion((prev) => (prev === value ? "" : value));
   }, []);
@@ -166,9 +106,8 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
     setIsDrawerOpen(false);
   }, [setActivePage]);
 
-
   // ============================================
-  // NAV CONTENT (shared between mobile & desktop)
+  // NAV CONTENT
   // ============================================
   const NavContent = () => (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -216,7 +155,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
           gap: "4px",
         }}
       >
-
         {/* Dashboard */}
         <button
           onClick={() => handleNavClick("dashboard")}
@@ -229,18 +167,12 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
             textAlign: "left",
             background:
               activePage === "dashboard"
-                ? isDark
-                  ? "#1e293b"
-                  : "#eff6ff"
+                ? isDark ? "#1e293b" : "#eff6ff"
                 : "transparent",
             color:
               activePage === "dashboard"
-                ? isDark
-                  ? "#60a5fa"
-                  : "#2563eb"
-                : isDark
-                ? "#e5e7eb"
-                : "#374151",
+                ? isDark ? "#60a5fa" : "#2563eb"
+                : isDark ? "#e5e7eb" : "#374151",
             fontWeight: activePage === "dashboard" ? "500" : "400",
             border: "none",
             cursor: "pointer",
@@ -262,72 +194,66 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
           <span>Dashboard</span>
         </button>
 
-        {/* Menu Groups with Accordion */}
+        {/* Menu Groups — Using Material Tailwind Accordion */}
         {MENU_GROUPS.map((group) => {
           const isOpen = openAccordion === group.id;
           return (
-            <div key={group.id}>
-              {/* Group Header Button */}
-              <button
-                onClick={() => toggleAccordion(group.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  textAlign: "left",
-                  background: isOpen
-                    ? isDark
-                      ? "#1e293b"
-                      : "#eff6ff"
-                    : "transparent",
-                  color: isOpen
-                    ? isDark
-                      ? "#60a5fa"
-                      : "#2563eb"
-                    : isDark
-                    ? "#e5e7eb"
-                    : "#374151",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isOpen) {
-                    e.currentTarget.style.background = isDark
-                      ? "#1e293b"
-                      : "#eff6ff";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isOpen) {
-                    e.currentTarget.style.background = "transparent";
-                  }
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <group.icon
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      marginRight: "12px",
-                    }}
-                  />
-                  <span>{group.label}</span>
-                </div>
+            <Accordion
+              key={group.id}
+              open={isOpen}
+              icon={
                 <ChevronDownIcon
                   style={{
                     width: "16px",
                     height: "16px",
-                    transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
                     transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                    transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
                   }}
                 />
-              </button>
-
-              {/* Collapsible Content — FIXED */}
-              <CollapsiblePanel isOpen={isOpen}>
+              }
+            >
+              <AccordionHeader
+                onClick={() => toggleAccordion(group.id)}
+                className="border-b-0 p-0"
+                style={{ border: "none" }}
+              >
+                <button
+                  type="button"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                    padding: "12px",
+                    borderRadius: "8px",
+                    textAlign: "left",
+                    background: isOpen
+                      ? isDark ? "#1e293b" : "#eff6ff"
+                      : "transparent",
+                    color: isOpen
+                      ? isDark ? "#60a5fa" : "#2563eb"
+                      : isDark ? "#e5e7eb" : "#374151",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "16px",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isOpen) {
+                      e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isOpen) {
+                      e.currentTarget.style.background = "transparent";
+                    }
+                  }}
+                >
+                  <group.icon
+                    style={{ width: "20px", height: "20px", marginRight: "12px" }}
+                  />
+                  <span style={{ marginRight: "auto" }}>{group.label}</span>
+                </button>
+              </AccordionHeader>
+              <AccordionBody style={{ padding: "0" }}>
                 <div style={{ padding: "4px 0" }}>
                   {group.items.map((item) => (
                     <button
@@ -344,18 +270,12 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                         textAlign: "left",
                         background:
                           activePage === item.id
-                            ? isDark
-                              ? "#1e293b"
-                              : "#eff6ff"
+                            ? isDark ? "#1e293b" : "#eff6ff"
                             : "transparent",
                         color:
                           activePage === item.id
-                            ? isDark
-                              ? "#60a5fa"
-                              : "#2563eb"
-                            : isDark
-                            ? "#e5e7eb"
-                            : "#374151",
+                            ? isDark ? "#60a5fa" : "#2563eb"
+                            : isDark ? "#e5e7eb" : "#374151",
                         fontWeight: activePage === item.id ? "500" : "400",
                         opacity: item.disabled ? 0.5 : 1,
                         cursor: item.disabled ? "not-allowed" : "pointer",
@@ -363,9 +283,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                       }}
                       onMouseEnter={(e) => {
                         if (!item.disabled && activePage !== item.id) {
-                          e.currentTarget.style.background = isDark
-                            ? "#1e293b"
-                            : "#eff6ff";
+                          e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -375,19 +293,10 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                       }}
                     >
                       <ChevronRightIcon
-                        style={{
-                          width: "12px",
-                          height: "12px",
-                          marginRight: "8px",
-                          opacity: 0.5,
-                        }}
+                        style={{ width: "12px", height: "12px", marginRight: "8px", opacity: 0.5 }}
                       />
                       <item.icon
-                        style={{
-                          width: "16px",
-                          height: "16px",
-                          marginRight: "8px",
-                        }}
+                        style={{ width: "16px", height: "16px", marginRight: "8px" }}
                       />
                       {item.label}
                       {item.disabled && (
@@ -404,8 +313,8 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                     </button>
                   ))}
                 </div>
-              </CollapsiblePanel>
-            </div>
+              </AccordionBody>
+            </Accordion>
           );
         })}
       </nav>
@@ -449,73 +358,63 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
           </button>
 
           {/* Settings Accordion */}
-          <div>
-            <button
-              onClick={() => toggleAccordion("settings")}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                padding: "12px",
-                borderRadius: "8px",
-                textAlign: "left",
-                background:
-                  openAccordion === "settings"
-                    ? isDark
-                      ? "#1e293b"
-                      : "#eff6ff"
-                    : "transparent",
-                color:
-                  openAccordion === "settings"
-                    ? isDark
-                      ? "#60a5fa"
-                      : "#2563eb"
-                    : isDark
-                    ? "#e5e7eb"
-                    : "#374151",
-                border: "none",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => {
-                if (openAccordion !== "settings") {
-                  e.currentTarget.style.background = isDark
-                    ? "#1e293b"
-                    : "#eff6ff";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (openAccordion !== "settings") {
-                  e.currentTarget.style.background = "transparent";
-                }
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <Cog6ToothIcon
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    marginRight: "12px",
-                  }}
-                />
-                <span>Settings</span>
-              </div>
+          <Accordion
+            open={openAccordion === "settings"}
+            icon={
               <ChevronDownIcon
                 style={{
                   width: "16px",
                   height: "16px",
-                  transform:
-                    openAccordion === "settings"
-                      ? "rotate(180deg)"
-                      : "rotate(0deg)",
-                  transition:
-                    "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                  transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                  transform: openAccordion === "settings" ? "rotate(180deg)" : "rotate(0deg)",
                 }}
               />
-            </button>
-
-            {/* Settings Collapsible — FIXED */}
-            <CollapsiblePanel isOpen={openAccordion === "settings"}>
+            }
+          >
+            <AccordionHeader
+              onClick={() => toggleAccordion("settings")}
+              className="border-b-0 p-0"
+              style={{ border: "none" }}
+            >
+              <button
+                type="button"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  textAlign: "left",
+                  background:
+                    openAccordion === "settings"
+                      ? isDark ? "#1e293b" : "#eff6ff"
+                      : "transparent",
+                  color:
+                    openAccordion === "settings"
+                      ? isDark ? "#60a5fa" : "#2563eb"
+                      : isDark ? "#e5e7eb" : "#374151",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                }}
+                onMouseEnter={(e) => {
+                  if (openAccordion !== "settings") {
+                    e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (openAccordion !== "settings") {
+                    e.currentTarget.style.background = "transparent";
+                  }
+                }}
+              >
+                <Cog6ToothIcon
+                  style={{ width: "20px", height: "20px", marginRight: "12px" }}
+                />
+                <span style={{ marginRight: "auto" }}>Settings</span>
+              </button>
+            </AccordionHeader>
+            <AccordionBody style={{ padding: "0" }}>
               <div style={{ padding: "4px 0" }}>
                 {SETTINGS_ITEMS.map((item) => (
                   <button
@@ -534,107 +433,89 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                       cursor: "pointer",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = isDark
-                        ? "#1e293b"
-                        : "#eff6ff";
+                      e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "transparent";
                     }}
                   >
                     <ChevronRightIcon
-                      style={{
-                        width: "12px",
-                        height: "12px",
-                        marginRight: "8px",
-                        opacity: 0.5,
-                      }}
+                      style={{ width: "12px", height: "12px", marginRight: "8px", opacity: 0.5 }}
                     />
                     {item}
                   </button>
                 ))}
 
                 {/* Nested Themes Accordion */}
-                <div>
-                  <button
+                <Accordion
+                  open={themesOpen}
+                  icon={
+                    <ChevronDownIcon
+                      style={{
+                        width: "12px",
+                        height: "12px",
+                        transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                        transform: themesOpen ? "rotate(180deg)" : "rotate(0deg)",
+                      }}
+                    />
+                  }
+                >
+                  <AccordionHeader
                     onClick={() => setThemesOpen(!themesOpen)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      width: "100%",
-                      padding: "10px 12px 10px 48px",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      textAlign: "left",
-                      background: "transparent",
-                      color: isDark ? "#e5e7eb" : "#374151",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = isDark
-                        ? "#1e293b"
-                        : "#eff6ff";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "transparent";
-                    }}
+                    className="border-b-0 p-0"
+                    style={{ border: "none" }}
                   >
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <button
+                      type="button"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                        padding: "10px 12px 10px 48px",
+                        borderRadius: "8px",
+                        fontSize: "14px",
+                        textAlign: "left",
+                        background: "transparent",
+                        color: isDark ? "#e5e7eb" : "#374151",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent";
+                      }}
+                    >
                       <ChevronRightIcon
                         style={{
                           width: "12px",
                           height: "12px",
                           marginRight: "8px",
                           opacity: 0.5,
-                          transform: themesOpen
-                            ? "rotate(90deg)"
-                            : "rotate(0deg)",
-                          transition:
-                            "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+                          transform: themesOpen ? "rotate(90deg)" : "rotate(0deg)",
+                          transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
                         }}
                       />
                       <PaintBrushIcon
-                        style={{
-                          width: "16px",
-                          height: "16px",
-                          marginRight: "8px",
-                        }}
+                        style={{ width: "16px", height: "16px", marginRight: "8px" }}
                       />
-                      <span>Themes</span>
-                    </div>
-                    <ChevronDownIcon
-                      style={{
-                        width: "12px",
-                        height: "12px",
-                        transform: themesOpen
-                          ? "rotate(180deg)"
-                          : "rotate(0deg)",
-                        transition:
-                          "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                      }}
-                    />
-                  </button>
-
-                  {/* Themes Collapsible — FIXED */}
-                  <CollapsiblePanel isOpen={themesOpen}>
+                      <span style={{ marginRight: "auto" }}>Themes</span>
+                    </button>
+                  </AccordionHeader>
+                  <AccordionBody style={{ padding: "0" }}>
                     <div
                       style={{
                         marginLeft: "24px",
                         padding: "4px 0",
-                        borderLeft: `1px solid ${
-                          isDark ? "#374151" : "#e5e7eb"
-                        }`,
+                        borderLeft: `1px solid ${isDark ? "#374151" : "#e5e7eb"}`,
                         paddingLeft: "12px",
                       }}
                     >
                       {Object.entries(themes).map(([key, themeOption]) => (
                         <button
                           key={key}
-                          onClick={() =>
-                            setThemeName(key as keyof typeof themes)
-                          }
+                          onClick={() => setThemeName(key as keyof typeof themes)}
                           style={{
                             display: "flex",
                             alignItems: "center",
@@ -646,27 +527,19 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                             textAlign: "left",
                             background:
                               themeName === key
-                                ? isDark
-                                  ? "#1e293b"
-                                  : "#eff6ff"
+                                ? isDark ? "#1e293b" : "#eff6ff"
                                 : "transparent",
                             color:
                               themeName === key
-                                ? isDark
-                                  ? "#60a5fa"
-                                  : "#2563eb"
-                                : isDark
-                                ? "#9ca3af"
-                                : "#6b7280",
+                                ? isDark ? "#60a5fa" : "#2563eb"
+                                : isDark ? "#9ca3af" : "#6b7280",
                             fontWeight: themeName === key ? "500" : "400",
                             border: "none",
                             cursor: "pointer",
                           }}
                           onMouseEnter={(e) => {
                             if (themeName !== key) {
-                              e.currentTarget.style.background = isDark
-                                ? "#1e293b"
-                                : "#eff6ff";
+                              e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -680,9 +553,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                               width: "16px",
                               height: "16px",
                               borderRadius: "50%",
-                              border: `2px solid ${
-                                isDark ? "#6b7280" : "#9ca3af"
-                              }`,
+                              border: `2px solid ${isDark ? "#6b7280" : "#9ca3af"}`,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -694,8 +565,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                                 height: "8px",
                                 borderRadius: "50%",
                                 background: isDark ? "#60a5fa" : "#3b82f6",
-                                transform:
-                                  themeName === key ? "scale(1)" : "scale(0)",
+                                transform: themeName === key ? "scale(1)" : "scale(0)",
                                 transition: "transform 150ms",
                               }}
                             />
@@ -704,11 +574,11 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                         </button>
                       ))}
                     </div>
-                  </CollapsiblePanel>
-                </div>
+                  </AccordionBody>
+                </Accordion>
               </div>
-            </CollapsiblePanel>
-          </div>
+            </AccordionBody>
+          </Accordion>
 
           {/* Log Out */}
           <button
@@ -726,9 +596,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
               cursor: "pointer",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = isDark
-                ? "#1e293b"
-                : "#eff6ff";
+              e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
@@ -778,18 +646,12 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
               boxShadow:
                 "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
               borderRight: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
-              transform: isDrawerOpen
-                ? "translateX(0)"
-                : "translateX(-100%)",
+              transform: isDrawerOpen ? "translateX(0)" : "translateX(-100%)",
               transition: "transform 300ms",
             }}
           >
             <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                padding: "8px",
-              }}
+              style={{ display: "flex", justifyContent: "flex-end", padding: "8px" }}
             >
               <button
                 onClick={() => setIsDrawerOpen(false)}
@@ -802,9 +664,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
                   transition: "background 150ms",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = isDark
-                    ? "#1e293b"
-                    : "#f3f4f6";
+                  e.currentTarget.style.background = isDark ? "#1e293b" : "#f3f4f6";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "transparent";
