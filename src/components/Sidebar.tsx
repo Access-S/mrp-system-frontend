@@ -218,57 +218,6 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
         }}
       >
 
-        {/* TEMPORARY TEST — DELETE AFTER */}
-  <button
-    onClick={() => {
-      const panels = document.querySelectorAll('[style*="overflow: hidden"]');
-      panels.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        const current = htmlEl.scrollHeight;
-        console.log('=== MANUAL CLOSE TEST ===');
-        console.log('scrollHeight:', current);
-        console.log('current maxHeight:', htmlEl.style.maxHeight);
-        console.log('computed maxHeight:', getComputedStyle(htmlEl).maxHeight);
-        console.log('computed transition:', getComputedStyle(htmlEl).transition);
-        
-        htmlEl.style.transition = "none";
-        htmlEl.style.maxHeight = `${current}px`;
-        
-        const afterSet = getComputedStyle(htmlEl).maxHeight;
-        console.log('after setting px:', afterSet);
-        
-        void htmlEl.offsetHeight;
-        
-        const afterReflow = getComputedStyle(htmlEl).maxHeight;
-        console.log('after reflow:', afterReflow);
-        
-        htmlEl.style.transition = "max-height 2000ms linear";
-        
-        const transitionCheck = getComputedStyle(htmlEl).transition;
-        console.log('transition after setting:', transitionCheck);
-        
-        htmlEl.style.maxHeight = "0px";
-        
-        const final = getComputedStyle(htmlEl).maxHeight;
-        console.log('final maxHeight:', final);
-        console.log('=== END TEST ===');
-      });
-    }}
-    style={{
-      padding: "12px",
-      background: "red",
-      color: "white",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      width: "100%",
-      marginBottom: "8px",
-      fontWeight: "bold",
-    }}
-  >
-    🔴 TEST CLOSE ANIMATION
-  </button>
-
         {/* Dashboard */}
         <button
           onClick={() => handleNavClick("dashboard")}
