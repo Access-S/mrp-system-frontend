@@ -91,57 +91,55 @@ interface CollapsiblePanelProps {
 }
 function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const initialized = useRef(false);
 
+  // Set initial state on mount (only once)
   useEffect(() => {
     const el = contentRef.current;
-    if (!el) return;
+    if (!el || initialized.current) return;
+    initialized.current = true;
+    
+    el.style.overflow = "hidden";
+    if (isOpen) {
+      el.style.maxHeight = "none";
+    } else {
+      el.style.maxHeight = "0px";
+    }
+  }, []);
+
+  // Handle open/close changes
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el || !initialized.current) return;
 
     if (isOpen) {
       // OPENING
-      // Step 1: Set to 0 with no transition
       el.style.transition = "none";
       el.style.maxHeight = "0px";
-      // Step 2: Force browser to paint
-      el.offsetHeight;
-      // Step 3: Enable transition and animate to full height
+      void el.offsetHeight;
       el.style.transition = "max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)";
       el.style.maxHeight = `${el.scrollHeight}px`;
 
-      // After animation completes, remove limit for nested content
       const onEnd = () => {
-        if (el.style.maxHeight !== "0px") {
-          el.style.maxHeight = "none";
-        }
+        el.style.maxHeight = "none";
         el.removeEventListener("transitionend", onEnd);
       };
       el.addEventListener("transitionend", onEnd);
       return () => el.removeEventListener("transitionend", onEnd);
     } else {
       // CLOSING
-      // If already closed, skip
-      if (el.style.maxHeight === "0px") return;
-
-      // Step 1: Lock current height with no transition
-      //         (handles both pixel values AND "none")
-      const currentHeight = el.scrollHeight;
+      const h = el.scrollHeight;
       el.style.transition = "none";
-      el.style.maxHeight = `${currentHeight}px`;
-      // Step 2: Force browser to paint this concrete value
-      el.offsetHeight;
-      // Step 3: Enable transition and animate to 0
+      el.style.maxHeight = `${h}px`;
+      void el.offsetHeight;
       el.style.transition = "max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)";
       el.style.maxHeight = "0px";
     }
   }, [isOpen]);
 
+  // NO inline styles — React won't overwrite our DOM changes
   return (
-    <div
-      ref={contentRef}
-      style={{
-        maxHeight: "0px",
-        overflow: "hidden",
-      }}
-    >
+    <div ref={contentRef}>
       {children}
     </div>
   );
@@ -270,7 +268,7 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
   >
     🔴 TEST CLOSE ANIMATION
   </button>
-  
+
         {/* Dashboard */}
         <button
           onClick={() => handleNavClick("dashboard")}
