@@ -91,58 +91,58 @@ interface CollapsiblePanelProps {
 }
 function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [panelState, setPanelState] = useState<"closed" | "open" | "closing">(
+    isOpen ? "open" : "closed"
+  );
 
-  // Handle opening
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
 
     if (isOpen) {
-      // OPENING
-      // Temporarily disable transition to set start position
-      el.style.transition = "none";
-      el.style.maxHeight = "0px";
-      el.offsetHeight; // force reflow
+      // Measure and set CSS variable for animation target
+      // Temporarily make visible to measure
+      el.style.maxHeight = "none";
+      el.style.position = "absolute";
+      el.style.visibility = "hidden";
+      el.style.display = "block";
+      const height = el.scrollHeight;
+      el.style.position = "";
+      el.style.visibility = "";
+      el.style.maxHeight = "";
 
-      // Re-enable transition and animate to full height
-      el.style.transition = "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)";
-      el.style.maxHeight = `${el.scrollHeight}px`;
-
-      // After animation, remove max-height limit so nested content works
-      const onEnd = () => {
-        if (el.style.maxHeight !== "0px") {
-          el.style.maxHeight = "none";
-        }
-        el.removeEventListener("transitionend", onEnd);
-      };
-      el.addEventListener("transitionend", onEnd);
-
-      return () => el.removeEventListener("transitionend", onEnd);
+      el.style.setProperty("--panel-height", `${height}px`);
+      setPanelState("open");
     } else {
-      // CLOSING
-      // If already at 0, nothing to do
-      if (el.style.maxHeight === "0px") return;
+      if (panelState === "open") {
+        // Measure current height before closing
+        const height = el.scrollHeight;
+        el.style.setProperty("--panel-height", `${height}px`);
+        setPanelState("closing");
 
-      // Step 1: Lock current height (works even if maxHeight is "none")
-      const currentHeight = el.scrollHeight;
-      el.style.transition = "none";
-      el.style.maxHeight = `${currentHeight}px`;
-      el.offsetHeight; // force reflow — browser MUST paint this
+        // After animation ends, set to fully closed
+        const onEnd = () => {
+          setPanelState("closed");
+          el.removeEventListener("animationend", onEnd);
+        };
+        el.addEventListener("animationend", onEnd);
 
-      // Step 2: Re-enable transition and animate to 0
-      el.style.transition = "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)";
-      el.style.maxHeight = "0px";
+        return () => el.removeEventListener("animationend", onEnd);
+      } else {
+        setPanelState("closed");
+      }
     }
   }, [isOpen]);
 
+  const className =
+    panelState === "open"
+      ? "panel-open"
+      : panelState === "closing"
+      ? "panel-closing"
+      : "panel-closed";
+
   return (
-    <div
-      ref={contentRef}
-      style={{
-        maxHeight: "0px",
-        overflow: "hidden",
-      }}
-    >
+    <div ref={contentRef} className={className}>
       {children}
     </div>
   );
