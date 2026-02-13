@@ -91,45 +91,61 @@ interface CollapsiblePanelProps {
 }
 function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [maxHeight, setMaxHeight] = useState<string>("0px");
-  const isOpenRef = useRef(isOpen);
+  const prevIsOpen = useRef(isOpen);
 
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
 
-    console.log(`[CollapsiblePanel] isOpen changed to: ${isOpen}`);
-    console.log(`[CollapsiblePanel] scrollHeight: ${el.scrollHeight}`);
-    console.log(`[CollapsiblePanel] current maxHeight state: ${maxHeight}`);
-    console.log(`[CollapsiblePanel] computed maxHeight: ${getComputedStyle(el).maxHeight}`);
+    if (isOpen && !prevIsOpen.current) {
+      // OPENING
+      // Start from 0, animate to scrollHeight
+      el.style.maxHeight = "0px";
+      // Force reflow so browser registers the 0
+      el.offsetHeight; // eslint-disable-line @typescript-eslint/no-unused-expressions
+      el.style.maxHeight = `${el.scrollHeight}px`;
 
-    if (isOpen) {
-      const height = el.scrollHeight;
-      setMaxHeight(`${height}px`);
-      console.log(`[CollapsiblePanel] OPENING → setting maxHeight to ${height}px`);
-    } else {
-      const height = el.scrollHeight;
-      console.log(`[CollapsiblePanel] CLOSING → Step 1: setting maxHeight to ${height}px`);
-      setMaxHeight(`${height}px`);
-
-      requestAnimationFrame(() => {
-        const computed = getComputedStyle(el).maxHeight;
-        console.log(`[CollapsiblePanel] CLOSING → RAF1: computed maxHeight is ${computed}`);
-        requestAnimationFrame(() => {
-          console.log(`[CollapsiblePanel] CLOSING → RAF2: setting maxHeight to 0px`);
-          setMaxHeight("0px");
-        });
-      });
+      // After transition, set to "none" so nested content isn't clipped
+      const onEnd = () => {
+        el.style.maxHeight = "none";
+        el.removeEventListener("transitionend", onEnd);
+      };
+      el.addEventListener("transitionend", onEnd);
+    } else if (!isOpen && prevIsOpen.current) {
+      // CLOSING — this is the critical fix
+      // Step 1: Lock current height as a concrete pixel value
+      el.style.maxHeight = `${el.scrollHeight}px`;
+      // Step 2: Force reflow — browser MUST paint this value
+      el.offsetHeight; // eslint-disable-line @typescript-eslint/no-unused-expressions
+      // Step 3: Now animate to 0
+      el.style.maxHeight = "0px";
     }
 
-    isOpenRef.current = isOpen;
+    prevIsOpen.current = isOpen;
   }, [isOpen]);
+
+  // Handle nested content changes (e.g., themes accordion opens inside settings)
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el || !isOpen) return;
+
+    // If panel is open and content size changes, update to fit
+    const observer = new ResizeObserver(() => {
+      if (el.style.maxHeight !== "none") return;
+      // Already set to "none", no action needed
+    });
+
+    // Observe all direct children for size changes
+    Array.from(el.children).forEach((child) => observer.observe(child));
+
+    return () => observer.disconnect();
+  }, [isOpen, children]);
 
   return (
     <div
       ref={contentRef}
       style={{
-        maxHeight: maxHeight,
+        maxHeight: isOpen ? undefined : "0px",
         overflow: "hidden",
         transition: "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
