@@ -81,9 +81,12 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
 
   const { theme, themeName, setThemeName } = useTheme();
 
-  const toggleAccordion = (value: string) => {
-    setOpenAccordion(openAccordion === value ? "" : value);
-  };
+const toggleAccordion = (value: string) => {
+  console.log('🔴 BEFORE:', openAccordion);
+  const newValue = openAccordion === value ? "" : value;
+  console.log('🟢 AFTER:', newValue);
+  setOpenAccordion(newValue);
+};
 
   const handleNavClick = (page: Page) => {
     setActivePage(page);
