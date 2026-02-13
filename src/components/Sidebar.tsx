@@ -91,62 +91,61 @@ interface CollapsiblePanelProps {
 }
 function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [panelState, setPanelState] = useState<"closed" | "open" | "closing">(
-    isOpen ? "open" : "closed"
-  );
 
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
 
     if (isOpen) {
-      // Measure and set CSS variable for animation target
-      el.style.maxHeight = "none";
-      el.style.position = "absolute";
-      el.style.visibility = "hidden";
-      el.style.display = "block";
-      const height = el.scrollHeight;
-      el.style.position = "";
-      el.style.visibility = "";
-      el.style.maxHeight = "";
+      // OPENING
+      // Step 1: Set to 0 with no transition
+      el.style.transition = "none";
+      el.style.maxHeight = "0px";
+      // Step 2: Force browser to paint
+      el.offsetHeight;
+      // Step 3: Enable transition and animate to full height
+      el.style.transition = "max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)";
+      el.style.maxHeight = `${el.scrollHeight}px`;
 
-      el.style.setProperty("--panel-height", `${height}px`);
-      setPanelState("open");
+      // After animation completes, remove limit for nested content
+      const onEnd = () => {
+        if (el.style.maxHeight !== "0px") {
+          el.style.maxHeight = "none";
+        }
+        el.removeEventListener("transitionend", onEnd);
+      };
+      el.addEventListener("transitionend", onEnd);
+      return () => el.removeEventListener("transitionend", onEnd);
     } else {
-      if (panelState === "open") {
-        // Measure current height before closing
-        const height = el.scrollHeight;
-        el.style.setProperty("--panel-height", `${height}px`);
-        setPanelState("closing");
+      // CLOSING
+      // If already closed, skip
+      if (el.style.maxHeight === "0px") return;
 
-        // After animation ends, set to fully closed
-        const onEnd = () => {
-          setPanelState("closed");
-          el.removeEventListener("animationend", onEnd);
-        };
-        el.addEventListener("animationend", onEnd);
-
-        return () => el.removeEventListener("animationend", onEnd);
-      } else {
-        setPanelState("closed");
-      }
+      // Step 1: Lock current height with no transition
+      //         (handles both pixel values AND "none")
+      const currentHeight = el.scrollHeight;
+      el.style.transition = "none";
+      el.style.maxHeight = `${currentHeight}px`;
+      // Step 2: Force browser to paint this concrete value
+      el.offsetHeight;
+      // Step 3: Enable transition and animate to 0
+      el.style.transition = "max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)";
+      el.style.maxHeight = "0px";
     }
   }, [isOpen]);
 
-  const className =
-    panelState === "open"
-      ? "panel-open"
-      : panelState === "closing"
-      ? "panel-closing"
-      : "panel-closed";
-
   return (
-    <div ref={contentRef} className={className}>
+    <div
+      ref={contentRef}
+      style={{
+        maxHeight: "0px",
+        overflow: "hidden",
+      }}
+    >
       {children}
     </div>
   );
 }
-
 // ============================================
 // MAIN SIDEBAR COMPONENT
 // ============================================
