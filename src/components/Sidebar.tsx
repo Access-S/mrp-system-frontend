@@ -97,64 +97,60 @@ function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
     const el = contentRef.current;
     if (!el) return;
 
-    if (isOpen && !prevIsOpen.current) {
+    const wasOpen = prevIsOpen.current;
+    
+    console.log(`[CP v2] wasOpen=${wasOpen}, isOpen=${isOpen}, scrollHeight=${el.scrollHeight}`);
+
+    if (isOpen && !wasOpen) {
       // OPENING
-      // Start from 0, animate to scrollHeight
+      console.log(`[CP v2] OPENING: 0px → ${el.scrollHeight}px`);
+      el.style.transition = "none";
       el.style.maxHeight = "0px";
-      // Force reflow so browser registers the 0
-      el.offsetHeight; // eslint-disable-line @typescript-eslint/no-unused-expressions
+      el.offsetHeight; // force reflow
+      el.style.transition = "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)";
       el.style.maxHeight = `${el.scrollHeight}px`;
 
-      // After transition, set to "none" so nested content isn't clipped
       const onEnd = () => {
         el.style.maxHeight = "none";
         el.removeEventListener("transitionend", onEnd);
+        console.log(`[CP v2] OPEN complete → set to none`);
       };
       el.addEventListener("transitionend", onEnd);
-    } else if (!isOpen && prevIsOpen.current) {
-      // CLOSING — this is the critical fix
-      // Step 1: Lock current height as a concrete pixel value
-      el.style.maxHeight = `${el.scrollHeight}px`;
-      // Step 2: Force reflow — browser MUST paint this value
-      el.offsetHeight; // eslint-disable-line @typescript-eslint/no-unused-expressions
-      // Step 3: Now animate to 0
+
+    } else if (!isOpen && wasOpen) {
+      // CLOSING
+      const h = el.scrollHeight;
+      console.log(`[CP v2] CLOSING: ${h}px → 0px`);
+      
+      // Step 1: disable transition, set concrete height
+      el.style.transition = "none";
+      el.style.maxHeight = `${h}px`;
+      
+      // Step 2: force reflow — browser MUST paint this
+      el.offsetHeight; // force reflow
+      
+      // Step 3: re-enable transition and go to 0
+      el.style.transition = "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)";
       el.style.maxHeight = "0px";
+      
+      console.log(`[CP v2] CLOSING: transition re-enabled, maxHeight set to 0px`);
     }
 
     prevIsOpen.current = isOpen;
   }, [isOpen]);
 
-  // Handle nested content changes (e.g., themes accordion opens inside settings)
-  useEffect(() => {
-    const el = contentRef.current;
-    if (!el || !isOpen) return;
-
-    // If panel is open and content size changes, update to fit
-    const observer = new ResizeObserver(() => {
-      if (el.style.maxHeight !== "none") return;
-      // Already set to "none", no action needed
-    });
-
-    // Observe all direct children for size changes
-    Array.from(el.children).forEach((child) => observer.observe(child));
-
-    return () => observer.disconnect();
-  }, [isOpen, children]);
-
   return (
     <div
       ref={contentRef}
       style={{
-        maxHeight: isOpen ? undefined : "0px",
+        maxHeight: "0px",
         overflow: "hidden",
-        transition: "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
       {children}
     </div>
   );
 }
-
 // ============================================
 // MAIN SIDEBAR COMPONENT
 // ============================================
