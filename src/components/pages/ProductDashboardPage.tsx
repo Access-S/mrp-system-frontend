@@ -204,7 +204,7 @@ if (loading) {
           strokeWidth="5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-blue-600 dark:text-blue-400"
+          className="text-gray-900 dark:text-gray-100"
         />
       </svg>
     </div>
