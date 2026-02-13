@@ -91,34 +91,34 @@ interface CollapsiblePanelProps {
 }
 function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const initialized = useRef(false);
+  const isFirstRender = useRef(true);
 
-  // Set initial state on mount (only once)
+  // On first render, just set the correct initial state
   useEffect(() => {
     const el = contentRef.current;
-    if (!el || initialized.current) return;
-    initialized.current = true;
-    
-    el.style.overflow = "hidden";
-    if (isOpen) {
-      el.style.maxHeight = "none";
-    } else {
-      el.style.maxHeight = "0px";
+    if (!el) return;
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      el.style.overflow = "hidden";
+      el.style.maxHeight = isOpen ? "none" : "0px";
+      return;
     }
-  }, []);
-
-  // Handle open/close changes
-  useEffect(() => {
-    const el = contentRef.current;
-    if (!el || !initialized.current) return;
 
     if (isOpen) {
       // OPENING
+      // Measure height while visible
+      el.style.maxHeight = "none";
+      const targetHeight = el.scrollHeight;
+      
+      // Set to 0 without transition
       el.style.transition = "none";
       el.style.maxHeight = "0px";
       void el.offsetHeight;
+      
+      // Animate to target
       el.style.transition = "max-height 400ms cubic-bezier(0.4, 0, 0.2, 1)";
-      el.style.maxHeight = `${el.scrollHeight}px`;
+      el.style.maxHeight = `${targetHeight}px`;
 
       const onEnd = () => {
         el.style.maxHeight = "none";
@@ -137,7 +137,6 @@ function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
     }
   }, [isOpen]);
 
-  // NO inline styles — React won't overwrite our DOM changes
   return (
     <div ref={contentRef}>
       {children}
