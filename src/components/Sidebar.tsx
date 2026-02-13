@@ -98,31 +98,25 @@ function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
     const el = contentRef.current;
     if (!el) return;
 
+    console.log(`[CollapsiblePanel] isOpen changed to: ${isOpen}`);
+    console.log(`[CollapsiblePanel] scrollHeight: ${el.scrollHeight}`);
+    console.log(`[CollapsiblePanel] current maxHeight state: ${maxHeight}`);
+    console.log(`[CollapsiblePanel] computed maxHeight: ${getComputedStyle(el).maxHeight}`);
+
     if (isOpen) {
-      // OPENING: measure and set target height
       const height = el.scrollHeight;
       setMaxHeight(`${height}px`);
-
-      // After transition completes, set to "none" so nested 
-      // accordions can expand without being clipped
-      const timer = setTimeout(() => {
-        if (isOpenRef.current) {
-          setMaxHeight("none");
-        }
-      }, 310); // slightly longer than transition duration
-
-      return () => clearTimeout(timer);
+      console.log(`[CollapsiblePanel] OPENING → setting maxHeight to ${height}px`);
     } else {
-      // CLOSING: This is the critical fix
-      // Step 1: Set max-height to current scrollHeight (concrete value)
       const height = el.scrollHeight;
+      console.log(`[CollapsiblePanel] CLOSING → Step 1: setting maxHeight to ${height}px`);
       setMaxHeight(`${height}px`);
 
-      // Step 2: Force browser to register the above value
-      // then set to 0 in next frame — gives browser two
-      // concrete values to transition between
       requestAnimationFrame(() => {
+        const computed = getComputedStyle(el).maxHeight;
+        console.log(`[CollapsiblePanel] CLOSING → RAF1: computed maxHeight is ${computed}`);
         requestAnimationFrame(() => {
+          console.log(`[CollapsiblePanel] CLOSING → RAF2: setting maxHeight to 0px`);
           setMaxHeight("0px");
         });
       });
@@ -131,31 +125,13 @@ function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
     isOpenRef.current = isOpen;
   }, [isOpen]);
 
-  // Re-measure when children change (e.g., nested accordion opens)
-  useEffect(() => {
-    if (isOpen && contentRef.current) {
-      const height = contentRef.current.scrollHeight;
-      setMaxHeight(`${height}px`);
-
-      const timer = setTimeout(() => {
-        if (isOpenRef.current) {
-          setMaxHeight("none");
-        }
-      }, 310);
-
-      return () => clearTimeout(timer);
-    }
-  }, [children, isOpen]);
-
   return (
     <div
       ref={contentRef}
       style={{
         maxHeight: maxHeight,
-        overflow: maxHeight === "none" ? "visible" : "hidden",
-        transition: maxHeight === "none"
-          ? "none"
-          : "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        overflow: "hidden",
+        transition: "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
       {children}
