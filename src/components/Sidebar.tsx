@@ -1,16 +1,29 @@
-// src/components/Sidebar.tsx
-import React, { useState, useCallback, useEffect } from "react";
+// BLOCK 1: Imports
+import React, { useState } from "react";
 import {
+  IconButton,
+  Typography,
+  List,
+  ListItem,
+  ListItemPrefix,
   Accordion,
   AccordionHeader,
   AccordionBody,
+  Drawer,
+  Card,
 } from "@material-tailwind/react";
 import {
   PresentationChartBarIcon,
   UserCircleIcon,
+  Cog6ToothIcon,
   PowerIcon,
   PaintBrushIcon,
-  Cog6ToothIcon,
+} from "@heroicons/react/24/solid";
+import {
+  ChevronRightIcon,
+  ChevronDownIcon,
+  Bars3Icon,
+  XMarkIcon,
   ShoppingBagIcon,
   ArchiveBoxIcon,
   CubeIcon,
@@ -19,754 +32,740 @@ import {
   ClipboardDocumentListIcon,
   ChartPieIcon,
   DocumentTextIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-  Bars3Icon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useTheme } from "../contexts/ThemeContext";
 import { themes } from "../styles/themes";
 import { Page } from "../App";
 
-// ============================================
-// TYPES
-// ============================================
-interface SidebarProps {
+// BLOCK 2: Component Definition and Props
+export function Sidebar({
+  activePage,
+  setActivePage,
+}: {
   activePage: Page;
   setActivePage: (page: Page) => void;
-}
-
-interface MenuItem {
-  id: Page;
-  label: string;
-  icon: React.ElementType;
-  disabled?: boolean;
-}
-
-interface MenuGroup {
-  id: string;
-  label: string;
-  icon: React.ElementType;
-  items: MenuItem[];
-}
-
-// ============================================
-// MENU DATA
-// ============================================
-const MENU_GROUPS: MenuGroup[] = [
-  {
-    id: "operations",
-    label: "Operations",
-    icon: ShoppingBagIcon,
-    items: [
-      { id: "purchase-orders", label: "Purchase Orders", icon: ArchiveBoxIcon },
-      { id: "inventory", label: "Inventory", icon: CubeIcon },
-    ],
-  },
-  {
-    id: "insights",
-    label: "Insights & Reporting",
-    icon: ChartPieIcon,
-    items: [
-      { id: "analytics", label: "Analytics", icon: ChartBarSquareIcon, disabled: true },
-      { id: "reporting", label: "Reporting", icon: DocumentTextIcon, disabled: true },
-    ],
-  },
-  {
-    id: "system-data",
-    label: "System Data",
-    icon: ServerStackIcon,
-    items: [
-      { id: "products", label: "Products (BOM)", icon: CubeIcon },
-      { id: "forecasts", label: "Forecasts", icon: ChartBarSquareIcon },
-      { id: "soh", label: "Stock on Hand", icon: ClipboardDocumentListIcon },
-    ],
-  },
-];
-
-const SETTINGS_ITEMS = ["General", "Notifications", "Privacy"];
-
-// ============================================
-// MAIN SIDEBAR COMPONENT
-// ============================================
-export function Sidebar({ activePage, setActivePage }: SidebarProps) {
-  const [openAccordion, setOpenAccordion] = useState<string>("");
-  const [themesOpen, setThemesOpen] = useState(false);
+}) {
+  // BLOCK 3: State Management and Handlers
+  const [open, setOpen] = useState("");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const { theme, themeName, setThemeName } = useTheme();
-  const isDark = theme.isDark;
 
-  const toggleAccordion = useCallback((value: string) => {
-    setOpenAccordion((prev) => (prev === value ? "" : value));
-  }, []);
+  const handleOpen = (value: string) => {
+    setOpen(open === value ? "" : value);
+  };
 
-  const handleNavClick = useCallback((page: Page) => {
-    setActivePage(page);
-    setIsDrawerOpen(false);
-  }, [setActivePage]);
+  const handleSettingsOpen = () => {
+    setSettingsOpen((cur) => !cur);
+  };
 
-  // Add this inside your Sidebar component, after all the useState declarations
-useEffect(() => {
-  let isAnimating = false;
+  const openDrawer = () => setIsDrawerOpen(true);
+  const closeDrawer = () => setIsDrawerOpen(false);
 
-  const observer = new MutationObserver((mutations) => {
-    // Skip if we're the ones making changes
-    if (isAnimating) return;
+  // BLOCK 4: Render Logic - PERMANENT DESKTOP SIDEBAR
+return (
+  <>
+    {/* Mobile Toggle Button - Only visible on small screens */}
+    <IconButton
+      variant="text"
+      size="lg"
+      onClick={openDrawer}
+      className={`${theme.text} lg:hidden`}
+      aria-label="Open sidebar"
+    >
+      {isDrawerOpen ? (
+        <XMarkIcon className="h-8 w-8 stroke-2" />
+      ) : (
+        <Bars3Icon className="h-8 w-8 stroke-2" />
+      )}
+    </IconButton>
 
-    mutations.forEach((mutation) => {
-      if (mutation.type !== 'attributes' || mutation.attributeName !== 'style') return;
-      
-      const el = mutation.target as HTMLElement;
-      
-      // Only target MT accordion body divs
-      if (!el.classList.contains('overflow-hidden')) return;
-      if (!el.parentElement?.classList.contains('relative')) return;
-      
-      const currentHeight = el.style.height;
-      
-      if (currentHeight === '0px' && el.scrollHeight > 0) {
-        // CLOSING
-        isAnimating = true;
-        const fullHeight = el.scrollHeight;
-        
-        el.style.transition = 'none';
-        el.style.height = fullHeight + 'px';
-        void el.offsetHeight;
-        
-        el.style.transition = 'height 400ms cubic-bezier(0.4, 0, 0.2, 1)';
-        el.style.height = '0px';
-        
-        setTimeout(() => { isAnimating = false; }, 450);
-        
-      } else if (currentHeight === 'auto') {
-        // OPENING
-        isAnimating = true;
-        const fullHeight = el.scrollHeight;
-        
-        el.style.transition = 'none';
-        el.style.height = '0px';
-        void el.offsetHeight;
-        
-        el.style.transition = 'height 400ms cubic-bezier(0.4, 0, 0.2, 1)';
-        el.style.height = fullHeight + 'px';
-        
-        const onEnd = () => {
-          isAnimating = true;
-          el.style.transition = 'none';
-          el.style.height = 'auto';
-          el.removeEventListener('transitionend', onEnd);
-          setTimeout(() => { isAnimating = false; }, 50);
-        };
-        el.addEventListener('transitionend', onEnd);
-        
-        setTimeout(() => { isAnimating = false; }, 450);
-      }
-    });
-  });
-
-  const sidebar = document.querySelector('aside') || document.querySelector('nav');
-  if (sidebar) {
-    observer.observe(sidebar, {
-      attributes: true,
-      attributeFilter: ['style'],
-      subtree: true,
-    });
-  }
-
-  return () => observer.disconnect();
-}, []);
-
-  // ============================================
-  // NAV CONTENT
-  // ============================================
-  const NavContent = () => (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Header */}
-      <div style={{ padding: "16px", marginBottom: "8px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div
-            style={{
-              height: "32px",
-              width: "32px",
-              borderRadius: "8px",
-              background: "#3b82f6",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontWeight: "bold",
-              fontSize: "14px",
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            }}
-          >
-            MRP
+    {/* Mobile Drawer - Only on small screens */}
+    <Drawer open={isDrawerOpen} onClose={closeDrawer} className="lg:hidden">
+      <div className={`h-full w-full ${theme.cards} overflow-hidden`}>
+        <Card
+          color="transparent"
+          shadow={false}
+          className={`h-full w-full p-4 ${theme.cards} flex flex-col overflow-y-auto rounded-none drawer-content`}
+        >
+          {/* Same content as before */}
+          <div className="mb-6 flex items-center gap-4 p-4">
+            <img
+              src="https://docs.material-tailwind.com/img/logo-ct-dark.png"
+              alt="brand"
+              className="h-8 w-8"
+            />
+            <Typography variant="h5" className={theme.sidebarText}>
+              Dashboard
+            </Typography>
           </div>
-          <h5
-            style={{
-              fontSize: "20px",
-              fontWeight: "600",
-              color: isDark ? "#fff" : "#111827",
-              margin: 0,
-            }}
-          >
-            MRP System
-          </h5>
-        </div>
+
+          <div className="flex-1">
+            <List className={theme.sidebarText}>
+              {/* Dashboard Link */}
+              <ListItem
+                onClick={() => {
+                  setActivePage("dashboard");
+                  closeDrawer();
+                }}
+                selected={activePage === "dashboard"}
+              >
+                <ListItemPrefix>
+                  <PresentationChartBarIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                </ListItemPrefix>
+                <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                  Dashboard
+                </Typography>
+              </ListItem>
+
+              {/* Operations Accordion */}
+              <Accordion
+                open={open === "operations"}
+                icon={
+                  <ChevronDownIcon
+                    strokeWidth={2.5}
+                    className={`mx-auto h-4 w-4 transition-transform ${
+                      open === "operations" ? "rotate-180" : ""
+                    }`}
+                  />
+                }
+              >
+                <ListItem className="p-0" selected={open === "operations"}>
+                  <AccordionHeader
+                    onClick={() => handleOpen("operations")}
+                    className="border-b-0 p-3"
+                  >
+                    <ListItemPrefix>
+                      <Cog6ToothIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                      Operations
+                    </Typography>
+                  </AccordionHeader>
+                </ListItem>
+                <AccordionBody className="py-1">
+                  <List className="p-0 pl-4">
+                    <ListItem
+                      onClick={() => {
+                        setActivePage("purchase-orders");
+                        closeDrawer();
+                      }}
+                      selected={activePage === "purchase-orders"}
+                    >
+                      <ListItemPrefix>
+                        <ShoppingBagIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      Purchase Orders
+                    </ListItem>
+                    <ListItem
+                      onClick={() => {
+                        setActivePage("inventory");
+                        closeDrawer();
+                      }}
+                      selected={activePage === "inventory"}
+                    >
+                      <ListItemPrefix>
+                        <ArchiveBoxIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      Inventory
+                    </ListItem>
+                  </List>
+                </AccordionBody>
+              </Accordion>
+
+              {/* Insights & Reporting Accordion */}
+              <Accordion
+                open={open === "insights"}
+                icon={
+                  <ChevronDownIcon
+                    strokeWidth={2.5}
+                    className={`mx-auto h-4 w-4 transition-transform ${
+                      open === "insights" ? "rotate-180" : ""
+                    }`}
+                  />
+                }
+              >
+                <ListItem className="p-0" selected={open === "insights"}>
+                  <AccordionHeader
+                    onClick={() => handleOpen("insights")}
+                    className="border-b-0 p-3"
+                  >
+                    <ListItemPrefix>
+                      <ChartPieIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                      Insights & Reporting
+                    </Typography>
+                  </AccordionHeader>
+                </ListItem>
+                <AccordionBody className="py-1">
+                  <List className="p-0 pl-4">
+                    <ListItem
+                      onClick={() => {
+                        setActivePage("analytics");
+                        closeDrawer();
+                      }}
+                      selected={activePage === "analytics"}
+                      disabled
+                    >
+                      <ListItemPrefix>
+                        <ChartBarSquareIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      Analytics
+                    </ListItem>
+                    <ListItem
+                      onClick={() => {
+                        setActivePage("reporting");
+                        closeDrawer();
+                      }}
+                      selected={activePage === "reporting"}
+                      disabled
+                    >
+                      <ListItemPrefix>
+                        <DocumentTextIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      Reporting
+                    </ListItem>
+                  </List>
+                </AccordionBody>
+              </Accordion>
+
+              {/* System Data Accordion */}
+              <Accordion
+                open={open === "system-data"}
+                icon={
+                  <ChevronDownIcon
+                    strokeWidth={2.5}
+                    className={`mx-auto h-4 w-4 transition-transform ${
+                      open === "system-data" ? "rotate-180" : ""
+                    }`}
+                  />
+                }
+              >
+                <ListItem className="p-0" selected={open === "system-data"}>
+                  <AccordionHeader
+                    onClick={() => handleOpen("system-data")}
+                    className="border-b-0 p-3"
+                  >
+                    <ListItemPrefix>
+                      <ServerStackIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                      System Data
+                    </Typography>
+                  </AccordionHeader>
+                </ListItem>
+                <AccordionBody className="py-1">
+                  <List className="p-0 pl-4">
+                    <ListItem
+                      onClick={() => {
+                        setActivePage("products");
+                        closeDrawer();
+                      }}
+                      selected={activePage === "products"}
+                    >
+                      <ListItemPrefix>
+                        <CubeIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      Products (BOM)
+                    </ListItem>
+                    <ListItem
+                      onClick={() => {
+                        setActivePage("forecasts");
+                        closeDrawer();
+                      }}
+                      selected={activePage === "forecasts"}
+                    >
+                      <ListItemPrefix>
+                        <ChartBarSquareIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      Forecasts
+                    </ListItem>
+                    <ListItem
+                      onClick={() => {
+                        setActivePage("soh");
+                        closeDrawer();
+                      }}
+                      selected={activePage === "soh"}
+                    >
+                      <ListItemPrefix>
+                        <ClipboardDocumentListIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      Stock on Hand
+                    </ListItem>
+                  </List>
+                </AccordionBody>
+              </Accordion>
+            </List>
+          </div>
+
+          <div className="mt-auto">
+            <hr className="my-4 border-gray-300" />
+            <List className={theme.sidebarText}>
+              <ListItem className={theme.sidebarText}>
+                <ListItemPrefix>
+                  <UserCircleIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                </ListItemPrefix>
+                Profile
+              </ListItem>
+
+              <Accordion
+                open={open === "settings"}
+                icon={
+                  <ChevronDownIcon
+                    strokeWidth={2.5}
+                    className={`mx-auto h-4 w-4 transition-transform ${
+                      open === "settings" ? "rotate-180" : ""
+                    }`}
+                  />
+                }
+              >
+                <ListItem className="p-0" selected={open === "settings"}>
+                  <AccordionHeader
+                    onClick={() => handleOpen("settings")}
+                    className="border-b-0 p-3"
+                  >
+                    <ListItemPrefix>
+                      <Cog6ToothIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                      Settings
+                    </Typography>
+                  </AccordionHeader>
+                </ListItem>
+                <AccordionBody className="py-1">
+                  <List className="p-0">
+                    {["General", "Notifications"].map((item) => (
+                      <ListItem key={item} className={theme.sidebarText}>
+                        <ListItemPrefix>
+                          <ChevronRightIcon
+                            strokeWidth={3}
+                            className={`h-3 w-5 ${theme.sidebarText}`}
+                          />
+                        </ListItemPrefix>
+                        {item}
+                      </ListItem>
+                    ))}
+
+                    <Accordion
+                      open={settingsOpen}
+                      icon={
+                        <ChevronDownIcon
+                          strokeWidth={2.5}
+                          className={`mx-auto h-3 w-3 transition-transform ${
+                            settingsOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      }
+                    >
+                      <ListItem className="p-0 pl-4" selected={settingsOpen}>
+                        <AccordionHeader
+                          onClick={handleSettingsOpen}
+                          className="border-b-0 p-2"
+                        >
+                          <ListItemPrefix>
+                            <PaintBrushIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                          </ListItemPrefix>
+                          <Typography className={`mr-auto font-normal text-sm ${theme.sidebarText}`}>
+                            Themes
+                          </Typography>
+                        </AccordionHeader>
+                      </ListItem>
+                      <AccordionBody className="py-1">
+                        <List className="p-0 pl-4">
+                          {Object.entries(themes).map(([key, themeOption]) => (
+                            <ListItem
+                              key={key}
+                              className={`${theme.sidebarText} pl-8 py-2 ${
+                                themeName === key
+                                  ? theme.isDark
+                                    ? "bg-gray-700"
+                                    : theme.activeRowBg
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                setThemeName(key as keyof typeof themes)
+                              }
+                            >
+                              <ListItemPrefix>
+                                <div
+                                  className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 border-2 ${
+                                    theme.isDark
+                                      ? "border-gray-400"
+                                      : "border-gray-700"
+                                  }`}
+                                >
+                                  <div
+                                    className={`w-2 h-2 rounded-full transition-transform duration-200 ease-in-out ${
+                                      theme.isDark ? "bg-gray-200" : "bg-gray-800"
+                                    } ${
+                                      themeName === key ? "scale-100" : "scale-0"
+                                    }`}
+                                  ></div>
+                                </div>
+                              </ListItemPrefix>
+                              <Typography
+                                className={`text-xs ${theme.sidebarText} ${
+                                  themeName === key ? "font-medium" : ""
+                                }`}
+                              >
+                                {themeOption.name}
+                              </Typography>
+                            </ListItem>
+                          ))}
+                        </List>
+                      </AccordionBody>
+                    </Accordion>
+
+                    <ListItem className={theme.sidebarText}>
+                      <ListItemPrefix>
+                        <ChevronRightIcon
+                          strokeWidth={3}
+                          className={`h-3 w-5 ${theme.sidebarText}`}
+                        />
+                      </ListItemPrefix>
+                      Privacy
+                    </ListItem>
+                  </List>
+                </AccordionBody>
+              </Accordion>
+
+              <ListItem className={theme.sidebarText}>
+                <ListItemPrefix>
+                  <PowerIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                </ListItemPrefix>
+                Log Out
+              </ListItem>
+            </List>
+          </div>
+        </Card>
+      </div>
+    </Drawer>
+
+    {/* PERMANENT DESKTOP SIDEBAR - NEW */}
+    <aside className={`hidden lg:flex flex-col w-64 ${theme.cards} border-r ${theme.isDark ? 'border-slate-700' : 'border-slate-200'} h-screen sticky top-0 overflow-y-auto drawer-content`}>
+      <div className="mb-6 flex items-center gap-4 p-4">
+        <img
+          src="https://docs.material-tailwind.com/img/logo-ct-dark.png"
+          alt="brand"
+          className="h-8 w-8"
+        />
+        <Typography variant="h5" className={theme.sidebarText}>
+          Dashboard
+        </Typography>
       </div>
 
-      {/* Scrollable Middle Section */}
-      <nav
-        style={{
-          flex: 1,
-          padding: "0 8px",
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "4px",
-        }}
-      >
-        {/* Dashboard */}
-        <button
-          onClick={() => handleNavClick("dashboard")}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            width: "100%",
-            padding: "12px",
-            borderRadius: "8px",
-            textAlign: "left",
-            background:
-              activePage === "dashboard"
-                ? isDark ? "#1e293b" : "#eff6ff"
-                : "transparent",
-            color:
-              activePage === "dashboard"
-                ? isDark ? "#60a5fa" : "#2563eb"
-                : isDark ? "#e5e7eb" : "#374151",
-            fontWeight: activePage === "dashboard" ? "500" : "400",
-            border: "none",
-            cursor: "pointer",
-          }}
-          onMouseEnter={(e) => {
-            if (activePage !== "dashboard") {
-              e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activePage !== "dashboard") {
-              e.currentTarget.style.background = "transparent";
-            }
-          }}
-        >
-          <PresentationChartBarIcon
-            style={{ width: "20px", height: "20px", marginRight: "12px" }}
-          />
-          <span>Dashboard</span>
-        </button>
-
-        {/* Menu Groups — Using Material Tailwind Accordion */}
-        {MENU_GROUPS.map((group) => {
-          const isOpen = openAccordion === group.id;
-          return (
-            <Accordion
-              key={group.id}
-              open={isOpen}
-              icon={
-                <ChevronDownIcon
-                  style={{
-                    width: "16px",
-                    height: "16px",
-                    transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                    transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                  }}
-                />
-              }
-            >
-              <AccordionHeader
-                onClick={() => toggleAccordion(group.id)}
-                className="border-b-0 p-0"
-                style={{ border: "none" }}
-              >
-                <button
-                  type="button"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    width: "100%",
-                    padding: "12px",
-                    borderRadius: "8px",
-                    textAlign: "left",
-                    background: isOpen
-                      ? isDark ? "#1e293b" : "#eff6ff"
-                      : "transparent",
-                    color: isOpen
-                      ? isDark ? "#60a5fa" : "#2563eb"
-                      : isDark ? "#e5e7eb" : "#374151",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isOpen) {
-                      e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isOpen) {
-                      e.currentTarget.style.background = "transparent";
-                    }
-                  }}
-                >
-                  <group.icon
-                    style={{ width: "20px", height: "20px", marginRight: "12px" }}
-                  />
-                  <span style={{ marginRight: "auto" }}>{group.label}</span>
-                </button>
-              </AccordionHeader>
-              <AccordionBody style={{ padding: "0" }}>
-                <div style={{ padding: "4px 0" }}>
-                  {group.items.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => !item.disabled && handleNavClick(item.id)}
-                      disabled={item.disabled}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        width: "100%",
-                        padding: "10px 12px 10px 48px",
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        textAlign: "left",
-                        background:
-                          activePage === item.id
-                            ? isDark ? "#1e293b" : "#eff6ff"
-                            : "transparent",
-                        color:
-                          activePage === item.id
-                            ? isDark ? "#60a5fa" : "#2563eb"
-                            : isDark ? "#e5e7eb" : "#374151",
-                        fontWeight: activePage === item.id ? "500" : "400",
-                        opacity: item.disabled ? 0.5 : 1,
-                        cursor: item.disabled ? "not-allowed" : "pointer",
-                        border: "none",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!item.disabled && activePage !== item.id) {
-                          e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (activePage !== item.id) {
-                          e.currentTarget.style.background = "transparent";
-                        }
-                      }}
-                    >
-                      <ChevronRightIcon
-                        style={{ width: "12px", height: "12px", marginRight: "8px", opacity: 0.5 }}
-                      />
-                      <item.icon
-                        style={{ width: "16px", height: "16px", marginRight: "8px" }}
-                      />
-                      {item.label}
-                      {item.disabled && (
-                        <span
-                          style={{
-                            marginLeft: "auto",
-                            fontSize: "12px",
-                            color: isDark ? "#9ca3af" : "#6b7280",
-                          }}
-                        >
-                          (Soon)
-                        </span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </AccordionBody>
-            </Accordion>
-          );
-        })}
-      </nav>
-
-      {/* Bottom Section */}
-      <div
-        style={{
-          marginTop: "auto",
-          paddingTop: "16px",
-          padding: "16px 8px 8px 8px",
-          borderTop: `1px solid ${isDark ? "#374151" : "#e5e7eb"}`,
-        }}
-      >
-        <nav style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          {/* Profile */}
-          <button
-            onClick={() => handleNavClick("dashboard")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              padding: "12px",
-              borderRadius: "8px",
-              textAlign: "left",
-              background: "transparent",
-              color: isDark ? "#e5e7eb" : "#374151",
-              border: "none",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-            }}
+      <div className="flex-1">
+        <List className={theme.sidebarText}>
+          {/* Same menu items, but WITHOUT closeDrawer() calls */}
+          <ListItem
+            onClick={() => setActivePage("dashboard")}
+            selected={activePage === "dashboard"}
           >
-            <UserCircleIcon
-              style={{ width: "20px", height: "20px", marginRight: "12px" }}
-            />
-            <span>Profile</span>
-          </button>
+            <ListItemPrefix>
+              <PresentationChartBarIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+            </ListItemPrefix>
+            <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+              Dashboard
+            </Typography>
+          </ListItem>
 
-          {/* Settings Accordion */}
+          {/* Operations Accordion */}
           <Accordion
-            open={openAccordion === "settings"}
+            open={open === "operations"}
             icon={
               <ChevronDownIcon
-                style={{
-                  width: "16px",
-                  height: "16px",
-                  transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                  transform: openAccordion === "settings" ? "rotate(180deg)" : "rotate(0deg)",
-                }}
+                strokeWidth={2.5}
+                className={`mx-auto h-4 w-4 transition-transform ${
+                  open === "operations" ? "rotate-180" : ""
+                }`}
               />
             }
           >
-            <AccordionHeader
-              onClick={() => toggleAccordion("settings")}
-              className="border-b-0 p-0"
-              style={{ border: "none" }}
-            >
-              <button
-                type="button"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  textAlign: "left",
-                  background:
-                    openAccordion === "settings"
-                      ? isDark ? "#1e293b" : "#eff6ff"
-                      : "transparent",
-                  color:
-                    openAccordion === "settings"
-                      ? isDark ? "#60a5fa" : "#2563eb"
-                      : isDark ? "#e5e7eb" : "#374151",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                }}
-                onMouseEnter={(e) => {
-                  if (openAccordion !== "settings") {
-                    e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (openAccordion !== "settings") {
-                    e.currentTarget.style.background = "transparent";
-                  }
-                }}
+            <ListItem className="p-0" selected={open === "operations"}>
+              <AccordionHeader
+                onClick={() => handleOpen("operations")}
+                className="border-b-0 p-3"
               >
-                <Cog6ToothIcon
-                  style={{ width: "20px", height: "20px", marginRight: "12px" }}
-                />
-                <span style={{ marginRight: "auto" }}>Settings</span>
-              </button>
-            </AccordionHeader>
-            <AccordionBody style={{ padding: "0" }}>
-              <div style={{ padding: "4px 0" }}>
-                {SETTINGS_ITEMS.map((item) => (
-                  <button
-                    key={item}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      width: "100%",
-                      padding: "10px 12px 10px 48px",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      textAlign: "left",
-                      background: "transparent",
-                      color: isDark ? "#e5e7eb" : "#374151",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "transparent";
-                    }}
-                  >
-                    <ChevronRightIcon
-                      style={{ width: "12px", height: "12px", marginRight: "8px", opacity: 0.5 }}
-                    />
-                    {item}
-                  </button>
-                ))}
-
-                {/* Nested Themes Accordion */}
-                <Accordion
-                  open={themesOpen}
-                  icon={
-                    <ChevronDownIcon
-                      style={{
-                        width: "12px",
-                        height: "12px",
-                        transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                        transform: themesOpen ? "rotate(180deg)" : "rotate(0deg)",
-                      }}
-                    />
-                  }
+                <ListItemPrefix>
+                  <Cog6ToothIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                </ListItemPrefix>
+                <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                  Operations
+                </Typography>
+              </AccordionHeader>
+            </ListItem>
+            <AccordionBody className="py-1">
+              <List className="p-0 pl-4">
+                <ListItem
+                  onClick={() => setActivePage("purchase-orders")}
+                  selected={activePage === "purchase-orders"}
                 >
-                  <AccordionHeader
-                    onClick={() => setThemesOpen(!themesOpen)}
-                    className="border-b-0 p-0"
-                    style={{ border: "none" }}
-                  >
-                    <button
-                      type="button"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        width: "100%",
-                        padding: "10px 12px 10px 48px",
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        textAlign: "left",
-                        background: "transparent",
-                        color: isDark ? "#e5e7eb" : "#374151",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "transparent";
-                      }}
-                    >
-                      <ChevronRightIcon
-                        style={{
-                          width: "12px",
-                          height: "12px",
-                          marginRight: "8px",
-                          opacity: 0.5,
-                          transform: themesOpen ? "rotate(90deg)" : "rotate(0deg)",
-                          transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-                        }}
-                      />
-                      <PaintBrushIcon
-                        style={{ width: "16px", height: "16px", marginRight: "8px" }}
-                      />
-                      <span style={{ marginRight: "auto" }}>Themes</span>
-                    </button>
-                  </AccordionHeader>
-                  <AccordionBody style={{ padding: "0" }}>
-                    <div
-                      style={{
-                        marginLeft: "24px",
-                        padding: "4px 0",
-                        borderLeft: `1px solid ${isDark ? "#374151" : "#e5e7eb"}`,
-                        paddingLeft: "12px",
-                      }}
-                    >
-                      {Object.entries(themes).map(([key, themeOption]) => (
-                        <button
-                          key={key}
-                          onClick={() => setThemeName(key as keyof typeof themes)}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                            width: "100%",
-                            padding: "8px 12px",
-                            borderRadius: "8px",
-                            fontSize: "14px",
-                            textAlign: "left",
-                            background:
-                              themeName === key
-                                ? isDark ? "#1e293b" : "#eff6ff"
-                                : "transparent",
-                            color:
-                              themeName === key
-                                ? isDark ? "#60a5fa" : "#2563eb"
-                                : isDark ? "#9ca3af" : "#6b7280",
-                            fontWeight: themeName === key ? "500" : "400",
-                            border: "none",
-                            cursor: "pointer",
-                          }}
-                          onMouseEnter={(e) => {
-                            if (themeName !== key) {
-                              e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (themeName !== key) {
-                              e.currentTarget.style.background = "transparent";
-                            }
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: "16px",
-                              height: "16px",
-                              borderRadius: "50%",
-                              border: `2px solid ${isDark ? "#6b7280" : "#9ca3af"}`,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: "8px",
-                                height: "8px",
-                                borderRadius: "50%",
-                                background: isDark ? "#60a5fa" : "#3b82f6",
-                                transform: themeName === key ? "scale(1)" : "scale(0)",
-                                transition: "transform 150ms",
-                              }}
-                            />
-                          </div>
-                          <span>{themeOption.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </AccordionBody>
-                </Accordion>
-              </div>
+                  <ListItemPrefix>
+                    <ShoppingBagIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  Purchase Orders
+                </ListItem>
+                <ListItem
+                  onClick={() => setActivePage("inventory")}
+                  selected={activePage === "inventory"}
+                >
+                  <ListItemPrefix>
+                    <ArchiveBoxIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  Inventory
+                </ListItem>
+              </List>
             </AccordionBody>
           </Accordion>
 
-          {/* Log Out */}
-          <button
-            onClick={() => console.log("Logging out...")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              padding: "12px",
-              borderRadius: "8px",
-              textAlign: "left",
-              background: "transparent",
-              color: isDark ? "#e5e7eb" : "#374151",
-              border: "none",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = isDark ? "#1e293b" : "#eff6ff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-            }}
+          {/* Insights Accordion */}
+          <Accordion
+            open={open === "insights"}
+            icon={
+              <ChevronDownIcon
+                strokeWidth={2.5}
+                className={`mx-auto h-4 w-4 transition-transform ${
+                  open === "insights" ? "rotate-180" : ""
+                }`}
+              />
+            }
           >
-            <PowerIcon
-              style={{ width: "20px", height: "20px", marginRight: "12px" }}
-            />
-            <span>Log Out</span>
-          </button>
-        </nav>
-      </div>
-    </div>
-  );
-
-  // ============================================
-  // RENDER
-  // ============================================
-  return (
-    <>
-      {/* Mobile Toggle Button */}
-      <button
-        onClick={() => setIsDrawerOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg"
-        aria-label="Open sidebar"
-      >
-        <Bars3Icon className="h-6 w-6 text-gray-700 dark:text-gray-200" />
-      </button>
-
-      {/* Mobile Overlay */}
-      {isDrawerOpen && (
-        <>
-          <div
-            className="lg:hidden fixed inset-0 bg-black/50 z-40"
-            onClick={() => setIsDrawerOpen(false)}
-          />
-          <div
-            className="lg:hidden fixed inset-y-0 left-0 w-80 z-50"
-            style={{
-              display: "flex",
-              height: "100vh",
-              width: "100%",
-              maxWidth: "20rem",
-              flexDirection: "column",
-              background: isDark ? "#0f172a" : "#fff",
-              color: isDark ? "#e5e7eb" : "#374151",
-              boxShadow:
-                "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
-              borderRight: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
-              transform: isDrawerOpen ? "translateX(0)" : "translateX(-100%)",
-              transition: "transform 300ms",
-            }}
-          >
-            <div
-              style={{ display: "flex", justifyContent: "flex-end", padding: "8px" }}
-            >
-              <button
-                onClick={() => setIsDrawerOpen(false)}
-                style={{
-                  padding: "8px",
-                  borderRadius: "8px",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  transition: "background 150ms",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = isDark ? "#1e293b" : "#f3f4f6";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                }}
+            <ListItem className="p-0" selected={open === "insights"}>
+              <AccordionHeader
+                onClick={() => handleOpen("insights")}
+                className="border-b-0 p-3"
               >
-                <XMarkIcon style={{ height: "24px", width: "24px" }} />
-              </button>
-            </div>
-            <NavContent />
-          </div>
-        </>
-      )}
+                <ListItemPrefix>
+                  <ChartPieIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                </ListItemPrefix>
+                <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                  Insights & Reporting
+                </Typography>
+              </AccordionHeader>
+            </ListItem>
+            <AccordionBody className="py-1">
+              <List className="p-0 pl-4">
+                <ListItem
+                  onClick={() => setActivePage("analytics")}
+                  selected={activePage === "analytics"}
+                  disabled
+                >
+                  <ListItemPrefix>
+                    <ChartBarSquareIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  Analytics
+                </ListItem>
+                <ListItem
+                  onClick={() => setActivePage("reporting")}
+                  selected={activePage === "reporting"}
+                  disabled
+                >
+                  <ListItemPrefix>
+                    <DocumentTextIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  Reporting
+                </ListItem>
+              </List>
+            </AccordionBody>
+          </Accordion>
 
-      {/* Desktop Sidebar */}
-      <aside
-        className="hidden lg:flex"
-        style={{
-          display: "flex",
-          height: "100vh",
-          width: "100%",
-          maxWidth: "20rem",
-          flexDirection: "column",
-          background: isDark ? "#0f172a" : "#fff",
-          color: isDark ? "#e5e7eb" : "#374151",
-          boxShadow:
-            "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
-          borderRight: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
-        }}
-      >
-        <NavContent />
-      </aside>
-    </>
-  );
+          {/* System Data Accordion */}
+          <Accordion
+            open={open === "system-data"}
+            icon={
+              <ChevronDownIcon
+                strokeWidth={2.5}
+                className={`mx-auto h-4 w-4 transition-transform ${
+                  open === "system-data" ? "rotate-180" : ""
+                }`}
+              />
+            }
+          >
+            <ListItem className="p-0" selected={open === "system-data"}>
+              <AccordionHeader
+                onClick={() => handleOpen("system-data")}
+                className="border-b-0 p-3"
+              >
+                <ListItemPrefix>
+                  <ServerStackIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                </ListItemPrefix>
+                <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                  System Data
+                </Typography>
+              </AccordionHeader>
+            </ListItem>
+            <AccordionBody className="py-1">
+              <List className="p-0 pl-4">
+                <ListItem
+                  onClick={() => setActivePage("products")}
+                  selected={activePage === "products"}
+                >
+                  <ListItemPrefix>
+                    <CubeIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  Products (BOM)
+                </ListItem>
+                <ListItem
+                  onClick={() => setActivePage("forecasts")}
+                  selected={activePage === "forecasts"}
+                >
+                  <ListItemPrefix>
+                    <ChartBarSquareIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  Forecasts
+                </ListItem>
+                <ListItem
+                  onClick={() => setActivePage("soh")}
+                  selected={activePage === "soh"}
+                >
+                  <ListItemPrefix>
+                    <ClipboardDocumentListIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  Stock on Hand
+                </ListItem>
+              </List>
+            </AccordionBody>
+          </Accordion>
+        </List>
+      </div>
+
+      {/* Bottom settings section */}
+      <div className="mt-auto">
+        <hr className="my-4 border-gray-300" />
+        <List className={theme.sidebarText}>
+          <ListItem className={theme.sidebarText}>
+            <ListItemPrefix>
+              <UserCircleIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+            </ListItemPrefix>
+            Profile
+          </ListItem>
+
+          <Accordion
+            open={open === "settings"}
+            icon={
+              <ChevronDownIcon
+                strokeWidth={2.5}
+                className={`mx-auto h-4 w-4 transition-transform ${
+                  open === "settings" ? "rotate-180" : ""
+                }`}
+              />
+            }
+          >
+            <ListItem className="p-0" selected={open === "settings"}>
+              <AccordionHeader
+                onClick={() => handleOpen("settings")}
+                className="border-b-0 p-3"
+              >
+                <ListItemPrefix>
+                  <Cog6ToothIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                </ListItemPrefix>
+                <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>
+                  Settings
+                </Typography>
+              </AccordionHeader>
+            </ListItem>
+            <AccordionBody className="py-1">
+              <List className="p-0">
+                {["General", "Notifications"].map((item) => (
+                  <ListItem key={item} className={theme.sidebarText}>
+                    <ListItemPrefix>
+                      <ChevronRightIcon
+                        strokeWidth={3}
+                        className={`h-3 w-5 ${theme.sidebarText}`}
+                      />
+                    </ListItemPrefix>
+                    {item}
+                  </ListItem>
+                ))}
+
+                <Accordion
+                  open={settingsOpen}
+                  icon={
+                    <ChevronDownIcon
+                      strokeWidth={2.5}
+                      className={`mx-auto h-3 w-3 transition-transform ${
+                        settingsOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  }
+                >
+                  <ListItem className="p-0 pl-4" selected={settingsOpen}>
+                    <AccordionHeader
+                      onClick={handleSettingsOpen}
+                      className="border-b-0 p-2"
+                    >
+                      <ListItemPrefix>
+                        <PaintBrushIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                      </ListItemPrefix>
+                      <Typography className={`mr-auto font-normal text-sm ${theme.sidebarText}`}>
+                        Themes
+                      </Typography>
+                    </AccordionHeader>
+                  </ListItem>
+                  <AccordionBody className="py-1">
+                    <List className="p-0 pl-4">
+                      {Object.entries(themes).map(([key, themeOption]) => (
+                        <ListItem
+                          key={key}
+                          className={`${theme.sidebarText} pl-8 py-2 ${
+                            themeName === key
+                              ? theme.isDark
+                                ? "bg-gray-700"
+                                : theme.activeRowBg
+                              : ""
+                          }`}
+                          onClick={() => setThemeName(key as keyof typeof themes)}
+                        >
+                          <ListItemPrefix>
+                            <div
+                              className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 border-2 ${
+                                theme.isDark ? "border-gray-400" : "border-gray-700"
+                              }`}
+                            >
+                              <div
+                                className={`w-2 h-2 rounded-full transition-transform duration-200 ease-in-out ${
+                                  theme.isDark ? "bg-gray-200" : "bg-gray-800"
+                                } ${themeName === key ? "scale-100" : "scale-0"}`}
+                              ></div>
+                            </div>
+                          </ListItemPrefix>
+                          <Typography
+                            className={`text-xs ${theme.sidebarText} ${
+                              themeName === key ? "font-medium" : ""
+                            }`}
+                          >
+                            {themeOption.name}
+                          </Typography>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </AccordionBody>
+                </Accordion>
+
+                <ListItem className={theme.sidebarText}>
+                  <ListItemPrefix>
+                    <ChevronRightIcon
+                      strokeWidth={3}
+                      className={`h-3 w-5 ${theme.sidebarText}`}
+                    />
+                  </ListItemPrefix>
+                  Privacy
+                </ListItem>
+              </List>
+            </AccordionBody>
+          </Accordion>
+
+          <ListItem className={theme.sidebarText}>
+            <ListItemPrefix>
+              <PowerIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+            </ListItemPrefix>
+            Log Out
+          </ListItem>
+        </List>
+      </div>
+    </aside>
+  </>
+);
 }
