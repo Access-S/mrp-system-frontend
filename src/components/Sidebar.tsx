@@ -106,6 +106,76 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
     setIsDrawerOpen(false);
   }, [setActivePage]);
 
+  // Add this inside your Sidebar component, after all the useState declarations
+useEffect(() => {
+  // Find all MT accordion body divs and patch their transitions
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+        const el = mutation.target as HTMLElement;
+        
+        // Only target MT accordion body divs
+        if (!el.classList.contains('overflow-hidden')) return;
+        if (!el.parentElement?.classList.contains('relative')) return;
+        
+        const currentHeight = el.style.height;
+        
+        if (currentHeight === '0px' && el.scrollHeight > 0) {
+          // CLOSING: MT just set height to 0px from auto
+          // We need to intercept and animate
+          const fullHeight = el.scrollHeight;
+          
+          // Step 1: Remove MT's height, set concrete value
+          el.style.transition = 'none';
+          el.style.height = fullHeight + 'px';
+          
+          // Step 2: Force reflow
+          void el.offsetHeight;
+          
+          // Step 3: Animate to 0
+          el.style.transition = 'height 400ms cubic-bezier(0.4, 0, 0.2, 1)';
+          el.style.height = '0px';
+        } else if (currentHeight === 'auto') {
+          // OPENING: MT set height to auto
+          // Get the actual height
+          const fullHeight = el.scrollHeight;
+          
+          // Step 1: Set to 0 without transition
+          el.style.transition = 'none';
+          el.style.height = '0px';
+          
+          // Step 2: Force reflow
+          void el.offsetHeight;
+          
+          // Step 3: Animate to full height
+          el.style.transition = 'height 400ms cubic-bezier(0.4, 0, 0.2, 1)';
+          el.style.height = fullHeight + 'px';
+          
+          // Step 4: After animation, set back to auto for flexibility
+          var onEnd = function() {
+            el.style.transition = 'none';
+            el.style.height = 'auto';
+            el.removeEventListener('transitionend', onEnd);
+          };
+          el.addEventListener('transitionend', onEnd);
+        }
+      }
+    });
+  });
+
+  // Observe the sidebar for style changes on accordion bodies
+  const sidebar = document.querySelector('aside') || document.querySelector('nav');
+  if (sidebar) {
+    observer.observe(sidebar, {
+      attributes: true,
+      attributeFilter: ['style'],
+      subtree: true,
+    });
+  }
+
+  return () => observer.disconnect();
+}, []);
+
   // ============================================
   // NAV CONTENT
   // ============================================
