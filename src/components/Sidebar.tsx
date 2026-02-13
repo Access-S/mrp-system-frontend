@@ -91,52 +91,48 @@ interface CollapsiblePanelProps {
 }
 function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const prevIsOpen = useRef(isOpen);
 
+  // Handle opening
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
 
-    const wasOpen = prevIsOpen.current;
-    
-    console.log(`[CP v2] wasOpen=${wasOpen}, isOpen=${isOpen}, scrollHeight=${el.scrollHeight}`);
-
-    if (isOpen && !wasOpen) {
+    if (isOpen) {
       // OPENING
-      console.log(`[CP v2] OPENING: 0px → ${el.scrollHeight}px`);
+      // Temporarily disable transition to set start position
       el.style.transition = "none";
       el.style.maxHeight = "0px";
       el.offsetHeight; // force reflow
+
+      // Re-enable transition and animate to full height
       el.style.transition = "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)";
       el.style.maxHeight = `${el.scrollHeight}px`;
 
+      // After animation, remove max-height limit so nested content works
       const onEnd = () => {
-        el.style.maxHeight = "none";
+        if (el.style.maxHeight !== "0px") {
+          el.style.maxHeight = "none";
+        }
         el.removeEventListener("transitionend", onEnd);
-        console.log(`[CP v2] OPEN complete → set to none`);
       };
       el.addEventListener("transitionend", onEnd);
 
-    } else if (!isOpen && wasOpen) {
+      return () => el.removeEventListener("transitionend", onEnd);
+    } else {
       // CLOSING
-      const h = el.scrollHeight;
-      console.log(`[CP v2] CLOSING: ${h}px → 0px`);
-      
-      // Step 1: disable transition, set concrete height
+      // If already at 0, nothing to do
+      if (el.style.maxHeight === "0px") return;
+
+      // Step 1: Lock current height (works even if maxHeight is "none")
+      const currentHeight = el.scrollHeight;
       el.style.transition = "none";
-      el.style.maxHeight = `${h}px`;
-      
-      // Step 2: force reflow — browser MUST paint this
-      el.offsetHeight; // force reflow
-      
-      // Step 3: re-enable transition and go to 0
+      el.style.maxHeight = `${currentHeight}px`;
+      el.offsetHeight; // force reflow — browser MUST paint this
+
+      // Step 2: Re-enable transition and animate to 0
       el.style.transition = "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)";
       el.style.maxHeight = "0px";
-      
-      console.log(`[CP v2] CLOSING: transition re-enabled, maxHeight set to 0px`);
     }
-
-    prevIsOpen.current = isOpen;
   }, [isOpen]);
 
   return (
@@ -151,6 +147,7 @@ function CollapsiblePanel({ isOpen, children }: CollapsiblePanelProps) {
     </div>
   );
 }
+
 // ============================================
 // MAIN SIDEBAR COMPONENT
 // ============================================
