@@ -207,8 +207,6 @@ if (loading) {
           className="text-blue-600 dark:text-blue-400"
         />
       </svg>
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">
-      </p>
     </div>
   );
 }
