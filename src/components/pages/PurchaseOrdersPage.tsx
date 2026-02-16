@@ -241,7 +241,19 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
             </Typography>
           </Button>
           {/* THIS IS THE CRITICAL PART - MAKE SURE onCreatePo IS USED */}
-          <Button onClick={onCreatePo} className="flex items-center gap-3" size="sm">
+          // Just replace the Button with this:
+          <Button 
+            onClick={() => {
+              console.log("✅ Create PO clicked");
+              if (onCreatePo) {
+                onCreatePo();
+              } else {
+                console.error("❌ onCreatePo prop is missing!");
+              }
+            }} 
+            className="flex items-center gap-3" 
+            size="sm"
+          >
             <PlusIcon strokeWidth={2} className="h-4 w-4" /> Create New PO
           </Button>
         </div>
