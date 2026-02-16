@@ -1,4 +1,4 @@
-// BLOCK 1: Imports
+// BLOCK 1: Imports (keep as is)
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Button, Typography, Card, CardBody, Input,
@@ -30,8 +30,12 @@ const TABLE_HEAD = [
   "Actions",
 ];
 
-// BLOCK 3: Main Component Definition
-export function PurchaseOrdersPage({ onCreatePo }: { onCreatePo: () => void }) {
+// BLOCK 3: Main Component Definition - MAKE SURE THIS IS EXACT
+interface PurchaseOrdersPageProps {
+  onCreatePo: () => void;
+}
+
+export function PurchaseOrdersPage({ onCreatePo }: PurchaseOrdersPageProps) {
   // BLOCK 4: State
   const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
@@ -48,7 +52,7 @@ export function PurchaseOrdersPage({ onCreatePo }: { onCreatePo: () => void }) {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [poToDelete, setPoToDelete] = useState<any | null>(null);
 
-  // BLOCK 5: Data Fetching
+  // BLOCK 5: Data Fetching (keep as is)
   const loadPurchaseOrders = useCallback(async (page: number, search: string, status: string, limit: number) => {
     setLoading(true);
     try {
@@ -64,7 +68,7 @@ export function PurchaseOrdersPage({ onCreatePo }: { onCreatePo: () => void }) {
     loadPurchaseOrders(1, debouncedSearchQuery, statusFilter, itemsPerPage);
   }, [debouncedSearchQuery, statusFilter, sortDirection, itemsPerPage, loadPurchaseOrders]);
 
-  // BLOCK 6: Pagination Handlers
+  // BLOCK 6: Pagination Handlers (keep as is)
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= pagination.totalPages) {
       loadPurchaseOrders(newPage, debouncedSearchQuery, statusFilter, itemsPerPage);
@@ -75,7 +79,7 @@ export function PurchaseOrdersPage({ onCreatePo }: { onCreatePo: () => void }) {
     setItemsPerPage(newLimit);
   };
 
-  // BLOCK 7: Status Business Rules
+  // BLOCK 7: Status Business Rules (keep as is)
 const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
   const blocked = new Set<string>();
   const has = (s: string) => currentStatuses.includes(s);
@@ -120,7 +124,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
   return blocked;
 };
 
-  // BLOCK 8: Status Update Handler
+  // BLOCK 8: Status Update Handler (keep as is)
   const handleStatusUpdate = async (poId: string, status: string, currentStatuses: { status: string }[]) => {
   const statusList = currentStatuses?.map(s => s.status) || [];
   const isCurrentlyActive = statusList.includes(status);
@@ -156,7 +160,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
   }
 };
 
-  // BLOCK 9: Modal/Form Handlers
+  // BLOCK 9: Modal/Form Handlers (keep as is)
   const handleOpenViewModal = (po: any | null) => setPoToView(po);
   const handleSort = () => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
 
@@ -179,7 +183,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
   const handleOpenEditForm = (po: any | null) => { setPoToEdit(po); setIsEditFormOpen(!!po); };
   const handlePoUpdate = (updatedPo: any) => { toast.success(`PO ${updatedPo.po_number} updated successfully!`); setPurchaseOrders(prevPOs => prevPOs.map(p => (p.id === updatedPo.id ? updatedPo : p))); };
 
-  // BLOCK 10: Table Helper Functions
+  // BLOCK 10: Table Helper Functions (keep as is)
   const getHeaderClasses = (index: number) => {
     let classes = `${theme.tableHeaderBg} p-4 text-center`;
     if (index < TABLE_HEAD.length - 1) {
@@ -202,7 +206,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
     return style;
   };
 
-  // BLOCK 11: Initial Loading State
+  // BLOCK 11: Initial Loading State (keep as is)
   if (loading && purchaseOrders.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4">
@@ -215,7 +219,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
     );
   }
 
-  // BLOCK 12: Main Render
+  // BLOCK 12: Main Render - CRITICAL: Make sure onClick uses onCreatePo
   return (
     <Card className={`w-full ${theme.cards} shadow-sm`}>
       {/* Header */}
@@ -236,12 +240,14 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
               Sort by {sortDirection === "desc" ? "Newest" : "Oldest"}
             </Typography>
           </Button>
+          {/* THIS IS THE CRITICAL PART - MAKE SURE onCreatePo IS USED */}
           <Button onClick={onCreatePo} className="flex items-center gap-3" size="sm">
             <PlusIcon strokeWidth={2} className="h-4 w-4" /> Create New PO
           </Button>
         </div>
       </div>
 
+      {/* Rest of the component remains exactly the same... */}
       {/* Search, Filter, Quick Nav */}
       <div className={`flex flex-wrap items-center justify-between border-b ${theme.borderColor}`}>
         <div className="p-4 flex-grow">
