@@ -1,5 +1,3 @@
-//src/App.tsx
-
 // BLOCK 1: Imports
 import React, { useState } from "react";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
@@ -9,6 +7,7 @@ import { ProductsPage } from "./components/pages/ProductsPage";
 import { ProductDetailPage } from "./components/pages/ProductDetailPage";
 import { ProductDashboardPage } from "./components/pages/ProductDashboardPage";
 import { PurchaseOrdersPage } from "./components/pages/PurchaseOrdersPage";
+import { CreatePoPage } from "./components/pages/CreatePoPage";
 import { ForecastsPage } from "./components/pages/ForecastsPage";
 import SohPage from "./components/pages/SohPage";
 import { InventoryPage } from "./components/pages/InventoryPage";
@@ -20,8 +19,9 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 export type Page =
   | "dashboard"
   | "products"
-  | "product-detail"  // ✅ Add this new page type
+  | "product-detail"
   | "purchase-orders"
+  | "create-po"
   | "inventory"
   | "forecasts"
   | "soh"
@@ -52,18 +52,21 @@ function ToasterPortal() {
   return mountNode ? createPortal(toaster, mountNode) : toaster;
 }
 
-// BLOCK 4: AppLayout Component - FIXED FOR PERMANENT SIDEBAR
+// BLOCK 4: AppLayout Component
 function AppLayout() {
   const { theme } = useTheme();
   const [activePage, setActivePage] = useState<Page>("dashboard");
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [selectedProductDescription, setSelectedProductDescription] = useState<string | null>(null);
 
+  console.log("Current activePage:", activePage);
+
   const pageTitles: Record<Page, string> = {
     dashboard: "Dashboard",
     products: "Products (BOM)",
     "product-detail": "",
     "purchase-orders": "Purchase Orders",
+    "create-po": "",
     inventory: "Inventory Planning Dashboard",
     forecasts: "Sales Forecasts",
     soh: "Stock On Hand",
@@ -84,76 +87,104 @@ function AppLayout() {
   };
 
   const renderNavbarContent = () => {
-  if (activePage === "product-detail" && selectedProductCode) {
-    return (
-      <div className="flex items-center gap-4 w-full">
-        {/* Back Button */}
-        <button
-          onClick={handleBackToProducts}
-          className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-        >
-          <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-        </button>
-        
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2">
-          <span 
-            className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity text-base`}
+    // Product Detail breadcrumb
+    if (activePage === "product-detail" && selectedProductCode) {
+      return (
+        <div className="flex items-center gap-4 w-full">
+          <button
             onClick={handleBackToProducts}
+            className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
-            Products
-          </span>
-          <span className={`${theme.text} opacity-40`}>›</span>
-          <span className={`${theme.text} font-semibold text-base`}>
-            {selectedProductDescription || selectedProductCode}
+            <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+          </button>
+          <div className="flex items-center gap-2">
+            <span 
+              className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity text-base`}
+              onClick={handleBackToProducts}
+            >
+              Products
+            </span>
+            <span className={`${theme.text} opacity-40`}>›</span>
+            <span className={`${theme.text} font-semibold text-base`}>
+              {selectedProductDescription || selectedProductCode}
+            </span>
+          </div>
+          <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
+            Active
           </span>
         </div>
-        
-        {/* Active Badge */}
-        <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
-          Active
-        </span>
-      </div>
-    );
-  }
-  
-  return (
-    <h1 className={`text-2xl font-bold ${theme.text}`}>
-      {pageTitles[activePage]}
-    </h1>
-  );
-};
+      );
+    }
 
-return (
-  <div className={`flex h-screen ${theme.background} transition-all duration-500`}>
-    {/* Sidebar - Fixed, never scrolls */}
-    <Sidebar activePage={activePage} setActivePage={setActivePage} />
+    // Create PO breadcrumb
+    if (activePage === "create-po") {
+      return (
+        <div className="flex items-center gap-4 w-full">
+          <button
+            onClick={() => setActivePage("purchase-orders")}
+            className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+          </button>
+          <div className="flex items-center gap-2">
+            <span 
+              className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity text-base`}
+              onClick={() => setActivePage("purchase-orders")}
+            >
+              Purchase Orders
+            </span>
+            <span className={`${theme.text} opacity-40`}>›</span>
+            <span className={`${theme.text} font-semibold text-base`}>
+              Create New Purchase Order
+            </span>
+          </div>
+        </div>
+      );
+    }
     
-    {/* Main Content Area */}
-    <div className="flex-1 flex flex-col min-w-0">
-      {/* Top Navbar - Fixed, never scrolls */}
-      <div className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 flex-shrink-0 z-20`}>
-        {renderNavbarContent()}
-      </div>
+    return (
+      <h1 className={`text-2xl font-bold ${theme.text}`}>
+        {pageTitles[activePage]}
+      </h1>
+    );
+  };
+
+  return (
+    <div className={`flex h-screen ${theme.background} transition-all duration-500`}>
+      <Sidebar activePage={activePage} setActivePage={setActivePage} />
       
-      {/* Page Content - ONLY this scrolls */}
-      <main className="flex-1 p-4 md:p-8 overflow-auto">
-        {activePage === "dashboard" && <DashboardPage />}
-        {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
-        {activePage === "product-detail" && selectedProductCode && (
-          <ProductDashboardPage
-            productCode={selectedProductCode} 
-            onBack={handleBackToProducts}
-          />
-        )}
-        {activePage === "purchase-orders" && <PurchaseOrdersPage />}
-        {activePage === "forecasts" && <ForecastsPage />}
-        {activePage === "soh" && <SohPage />}
-        {activePage === "inventory" && <InventoryPage />}
-      </main>
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 flex-shrink-0 z-20`}>
+          {renderNavbarContent()}
+        </div>
+        
+        <main className="flex-1 p-4 md:p-8 overflow-auto">
+          {activePage === "dashboard" && <DashboardPage />}
+          {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
+          {activePage === "product-detail" && selectedProductCode && (
+            <ProductDashboardPage
+              productCode={selectedProductCode} 
+              onBack={handleBackToProducts}
+            />
+          )}
+              {activePage === "purchase-orders" && (
+                <PurchaseOrdersPage 
+                  onCreatePo={() => setActivePage("create-po")} 
+                />
+              )}
+              {activePage === "create-po" && (
+                <CreatePoPage 
+                  onBack={() => setActivePage("purchase-orders")}
+                  onPoCreated={() => setActivePage("purchase-orders")}
+                />
+              )}
+          {activePage === "forecasts" && <ForecastsPage />}
+          {activePage === "soh" && <SohPage />}
+          {activePage === "inventory" && <InventoryPage />}
+        </main>
+      </div>
     </div>
-  </div>
-);
+  );
 }
 
 // BLOCK 5: App Component
