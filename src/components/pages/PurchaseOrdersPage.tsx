@@ -32,7 +32,8 @@ const TABLE_HEAD = [
 ];
 
 // BLOCK 3: Main Component Definition
-export function PurchaseOrdersPage() {
+export function PurchaseOrdersPage({ onCreatePo }: { onCreatePo: () => void }) {
+  // BLOCK 4: State
   // BLOCK 4: State
   const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,6 @@ export function PurchaseOrdersPage() {
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>("desc");
   const [poToView, setPoToView] = useState<any | null>(null);
-  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [poToEdit, setPoToEdit] = useState<any | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -158,11 +158,9 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
   }
 };
 
-  // BLOCK 9: Modal/Form Handlers
+    // BLOCK 9: Modal/Form Handlers
   const handleOpenViewModal = (po: any | null) => setPoToView(po);
   const handleSort = () => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-  const handleOpenCreateForm = () => setIsCreateFormOpen(cur => !cur);
-  const handlePoCreated = () => { toast.success("Purchase Order created successfully!"); loadPurchaseOrders(1, '', '', itemsPerPage); };
 
   const handleOpenDeleteConfirm = (po: any | null) => { setPoToDelete(po); setIsDeleteConfirmOpen(!!po); };
   const handleConfirmDelete = async () => {
@@ -241,11 +239,10 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
                 Sort by {sortDirection === "desc" ? "Newest" : "Oldest"}
               </Typography>
             </Button>
-            <Button onClick={handleOpenCreateForm} className="flex items-center gap-3" size="sm">
+            <Button onClick={onCreatePo} className="flex items-center gap-3" size="sm">
               <PlusIcon strokeWidth={2} className="h-4 w-4" /> Create New PO
             </Button>
           </div>
-        </div>
 
         {/* Search, Filter, Quick Nav */}
         <div className={`flex flex-wrap items-center justify-between border-b ${theme.borderColor}`}>
@@ -504,7 +501,6 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
 
       {/* Modals */}
       <PoDetailModal open={poToView !== null} handleOpen={() => handleOpenViewModal(null)} po={poToView} />
-      <CreatePoForm open={isCreateFormOpen} handleOpen={handleOpenCreateForm} onPoCreated={handlePoCreated} />
       <EditPoForm open={isEditFormOpen} handleOpen={() => handleOpenEditForm(null)} po={poToEdit} onUpdate={handlePoUpdate} />
       <ConfirmationDialog open={isDeleteConfirmOpen} handleOpen={() => handleOpenDeleteConfirm(null)} onConfirm={handleConfirmDelete} title="Delete Purchase Order?" message={`Are you sure you want to permanently delete PO ${poToDelete?.po_number}?`} />
     </>
