@@ -6,7 +6,7 @@ import { DashboardPage } from "./components/pages/DashboardPage";
 import { ProductsPage } from "./components/pages/ProductsPage";
 import { ProductDetailPage } from "./components/pages/ProductDetailPage";
 import { ProductDashboardPage } from "./components/pages/ProductDashboardPage";
-import CreatePoPage from "./components/pages/CreatePOPage";
+import { CreatePoPage } from "./components/pages/CreatePOPage";
 import { ForecastsPage } from "./components/pages/ForecastsPage";
 import SohPage from "./components/pages/SohPage";
 import { InventoryPage } from "./components/pages/InventoryPage";
@@ -181,7 +181,7 @@ function AppLayout() {
             />
           )}
           {activePage === "create-po" && (
-            <CreatePoPage 
+            <CreatePoPage
               onBack={() => {
                 console.log("🔴 CreatePoPage calling onBack");
                 setActivePage("purchase-orders");
