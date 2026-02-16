@@ -244,7 +244,8 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
           // Just replace the Button with this:
           <Button 
             onClick={() => {
-              console.log("✅ Create PO clicked");
+              console.log("✅ Create PO button clicked in PurchaseOrdersPage");
+              console.log("📤 Calling onCreatePo prop:", onCreatePo);
               if (onCreatePo) {
                 onCreatePo();
               } else {

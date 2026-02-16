@@ -59,7 +59,13 @@ function AppLayout() {
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [selectedProductDescription, setSelectedProductDescription] = useState<string | null>(null);
 
-  console.log("Current activePage:", activePage);
+  // Add detailed logging
+  console.log("🔵 AppLayout rendered with activePage:", activePage);
+
+  const handlePageChange = (newPage: Page) => {
+    console.log("🟡 Changing page from", activePage, "to", newPage);
+    setActivePage(newPage);
+  };
 
   const pageTitles: Record<Page, string> = {
     dashboard: "Dashboard",
@@ -77,13 +83,13 @@ function AppLayout() {
   const handleViewProduct = (productCode: string, description?: string) => {
     setSelectedProductCode(productCode);
     setSelectedProductDescription(description || null);
-    setActivePage("product-detail");
+    handlePageChange("product-detail");
   };
 
   const handleBackToProducts = () => {
     setSelectedProductCode(null);
     setSelectedProductDescription(null);
-    setActivePage("products");
+    handlePageChange("products");
   };
 
   const renderNavbarContent = () => {
@@ -121,7 +127,7 @@ function AppLayout() {
       return (
         <div className="flex items-center gap-4 w-full">
           <button
-            onClick={() => setActivePage("purchase-orders")}
+            onClick={() => handlePageChange("purchase-orders")}
             className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
@@ -129,7 +135,7 @@ function AppLayout() {
           <div className="flex items-center gap-2">
             <span 
               className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity text-base`}
-              onClick={() => setActivePage("purchase-orders")}
+              onClick={() => handlePageChange("purchase-orders")}
             >
               Purchase Orders
             </span>
@@ -151,7 +157,7 @@ function AppLayout() {
 
   return (
     <div className={`flex h-screen ${theme.background} transition-all duration-500`}>
-      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+      <Sidebar activePage={activePage} setActivePage={handlePageChange} />
       
       <div className="flex-1 flex flex-col min-w-0">
         <div className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 flex-shrink-0 z-20`}>
@@ -167,17 +173,26 @@ function AppLayout() {
               onBack={handleBackToProducts}
             />
           )}
-              {activePage === "purchase-orders" && (
-                <PurchaseOrdersPage 
-                  onCreatePo={() => setActivePage("create-po")} 
-                />
-              )}
-              {activePage === "create-po" && (
-                <CreatePoPage 
-                  onBack={() => setActivePage("purchase-orders")}
-                  onPoCreated={() => setActivePage("purchase-orders")}
-                />
-              )}
+          {activePage === "purchase-orders" && (
+            <PurchaseOrdersPage 
+              onCreatePo={() => {
+                console.log("🟢 PurchaseOrdersPage calling onCreatePo");
+                handlePageChange("create-po");
+              }} 
+            />
+          )}
+          {activePage === "create-po" && (
+            <CreatePoPage 
+              onBack={() => {
+                console.log("🔴 CreatePoPage calling onBack");
+                handlePageChange("purchase-orders");
+              }}
+              onPoCreated={() => {
+                console.log("🟣 CreatePoPage calling onPoCreated");
+                handlePageChange("purchase-orders");
+              }}
+            />
+          )}
           {activePage === "forecasts" && <ForecastsPage />}
           {activePage === "soh" && <SohPage />}
           {activePage === "inventory" && <InventoryPage />}
