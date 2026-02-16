@@ -191,7 +191,7 @@ export const updatePo = async (
 
 export const updatePurchaseOrderStatus = async (
   poId: string, 
-  status: 'Open' | 'In Progress' | 'Completed' | 'Cancelled'
+  status: string
 ): Promise<ApiResponse<{ statuses: string[] }>> => {
   if (!poId) {
     throw new Error('Purchase Order ID is required');

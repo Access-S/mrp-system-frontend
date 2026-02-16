@@ -1,11 +1,11 @@
 // BLOCK 1: Imports
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Button, Typography, Card, Spinner, Chip, CardBody, Input,
+  Button, Typography, Card, CardBody, Input,
   Menu, MenuHandler, MenuList, MenuItem, IconButton
 } from "@material-tailwind/react";
 import {
-  PlusIcon, MagnifyingGlassIcon, Cog6ToothIcon, ArrowDownIcon,
+  PlusIcon, MagnifyingGlassIcon, ArrowDownIcon,
   ArrowUpIcon, ArrowLeftIcon, ArrowRightIcon, EllipsisVerticalIcon,
   PencilIcon, TrashIcon
 } from "@heroicons/react/24/outline";
@@ -50,7 +50,7 @@ export function PurchaseOrdersPage() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [poToDelete, setPoToDelete] = useState<any | null>(null);
 
-  // BLOCK 5: Data Fetching and Handlers
+  // BLOCK 5: Data Fetching
   const loadPurchaseOrders = useCallback(async (page: number, search: string, status: string, limit: number) => {
     setLoading(true);
     try {
@@ -66,6 +66,7 @@ export function PurchaseOrdersPage() {
     loadPurchaseOrders(1, debouncedSearchQuery, statusFilter, itemsPerPage);
   }, [debouncedSearchQuery, statusFilter, sortDirection, itemsPerPage, loadPurchaseOrders]);
 
+  // BLOCK 6: Pagination Handlers
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= pagination.totalPages) {
       loadPurchaseOrders(newPage, debouncedSearchQuery, statusFilter, itemsPerPage);
@@ -76,10 +77,66 @@ export function PurchaseOrdersPage() {
     setItemsPerPage(newLimit);
   };
 
-  const handleOpenViewModal = (po: any | null) => setPoToView(po);
-  const handleSort = () => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+  // BLOCK 7: Status Business Rules
+  const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
+    const blocked = new Set<string>();
+    const has = (s: string) => currentStatuses.includes(s);
 
-  const handleStatusUpdate = async (poId: string, status: string) => {
+    // PO Check (system-generated) → can only add PO Canceled
+    if (has('PO Check')) {
+      ALL_PO_STATUSES.forEach(s => {
+        if (s !== 'PO Canceled') blocked.add(s);
+      });
+      return blocked;
+    }
+
+    // PO Canceled → can only add Closed
+    if (has('PO Canceled')) {
+      ALL_PO_STATUSES.forEach(s => {
+        if (s !== 'Closed' && s !== 'PO Canceled') blocked.add(s);
+      });
+      return blocked;
+    }
+
+    // Closed → cannot add anything except Despatched/Completed
+    if (has('Closed')) {
+      ALL_PO_STATUSES.forEach(s => {
+        if (s !== 'Closed' && s !== 'Despatched/ Completed') blocked.add(s);
+      });
+      return blocked;
+    }
+
+    // Despatched/Completed → can only add Closed
+    if (has('Despatched/ Completed')) {
+      ALL_PO_STATUSES.forEach(s => {
+        if (s !== 'Closed' && s !== 'Despatched/ Completed') blocked.add(s);
+      });
+      return blocked;
+    }
+
+    // Open → cannot add PO Canceled or Closed directly
+    if (has('Open')) {
+      blocked.add('PO Canceled');
+      blocked.add('Closed');
+    }
+
+    return blocked;
+  };
+
+  // BLOCK 8: Status Update Handler
+  const handleStatusUpdate = async (poId: string, status: string, currentStatuses: { status: string }[]) => {
+    const statusList = currentStatuses?.map(s => s.status) || [];
+    const isCurrentlyActive = statusList.includes(status);
+
+    // If adding a new status (not toggling off), check business rules
+    if (!isCurrentlyActive) {
+      const blocked = getBlockedStatuses(statusList);
+      if (blocked.has(status)) {
+        toast.error(`Cannot add "${status}" with current statuses: ${statusList.join(', ')}`);
+        return;
+      }
+    }
+
     const toastId = toast.loading(`Updating status...`);
     try {
       const updatedStatuses = await updatePurchaseOrderStatus(poId, status);
@@ -99,6 +156,9 @@ export function PurchaseOrdersPage() {
     }
   };
 
+  // BLOCK 9: Modal/Form Handlers
+  const handleOpenViewModal = (po: any | null) => setPoToView(po);
+  const handleSort = () => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
   const handleOpenCreateForm = () => setIsCreateFormOpen(cur => !cur);
   const handlePoCreated = () => { toast.success("Purchase Order created successfully!"); loadPurchaseOrders(1, '', '', itemsPerPage); };
 
@@ -121,13 +181,11 @@ export function PurchaseOrdersPage() {
   const handleOpenEditForm = (po: any | null) => { setPoToEdit(po); setIsEditFormOpen(!!po); };
   const handlePoUpdate = (updatedPo: any) => { toast.success(`PO ${updatedPo.po_number} updated successfully!`); setPurchaseOrders(prevPOs => prevPOs.map(p => (p.id === updatedPo.id ? updatedPo : p))); };
 
-  // BLOCK 6: Render helpers
+  // BLOCK 10: Table Helper Functions
   const getHeaderClasses = (index: number) => {
     let classes = `${theme.tableHeaderBg} p-4 text-center`;
-    classes += ` border-r-2 ${theme.borderColor}`;
-    // Last column: no right border (table's outer border handles it)
-    if (index === TABLE_HEAD.length - 1) {
-      classes = classes.replace(` border-r-2 ${theme.borderColor}`, '');
+    if (index < TABLE_HEAD.length - 1) {
+      classes += ` border-r-2 ${theme.borderColor}`;
     }
     return classes;
   };
@@ -146,43 +204,20 @@ export function PurchaseOrdersPage() {
     return style;
   };
 
-  // BLOCK 7: Loading state
+  // BLOCK 11: Initial Loading State
   if (loading && purchaseOrders.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <svg
-          className="animate-spin"
-          viewBox="0 0 64 64"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          width="48"
-          height="48"
-        >
-          <path
-            d="M32 3C35.8083 3 39.5794 3.75011 43.0978 5.20749C46.6163 6.66488 49.8132 8.80101 52.5061 11.4939C55.199 14.1868 57.3351 17.3837 58.7925 20.9022C60.2499 24.4206 61 28.1917 61 32C61 35.8083 60.2499 39.5794 58.7925 43.0978C57.3351 46.6163 55.199 49.8132 52.5061 52.5061C49.8132 55.199 46.6163 57.3351 43.0978 58.7925C39.5794 60.2499 35.8083 61 32 61C28.1917 61 24.4206 60.2499 20.9022 58.7925C17.3837 57.3351 14.1868 55.199 11.4939 52.5061C8.801 49.8132 6.66487 46.6163 5.20749 43.0978C3.7501 39.5794 3 35.8083 3 32C3 28.1917 3.75011 24.4206 5.2075 20.9022C6.66489 17.3837 8.80101 14.1868 11.4939 11.4939C14.1868 8.80099 17.3838 6.66487 20.9022 5.20749C24.4206 3.7501 28.1917 3 32 3L32 3Z"
-            stroke="currentColor"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-gray-300 dark:text-gray-600"
-          />
-          <path
-            d="M32 3C36.5778 3 41.0906 4.08374 45.1692 6.16256C49.2477 8.24138 52.7762 11.2562 55.466 14.9605C58.1558 18.6647 59.9304 22.9531 60.6448 27.4748C61.3591 31.9965 60.9928 36.6232 59.5759 40.9762"
-            stroke="currentColor"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-gray-900 dark:text-gray-100"
-          />
+        <svg className="animate-spin" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+          <path d="M32 3C35.8083 3 39.5794 3.75011 43.0978 5.20749C46.6163 6.66488 49.8132 8.80101 52.5061 11.4939C55.199 14.1868 57.3351 17.3837 58.7925 20.9022C60.2499 24.4206 61 28.1917 61 32C61 35.8083 60.2499 39.5794 58.7925 43.0978C57.3351 46.6163 55.199 49.8132 52.5061 52.5061C49.8132 55.199 46.6163 57.3351 43.0978 58.7925C39.5794 60.2499 35.8083 61 32 61C28.1917 61 24.4206 60.2499 20.9022 58.7925C17.3837 57.3351 14.1868 55.199 11.4939 52.5061C8.801 49.8132 6.66487 46.6163 5.20749 43.0978C3.7501 39.5794 3 35.8083 3 32C3 28.1917 3.75011 24.4206 5.2075 20.9022C6.66489 17.3837 8.80101 14.1868 11.4939 11.4939C14.1868 8.80099 17.3838 6.66487 20.9022 5.20749C24.4206 3.7501 28.1917 3 32 3L32 3Z" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 dark:text-gray-600" />
+          <path d="M32 3C36.5778 3 41.0906 4.08374 45.1692 6.16256C49.2477 8.24138 52.7762 11.2562 55.466 14.9605C58.1558 18.6647 59.9304 22.9531 60.6448 27.4748C61.3591 31.9965 60.9928 36.6232 59.5759 40.9762" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900 dark:text-gray-100" />
         </svg>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">
-          Loading purchase orders...
-        </p>
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">Loading purchase orders...</p>
       </div>
     );
   }
 
-  // BLOCK 8: Main Render
+  // BLOCK 12: Main Render
   return (
     <>
       <Card className={`w-full ${theme.cards} shadow-sm`}>
@@ -233,24 +268,15 @@ export function PurchaseOrdersPage() {
               <option value="Packaging Called">Packaging Called</option>
               <option value="In Production">In Production</option>
               <option value="Despatched/ Completed">Despatched/ Completed</option>
+              <option value="Closed">Closed</option>
               <option value="PO Canceled">PO Canceled</option>
             </select>
           </div>
           <div className="p-4 flex items-center gap-4">
-            <Button
-              variant="text"
-              onClick={() => handlePageChange(pagination.page - 1)}
-              disabled={pagination.page <= 1}
-              className={theme.buttonText}
-            >
+            <Button variant="text" onClick={() => handlePageChange(pagination.page - 1)} disabled={pagination.page <= 1} className={theme.buttonText}>
               <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
             </Button>
-            <Button
-              variant="text"
-              onClick={() => handlePageChange(pagination.page + 1)}
-              disabled={pagination.page >= pagination.totalPages}
-              className={theme.buttonText}
-            >
+            <Button variant="text" onClick={() => handlePageChange(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages} className={theme.buttonText}>
               Next <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
             </Button>
           </div>
@@ -259,34 +285,11 @@ export function PurchaseOrdersPage() {
         {/* Table */}
         {loading ? (
           <div className="flex flex-col items-center justify-center h-64 gap-4">
-            <svg
-              className="animate-spin"
-              viewBox="0 0 64 64"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-            >
-              <path
-                d="M32 3C35.8083 3 39.5794 3.75011 43.0978 5.20749C46.6163 6.66488 49.8132 8.80101 52.5061 11.4939C55.199 14.1868 57.3351 17.3837 58.7925 20.9022C60.2499 24.4206 61 28.1917 61 32C61 35.8083 60.2499 39.5794 58.7925 43.0978C57.3351 46.6163 55.199 49.8132 52.5061 52.5061C49.8132 55.199 46.6163 57.3351 43.0978 58.7925C39.5794 60.2499 35.8083 61 32 61C28.1917 61 24.4206 60.2499 20.9022 58.7925C17.3837 57.3351 14.1868 55.199 11.4939 52.5061C8.801 49.8132 6.66487 46.6163 5.20749 43.0978C3.7501 39.5794 3 35.8083 3 32C3 28.1917 3.75011 24.4206 5.2075 20.9022C6.66489 17.3837 8.80101 14.1868 11.4939 11.4939C14.1868 8.80099 17.3838 6.66487 20.9022 5.20749C24.4206 3.7501 28.1917 3 32 3L32 3Z"
-                stroke="currentColor"
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-gray-300 dark:text-gray-600"
-              />
-              <path
-                d="M32 3C36.5778 3 41.0906 4.08374 45.1692 6.16256C49.2477 8.24138 52.7762 11.2562 55.466 14.9605C58.1558 18.6647 59.9304 22.9531 60.6448 27.4748C61.3591 31.9965 60.9928 36.6232 59.5759 40.9762"
-                stroke="currentColor"
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-gray-900 dark:text-gray-100"
-              />
+            <svg className="animate-spin" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+              <path d="M32 3C35.8083 3 39.5794 3.75011 43.0978 5.20749C46.6163 6.66488 49.8132 8.80101 52.5061 11.4939C55.199 14.1868 57.3351 17.3837 58.7925 20.9022C60.2499 24.4206 61 28.1917 61 32C61 35.8083 60.2499 39.5794 58.7925 43.0978C57.3351 46.6163 55.199 49.8132 52.5061 52.5061C49.8132 55.199 46.6163 57.3351 43.0978 58.7925C39.5794 60.2499 35.8083 61 32 61C28.1917 61 24.4206 60.2499 20.9022 58.7925C17.3837 57.3351 14.1868 55.199 11.4939 52.5061C8.801 49.8132 6.66487 46.6163 5.20749 43.0978C3.7501 39.5794 3 35.8083 3 32C3 28.1917 3.75011 24.4206 5.2075 20.9022C6.66489 17.3837 8.80101 14.1868 11.4939 11.4939C14.1868 8.80099 17.3838 6.66487 20.9022 5.20749C24.4206 3.7501 28.1917 3 32 3L32 3Z" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 dark:text-gray-600" />
+              <path d="M32 3C36.5778 3 41.0906 4.08374 45.1692 6.16256C49.2477 8.24138 52.7762 11.2562 55.466 14.9605C58.1558 18.6647 59.9304 22.9531 60.6448 27.4748C61.3591 31.9965 60.9928 36.6232 59.5759 40.9762" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900 dark:text-gray-100" />
             </svg>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">
-              Loading purchase orders...
-            </p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">Loading purchase orders...</p>
           </div>
         ) : purchaseOrders.length > 0 ? (
           <CardBody className="overflow-x-auto p-0">
@@ -379,6 +382,8 @@ export function PurchaseOrdersPage() {
                                 if (s.status === "PO Check") chipClass = theme.chip.red;
                                 else if (s.status === "Despatched/ Completed") chipClass = theme.chip.blue;
                                 else if (s.status === "Open") chipClass = theme.chip.green;
+                                else if (s.status === "PO Canceled") chipClass = theme.chip.red;
+                                else if (s.status === "Closed") chipClass = theme.chip.blue;
 
                                 return (
                                   <div
@@ -398,19 +403,43 @@ export function PurchaseOrdersPage() {
                           </MenuHandler>
                           <MenuList>
                             {ALL_PO_STATUSES.map((statusOption) => {
-                              const isChecked = po.statuses?.some(
-                                (s: { status: string }) => s.status === statusOption
-                              );
+                              const currentStatuses = po.statuses?.map((s: { status: string }) => s.status) || [];
+                              const isChecked = currentStatuses.includes(statusOption);
+                              const blocked = getBlockedStatuses(currentStatuses);
+                              const isBlocked = !isChecked && blocked.has(statusOption);
+
                               return (
                                 <MenuItem
                                   key={statusOption}
-                                  onClick={() => handleStatusUpdate(po.id, statusOption)}
+                                  onClick={() => {
+                                    if (!isBlocked) {
+                                      handleStatusUpdate(po.id, statusOption, po.statuses || []);
+                                    }
+                                  }}
+                                  disabled={isBlocked}
+                                  className={isBlocked ? 'opacity-40 cursor-not-allowed' : ''}
                                 >
-                                  <span className={`mr-2 ${isChecked ? "opacity-100" : "opacity-0"}`}>✓</span>
-                                  {statusOption}
+                                  <span className={`mr-2 ${isChecked ? "opacity-100 text-green-600 font-bold" : "opacity-0"}`}>✓</span>
+                                  <span className={isBlocked ? 'line-through' : ''}>
+                                    {statusOption}
+                                  </span>
+                                  {isBlocked && (
+                                    <span className="ml-auto text-xs text-red-400">blocked</span>
+                                  )}
                                 </MenuItem>
                               );
                             })}
+
+                            {/* Show PO Check if system-generated (read-only) */}
+                            {po.statuses?.some((s: { status: string }) => s.status === 'PO Check') && (
+                              <>
+                                <hr className="my-1" />
+                                <MenuItem disabled className="opacity-60">
+                                  <span className="mr-2 text-red-600 font-bold">⚠</span>
+                                  PO Check (System)
+                                </MenuItem>
+                              </>
+                            )}
                           </MenuList>
                         </Menu>
                       </td>

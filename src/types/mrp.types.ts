@@ -58,6 +58,7 @@ export type PoStatus =
   | "Awaiting QA Release"
   | "Ready for Despatch"
   | "Despatched/ Completed"
+  | "Closed"
   | "PO Canceled";
 
 export interface PurchaseOrder {
@@ -87,11 +88,11 @@ export const ALL_PO_STATUSES: PoStatus[] = [
   "Open",
   "Wip Called",
   "Packaging Called",
-  "PO Check",
   "In WH Ready",
   "In Production",
   "Awaiting QA Release",
   "Ready for Despatch",
   "Despatched/ Completed",
+  "Closed",
   "PO Canceled",
 ];
