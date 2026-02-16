@@ -125,36 +125,39 @@ export function PurchaseOrdersPage() {
 
   // BLOCK 8: Status Update Handler
   const handleStatusUpdate = async (poId: string, status: string, currentStatuses: { status: string }[]) => {
-    const statusList = currentStatuses?.map(s => s.status) || [];
-    const isCurrentlyActive = statusList.includes(status);
+  const statusList = currentStatuses?.map(s => s.status) || [];
+  const isCurrentlyActive = statusList.includes(status);
 
-    // If adding a new status (not toggling off), check business rules
-    if (!isCurrentlyActive) {
-      const blocked = getBlockedStatuses(statusList);
-      if (blocked.has(status)) {
-        toast.error(`Cannot add "${status}" with current statuses: ${statusList.join(', ')}`);
-        return;
-      }
+  // If adding a new status (not toggling off), check business rules
+  if (!isCurrentlyActive) {
+    const blocked = getBlockedStatuses(statusList);
+    if (blocked.has(status)) {
+      toast.error(`Cannot add "${status}" with current statuses: ${statusList.join(', ')}`);
+      return;
     }
+  }
 
-    const toastId = toast.loading(`Updating status...`);
-    try {
-      const updatedStatuses = await updatePurchaseOrderStatus(poId, status);
-      setPurchaseOrders(prevPOs =>
-        prevPOs.map(p => {
-          if (p.id === poId) {
-            const newStatusArray = updatedStatuses.map(s => ({ status: s }));
-            const newCurrentStatus = updatedStatuses.length > 0 ? updatedStatuses[updatedStatuses.length - 1] : 'Open';
-            return { ...p, statuses: newStatusArray, current_status: newCurrentStatus };
-          }
-          return p;
-        })
-      );
-      toast.success('Status updated!', { id: toastId });
-    } catch (error: any) {
-      toast.error(error.message, { id: toastId });
-    }
-  };
+  const toastId = toast.loading(`Updating status...`);
+  try {
+    const response = await updatePurchaseOrderStatus(poId, status);
+    // Extract the statuses array from the response
+    const updatedStatuses = response.data?.statuses || response.statuses || [];
+    
+    setPurchaseOrders(prevPOs =>
+      prevPOs.map(p => {
+        if (p.id === poId) {
+          const newStatusArray = updatedStatuses.map((s: string) => ({ status: s }));
+          const newCurrentStatus = updatedStatuses.length > 0 ? updatedStatuses[updatedStatuses.length - 1] : 'Open';
+          return { ...p, statuses: newStatusArray, current_status: newCurrentStatus };
+        }
+        return p;
+      })
+    );
+    toast.success('Status updated!', { id: toastId });
+  } catch (error: any) {
+    toast.error(error.message, { id: toastId });
+  }
+};
 
   // BLOCK 9: Modal/Form Handlers
   const handleOpenViewModal = (po: any | null) => setPoToView(po);
