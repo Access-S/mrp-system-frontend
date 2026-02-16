@@ -1,3 +1,5 @@
+//src/components/pages/DashboardPage.tsx
+
 // BLOCK 1: Imports
 import React, { useState, useEffect } from "react";
 import { useTheme } from "../../contexts/ThemeContext";

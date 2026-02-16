@@ -1,3 +1,5 @@
+//src/styles/themes.ts
+
 // BLOCK 1: Type Definitions
 export type ThemeName = "classic" | "sunset" | "dark";
 

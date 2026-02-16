@@ -1,3 +1,5 @@
+//src/components/PaginationControls.tsx
+
 // BLOCK 1: Imports
 import React from 'react';
 import { Button, Typography } from '@material-tailwind/react';
