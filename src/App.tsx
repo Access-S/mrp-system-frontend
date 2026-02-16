@@ -7,7 +7,7 @@ import { ProductsPage } from "./components/pages/ProductsPage";
 import { ProductDetailPage } from "./components/pages/ProductDetailPage";
 import { ProductDashboardPage } from "./components/pages/ProductDashboardPage";
 import { PurchaseOrdersPage } from "./components/pages/PurchaseOrdersPage";
-import { CreatePoPage } from "./components/pages/CreatePoPage";
+import { CreatePOPage } from "./components/pages/CreatePOPage";
 import { ForecastsPage } from "./components/pages/ForecastsPage";
 import SohPage from "./components/pages/SohPage";
 import { InventoryPage } from "./components/pages/InventoryPage";
@@ -182,14 +182,14 @@ function AppLayout() {
             />
           )}
           {activePage === "create-po" && (
-            <CreatePoPage 
+            <CreatePOPage
               onBack={() => {
                 console.log("🔴 CreatePoPage calling onBack");
-                handlePageChange("purchase-orders");
+                setActivePage("purchase-orders");
               }}
               onPoCreated={() => {
                 console.log("🟣 CreatePoPage calling onPoCreated");
-                handlePageChange("purchase-orders");
+                setActivePage("purchase-orders");
               }}
             />
           )}
