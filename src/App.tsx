@@ -5,6 +5,7 @@ import { Sidebar } from "./components/Sidebar";
 import { DashboardPage } from "./components/pages/DashboardPage";
 import { ProductsPage } from "./components/pages/ProductsPage";
 import { ProductDetailPage } from "./components/pages/ProductDetailPage";
+import { PurchaseOrdersPage } from "./components/pages/PurchaseOrdersPage";
 import { ProductDashboardPage } from "./components/pages/ProductDashboardPage";
 import { CreatePoPage } from "./components/pages/CreatePOPage";
 import { ForecastsPage } from "./components/pages/ForecastsPage";
