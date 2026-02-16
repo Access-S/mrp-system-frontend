@@ -124,36 +124,36 @@ function AppLayout() {
   );
 };
 
-  return (
-    <div className={`flex min-h-screen ${theme.background} transition-all duration-500`}>
-      {/* Sidebar - Only rendered once */}
-      <Sidebar activePage={activePage} setActivePage={setActivePage} />
-      
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-auto">
-        {/* Top Navbar */}
-        <div className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 sticky top-0 z-20`}>
-          {renderNavbarContent()}
-        </div>
-        
-        {/* Page Content */}
-        <main className="flex-1 p-4 md:p-8">
-          {activePage === "dashboard" && <DashboardPage />}
-          {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
-          {activePage === "product-detail" && selectedProductCode && (
-            <ProductDashboardPage
-              productCode={selectedProductCode} 
-              onBack={handleBackToProducts}
-            />
-          )}
-          {activePage === "purchase-orders" && <PurchaseOrdersPage />}
-          {activePage === "forecasts" && <ForecastsPage />}
-          {activePage === "soh" && <SohPage />}
-          {activePage === "inventory" && <InventoryPage />}
-        </main>
+return (
+  <div className={`flex h-screen ${theme.background} transition-all duration-500`}>
+    {/* Sidebar - Fixed, never scrolls */}
+    <Sidebar activePage={activePage} setActivePage={setActivePage} />
+    
+    {/* Main Content Area */}
+    <div className="flex-1 flex flex-col min-w-0">
+      {/* Top Navbar - Fixed, never scrolls */}
+      <div className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 flex-shrink-0 z-20`}>
+        {renderNavbarContent()}
       </div>
+      
+      {/* Page Content - ONLY this scrolls */}
+      <main className="flex-1 p-4 md:p-8 overflow-auto">
+        {activePage === "dashboard" && <DashboardPage />}
+        {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
+        {activePage === "product-detail" && selectedProductCode && (
+          <ProductDashboardPage
+            productCode={selectedProductCode} 
+            onBack={handleBackToProducts}
+          />
+        )}
+        {activePage === "purchase-orders" && <PurchaseOrdersPage />}
+        {activePage === "forecasts" && <ForecastsPage />}
+        {activePage === "soh" && <SohPage />}
+        {activePage === "inventory" && <InventoryPage />}
+      </main>
     </div>
-  );
+  </div>
+);
 }
 
 // BLOCK 5: App Component
