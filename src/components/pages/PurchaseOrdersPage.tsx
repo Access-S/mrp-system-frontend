@@ -240,8 +240,6 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
               Sort by {sortDirection === "desc" ? "Newest" : "Oldest"}
             </Typography>
           </Button>
-          {/* THIS IS THE CRITICAL PART - MAKE SURE onCreatePo IS USED */}
-          // Just replace the Button with this:
           <Button 
             onClick={() => {
               console.log("✅ Create PO button clicked in PurchaseOrdersPage");
