@@ -78,50 +78,49 @@ export function PurchaseOrdersPage() {
   };
 
   // BLOCK 7: Status Business Rules
-  const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
-    const blocked = new Set<string>();
-    const has = (s: string) => currentStatuses.includes(s);
+const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
+  const blocked = new Set<string>();
+  const has = (s: string) => currentStatuses.includes(s);
 
-    // PO Check (system-generated) → can only add PO Canceled
-    if (has('PO Check')) {
-      ALL_PO_STATUSES.forEach(s => {
-        if (s !== 'PO Canceled') blocked.add(s);
-      });
-      return blocked;
-    }
-
-    // PO Canceled → can only add Closed
-    if (has('PO Canceled')) {
-      ALL_PO_STATUSES.forEach(s => {
-        if (s !== 'Closed' && s !== 'PO Canceled') blocked.add(s);
-      });
-      return blocked;
-    }
-
-    // Closed → cannot add anything except Despatched/Completed
-    if (has('Closed')) {
-      ALL_PO_STATUSES.forEach(s => {
-        if (s !== 'Closed' && s !== 'Despatched/ Completed') blocked.add(s);
-      });
-      return blocked;
-    }
-
-    // Despatched/Completed → can only add Closed
-    if (has('Despatched/ Completed')) {
-      ALL_PO_STATUSES.forEach(s => {
-        if (s !== 'Closed' && s !== 'Despatched/ Completed') blocked.add(s);
-      });
-      return blocked;
-    }
-
-    // Open → cannot add PO Canceled or Closed directly
-    if (has('Open')) {
-      blocked.add('PO Canceled');
-      blocked.add('Closed');
-    }
-
+  // PO Check (system-generated) → can only add PO Canceled
+  if (has('PO Check')) {
+    ALL_PO_STATUSES.forEach(s => {
+      if (s !== 'PO Canceled') blocked.add(s);
+    });
     return blocked;
-  };
+  }
+
+  // PO Canceled → can only add Closed or toggle off PO Canceled
+  if (has('PO Canceled')) {
+    ALL_PO_STATUSES.forEach(s => {
+      if (s !== 'Closed' && s !== 'PO Canceled') blocked.add(s);
+    });
+    return blocked;
+  }
+
+  // Closed with terminal → fully locked except toggling off
+  if (has('Closed')) {
+    ALL_PO_STATUSES.forEach(s => {
+      if (s !== 'Closed' && s !== 'Despatched/ Completed' && s !== 'PO Canceled') {
+        blocked.add(s);
+      }
+    });
+    return blocked;
+  }
+
+  // Despatched/Completed → can only add Closed or toggle off
+  if (has('Despatched/ Completed')) {
+    ALL_PO_STATUSES.forEach(s => {
+      if (s !== 'Closed' && s !== 'Despatched/ Completed') blocked.add(s);
+    });
+    return blocked;
+  }
+
+  // Normal state → everything allowed except Closed (needs terminal first)
+  blocked.add('Closed');
+
+  return blocked;
+};
 
   // BLOCK 8: Status Update Handler
   const handleStatusUpdate = async (poId: string, status: string, currentStatuses: { status: string }[]) => {
