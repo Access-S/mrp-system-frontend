@@ -1,153 +1,445 @@
-//src/components/pages/DashboardPage.tsx
+// src/components/pages/DashboardPage.tsx
 
-// BLOCK 1: Imports
-import React, { useState, useEffect } from "react";
-import { useTheme } from "../../contexts/ThemeContext";
-import { Typography, Card, Spinner } from "@material-tailwind/react";
+import React, { useState, useEffect } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Spinner } from '@material-tailwind/react';
 import {
-  getDashboardStats,
-  DashboardStats,
-} from "../../services/dashboard.service";
-import { fetchAllProducts } from "../../services/api.service";
+  ShoppingCartIcon,
+  CurrencyDollarIcon,
+  ClockIcon,
+  ExclamationTriangleIcon,
+  CubeIcon,
+  CheckCircleIcon,
+  ChartBarIcon,
+  TruckIcon,
+} from '@heroicons/react/24/outline';
+import { BarChart, LineChart, PieChart } from '../dashboard/charts';
+import { KPICard } from '../dashboard/KPICard';
+import { fetchDashboardData, DashboardData } from '../../services/dashboard.api';
+import toast from 'react-hot-toast';
 
-// BLOCK 2: StatCard Helper Component (with Color Logic)
-const StatCard = ({
-  title,
-  value,
-  theme,
-  alertColor,
-}: {
-  title: string;
-  value: string | number;
-  theme: any;
-  alertColor?: "red" | "yellow";
-}) => {
-  const valueColorClass =
-    alertColor === "red"
-      ? "text-red-500"
-      : alertColor === "yellow"
-      ? "text-yellow-600"
-      : theme.text;
-
+// BLOCK 1: Skeleton Components
+function KPISkeleton() {
   return (
-    <Card className={`${theme.cards} shadow-sm p-4 text-center`}>
-      <Typography variant="h3" className={`${valueColorClass} mb-1`}>
-        {value}
-      </Typography>
-      <Typography variant="small" className={`${theme.text} opacity-70`}>
-        {title}
-      </Typography>
-    </Card>
+    <div className="animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700 h-32" />
   );
-};
+}
 
-// BLOCK 3: Main DashboardPage Component
-export function DashboardPage() {
-  const { theme } = useTheme();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
+function ChartSkeleton() {
+  return (
+    <div className="animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700 h-80" />
+  );
+}
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      setLoading(true);
-      const allProducts = await fetchAllProducts();
-      const fetchedStats = await getDashboardStats(allProducts);
-      setStats(fetchedStats);
-      setLoading(false);
-    };
-    fetchStats();
-  }, []);
+// BLOCK 2: Recent Activity Component
+function RecentActivityCard({ 
+  activities, 
+  theme 
+}: { 
+  activities: DashboardData['recentActivity']; 
+  theme: any;
+}) {
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+      case 'despatched':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      case 'open':
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+      case 'po check':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      default:
+        return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+    }
+  };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(value);
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffDays > 0) return `${diffDays}d ago`;
+    if (diffHours > 0) return `${diffHours}h ago`;
+    return 'Just now';
   };
 
   return (
-    <>
-      {/* Welcome Card */}
-      <Card className={`${theme.cards} rounded-lg shadow-sm p-6 mb-6`}>
-        <Typography variant="h5" className={`${theme.text} mb-1`}>
-          Welcome to your MRP Dashboard
-        </Typography>
-        <Typography className={`${theme.text} opacity-80`}>
-          This is the central hub for monitoring your manufacturing resource
-          planning.
-        </Typography>
-      </Card>
-
-      {/* --- THIS IS THE RESTORED CONTENT --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <Card className={`${theme.cards} p-6`}>
-          <Typography variant="h6" className={theme.text}>
-            Analytics
-          </Typography>
-          <Typography className={`${theme.text} opacity-70 text-sm mt-1`}>
-            View detailed reports and performance metrics.
-          </Typography>
-        </Card>
-        <Card className={`${theme.cards} p-6`}>
-          <Typography variant="h6" className={theme.text}>
-            Planning
-          </Typography>
-          <Typography className={`${theme.text} opacity-70 text-sm mt-1`}>
-            Access the main inventory planning dashboard.
-          </Typography>
-        </Card>
-        <Card className={`${theme.cards} p-6`}>
-          <Typography variant="h6" className={theme.text}>
-            Data Management
-          </Typography>
-          <Typography className={`${theme.text} opacity-70 text-sm mt-1`}>
-            Import and manage system data like forecasts and SOH.
-          </Typography>
-        </Card>
+    <div className={`rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md p-6`}>
+      <h3 className={`text-lg font-semibold mb-4 ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+        Recent Activity
+      </h3>
+      <div className="space-y-4">
+        {activities.map((activity) => (
+          <div
+            key={activity.id}
+            className={`flex items-center justify-between p-3 rounded-lg ${
+              theme.isDark ? 'bg-slate-700/50' : 'bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg ${theme.isDark ? 'bg-slate-600' : 'bg-white'}`}>
+                <ShoppingCartIcon className={`h-5 w-5 ${theme.isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+              </div>
+              <div>
+                <p className={`font-medium ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                  {activity.title}
+                </p>
+                <p className={`text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {activity.description}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
+                {activity.status}
+              </span>
+              <span className={`text-xs ${theme.isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                {formatTime(activity.timestamp)}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
-      {/* --- END OF RESTORED CONTENT --- */}
+    </div>
+  );
+}
 
-      {/* Stats Grid (Updated) */}
-      {loading || !stats ? (
-        <div className="flex justify-center items-center h-24">
-          <Spinner />
+// BLOCK 3: Low Stock Alerts Component
+function LowStockAlerts({
+  alerts,
+  theme
+}: {
+  alerts: DashboardData['lowStockAlerts'];
+  theme: any;
+}) {
+  if (alerts.length === 0) {
+    return (
+      <div className={`rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md p-6`}>
+        <h3 className={`text-lg font-semibold mb-4 ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+          Low Stock Alerts
+        </h3>
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <CheckCircleIcon className={`h-12 w-12 mb-3 ${theme.isDark ? 'text-green-400' : 'text-green-500'}`} />
+          <p className={`font-medium ${theme.isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+            All stock levels healthy!
+          </p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <StatCard
-            title="Open Purchase Orders"
-            value={stats.openPoCount}
-            theme={theme}
-          />
-          <StatCard
-            title="Total Open Value"
-            value={formatCurrency(stats.totalOpenValue)}
-            theme={theme}
-          />
-          <StatCard
-            title="Total Open Work (Hours)"
-            value={stats.totalOpenWorkHours.toFixed(1)}
-            theme={theme}
-          />
-          <StatCard
-            title="Components at Risk"
-            value={stats.componentsAtRiskCount}
-            theme={theme}
-            alertColor={stats.componentsAtRiskCount > 0 ? "yellow" : undefined}
-          />
-          <StatCard
-            title="POs Requiring Attention"
-            value={stats.attentionPoCount}
-            theme={theme}
-            alertColor={stats.attentionPoCount > 0 ? "red" : undefined}
-          />
-          <StatCard
-            title="Avg. Turnaround (Days)"
-            value={stats.averageTurnaroundDays.toFixed(1)}
-            theme={theme}
-          />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md p-6`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className={`text-lg font-semibold ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+          Low Stock Alerts
+        </h3>
+        <span className="px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+          {alerts.length} items
+        </span>
+      </div>
+      <div className="space-y-3 max-h-64 overflow-y-auto">
+        {alerts.slice(0, 5).map((alert, index) => (
+          <div
+            key={index}
+            className={`flex items-center justify-between p-3 rounded-lg border-l-4 border-red-500 ${
+              theme.isDark ? 'bg-slate-700/50' : 'bg-red-50'
+            }`}
+          >
+            <div>
+              <p className={`font-medium ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                {alert.productId}
+              </p>
+              <p className={`text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                {alert.description || 'No description'}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className={`font-bold text-red-500`}>
+                {alert.stockOnHand}
+              </p>
+              <p className={`text-xs ${theme.isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                of {alert.safetyStock} min
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// BLOCK 4: Top Items Component
+function TopItemsCard({
+  title,
+  items,
+  type,
+  theme
+}: {
+  title: string;
+  items: any[];
+  type: 'customers' | 'products';
+  theme: any;
+}) {
+  return (
+    <div className={`rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md p-6`}>
+      <h3 className={`text-lg font-semibold mb-4 ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+        {title}
+      </h3>
+      <div className="space-y-3">
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className={`flex items-center justify-between p-3 rounded-lg ${
+              theme.isDark ? 'bg-slate-700/50' : 'bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                index === 0 
+                  ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                  : index === 1
+                  ? 'bg-slate-200 text-slate-700 dark:bg-slate-600 dark:text-slate-300'
+                  : index === 2
+                  ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                  : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+              }`}>
+                {index + 1}
+              </span>
+              <div>
+                <p className={`font-medium ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                  {type === 'customers' ? item.customerName : item.productCode}
+                </p>
+                {type === 'products' && (
+                  <p className={`text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {item.description?.substring(0, 30)}...
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="text-right">
+              <p className={`font-bold ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                {type === 'customers' 
+                  ? `$${item.totalValue.toLocaleString()}`
+                  : item.totalQuantity.toLocaleString()
+                }
+              </p>
+              <p className={`text-xs ${theme.isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                {item.orderCount} orders
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// BLOCK 5: Main Dashboard Component
+export function DashboardPage() {
+  const { theme } = useTheme();
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchDashboardData();
+        setDashboardData(data);
+      } catch (err: any) {
+        console.error('Failed to load dashboard:', err);
+        setError(err.message);
+        toast.error('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboard();
+
+    // Refresh every 5 minutes
+    const interval = setInterval(loadDashboard, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Loading State
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        {/* KPI Skeletons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => <KPISkeleton key={i} />)}
         </div>
-      )}
-    </>
+        {/* Chart Skeletons */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartSkeleton />
+          <ChartSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  // Error State
+  if (error || !dashboardData) {
+    return (
+      <div className={`flex flex-col items-center justify-center h-96 rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md`}>
+        <ExclamationTriangleIcon className={`h-16 w-16 mb-4 ${theme.isDark ? 'text-red-400' : 'text-red-500'}`} />
+        <h2 className={`text-xl font-semibold mb-2 ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+          Failed to Load Dashboard
+        </h2>
+        <p className={`text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+          {error || 'Unable to fetch dashboard data'}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  const { kpis, poStatusDistribution, monthlyTrends, topCustomers, topProducts, lowStockAlerts, recentActivity } = dashboardData;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className={`rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md p-6`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className={`text-2xl font-bold ${theme.isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+              Manager Dashboard
+            </h1>
+            <p className={`text-sm mt-1 ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Real-time overview of your manufacturing operations
+            </p>
+          </div>
+          <div className={`text-right text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p>Last updated</p>
+            <p className="font-medium">
+              {new Date(dashboardData.lastUpdated).toLocaleTimeString()}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard
+          title="Open Orders"
+          value={kpis.totalOpenOrders}
+          format="number"
+          icon={<ShoppingCartIcon className="h-6 w-6" />}
+          color="blue"
+        />
+        <KPICard
+          title="Open Order Value"
+          value={kpis.totalOpenValue}
+          format="currency"
+          icon={<CurrencyDollarIcon className="h-6 w-6" />}
+          color="green"
+        />
+        <KPICard
+          title="Work Hours Pending"
+          value={kpis.totalOpenWorkHours}
+          format="hours"
+          icon={<ClockIcon className="h-6 w-6" />}
+          color="purple"
+        />
+        <KPICard
+          title="Attention Required"
+          value={kpis.ordersRequiringAttention}
+          format="number"
+          icon={<ExclamationTriangleIcon className="h-6 w-6" />}
+          color={kpis.ordersRequiringAttention > 0 ? 'red' : 'green'}
+        />
+      </div>
+
+      {/* Secondary KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard
+          title="Components at Risk"
+          value={kpis.componentsAtRisk}
+          format="number"
+          icon={<CubeIcon className="h-6 w-6" />}
+          color={kpis.componentsAtRisk > 0 ? 'yellow' : 'green'}
+        />
+        <KPICard
+          title="Avg. Turnaround"
+          value={kpis.averageTurnaroundDays}
+          format="days"
+          icon={<TruckIcon className="h-6 w-6" />}
+          color="blue"
+        />
+        <KPICard
+          title="Completed This Month"
+          value={kpis.completedThisMonth}
+          format="number"
+          icon={<CheckCircleIcon className="h-6 w-6" />}
+          color="green"
+        />
+        <KPICard
+          title="Revenue This Month"
+          value={kpis.revenueThisMonth}
+          format="currency"
+          icon={<ChartBarIcon className="h-6 w-6" />}
+          color="green"
+        />
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LineChart
+          title="Monthly Revenue Trend"
+          subtitle="Revenue over the last 6 months"
+          data={monthlyTrends.map(t => t.revenue)}
+          categories={monthlyTrends.map(t => t.month)}
+          icon={<ChartBarIcon className="h-6 w-6" />}
+          formatValue={(val) => `$${val.toLocaleString()}`}
+        />
+        <BarChart
+          title="Monthly Order Count"
+          subtitle="Number of orders per month"
+          data={monthlyTrends.map(t => t.orderCount)}
+          categories={monthlyTrends.map(t => t.month)}
+          icon={<ShoppingCartIcon className="h-6 w-6" />}
+        />
+      </div>
+
+      {/* Pie Chart and Lists Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <PieChart
+          title="Order Status Distribution"
+          subtitle="Current status of all orders"
+          data={poStatusDistribution.map(s => s.count)}
+          labels={poStatusDistribution.map(s => s.status)}
+          icon={<ChartBarIcon className="h-6 w-6" />}
+        />
+        <TopItemsCard
+          title="Top Customers"
+          items={topCustomers}
+          type="customers"
+          theme={theme}
+        />
+        <TopItemsCard
+          title="Top Products"
+          items={topProducts}
+          type="products"
+          theme={theme}
+        />
+      </div>
+
+      {/* Activity and Alerts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentActivityCard activities={recentActivity} theme={theme} />
+        <LowStockAlerts alerts={lowStockAlerts} theme={theme} />
+      </div>
+    </div>
   );
 }

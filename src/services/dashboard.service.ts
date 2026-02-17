@@ -1,3 +1,5 @@
+//src/services/dashboard.service.ts
+
 // BLOCK 1: Imports
 import { supabase } from "../supabase.config";
 import { handleApiError } from "./api.service";
