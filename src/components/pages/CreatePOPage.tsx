@@ -18,6 +18,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { createPo, fetchAllProducts } from "../../services/api.service";
 import { FormAlert } from "../dialogs/FormAlert";
 import toast from "react-hot-toast";
+import { DatePicker } from "../ui/DatePicker";
 
 // BLOCK 2: Interfaces
 interface CreatePoPageProps {
@@ -426,22 +427,20 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
                 </FormField>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <FormField label="PO Created Date" required theme={theme}>
-                  <input
-                    type="date"
-                    value={poCreatedDate}
-                    onChange={(e) => setPoCreatedDate(e.target.value)}
-                    className={getInputClassName(theme)}
-                  />
-                </FormField>
-                <FormField label="PO Received Date" required theme={theme}>
-                  <input
-                    type="date"
-                    value={poReceivedDate}
-                    onChange={(e) => setPoReceivedDate(e.target.value)}
-                    className={getInputClassName(theme)}
-                  />
-                </FormField>
+                <DatePicker
+                  label="PO Created Date"
+                  value={poCreatedDate}
+                  onChange={setPoCreatedDate}
+                  required
+                  theme={theme}
+                />
+                <DatePicker
+                  label="PO Received Date"
+                  value={poReceivedDate}
+                  onChange={setPoReceivedDate}
+                  required
+                  theme={theme}
+                />
               </div>
             </div>
           </Card>
