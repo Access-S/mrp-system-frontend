@@ -13,10 +13,11 @@ import {
   ChartBarIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
-import { BarChart, LineChart, PieChart } from '../dashboard/charts';
+import { BarChart, MultipleBarChart, LineChart, PieChart } from '../dashboard/charts';
 import { KPICard } from '../dashboard/KPICard';
 import { fetchDashboardData, DashboardData } from '../../services/dashboard.api';
 import toast from 'react-hot-toast';
+
 
 // BLOCK 1: Skeleton Components
 function KPISkeleton() {
@@ -393,24 +394,33 @@ export function DashboardPage() {
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <LineChart
-          title="Monthly Revenue Trend"
-          subtitle="Revenue over the last 6 months"
-          data={monthlyTrends.map(t => t.revenue)}
-          categories={monthlyTrends.map(t => t.month)}
-          icon={<ChartBarIcon className="h-6 w-6" />}
-          formatValue={(val) => `$${val.toLocaleString()}`}
-        />
-        <BarChart
-          title="Monthly Order Count"
-          subtitle="Number of orders per month"
-          data={monthlyTrends.map(t => t.orderCount)}
-          categories={monthlyTrends.map(t => t.month)}
-          icon={<ShoppingCartIcon className="h-6 w-6" />}
-        />
-      </div>
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <LineChart
+            title="Monthly Revenue Trend"
+            subtitle="Revenue from despatched orders"
+            data={monthlyTrends.map(t => t.revenue)}
+            categories={monthlyTrends.map(t => t.month)}
+            icon={<ChartBarIcon className="h-6 w-6" />}
+            formatValue={(val) => `$${val.toLocaleString()}`}
+          />
+          <MultipleBarChart
+            title="Orders: Received vs Despatched"
+            subtitle="Compare incoming orders with completed deliveries"
+            series={[
+              { 
+                name: 'Orders Received', 
+                data: monthlyTrends.map(t => t.ordersReceived),
+              },
+              { 
+                name: 'Orders Despatched', 
+                data: monthlyTrends.map(t => t.ordersDespatched),
+              }
+            ]}
+            categories={monthlyTrends.map(t => t.month)}
+            icon={<ShoppingCartIcon className="h-6 w-6" />}
+          />
+        </div>
 
       {/* Pie Chart and Lists Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

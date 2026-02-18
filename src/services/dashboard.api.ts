@@ -20,7 +20,8 @@ export interface POStatusDistribution {
 
 export interface MonthlyTrend {
   month: string;
-  orderCount: number;
+  ordersReceived: number;
+  ordersDespatched: number;
   revenue: number;
 }
 
