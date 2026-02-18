@@ -432,36 +432,38 @@ export function DashboardPage() {
           />
         </div>
 
-          {/* Pie Chart and Lists Row */}
-            <RadialBarChart
-              title="Order Status Distribution"
-              subtitle="Current active orders by status"
-              data={poStatusDistribution.map(s => s.count)}
-              labels={poStatusDistribution.map(s => s.status)}
-              icon={<ChartBarIcon className="h-6 w-6" />}
-              footerStats={{
-                left: { label: 'Active Orders', value: activeOrdersTotal },
-                right: { label: 'Despatched', value: completedOrdersTotal }
-              }}
-            />
-            <TopItemsCard
-              title="Top Customers"
-              items={topCustomers}
-              type="customers"
-              theme={theme}
-            />
-            <TopItemsCard
-              title="Top Products"
-              items={topProducts}
-              type="products"
-              theme={theme}
-            />
-          </div>
-      {/* Activity and Alerts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentActivityCard activities={recentActivity} theme={theme} />
-        <LowStockAlerts alerts={lowStockAlerts} theme={theme} />
+           {/* Radial Chart and Lists Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <RadialBarChart
+            title="Order Status Distribution"
+            subtitle="Current active orders by status"
+            data={poStatusDistribution.map(s => s.count)}
+            labels={poStatusDistribution.map(s => s.status)}
+            icon={<ChartBarIcon className="h-6 w-6" />}
+            footerStats={{
+              left: { label: 'Active Orders', value: activeOrdersTotal },
+              right: { label: 'Despatched', value: completedOrdersTotal }
+            }}
+          />
+          <TopItemsCard
+            title="Top Customers"
+            items={topCustomers}
+            type="customers"
+            theme={theme}
+          />
+          <TopItemsCard
+            title="Top Products"
+            items={topProducts}
+            type="products"
+            theme={theme}
+          />
+        </div>
+
+        {/* Activity and Alerts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RecentActivityCard activities={recentActivity} theme={theme} />
+          <LowStockAlerts alerts={lowStockAlerts} theme={theme} />
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
