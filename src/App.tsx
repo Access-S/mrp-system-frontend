@@ -14,6 +14,7 @@ import { InventoryPage } from "./components/pages/InventoryPage";
 import { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { ImportPage } from "./components/pages/ImportPage";
 
 // BLOCK 2: Type Definitions
 export type Page =
@@ -22,6 +23,7 @@ export type Page =
   | "product-detail"
   | "purchase-orders"
   | "create-po"
+  | "import" 
   | "inventory"
   | "forecasts"
   | "soh"
@@ -73,6 +75,7 @@ function AppLayout() {
     "product-detail": "",
     "purchase-orders": "Purchase Orders",
     "create-po": "",
+    "import": "Import Data",
     inventory: "Inventory Planning Dashboard",
     forecasts: "Sales Forecasts",
     soh: "Stock On Hand",
@@ -193,6 +196,7 @@ function AppLayout() {
               }}
             />
           )}
+          {activePage === "import" && <ImportPage />}
           {activePage === "forecasts" && <ForecastsPage />}
           {activePage === "soh" && <SohPage />}
           {activePage === "inventory" && <InventoryPage />}
