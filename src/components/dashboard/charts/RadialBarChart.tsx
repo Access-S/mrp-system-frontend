@@ -63,7 +63,6 @@ export function RadialBarChart({
           track: {
             background: theme.isDark ? '#334155' : '#e2e8f0',
             strokeWidth: '100%',
-            margin: 6,  // Add space between tracks
           },
           dataLabels: {
             name: {
@@ -76,8 +75,8 @@ export function RadialBarChart({
           barLabels: {
             enabled: true,
             useSeriesColors: true,
-            offsetX: 30,  // ← Increased from -8 to 30 (pushes labels further right)
-            fontSize: '13px',
+            offsetX: -8,
+            fontSize: '14px',
             fontWeight: 600,
             fontFamily: 'inherit',
             formatter: function(seriesName: string, opts: any) {
