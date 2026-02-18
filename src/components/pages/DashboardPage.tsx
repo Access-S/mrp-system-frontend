@@ -13,7 +13,7 @@ import {
   ChartBarIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
-import { BarChart, MultipleBarChart, LineChart, PieChart } from '../dashboard/charts';
+import { BarChart, MultipleBarChart, LineChart, PieChart, RadialBarChart } from '../dashboard/charts';
 import { KPICard } from '../dashboard/KPICard';
 import { fetchDashboardData, DashboardData } from '../../services/dashboard.api';
 import toast from 'react-hot-toast';
@@ -422,29 +422,28 @@ export function DashboardPage() {
           />
         </div>
 
-      {/* Pie Chart and Lists Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <PieChart
-          title="Order Status Distribution"
-          subtitle="Current status of all orders"
-          data={poStatusDistribution.map(s => s.count)}
-          labels={poStatusDistribution.map(s => s.status)}
-          icon={<ChartBarIcon className="h-6 w-6" />}
-        />
-        <TopItemsCard
-          title="Top Customers"
-          items={topCustomers}
-          type="customers"
-          theme={theme}
-        />
-        <TopItemsCard
-          title="Top Products"
-          items={topProducts}
-          type="products"
-          theme={theme}
-        />
-      </div>
-
+          {/* Pie Chart and Lists Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <RadialBarChart
+              title="Order Status Distribution"
+              subtitle="Current status of all orders"
+              data={poStatusDistribution.map(s => s.count)}
+              labels={poStatusDistribution.map(s => s.status)}
+              icon={<ChartBarIcon className="h-6 w-6" />}
+            />
+            <TopItemsCard
+              title="Top Customers"
+              items={topCustomers}
+              type="customers"
+              theme={theme}
+            />
+            <TopItemsCard
+              title="Top Products"
+              items={topProducts}
+              type="products"
+              theme={theme}
+            />
+          </div>
       {/* Activity and Alerts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentActivityCard activities={recentActivity} theme={theme} />

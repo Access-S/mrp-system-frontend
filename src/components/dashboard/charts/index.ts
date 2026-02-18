@@ -3,3 +3,4 @@
 export { BarChart, MultipleBarChart } from './BarChart';
 export { LineChart } from './LineChart';
 export { PieChart } from './PieChart';
+export { RadialBarChart } from './RadialBarChart';
