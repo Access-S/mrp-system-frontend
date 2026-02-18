@@ -64,6 +64,8 @@ export interface ForecastSummary {
 export interface DashboardData {
   kpis: DashboardKPIs;
   poStatusDistribution: POStatusDistribution[];
+  completedOrdersTotal: number;
+  activeOrdersTotal: number;
   monthlyTrends: MonthlyTrend[];
   topCustomers: TopCustomer[];
   topProducts: TopProduct[];

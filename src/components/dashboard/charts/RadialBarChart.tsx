@@ -12,6 +12,10 @@ interface RadialBarChartProps {
   icon?: React.ReactNode;
   colors?: string[];
   height?: number;
+  footerStats?: {
+    left: { label: string; value: number };
+    right: { label: string; value: number };
+  };
 }
 
 export function RadialBarChart({
@@ -21,7 +25,8 @@ export function RadialBarChart({
   labels,
   icon,
   colors,
-  height = 390
+  height = 350,
+  footerStats
 }: RadialBarChartProps) {
   const { theme } = useTheme();
   const chartRef = useRef<HTMLDivElement>(null);
@@ -32,7 +37,9 @@ export function RadialBarChart({
 
     // Calculate percentages based on max value for visual scaling
     const maxValue = Math.max(...data);
-    const percentages = data.map(val => Math.round((val / maxValue) * 100));
+    const percentages = maxValue > 0 
+      ? data.map(val => Math.round((val / maxValue) * 100))
+      : data.map(() => 0);
 
     // Default colors - status-appropriate
     const defaultColors = theme.isDark
@@ -78,7 +85,6 @@ export function RadialBarChart({
             fontWeight: 600,
             fontFamily: 'inherit',
             formatter: function(seriesName: string, opts: any) {
-              // Show actual count, not percentage
               const index = opts.seriesIndex;
               const actualValue = data[index];
               return `${seriesName}: ${actualValue}`;
@@ -99,7 +105,7 @@ export function RadialBarChart({
           breakpoint: 480,
           options: {
             chart: {
-              height: 300,
+              height: 280,
             },
             plotOptions: {
               radialBar: {
@@ -129,6 +135,7 @@ export function RadialBarChart({
 
   return (
     <div className={`relative flex flex-col rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md`}>
+      {/* Header */}
       <div className="relative mx-4 mt-4 flex flex-col gap-4 overflow-hidden rounded-none bg-transparent md:flex-row md:items-center">
         {icon && (
           <div className={`w-max rounded-lg ${theme.isDark ? 'bg-blue-600' : 'bg-gray-900'} p-5 text-white`}>
@@ -146,9 +153,36 @@ export function RadialBarChart({
           )}
         </div>
       </div>
+
+      {/* Chart */}
       <div className="py-4 px-2">
         <div ref={chartRef}></div>
       </div>
+
+      {/* Footer Stats */}
+      {footerStats && (
+        <div className={`mx-4 mb-4 flex gap-3`}>
+          {/* Left Stat */}
+          <div className={`flex-1 rounded-lg p-3 ${theme.isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
+            <p className={`text-xs font-medium uppercase tracking-wider ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              {footerStats.left.label}
+            </p>
+            <p className={`text-xl font-bold mt-1 ${theme.isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+              {footerStats.left.value.toLocaleString()}
+            </p>
+          </div>
+          
+          {/* Right Stat */}
+          <div className={`flex-1 rounded-lg p-3 ${theme.isDark ? 'bg-green-900/30' : 'bg-green-50'}`}>
+            <p className={`text-xs font-medium uppercase tracking-wider ${theme.isDark ? 'text-green-400' : 'text-green-600'}`}>
+              {footerStats.right.label}
+            </p>
+            <p className={`text-xl font-bold mt-1 ${theme.isDark ? 'text-green-400' : 'text-green-600'}`}>
+              {footerStats.right.value.toLocaleString()}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

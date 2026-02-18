@@ -306,7 +306,17 @@ export function DashboardPage() {
     );
   }
 
-  const { kpis, poStatusDistribution, monthlyTrends, topCustomers, topProducts, lowStockAlerts, recentActivity } = dashboardData;
+  const { 
+    kpis, 
+    poStatusDistribution, 
+    completedOrdersTotal,
+    activeOrdersTotal,
+    monthlyTrends, 
+    topCustomers, 
+    topProducts, 
+    lowStockAlerts, 
+    recentActivity 
+  } = dashboardData;
 
   return (
     <div className="space-y-6">
@@ -423,13 +433,16 @@ export function DashboardPage() {
         </div>
 
           {/* Pie Chart and Lists Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <RadialBarChart
               title="Order Status Distribution"
-              subtitle="Current status of all orders"
+              subtitle="Current active orders by status"
               data={poStatusDistribution.map(s => s.count)}
               labels={poStatusDistribution.map(s => s.status)}
               icon={<ChartBarIcon className="h-6 w-6" />}
+              footerStats={{
+                left: { label: 'Active Orders', value: activeOrdersTotal },
+                right: { label: 'Despatched', value: completedOrdersTotal }
+              }}
             />
             <TopItemsCard
               title="Top Customers"
