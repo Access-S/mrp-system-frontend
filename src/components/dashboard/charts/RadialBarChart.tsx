@@ -32,13 +32,11 @@ export function RadialBarChart({
   useEffect(() => {
     if (!chartRef.current || data.length === 0) return;
 
-    // Calculate percentages based on max value for visual scaling
     const maxValue = Math.max(...data);
     const percentages = maxValue > 0 
       ? data.map(val => Math.round((val / maxValue) * 100))
       : data.map(() => 0);
 
-    // Default colors - status-appropriate
     const defaultColors = theme.isDark
       ? ['#34d399', '#60a5fa', '#a78bfa', '#fbbf24', '#f87171', '#fb923c', '#94a3b8', '#f472b6']
       : ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#f97316', '#64748b', '#ec4899'];
@@ -55,18 +53,16 @@ export function RadialBarChart({
       plotOptions: {
         radialBar: {
           offsetY: 0,
-          offsetX: 0,
           startAngle: 0,
           endAngle: 270,
           hollow: {
-            margin: 30,
-            size: '25%',
+            margin: 5,
+            size: '30%',
             background: 'transparent',
           },
           track: {
             background: theme.isDark ? '#334155' : '#e2e8f0',
             strokeWidth: '100%',
-            margin: 8,
           },
           dataLabels: {
             name: {
@@ -79,15 +75,14 @@ export function RadialBarChart({
           barLabels: {
             enabled: true,
             useSeriesColors: true,
-            offsetX: 20,
+            offsetX: -8,
             fontSize: '14px',
             fontWeight: 600,
             fontFamily: 'inherit',
-            margin: 10,
             formatter: function(seriesName: string, opts: any) {
               const index = opts.seriesIndex;
               const actualValue = data[index];
-              return `${seriesName}:  ${actualValue}`;
+              return `${seriesName}: ${actualValue}`;
             },
           },
         },
@@ -111,10 +106,6 @@ export function RadialBarChart({
               radialBar: {
                 barLabels: {
                   fontSize: '12px',
-                  offsetX: 15,
-                },
-                hollow: {
-                  margin: 20,
                 },
               },
             },
@@ -163,23 +154,13 @@ export function RadialBarChart({
         <div ref={chartRef}></div>
       </div>
 
-      {/* Despatched Footer - Black Gradient */}
+      {/* Despatched Footer - Simple black bar */}
       {despatchedCount !== undefined && (
         <div className="mx-4 mb-4">
-          <div 
-            className="rounded-lg p-4 text-center"
-            style={{
-              background: theme.isDark 
-                ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'
-                : 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
-            }}
-          >
-            <p className="text-sm font-medium uppercase tracking-wider text-slate-400">
-              Despatched
-            </p>
-            <p className="text-3xl font-bold mt-1 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-              {despatchedCount.toLocaleString()}
-            </p>
+          <div className="bg-gray-900 rounded-md px-4 py-2">
+            <span className="text-white text-sm font-semibold">
+              Despatched/ Completed: {despatchedCount.toLocaleString()}
+            </span>
           </div>
         </div>
       )}
