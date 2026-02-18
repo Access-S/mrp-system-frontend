@@ -22,7 +22,7 @@ export function RadialBarChart({
   labels,
   icon,
   colors,
-  height = 350,
+  height = 320,
   despatchedCount
 }: RadialBarChartProps) {
   const { theme } = useTheme();
@@ -32,11 +32,6 @@ export function RadialBarChart({
   useEffect(() => {
     if (!chartRef.current || data.length === 0) return;
 
-    const maxValue = Math.max(...data);
-    const percentages = maxValue > 0 
-      ? data.map(val => Math.round((val / maxValue) * 100))
-      : data.map(() => 0);
-
     const defaultColors = theme.isDark
       ? ['#34d399', '#60a5fa', '#a78bfa', '#fbbf24', '#f87171', '#fb923c', '#94a3b8', '#f472b6']
       : ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#f97316', '#64748b', '#ec4899'];
@@ -44,56 +39,96 @@ export function RadialBarChart({
     const chartColors = colors || defaultColors.slice(0, data.length);
 
     const chartConfig: ApexCharts.ApexOptions = {
-      series: percentages,
+      series: data,
       chart: {
+        type: 'donut',
         height: height,
-        type: 'radialBar',
         background: 'transparent',
       },
+      labels: labels,
+      colors: chartColors,
       plotOptions: {
-        radialBar: {
-          offsetY: 0,
-          startAngle: 0,
-          endAngle: 270,
-          hollow: {
-            margin: 5,
-            size: '30%',
-            background: 'transparent',
-          },
-          track: {
-            background: theme.isDark ? '#334155' : '#e2e8f0',
-            strokeWidth: '100%',
-          },
-          dataLabels: {
-            name: {
-              show: false,
-            },
-            value: {
-              show: false,
-            },
-          },
-          barLabels: {
-            enabled: true,
-            useSeriesColors: true,
-            offsetX: -8,
-            fontSize: '14px',
-            fontWeight: 600,
-            fontFamily: 'inherit',
-            formatter: function(seriesName: string, opts: any) {
-              const index = opts.seriesIndex;
-              const actualValue = data[index];
-              return `${seriesName}: ${actualValue}`;
-            },
-          },
+        pie: {
+          startAngle: -90,
+          endAngle: 90,
+          offsetY: 10,
+          donut: {
+            size: '70%',
+            labels: {
+              show: true,
+              name: {
+                show: true,
+                fontSize: '14px',
+                fontWeight: 600,
+                color: theme.isDark ? '#e2e8f0' : '#1e293b',
+                offsetY: -10,
+              },
+              value: {
+                show: true,
+                fontSize: '24px',
+                fontWeight: 700,
+                color: theme.isDark ? '#e2e8f0' : '#1e293b',
+                offsetY: 0,
+                formatter: function(val: string) {
+                  return val;
+                }
+              },
+              total: {
+                show: true,
+                label: 'Active',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: theme.isDark ? '#94a3b8' : '#64748b',
+                formatter: function(w: any) {
+                  return w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0).toString();
+                }
+              }
+            }
+          }
+        }
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        horizontalAlign: 'center',
+        fontSize: '13px',
+        fontWeight: 500,
+        fontFamily: 'inherit',
+        labels: {
+          colors: theme.isDark ? '#94a3b8' : '#64748b',
+        },
+        markers: {
+          width: 10,
+          height: 10,
+          radius: 2,
+        },
+        itemMargin: {
+          horizontal: 12,
+          vertical: 4,
+        },
+        formatter: function(seriesName: string, opts: any) {
+          return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}`;
         },
       },
-      colors: chartColors,
-      labels: labels,
-      legend: {
+      stroke: {
         show: false,
       },
-      stroke: {
-        lineCap: 'round',
+      grid: {
+        padding: {
+          bottom: -80,
+        }
+      },
+      tooltip: {
+        enabled: true,
+        theme: theme.isDark ? 'dark' : 'light',
+        y: {
+          formatter: function(val: number) {
+            return `${val} orders`;
+          }
+        }
       },
       responsive: [
         {
@@ -102,12 +137,8 @@ export function RadialBarChart({
             chart: {
               height: 280,
             },
-            plotOptions: {
-              radialBar: {
-                barLabels: {
-                  fontSize: '12px',
-                },
-              },
+            legend: {
+              fontSize: '11px',
             },
           },
         },
