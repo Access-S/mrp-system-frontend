@@ -434,17 +434,14 @@ export function DashboardPage() {
 
            {/* Radial Chart and Lists Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <RadialBarChart
-            title="Order Status Distribution"
-            subtitle="Current active orders by status"
-            data={poStatusDistribution.map(s => s.count)}
-            labels={poStatusDistribution.map(s => s.status)}
-            icon={<ChartBarIcon className="h-6 w-6" />}
-            footerStats={{
-              left: { label: 'Active Orders', value: activeOrdersTotal },
-              right: { label: 'Despatched', value: completedOrdersTotal }
-            }}
-          />
+            <RadialBarChart
+              title="Order Status Distribution"
+              subtitle="Current active orders by status"
+              data={poStatusDistribution.map(s => s.count)}
+              labels={poStatusDistribution.map(s => s.status)}
+              icon={<ChartBarIcon className="h-6 w-6" />}
+              despatchedCount={completedOrdersTotal}
+            />
           <TopItemsCard
             title="Top Customers"
             items={topCustomers}
