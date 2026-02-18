@@ -30,12 +30,13 @@ const TABLE_HEAD = [
   "Actions",
 ];
 
-// BLOCK 3: Main Component Definition - MAKE SURE THIS IS EXACT
+// BLOCK 3: Main Component Definition
 interface PurchaseOrdersPageProps {
   onCreatePo: () => void;
+  onImport: () => void;
 }
 
-export function PurchaseOrdersPage({ onCreatePo }: PurchaseOrdersPageProps) {
+export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageProps) {
   // BLOCK 4: State
   const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
@@ -219,44 +220,50 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
     );
   }
 
-  // BLOCK 12: Main Render - CRITICAL: Make sure onClick uses onCreatePo
+  // BLOCK 12: Main Render
   return (
     <Card className={`w-full ${theme.cards} shadow-sm`}>
       {/* Header */}
-      <div className={`flex items-center justify-between p-4 border-b ${theme.borderColor}`}>
-        <div>
-          <Typography variant="h5" className={theme.text}>Purchase Orders</Typography>
-          <Typography color="gray" className={`mt-1 font-normal ${theme.text} opacity-80`}>
-            Manage all incoming customer orders. Click any row to view details.
-          </Typography>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="text" className="flex items-center gap-2" onClick={handleSort}>
-            {sortDirection === "desc"
-              ? <ArrowDownIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
-              : <ArrowUpIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
-            }
-            <Typography variant="small" className={`font-normal ${theme.text}`}>
-              Sort by {sortDirection === "desc" ? "Newest" : "Oldest"}
+        <div className={`flex items-center justify-between p-4 border-b ${theme.borderColor}`}>
+          <div>
+            <Typography variant="h5" className={theme.text}>Purchase Orders</Typography>
+            <Typography color="gray" className={`mt-1 font-normal ${theme.text} opacity-80`}>
+              Manage all incoming customer orders. Click any row to view details.
             </Typography>
-          </Button>
-          <Button 
-            onClick={() => {
-              console.log("✅ Create PO button clicked in PurchaseOrdersPage");
-              console.log("📤 Calling onCreatePo prop:", onCreatePo);
-              if (onCreatePo) {
-                onCreatePo();
-              } else {
-                console.error("❌ onCreatePo prop is missing!");
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="text" className="flex items-center gap-2" onClick={handleSort}>
+              {sortDirection === "desc"
+                ? <ArrowDownIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
+                : <ArrowUpIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
               }
-            }} 
-            className="flex items-center gap-3" 
-            size="sm"
-          >
-            <PlusIcon strokeWidth={2} className="h-4 w-4" /> Create New PO
-          </Button>
+              <Typography variant="small" className={`font-normal ${theme.text}`}>
+                Sort by {sortDirection === "desc" ? "Newest" : "Oldest"}
+              </Typography>
+            </Button>
+            {/* Import Button - ADD THIS */}
+            <Button 
+              onClick={onImport}
+              variant="outlined"
+              className="flex items-center gap-2" 
+              size="sm"
+            >
+              <ArrowDownIcon strokeWidth={2} className="h-4 w-4" /> Import
+            </Button>
+            <Button 
+              onClick={() => {
+                console.log("✅ Create PO button clicked in PurchaseOrdersPage");
+                if (onCreatePo) {
+                  onCreatePo();
+                }
+              }} 
+              className="flex items-center gap-3" 
+              size="sm"
+            >
+              <PlusIcon strokeWidth={2} className="h-4 w-4" /> Create New PO
+            </Button>
+          </div>
         </div>
-      </div>
 
       {/* Rest of the component remains exactly the same... */}
       {/* Search, Filter, Quick Nav */}

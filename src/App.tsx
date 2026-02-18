@@ -181,7 +181,11 @@ function AppLayout() {
               onCreatePo={() => {
                 console.log("🟢 PurchaseOrdersPage calling onCreatePo");
                 handlePageChange("create-po");
-              }} 
+              }}
+              onImport={() => {
+                console.log("📥 PurchaseOrdersPage calling onImport");
+                handlePageChange("import");
+              }}
             />
           )}
           {activePage === "create-po" && (
