@@ -340,69 +340,77 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard
-          title="Open Orders"
-          value={kpis.totalOpenOrders}
-          format="number"
-          icon={<ShoppingCartIcon className="h-6 w-6" />}
-          color="blue"
-        />
-        <KPICard
-          title="Open Order Value"
-          value={kpis.totalOpenValue}
-          format="currency"
-          icon={<CurrencyDollarIcon className="h-6 w-6" />}
-          color="green"
-        />
-        <KPICard
-          title="Work Hours Pending"
-          value={kpis.totalOpenWorkHours}
-          format="hours"
-          icon={<ClockIcon className="h-6 w-6" />}
-          color="purple"
-        />
-        <KPICard
-          title="Attention Required"
-          value={kpis.ordersRequiringAttention}
-          format="number"
-          icon={<ExclamationTriangleIcon className="h-6 w-6" />}
-          color={kpis.ordersRequiringAttention > 0 ? 'red' : 'green'}
-        />
-      </div>
+{/* KPI Cards */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <KPICard
+    title="Open Orders"
+    value={kpis.totalOpenOrders}
+    format="number"
+    sparklineData={kpis.trends?.openOrders}
+    sparklineColor="#3b82f6"
+    color="blue"
+  />
+  <KPICard
+    title="Open Order Value"
+    value={kpis.totalOpenValue}
+    format="currency"
+    sparklineData={kpis.trends?.openValue}
+    sparklineColor="#10b981"
+    color="green"
+  />
+  <KPICard
+    title="Work Hours Pending"
+    value={kpis.totalOpenWorkHours}
+    format="hours"
+    sparklineData={kpis.trends?.workHours}
+    sparklineColor="#8b5cf6"
+    color="purple"
+  />
+  <KPICard
+    title="Attention Required"
+    value={kpis.ordersRequiringAttention}
+    format="number"
+    sparklineData={kpis.trends?.attentionRequired}
+    sparklineColor={kpis.ordersRequiringAttention > 0 ? '#ef4444' : '#10b981'}
+    color={kpis.ordersRequiringAttention > 0 ? 'red' : 'green'}
+  />
+</div>
 
-      {/* Secondary KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard
-          title="Components at Risk"
-          value={kpis.componentsAtRisk}
-          format="number"
-          icon={<CubeIcon className="h-6 w-6" />}
-          color={kpis.componentsAtRisk > 0 ? 'yellow' : 'green'}
-        />
-        <KPICard
-          title="Avg. Turnaround"
-          value={kpis.averageTurnaroundDays}
-          format="days"
-          icon={<TruckIcon className="h-6 w-6" />}
-          color="blue"
-        />
-        <KPICard
-          title="Completed This Month"
-          value={kpis.completedThisMonth}
-          format="number"
-          icon={<CheckCircleIcon className="h-6 w-6" />}
-          color="green"
-        />
-        <KPICard
-          title="Revenue This Month"
-          value={kpis.revenueThisMonth}
-          format="currency"
-          icon={<ChartBarIcon className="h-6 w-6" />}
-          color="green"
-        />
-      </div>
+{/* Secondary KPIs */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <KPICard
+    title="Components at Risk"
+    value={kpis.componentsAtRisk}
+    format="number"
+    sparklineData={kpis.trends?.componentsAtRisk}
+    sparklineColor={kpis.componentsAtRisk > 0 ? '#f59e0b' : '#10b981'}
+    color={kpis.componentsAtRisk > 0 ? 'yellow' : 'green'}
+  />
+  <KPICard
+    title="Avg. Turnaround"
+    value={kpis.averageTurnaroundDays}
+    format="days"
+    sparklineData={kpis.trends?.turnaroundDays}
+    sparklineColor="#3b82f6"
+    color="blue"
+  />
+  <KPICard
+    title="Completed This Month"
+    value={kpis.completedThisMonth}
+    format="number"
+    sparklineData={kpis.trends?.completedMonthly}
+    sparklineColor="#10b981"
+    color="green"
+  />
+  <KPICard
+    title="Revenue This Month"
+    value={kpis.revenueThisMonth}
+    format="currency"
+    sparklineData={kpis.trends?.revenueMonthly}
+    sparklineColor="#10b981"
+    color="green"
+  />
+</div>
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -10,6 +10,16 @@ export interface DashboardKPIs {
   averageTurnaroundDays: number;
   completedThisMonth: number;
   revenueThisMonth: number;
+  trends: {
+    openOrders: number[];
+    openValue: number[];
+    workHours: number[];
+    attentionRequired: number[];
+    componentsAtRisk: number[];
+    turnaroundDays: number[];
+    completedMonthly: number[];
+    revenueMonthly: number[];
+  };
 }
 
 export interface POStatusDistribution {

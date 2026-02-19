@@ -1,13 +1,15 @@
 // src/components/dashboard/KPICard.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import ApexCharts from 'apexcharts';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface KPICardProps {
   title: string;
   value: number;
   format?: 'number' | 'currency' | 'hours' | 'days' | 'percent';
-  icon: React.ReactNode;
+  sparklineData?: number[];
+  sparklineColor?: string;
   trend?: {
     value: number;
     isPositive: boolean;
@@ -20,13 +22,16 @@ export function KPICard({
   title,
   value,
   format = 'number',
-  icon,
+  sparklineData,
+  sparklineColor,
   trend,
   color = 'blue',
   onClick
 }: KPICardProps) {
   const { theme } = useTheme();
   const [displayValue, setDisplayValue] = useState(0);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstance = useRef<ApexCharts | null>(null);
 
   // Animated counter effect
   useEffect(() => {
@@ -51,6 +56,54 @@ export function KPICard({
     return () => clearInterval(timer);
   }, [value]);
 
+  // Sparkline chart
+  useEffect(() => {
+    if (!chartRef.current || !sparklineData || sparklineData.length === 0) return;
+
+    const defaultColor = theme.isDark ? '#60a5fa' : '#3b82f6';
+    const chartColor = sparklineColor || defaultColor;
+
+    const chartConfig: ApexCharts.ApexOptions = {
+      series: [{
+        name: title,
+        data: sparklineData,
+      }],
+      chart: {
+        type: 'line',
+        width: 80,
+        height: 40,
+        sparkline: {
+          enabled: true,
+        },
+        animations: {
+          enabled: true,
+          speed: 500,
+        },
+      },
+      stroke: {
+        curve: 'smooth',
+        width: 2,
+      },
+      colors: [chartColor],
+      tooltip: {
+        enabled: false,
+      },
+    };
+
+    if (chartInstance.current) {
+      chartInstance.current.destroy();
+    }
+
+    chartInstance.current = new ApexCharts(chartRef.current, chartConfig);
+    chartInstance.current.render();
+
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+    };
+  }, [sparklineData, sparklineColor, theme.isDark, title]);
+
   const formatValue = (val: number): string => {
     switch (format) {
       case 'currency':
@@ -74,27 +127,22 @@ export function KPICard({
   const colorClasses = {
     blue: {
       bg: theme.isDark ? 'bg-blue-900/30' : 'bg-blue-50',
-      icon: theme.isDark ? 'bg-blue-600' : 'bg-blue-500',
       text: theme.isDark ? 'text-blue-400' : 'text-blue-600',
     },
     green: {
       bg: theme.isDark ? 'bg-green-900/30' : 'bg-green-50',
-      icon: theme.isDark ? 'bg-green-600' : 'bg-green-500',
       text: theme.isDark ? 'text-green-400' : 'text-green-600',
     },
     yellow: {
       bg: theme.isDark ? 'bg-yellow-900/30' : 'bg-yellow-50',
-      icon: theme.isDark ? 'bg-yellow-600' : 'bg-yellow-500',
       text: theme.isDark ? 'text-yellow-400' : 'text-yellow-600',
     },
     red: {
       bg: theme.isDark ? 'bg-red-900/30' : 'bg-red-50',
-      icon: theme.isDark ? 'bg-red-600' : 'bg-red-500',
       text: theme.isDark ? 'text-red-400' : 'text-red-600',
     },
     purple: {
       bg: theme.isDark ? 'bg-purple-900/30' : 'bg-purple-50',
-      icon: theme.isDark ? 'bg-purple-600' : 'bg-purple-500',
       text: theme.isDark ? 'text-purple-400' : 'text-purple-600',
     },
   };
@@ -140,8 +188,13 @@ export function KPICard({
           )}
         </div>
         
-        <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${colors.icon} text-white shadow-lg`}>
-          {icon}
+        {/* Sparkline Chart - Replaces Icon */}
+        <div className="flex h-12 w-20 items-center justify-center">
+          {sparklineData && sparklineData.length > 0 ? (
+            <div ref={chartRef}></div>
+          ) : (
+            <div className={`h-10 w-16 rounded ${theme.isDark ? 'bg-slate-700' : 'bg-slate-100'}`} />
+          )}
         </div>
       </div>
     </div>
