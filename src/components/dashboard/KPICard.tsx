@@ -10,6 +10,7 @@ interface KPICardProps {
   format?: 'number' | 'currency' | 'hours' | 'days' | 'percent';
   sparklineData?: number[];
   sparklineColor?: string;
+  sparklineType?: 'line' | 'bar' | 'area';
   trend?: {
     value: number;
     isPositive: boolean;
@@ -24,6 +25,7 @@ export function KPICard({
   format = 'number',
   sparklineData,
   sparklineColor,
+  sparklineType = 'line',
   trend,
   color = 'blue',
   onClick
@@ -63,13 +65,14 @@ export function KPICard({
     const defaultColor = theme.isDark ? '#60a5fa' : '#3b82f6';
     const chartColor = sparklineColor || defaultColor;
 
-    const chartConfig: ApexCharts.ApexOptions = {
+    // Base config for all chart types
+    const baseConfig: ApexCharts.ApexOptions = {
       series: [{
         name: title,
         data: sparklineData,
       }],
       chart: {
-        type: 'line',
+        type: sparklineType,
         width: 80,
         height: 40,
         sparkline: {
@@ -80,15 +83,57 @@ export function KPICard({
           speed: 500,
         },
       },
-      stroke: {
-        curve: 'smooth',
-        width: 2,
-      },
       colors: [chartColor],
       tooltip: {
         enabled: false,
       },
     };
+
+    // Type-specific configurations
+    let typeConfig: Partial<ApexCharts.ApexOptions> = {};
+
+    switch (sparklineType) {
+      case 'bar':
+        typeConfig = {
+          plotOptions: {
+            bar: {
+              columnWidth: '60%',
+              borderRadius: 2,
+            },
+          },
+        };
+        break;
+      
+      case 'area':
+        typeConfig = {
+          stroke: {
+            curve: 'smooth',
+            width: 2,
+          },
+          fill: {
+            type: 'gradient',
+            gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.5,
+              opacityTo: 0.1,
+              stops: [0, 90, 100],
+            },
+          },
+        };
+        break;
+      
+      case 'line':
+      default:
+        typeConfig = {
+          stroke: {
+            curve: 'smooth',
+            width: 2,
+          },
+        };
+        break;
+    }
+
+    const chartConfig = { ...baseConfig, ...typeConfig };
 
     if (chartInstance.current) {
       chartInstance.current.destroy();
@@ -102,7 +147,7 @@ export function KPICard({
         chartInstance.current.destroy();
       }
     };
-  }, [sparklineData, sparklineColor, theme.isDark, title]);
+  }, [sparklineData, sparklineColor, sparklineType, theme.isDark, title]);
 
   const formatValue = (val: number): string => {
     switch (format) {
@@ -188,7 +233,7 @@ export function KPICard({
           )}
         </div>
         
-        {/* Sparkline Chart - Replaces Icon */}
+        {/* Sparkline Chart */}
         <div className="flex h-12 w-20 items-center justify-center">
           {sparklineData && sparklineData.length > 0 ? (
             <div ref={chartRef}></div>

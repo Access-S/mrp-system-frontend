@@ -348,6 +348,7 @@ export function DashboardPage() {
     format="number"
     sparklineData={kpis.trends?.openOrders}
     sparklineColor="#3b82f6"
+    sparklineType="bar"
     color="blue"
   />
   <KPICard
@@ -356,6 +357,7 @@ export function DashboardPage() {
     format="currency"
     sparklineData={kpis.trends?.openValue}
     sparklineColor="#10b981"
+    sparklineType="area"
     color="green"
   />
   <KPICard
@@ -364,6 +366,7 @@ export function DashboardPage() {
     format="hours"
     sparklineData={kpis.trends?.workHours}
     sparklineColor="#8b5cf6"
+    sparklineType="line"
     color="purple"
   />
   <KPICard
@@ -372,6 +375,7 @@ export function DashboardPage() {
     format="number"
     sparklineData={kpis.trends?.attentionRequired}
     sparklineColor={kpis.ordersRequiringAttention > 0 ? '#ef4444' : '#10b981'}
+    sparklineType="bar"
     color={kpis.ordersRequiringAttention > 0 ? 'red' : 'green'}
   />
 </div>
@@ -384,6 +388,7 @@ export function DashboardPage() {
     format="number"
     sparklineData={kpis.trends?.componentsAtRisk}
     sparklineColor={kpis.componentsAtRisk > 0 ? '#f59e0b' : '#10b981'}
+    sparklineType="bar"
     color={kpis.componentsAtRisk > 0 ? 'yellow' : 'green'}
   />
   <KPICard
@@ -392,6 +397,7 @@ export function DashboardPage() {
     format="days"
     sparklineData={kpis.trends?.turnaroundDays}
     sparklineColor="#3b82f6"
+    sparklineType="line"
     color="blue"
   />
   <KPICard
@@ -400,6 +406,7 @@ export function DashboardPage() {
     format="number"
     sparklineData={kpis.trends?.completedMonthly}
     sparklineColor="#10b981"
+    sparklineType="bar"
     color="green"
   />
   <KPICard
@@ -408,6 +415,7 @@ export function DashboardPage() {
     format="currency"
     sparklineData={kpis.trends?.revenueMonthly}
     sparklineColor="#10b981"
+    sparklineType="area"
     color="green"
   />
 </div>
