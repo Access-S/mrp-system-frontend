@@ -349,7 +349,7 @@ export function DashboardPage() {
     recentActivity 
   } = dashboardData;
 
-  return (
+    return (
     <div className="space-y-6">
       {/* Header */}
       <div className={`rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md p-6`}>
@@ -364,9 +364,7 @@ export function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
-            {/* NEW: Time Range Filter Button */}
-            <div className="relative" ref={dropdownRef}>
-            {/* NEW: Time Range Filter Button */}
+            {/* Time Range Filter Button */}
             <div className="relative" ref={dropdownRef}>
               <Button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -401,6 +399,8 @@ export function DashboardPage() {
                 </div>
               )}
             </div>
+
+            {/* Last Updated */}
             <div className={`text-right text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               <p>Last updated</p>
               <p className="font-medium">
