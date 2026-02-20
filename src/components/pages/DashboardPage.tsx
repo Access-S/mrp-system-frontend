@@ -364,53 +364,55 @@ export function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
-            {/* Time Range Filter Button */}
-            <div className="relative" ref={dropdownRef}>
-            <Button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              ripple={true}
-              variant="filled"
-              color="gray"
-              className="flex items-center gap-2 !bg-slate-800 hover:!bg-slate-700 shadow-md hover:shadow-lg normal-case text-sm font-medium"
-            >
-              {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
-              <ChevronDownIcon className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-            </Button>
+           {/* Time Range Filter Button */}
+              <div className="relative" ref={dropdownRef}>
+                <Button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  ripple={true}
+                  variant="filled"
+                  color="gray"
+                  className="flex items-center gap-2 !bg-slate-800 hover:!bg-slate-700 shadow-md hover:shadow-lg normal-case text-sm font-medium"
+                >
+                  {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
+                  <ChevronDownIcon className={`h-4 w-4 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </Button>
 
-              {isDropdownOpen && (
-                <div className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg ${theme.isDark ? 'bg-slate-700 border border-slate-600' : 'bg-white border border-slate-200'} z-50`}>
-                  <div className="py-1">
-                    {timeRangeOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          setSelectedTimeRange(option.value);
-                          setIsDropdownOpen(false);
-                        }}
-                        className={`block w-full text-left px-4 py-2 text-sm ${
-                          selectedTimeRange === option.value 
-                            ? `${theme.isDark ? 'bg-slate-600 text-white' : 'bg-slate-100 text-slate-900'}` 
-                            : `${theme.isDark ? 'text-slate-300 hover:bg-slate-600' : 'text-slate-700 hover:bg-slate-50'}`
-                        } transition-colors`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Last Updated */}
-            <div className={`text-right text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              <p>Last updated</p>
-              <p className="font-medium">
-                {new Date(dashboardData.lastUpdated).toLocaleTimeString()}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+                {/* Animated Dropdown Menu */}
+                <ul
+                  role="menu"
+                  className={`absolute right-0 mt-2 min-w-[220px] overflow-hidden rounded-lg border p-1.5 shadow-lg z-50 transition-all duration-200 origin-top-right
+                    ${theme.isDark 
+                      ? 'border-slate-600 bg-slate-700' 
+                      : 'border-slate-200 bg-white'}
+                    ${isDropdownOpen 
+                      ? 'opacity-100 scale-100 visible' 
+                      : 'opacity-0 scale-95 invisible'}
+                  `}
+                >
+                  {timeRangeOptions.map((option) => (
+                    <li
+                      key={option.value}
+                      role="menuitem"
+                      onClick={() => {
+                        setSelectedTimeRange(option.value);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`cursor-pointer flex w-full text-sm items-center rounded-md p-3 transition-all
+                        ${selectedTimeRange === option.value
+                          ? `${theme.isDark 
+                              ? 'bg-slate-600 text-white font-medium' 
+                              : 'bg-slate-100 text-slate-900 font-medium'}`
+                          : `${theme.isDark 
+                              ? 'text-slate-300 hover:bg-slate-600' 
+                              : 'text-slate-800 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100'}`
+                        }
+                      `}
+                    >
+                      {option.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
 {/* KPI Cards */}
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
