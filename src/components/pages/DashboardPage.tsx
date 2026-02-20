@@ -280,7 +280,6 @@ export function DashboardPage() {
       try {
         setLoading(true);
         setError(null);
-        // UPDATE: Pass selectedTimeRange to the API call
         const data = await fetchDashboardData(selectedTimeRange);
         setDashboardData(data);
       } catch (err: any) {
@@ -294,20 +293,17 @@ export function DashboardPage() {
 
     loadDashboard();
 
-    // Refresh every 5 minutes
     const interval = setInterval(loadDashboard, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [selectedTimeRange]); // UPDATE: Re-run effect when time range changes
+  }, [selectedTimeRange]);
 
   // Loading State
   if (loading) {
     return (
       <div className="space-y-6">
-        {/* KPI Skeletons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => <KPISkeleton key={i} />)}
         </div>
-        {/* Chart Skeletons */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartSkeleton />
           <ChartSkeleton />
@@ -349,7 +345,7 @@ export function DashboardPage() {
     recentActivity 
   } = dashboardData;
 
-    return (
+  return (
     <div className="space-y-6">
       {/* Header */}
       <div className={`rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md p-6`}>
@@ -364,193 +360,204 @@ export function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
-           {/* Time Range Filter Button */}
-              <div className="relative" ref={dropdownRef}>
-                <Button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  ripple={true}
-                  variant="filled"
-                  color="gray"
-                  className="flex items-center gap-2 !bg-slate-800 hover:!bg-slate-700 shadow-md hover:shadow-lg normal-case text-sm font-medium"
-                >
-                  {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
-                  <ChevronDownIcon className={`h-4 w-4 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                </Button>
+            {/* Time Range Filter Button */}
+            <div className="relative" ref={dropdownRef}>
+              <Button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                ripple={true}
+                variant="filled"
+                color="gray"
+                className="flex items-center gap-2 !bg-slate-800 hover:!bg-slate-700 shadow-md hover:shadow-lg normal-case text-sm font-medium"
+              >
+                {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
+                <ChevronDownIcon className={`h-4 w-4 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </Button>
 
-                {/* Animated Dropdown Menu */}
-                <ul
-                  role="menu"
-                  className={`absolute right-0 mt-2 min-w-[220px] overflow-hidden rounded-lg border p-1.5 shadow-lg z-50 transition-all duration-200 origin-top-right
-                    ${theme.isDark 
-                      ? 'border-slate-600 bg-slate-700' 
-                      : 'border-slate-200 bg-white'}
-                    ${isDropdownOpen 
-                      ? 'opacity-100 scale-100 visible' 
-                      : 'opacity-0 scale-95 invisible'}
-                  `}
-                >
-                  {timeRangeOptions.map((option) => (
-                    <li
-                      key={option.value}
-                      role="menuitem"
-                      onClick={() => {
-                        setSelectedTimeRange(option.value);
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`cursor-pointer flex w-full text-sm items-center rounded-md p-3 transition-all
-                        ${selectedTimeRange === option.value
-                          ? `${theme.isDark 
-                              ? 'bg-slate-600 text-white font-medium' 
-                              : 'bg-slate-100 text-slate-900 font-medium'}`
-                          : `${theme.isDark 
-                              ? 'text-slate-300 hover:bg-slate-600' 
-                              : 'text-slate-800 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100'}`
-                        }
-                      `}
-                    >
-                      {option.label}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {/* Animated Dropdown Menu */}
+              <ul
+                role="menu"
+                className={`absolute right-0 mt-2 min-w-[220px] overflow-hidden rounded-lg border p-1.5 shadow-lg z-50 transition-all duration-200 origin-top-right
+                  ${theme.isDark 
+                    ? 'border-slate-600 bg-slate-700' 
+                    : 'border-slate-200 bg-white'}
+                  ${isDropdownOpen 
+                    ? 'opacity-100 scale-100 visible' 
+                    : 'opacity-0 scale-95 invisible'}
+                `}
+              >
+                {timeRangeOptions.map((option) => (
+                  <li
+                    key={option.value}
+                    role="menuitem"
+                    onClick={() => {
+                      setSelectedTimeRange(option.value);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`cursor-pointer flex w-full text-sm items-center rounded-md p-3 transition-all
+                      ${selectedTimeRange === option.value
+                        ? `${theme.isDark 
+                            ? 'bg-slate-600 text-white font-medium' 
+                            : 'bg-slate-100 text-slate-900 font-medium'}`
+                        : `${theme.isDark 
+                            ? 'text-slate-300 hover:bg-slate-600' 
+                            : 'text-slate-800 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100'}`
+                      }
+                    `}
+                  >
+                    {option.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-{/* KPI Cards */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-  <KPICard
-    title="Open Orders"
-    value={kpis.totalOpenOrders}
-    format="number"
-    sparklineData={kpis.trends?.openOrders}
-    sparklineColor="#3b82f6"
-    sparklineType="bar"
-    color="blue"
-  />
-  <KPICard
-    title="Open Order Value"
-    value={kpis.totalOpenValue}
-    format="currency"
-    sparklineData={kpis.trends?.openValue}
-    sparklineColor="#10b981"
-    sparklineType="area"
-    color="green"
-  />
-  <KPICard
-    title="Work Hours Pending"
-    value={kpis.totalOpenWorkHours}
-    format="hours"
-    sparklineData={kpis.trends?.workHours}
-    sparklineColor="#8b5cf6"
-    sparklineType="line"
-    color="purple"
-  />
-  <KPICard
-    title="Attention Required"
-    value={kpis.ordersRequiringAttention}
-    format="number"
-    sparklineData={kpis.trends?.attentionRequired}
-    sparklineColor={kpis.ordersRequiringAttention > 0 ? '#ef4444' : '#10b981'}
-    sparklineType="bar"
-    color={kpis.ordersRequiringAttention > 0 ? 'red' : 'green'}
-  />
-</div>
-
-{/* Secondary KPIs */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-  <KPICard
-    title="Components at Risk"
-    value={kpis.componentsAtRisk}
-    format="number"
-    sparklineData={kpis.trends?.componentsAtRisk}
-    sparklineColor={kpis.componentsAtRisk > 0 ? '#f59e0b' : '#10b981'}
-    sparklineType="bar"
-    color={kpis.componentsAtRisk > 0 ? 'yellow' : 'green'}
-  />
-  <KPICard
-    title="Avg. Turnaround"
-    value={kpis.averageTurnaroundDays}
-    format="days"
-    sparklineData={kpis.trends?.turnaroundDays}
-    sparklineColor="#3b82f6"
-    sparklineType="line"
-    color="blue"
-  />
-  <KPICard
-    title="Completed This Month"
-    value={kpis.completedThisMonth}
-    format="number"
-    sparklineData={kpis.trends?.completedMonthly}
-    sparklineColor="#10b981"
-    sparklineType="bar"
-    color="green"
-  />
-  <KPICard
-    title="Revenue This Month"
-    value={kpis.revenueThisMonth}
-    format="currency"
-    sparklineData={kpis.trends?.revenueMonthly}
-    sparklineColor="#10b981"
-    sparklineType="area"
-    color="green"
-  />
-</div>
-
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <LineChart
-            title="Monthly Revenue Trend"
-            subtitle="Revenue from despatched orders"
-            data={monthlyTrends.map(t => t.revenue)}
-            categories={monthlyTrends.map(t => t.month)}
-            icon={<ChartBarIcon className="h-6 w-6" />}
-            formatValue={(val) => `$${val.toLocaleString()}`}
-          />
-          <MultipleBarChart
-            title="Orders: Received vs Despatched"
-            subtitle="Compare incoming orders with completed deliveries"
-            series={[
-              { 
-                name: 'Orders Received', 
-                data: monthlyTrends.map(t => t.ordersReceived),
-              },
-              { 
-                name: 'Orders Despatched', 
-                data: monthlyTrends.map(t => t.ordersDespatched),
-              }
-            ]}
-            categories={monthlyTrends.map(t => t.month)}
-            icon={<ShoppingCartIcon className="h-6 w-6" />}
-          />
-        </div>
-
-           {/* Radial Chart and Lists Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <RadialBarChart
-              title="Order Status Distribution"
-              subtitle="Current active orders by status"
-              data={poStatusDistribution.map(s => s.count)}
-              labels={poStatusDistribution.map(s => s.status)}
-              icon={<ChartBarIcon className="h-6 w-6" />}
-              despatchedCount={completedOrdersTotal}
-            />
-          <TopItemsCard
-            title="Top Customers"
-            items={topCustomers}
-            type="customers"
-            theme={theme}
-          />
-          <TopItemsCard
-            title="Top Products"
-            items={topProducts}
-            type="products"
-            theme={theme}
-          />
-        </div>
-
-        {/* Activity and Alerts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <RecentActivityCard activities={recentActivity} theme={theme} />
-          <LowStockAlerts alerts={lowStockAlerts} theme={theme} />
+            {/* Last Updated */}
+            <div className={`text-right text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <p>Last updated</p>
+              <p className="font-medium">
+                {new Date(dashboardData.lastUpdated).toLocaleTimeString()}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    );
-  }
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard
+          title="Open Orders"
+          value={kpis.totalOpenOrders}
+          format="number"
+          sparklineData={kpis.trends?.openOrders}
+          sparklineColor="#3b82f6"
+          sparklineType="bar"
+          color="blue"
+        />
+        <KPICard
+          title="Open Order Value"
+          value={kpis.totalOpenValue}
+          format="currency"
+          sparklineData={kpis.trends?.openValue}
+          sparklineColor="#10b981"
+          sparklineType="area"
+          color="green"
+        />
+        <KPICard
+          title="Work Hours Pending"
+          value={kpis.totalOpenWorkHours}
+          format="hours"
+          sparklineData={kpis.trends?.workHours}
+          sparklineColor="#8b5cf6"
+          sparklineType="line"
+          color="purple"
+        />
+        <KPICard
+          title="Attention Required"
+          value={kpis.ordersRequiringAttention}
+          format="number"
+          sparklineData={kpis.trends?.attentionRequired}
+          sparklineColor={kpis.ordersRequiringAttention > 0 ? '#ef4444' : '#10b981'}
+          sparklineType="bar"
+          color={kpis.ordersRequiringAttention > 0 ? 'red' : 'green'}
+        />
+      </div>
+
+      {/* Secondary KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard
+          title="Components at Risk"
+          value={kpis.componentsAtRisk}
+          format="number"
+          sparklineData={kpis.trends?.componentsAtRisk}
+          sparklineColor={kpis.componentsAtRisk > 0 ? '#f59e0b' : '#10b981'}
+          sparklineType="bar"
+          color={kpis.componentsAtRisk > 0 ? 'yellow' : 'green'}
+        />
+        <KPICard
+          title="Avg. Turnaround"
+          value={kpis.averageTurnaroundDays}
+          format="days"
+          sparklineData={kpis.trends?.turnaroundDays}
+          sparklineColor="#3b82f6"
+          sparklineType="line"
+          color="blue"
+        />
+        <KPICard
+          title="Completed This Month"
+          value={kpis.completedThisMonth}
+          format="number"
+          sparklineData={kpis.trends?.completedMonthly}
+          sparklineColor="#10b981"
+          sparklineType="bar"
+          color="green"
+        />
+        <KPICard
+          title="Revenue This Month"
+          value={kpis.revenueThisMonth}
+          format="currency"
+          sparklineData={kpis.trends?.revenueMonthly}
+          sparklineColor="#10b981"
+          sparklineType="area"
+          color="green"
+        />
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LineChart
+          title="Monthly Revenue Trend"
+          subtitle="Revenue from despatched orders"
+          data={monthlyTrends.map(t => t.revenue)}
+          categories={monthlyTrends.map(t => t.month)}
+          icon={<ChartBarIcon className="h-6 w-6" />}
+          formatValue={(val) => `$${val.toLocaleString()}`}
+        />
+        <MultipleBarChart
+          title="Orders: Received vs Despatched"
+          subtitle="Compare incoming orders with completed deliveries"
+          series={[
+            { 
+              name: 'Orders Received', 
+              data: monthlyTrends.map(t => t.ordersReceived),
+            },
+            { 
+              name: 'Orders Despatched', 
+              data: monthlyTrends.map(t => t.ordersDespatched),
+            }
+          ]}
+          categories={monthlyTrends.map(t => t.month)}
+          icon={<ShoppingCartIcon className="h-6 w-6" />}
+        />
+      </div>
+
+      {/* Radial Chart and Lists Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <RadialBarChart
+          title="Order Status Distribution"
+          subtitle="Current active orders by status"
+          data={poStatusDistribution.map(s => s.count)}
+          labels={poStatusDistribution.map(s => s.status)}
+          icon={<ChartBarIcon className="h-6 w-6" />}
+          despatchedCount={completedOrdersTotal}
+        />
+        <TopItemsCard
+          title="Top Customers"
+          items={topCustomers}
+          type="customers"
+          theme={theme}
+        />
+        <TopItemsCard
+          title="Top Products"
+          items={topProducts}
+          type="products"
+          theme={theme}
+        />
+      </div>
+
+      {/* Activity and Alerts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentActivityCard activities={recentActivity} theme={theme} />
+        <LowStockAlerts alerts={lowStockAlerts} theme={theme} />
+      </div>
+    </div>
+  );
+}
