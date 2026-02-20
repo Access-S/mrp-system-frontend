@@ -366,10 +366,13 @@ export function DashboardPage() {
           <div className="flex items-center gap-4">
             {/* NEW: Time Range Filter Button */}
             <div className="relative" ref={dropdownRef}>
+            {/* NEW: Time Range Filter Button */}
+            <div className="relative" ref={dropdownRef}>
               <Button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                ripple="light" // This enables the ripple effect automatically
-                className="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2 flex items-center gap-2 capitalize"
+                ripple={true}
+                variant="filled"
+                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 shadow-md hover:shadow-lg normal-case text-sm font-medium"
               >
                 {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
                 <ChevronDownIcon className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
@@ -398,7 +401,6 @@ export function DashboardPage() {
                 </div>
               )}
             </div>
-
             <div className={`text-right text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               <p>Last updated</p>
               <p className="font-medium">
