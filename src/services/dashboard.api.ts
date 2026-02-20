@@ -100,9 +100,11 @@ const API_BASE_URL = import.meta.env.VITE_API_URL
   : 'http://localhost:5000/api';
 
 // BLOCK 3: Fetch Dashboard Data
-export const fetchDashboardData = async (): Promise<DashboardData> => {
+// UPDATED: Added timeRange parameter with a default value
+export const fetchDashboardData = async (timeRange: string = 'last_6_months'): Promise<DashboardData> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/dashboard`);
+    // UPDATED: Append timeRange as a query parameter
+    const response = await fetch(`${API_BASE_URL}/dashboard?timeRange=${timeRange}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch dashboard data: ${response.statusText}`);

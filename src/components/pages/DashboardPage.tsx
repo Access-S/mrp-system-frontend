@@ -1,6 +1,6 @@
 // src/components/pages/DashboardPage.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Spinner } from '@material-tailwind/react';
 import {
@@ -12,6 +12,7 @@ import {
   CheckCircleIcon,
   ChartBarIcon,
   TruckIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { BarChart, MultipleBarChart, LineChart, PieChart, RadialBarChart } from '../dashboard/charts';
 import { KPICard } from '../dashboard/KPICard';
@@ -244,13 +245,43 @@ export function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // NEW: State for Time Range Filter
+  const [selectedTimeRange, setSelectedTimeRange] = useState('last_6_months');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Time Range Options
+  const timeRangeOptions = [
+    { label: 'Today', value: 'today' },
+    { label: 'This Week', value: 'this_week' },
+    { label: 'Last Week', value: 'last_week' },
+    { label: 'This Month', value: 'this_month' },
+    { label: 'Last Month', value: 'last_month' },
+    { label: 'Last 3 Months', value: 'last_3_months' },
+    { label: 'Last 6 Months', value: 'last_6_months' },
+    { label: 'This Financial Year', value: 'this_fy' },
+    { label: 'Last Financial Year', value: 'last_fy' },
+  ];
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const loadDashboard = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchDashboardData();
+        // UPDATE: Pass selectedTimeRange to the API call
+        const data = await fetchDashboardData(selectedTimeRange);
         setDashboardData(data);
       } catch (err: any) {
         console.error('Failed to load dashboard:', err);
@@ -266,7 +297,7 @@ export function DashboardPage() {
     // Refresh every 5 minutes
     const interval = setInterval(loadDashboard, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedTimeRange]); // UPDATE: Re-run effect when time range changes
 
   // Loading State
   if (loading) {
@@ -331,11 +362,50 @@ export function DashboardPage() {
               Real-time overview of your manufacturing operations
             </p>
           </div>
-          <div className={`text-right text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            <p>Last updated</p>
-            <p className="font-medium">
-              {new Date(dashboardData.lastUpdated).toLocaleTimeString()}
-            </p>
+          
+          <div className="flex items-center gap-4">
+            {/* NEW: Time Range Filter Button */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                data-ripple-light="true"
+                className="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2 flex items-center gap-2"
+                type="button"
+              >
+                {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
+                <ChevronDownIcon className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isDropdownOpen && (
+                <div className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg ${theme.isDark ? 'bg-slate-700 border border-slate-600' : 'bg-white border border-slate-200'} z-50`}>
+                  <div className="py-1">
+                    {timeRangeOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setSelectedTimeRange(option.value);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`block w-full text-left px-4 py-2 text-sm ${
+                          selectedTimeRange === option.value 
+                            ? `${theme.isDark ? 'bg-slate-600 text-white' : 'bg-slate-100 text-slate-900'}` 
+                            : `${theme.isDark ? 'text-slate-300 hover:bg-slate-600' : 'text-slate-700 hover:bg-slate-50'}`
+                        } transition-colors`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className={`text-right text-sm ${theme.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <p>Last updated</p>
+              <p className="font-medium">
+                {new Date(dashboardData.lastUpdated).toLocaleTimeString()}
+              </p>
+            </div>
           </div>
         </div>
       </div>
