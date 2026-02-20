@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Spinner } from '@material-tailwind/react';
+import { Spinner, Button } from '@material-tailwind/react';
 import {
   ShoppingCartIcon,
   CurrencyDollarIcon,
@@ -366,15 +366,14 @@ export function DashboardPage() {
           <div className="flex items-center gap-4">
             {/* NEW: Time Range Filter Button */}
             <div className="relative" ref={dropdownRef}>
-              <button
+              <Button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                data-ripple-light="true"
-                className="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2 flex items-center gap-2"
-                type="button"
+                ripple="light" // This enables the ripple effect automatically
+                className="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2 flex items-center gap-2 capitalize"
               >
                 {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
                 <ChevronDownIcon className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
+              </Button>
 
               {isDropdownOpen && (
                 <div className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg ${theme.isDark ? 'bg-slate-700 border border-slate-600' : 'bg-white border border-slate-200'} z-50`}>
