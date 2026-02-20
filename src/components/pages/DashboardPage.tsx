@@ -332,7 +332,6 @@ export function DashboardPage() {
       </div>
     );
   }
-
   const { 
     kpis, 
     poStatusDistribution, 
@@ -344,6 +343,24 @@ export function DashboardPage() {
     lowStockAlerts, 
     recentActivity 
   } = dashboardData;
+
+  // Dynamic KPI title based on selected time range
+  const getTimeRangeLabel = (): string => {
+    const labels: Record<string, string> = {
+      'today': 'Today',
+      'this_week': 'This Week',
+      'last_week': 'Last Week',
+      'this_month': 'This Month',
+      'last_month': 'Last Month',
+      'last_3_months': 'Last 3 Months',
+      'last_6_months': 'Last 6 Months',
+      'this_fy': 'This FY',
+      'last_fy': 'Last FY',
+    };
+    return labels[selectedTimeRange] || 'This Month';
+  };
+
+  const timeLabel = getTimeRangeLabel();ashboardData;
 
   return (
     <div className="space-y-6">
@@ -481,24 +498,24 @@ export function DashboardPage() {
           sparklineType="line"
           color="blue"
         />
-        <KPICard
-          title="Completed This Month"
-          value={kpis.completedThisMonth}
-          format="number"
-          sparklineData={kpis.trends?.completedMonthly}
-          sparklineColor="#10b981"
-          sparklineType="bar"
-          color="green"
-        />
-        <KPICard
-          title="Revenue This Month"
-          value={kpis.revenueThisMonth}
-          format="currency"
-          sparklineData={kpis.trends?.revenueMonthly}
-          sparklineColor="#10b981"
-          sparklineType="area"
-          color="green"
-        />
+            <KPICard
+              title={`Completed ${timeLabel}`}
+              value={kpis.completedThisMonth}
+              format="number"
+              sparklineData={kpis.trends?.completedMonthly}
+              sparklineColor="#10b981"
+              sparklineType="bar"
+              color="green"
+            />
+            <KPICard
+              title={`Revenue ${timeLabel}`}
+              value={kpis.revenueThisMonth}
+              format="currency"
+              sparklineData={kpis.trends?.revenueMonthly}
+              sparklineColor="#10b981"
+              sparklineType="area"
+              color="green"
+            />
       </div>
 
       {/* Charts Row */}
