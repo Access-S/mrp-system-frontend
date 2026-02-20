@@ -3,6 +3,9 @@
 │   └── vite.svg
 ├── src
 │   ├── components
+│   │   ├── dashboard
+│   │   │   ├── charts
+│   │   │   └── KPICard.tsx
 │   │   ├── dialogs
 │   │   │   ├── ConfirmationDialog.tsx
 │   │   │   └── FormAlert.tsx
@@ -19,8 +22,10 @@
 │   │   │   ├── ExcelImportModal.tsx
 │   │   │   └── PoDetailModal.tsx
 │   │   ├── pages
+│   │   │   ├── CreatePOPage.tsx
 │   │   │   ├── DashboardPage.tsx
 │   │   │   ├── ForecastsPage.tsx
+│   │   │   ├── ImportPage.tsx
 │   │   │   ├── InventoryPage.tsx
 │   │   │   ├── ProductDashboardPage.tsx
 │   │   │   ├── ProductDetailPage.tsx
@@ -31,6 +36,7 @@
 │   │   │   ├── BomManagementTab.tsx
 │   │   │   └── ProductInfoTab.tsx
 │   │   ├── ui
+│   │   │   ├── DatePicker.tsx
 │   │   │   ├── ElasticTabs.tsx
 │   │   │   ├── ElasticTabsGlass.tsx
 │   │   │   ├── ElasticTabsMaterial.tsx
@@ -42,13 +48,16 @@
 │   ├── services
 │   │   ├── api.service.ts
 │   │   ├── bom.service.ts
+│   │   ├── dashboard.api.ts
 │   │   ├── dashboard.service.ts
 │   │   ├── forecast.service.ts
+│   │   ├── import.service.ts
 │   │   ├── inventory.service.ts
 │   │   ├── mrp.service.ts
 │   │   ├── product.service.ts
 │   │   └── purchaseOrder.service.ts
 │   ├── styles
+│   │   ├── flatpickr-custom.css
 │   │   └── themes.ts
 │   ├── types
 │   │   └── mrp.types.ts
@@ -71,4 +80,4 @@
 ├── update-structure.sh
 └── vite.config.ts
 
-14 directories, 58 files
+16 directories, 65 files
