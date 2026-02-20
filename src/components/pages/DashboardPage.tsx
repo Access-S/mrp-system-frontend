@@ -360,7 +360,7 @@ export function DashboardPage() {
     return labels[selectedTimeRange] || 'This Month';
   };
 
-  const timeLabel = getTimeRangeLabel();ashboardData;
+  const timeLabel = getTimeRangeLabel();
 
   return (
     <div className="space-y-6">
