@@ -366,15 +366,16 @@ export function DashboardPage() {
           <div className="flex items-center gap-4">
             {/* Time Range Filter Button */}
             <div className="relative" ref={dropdownRef}>
-              <Button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                ripple={true}
-                variant="filled"
-                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 shadow-md hover:shadow-lg normal-case text-sm font-medium"
-              >
-                {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
-                <ChevronDownIcon className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </Button>
+            <Button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              ripple={true}
+              variant="filled"
+              color="gray"
+              className="flex items-center gap-2 !bg-slate-800 hover:!bg-slate-700 shadow-md hover:shadow-lg normal-case text-sm font-medium"
+            >
+              {timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || 'Select Range'}
+              <ChevronDownIcon className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            </Button>
 
               {isDropdownOpen && (
                 <div className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg ${theme.isDark ? 'bg-slate-700 border border-slate-600' : 'bg-white border border-slate-200'} z-50`}>
