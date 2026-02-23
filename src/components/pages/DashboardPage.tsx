@@ -438,85 +438,85 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard
-          title="Open Orders"
-          value={kpis.totalOpenOrders}
-          format="number"
-          sparklineData={kpis.trends?.openOrders}
-          sparklineColor="#3b82f6"
-          sparklineType="bar"
-          color="blue"
-        />
-        <KPICard
-          title="Open Order Value"
-          value={kpis.totalOpenValue}
-          format="currency"
-          sparklineData={kpis.trends?.openValue}
-          sparklineColor="#10b981"
-          sparklineType="area"
-          color="green"
-        />
-        <KPICard
-          title="Work Hours Pending"
-          value={kpis.totalOpenWorkHours}
-          format="hours"
-          sparklineData={kpis.trends?.workHours}
-          sparklineColor="#8b5cf6"
-          sparklineType="line"
-          color="purple"
-        />
-        <KPICard
-          title="Attention Required"
-          value={kpis.ordersRequiringAttention}
-          format="number"
-          sparklineData={kpis.trends?.attentionRequired}
-          sparklineColor={kpis.ordersRequiringAttention > 0 ? '#ef4444' : '#10b981'}
-          sparklineType="bar"
-          color={kpis.ordersRequiringAttention > 0 ? 'red' : 'green'}
-        />
-      </div>
+ {/* KPI Cards */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <KPICard
+    title="Open Orders"
+    value={kpis.snapshotAvailable ? kpis.totalOpenOrders : -1}
+    format="number"
+    sparklineData={kpis.snapshotAvailable ? kpis.trends?.openOrders : []}
+    sparklineColor="#3b82f6"
+    sparklineType="bar"
+    color="blue"
+  />
+  <KPICard
+    title="Open Order Value"
+    value={kpis.snapshotAvailable ? kpis.totalOpenValue : -1}
+    format="currency"
+    sparklineData={kpis.snapshotAvailable ? kpis.trends?.openValue : []}
+    sparklineColor="#10b981"
+    sparklineType="area"
+    color="green"
+  />
+  <KPICard
+    title="Work Hours Pending"
+    value={kpis.snapshotAvailable ? kpis.totalOpenWorkHours : -1}
+    format="hours"
+    sparklineData={kpis.snapshotAvailable ? kpis.trends?.workHours : []}
+    sparklineColor="#8b5cf6"
+    sparklineType="line"
+    color="purple"
+  />
+  <KPICard
+    title="Attention Required"
+    value={kpis.snapshotAvailable ? kpis.ordersRequiringAttention : -1}
+    format="number"
+    sparklineData={kpis.snapshotAvailable ? kpis.trends?.attentionRequired : []}
+    sparklineColor={kpis.ordersRequiringAttention > 0 ? '#ef4444' : '#10b981'}
+    sparklineType="bar"
+    color={kpis.ordersRequiringAttention > 0 ? 'red' : 'green'}
+  />
+</div>
 
-      {/* Secondary KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard
-          title="Components at Risk"
-          value={kpis.componentsAtRisk}
-          format="number"
-          sparklineData={kpis.trends?.componentsAtRisk}
-          sparklineColor={kpis.componentsAtRisk > 0 ? '#f59e0b' : '#10b981'}
-          sparklineType="bar"
-          color={kpis.componentsAtRisk > 0 ? 'yellow' : 'green'}
-        />
-        <KPICard
-          title="Avg. Turnaround"
-          value={kpis.averageTurnaroundDays}
-          format="days"
-          sparklineData={kpis.trends?.turnaroundDays}
-          sparklineColor="#3b82f6"
-          sparklineType="line"
-          color="blue"
-        />
-            <KPICard
-              title={`Completed ${timeLabel}`}
-              value={kpis.completedThisMonth}
-              format="number"
-              sparklineData={kpis.trends?.completedMonthly}
-              sparklineColor="#10b981"
-              sparklineType="bar"
-              color="green"
-            />
-            <KPICard
-              title={`Revenue ${timeLabel}`}
-              value={kpis.revenueThisMonth}
-              format="currency"
-              sparklineData={kpis.trends?.revenueMonthly}
-              sparklineColor="#10b981"
-              sparklineType="area"
-              color="green"
-            />
-      </div>
+{/* Secondary KPIs */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <KPICard
+    title="Components at Risk"
+    value={kpis.snapshotAvailable ? kpis.componentsAtRisk : -1}
+    format="number"
+    sparklineData={kpis.snapshotAvailable ? kpis.trends?.componentsAtRisk : []}
+    sparklineColor={kpis.componentsAtRisk > 0 ? '#f59e0b' : '#10b981'}
+    sparklineType="bar"
+    color={kpis.componentsAtRisk > 0 ? 'yellow' : 'green'}
+  />
+  <KPICard
+    title="Avg. Turnaround"
+    value={kpis.snapshotAvailable ? kpis.averageTurnaroundDays : -1}
+    format="days"
+    sparklineData={kpis.snapshotAvailable ? kpis.trends?.turnaroundDays : []}
+    sparklineColor="#3b82f6"
+    sparklineType="line"
+    color="blue"
+  />
+  <KPICard
+    title={`Completed ${timeLabel}`}
+    value={kpis.completedThisMonth}
+    format="number"
+    sparklineData={kpis.trends?.completedMonthly}
+    sparklineColor="#10b981"
+    sparklineType="bar"
+    color="green"
+  />
+  <KPICard
+    title={`Revenue ${timeLabel}`}
+    value={kpis.revenueThisMonth}
+    format="currency"
+    sparklineData={kpis.trends?.revenueMonthly}
+    sparklineColor="#10b981"
+    sparklineType="area"
+    color="green"
+  />
+</div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

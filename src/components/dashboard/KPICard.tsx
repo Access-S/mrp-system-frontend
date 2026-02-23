@@ -150,6 +150,11 @@ export function KPICard({
   }, [sparklineData, sparklineColor, sparklineType, theme.isDark, title]);
 
   const formatValue = (val: number): string => {
+    // Handle N/A case
+    if (val === -1) {
+      return 'N/A';
+    }
+    
     switch (format) {
       case 'currency':
         return new Intl.NumberFormat('en-US', {

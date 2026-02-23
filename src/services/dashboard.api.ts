@@ -10,6 +10,7 @@ export interface DashboardKPIs {
   averageTurnaroundDays: number;
   completedThisMonth: number;
   revenueThisMonth: number;
+  snapshotAvailable: boolean;
   trends: {
     openOrders: number[];
     openValue: number[];
