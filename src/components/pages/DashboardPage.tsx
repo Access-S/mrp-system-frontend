@@ -341,18 +341,31 @@ function TopItemsCard({
 // BLOCK 5: Main Dashboard Component
 export function DashboardPage() {
   const { theme } = useTheme();
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // NEW: State for Time Range Filter
+  // KPI data — re-fetched when time range filter changes
+  const [kpiData, setKpiData] = useState<DashboardData | null>(null);
+  const [kpiLoading, setKpiLoading] = useState(true);
+  const [kpiError, setKpiError] = useState<string | null>(null);
+
+  // Chart data — always fixed to last 6 months, fetched once on mount
+  const [chartData, setChartData] = useState<Pick<
+    DashboardData,
+    | "monthlyTrends"
+    | "poStatusDistribution"
+    | "completedOrdersTotal"
+    | "topCustomers"
+    | "topProducts"
+    | "recentActivity"
+    | "lowStockAlerts"
+  > | null>(null);
+  const [chartLoading, setChartLoading] = useState(true);
+  const [chartError, setChartError] = useState<string | null>(null);
+
+  // Time Range Filter state
   const [selectedTimeRange, setSelectedTimeRange] = useState("this_month");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Time Range Options
   const timeRangeOptions = [
     { label: "Today", value: "today" },
     { label: "This Week", value: "this_week" },
@@ -379,30 +392,64 @@ export function DashboardPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ─── Fetch KPI data whenever the time range filter changes ───────────────────
   useEffect(() => {
-    const loadDashboard = async () => {
+    const loadKpiData = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        setKpiLoading(true);
+        setKpiError(null);
         const data = await fetchDashboardData(selectedTimeRange);
-        setDashboardData(data);
+        setKpiData(data);
       } catch (err: any) {
-        console.error("Failed to load dashboard:", err);
-        setError(err.message);
-        toast.error("Failed to load dashboard data");
+        console.error("Failed to load KPI data:", err);
+        setKpiError(err.message);
+        toast.error("Failed to load KPI data");
       } finally {
-        setLoading(false);
+        setKpiLoading(false);
       }
     };
 
-    loadDashboard();
+    loadKpiData();
 
-    const interval = setInterval(loadDashboard, 5 * 60 * 1000);
+    // Auto-refresh KPIs every 5 minutes
+    const interval = setInterval(loadKpiData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [selectedTimeRange]);
 
-  // Loading State
-  if (loading) {
+  // ─── Fetch chart data once — always locked to last_6_months ─────────────────
+  useEffect(() => {
+    const loadChartData = async () => {
+      try {
+        setChartLoading(true);
+        setChartError(null);
+        const data = await fetchDashboardData("last_6_months");
+        setChartData({
+          monthlyTrends: data.monthlyTrends,
+          poStatusDistribution: data.poStatusDistribution,
+          completedOrdersTotal: data.completedOrdersTotal,
+          topCustomers: data.topCustomers,
+          topProducts: data.topProducts,
+          recentActivity: data.recentActivity,
+          lowStockAlerts: data.lowStockAlerts,
+        });
+      } catch (err: any) {
+        console.error("Failed to load chart data:", err);
+        setChartError(err.message);
+        toast.error("Failed to load chart data");
+      } finally {
+        setChartLoading(false);
+      }
+    };
+
+    loadChartData();
+
+    // Auto-refresh charts every 5 minutes independently
+    const interval = setInterval(loadChartData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []); // <-- Empty dependency array: runs once on mount, never re-runs on filter change
+
+  // ─── Loading State — show skeletons if either dataset is still loading ───────
+  if (kpiLoading && !kpiData) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -418,8 +465,8 @@ export function DashboardPage() {
     );
   }
 
-  // Error State
-  if (error || !dashboardData) {
+  // ─── Error State ─────────────────────────────────────────────────────────────
+  if ((kpiError && !kpiData) || (chartError && !chartData)) {
     return (
       <div
         className={`flex flex-col items-center justify-center h-96 rounded-xl ${
@@ -443,7 +490,7 @@ export function DashboardPage() {
             theme.isDark ? "text-slate-400" : "text-slate-500"
           }`}
         >
-          {error || "Unable to fetch dashboard data"}
+          {kpiError || chartError || "Unable to fetch dashboard data"}
         </p>
         <button
           onClick={() => window.location.reload()}
@@ -454,17 +501,17 @@ export function DashboardPage() {
       </div>
     );
   }
+
+  const { kpis } = kpiData!;
   const {
-    kpis,
+    monthlyTrends,
     poStatusDistribution,
     completedOrdersTotal,
-    activeOrdersTotal,
-    monthlyTrends,
     topCustomers,
     topProducts,
-    lowStockAlerts,
     recentActivity,
-  } = dashboardData;
+    lowStockAlerts,
+  } = chartData!;
 
   // Dynamic KPI title based on selected time range
   const getTimeRangeLabel = (): string => {
@@ -583,14 +630,14 @@ export function DashboardPage() {
             >
               <p>Last updated</p>
               <p className="font-medium">
-                {new Date(dashboardData.lastUpdated).toLocaleTimeString()}
+                {new Date(kpiData!.lastUpdated).toLocaleTimeString()}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards — these update with the time range filter */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="Open Orders"
@@ -632,7 +679,7 @@ export function DashboardPage() {
         />
       </div>
 
-      {/* Secondary KPIs */}
+      {/* Secondary KPI Cards — these also update with the time range filter */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="Components at Risk"
@@ -672,62 +719,90 @@ export function DashboardPage() {
         />
       </div>
 
-      {/* Charts Row */}
+      {/* Charts Row — always show last 6 months, never affected by the filter */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <LineChart
-          title="Monthly Revenue Trend"
-          subtitle="Revenue from despatched orders"
-          data={monthlyTrends.map((t) => t.revenue)}
-          categories={monthlyTrends.map((t) => t.month)}
-          icon={<ChartBarIcon className="h-6 w-6" />}
-          formatValue={(val) => `$${val.toLocaleString()}`}
-        />
-        <MultipleBarChart
-          title="Orders: Received vs Despatched"
-          subtitle="Compare incoming orders with completed deliveries"
-          series={[
-            {
-              name: "Orders Received",
-              data: monthlyTrends.map((t) => t.ordersReceived),
-            },
-            {
-              name: "Orders Despatched",
-              data: monthlyTrends.map((t) => t.ordersDespatched),
-            },
-          ]}
-          categories={monthlyTrends.map((t) => t.month)}
-          icon={<ShoppingCartIcon className="h-6 w-6" />}
-        />
+        {chartLoading ? (
+          <>
+            <ChartSkeleton />
+            <ChartSkeleton />
+          </>
+        ) : (
+          <>
+            <LineChart
+              title="Monthly Revenue Trend"
+              subtitle="Revenue from despatched orders — Last 6 Months"
+              data={monthlyTrends.map((t) => t.revenue)}
+              categories={monthlyTrends.map((t) => t.month)}
+              icon={<ChartBarIcon className="h-6 w-6" />}
+              formatValue={(val) => `$${val.toLocaleString()}`}
+            />
+            <MultipleBarChart
+              title="Orders: Received vs Despatched"
+              subtitle="Compare incoming orders with completed deliveries — Last 6 Months"
+              series={[
+                {
+                  name: "Orders Received",
+                  data: monthlyTrends.map((t) => t.ordersReceived),
+                },
+                {
+                  name: "Orders Despatched",
+                  data: monthlyTrends.map((t) => t.ordersDespatched),
+                },
+              ]}
+              categories={monthlyTrends.map((t) => t.month)}
+              icon={<ShoppingCartIcon className="h-6 w-6" />}
+            />
+          </>
+        )}
       </div>
 
-      {/* Radial Chart and Lists Row */}
+      {/* Radial Chart and Lists Row — always last 6 months */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <RadialBarChart
-          title="Order Status Distribution"
-          subtitle="Current active orders by status"
-          data={poStatusDistribution.map((s) => s.count)}
-          labels={poStatusDistribution.map((s) => s.status)}
-          icon={<ChartBarIcon className="h-6 w-6" />}
-          despatchedCount={completedOrdersTotal}
-        />
-        <TopItemsCard
-          title="Top Customers"
-          items={topCustomers}
-          type="customers"
-          theme={theme}
-        />
-        <TopItemsCard
-          title="Top Products"
-          items={topProducts}
-          type="products"
-          theme={theme}
-        />
+        {chartLoading ? (
+          <>
+            <ChartSkeleton />
+            <ChartSkeleton />
+            <ChartSkeleton />
+          </>
+        ) : (
+          <>
+            <RadialBarChart
+              title="Order Status Distribution"
+              subtitle="Current active orders by status"
+              data={poStatusDistribution.map((s) => s.count)}
+              labels={poStatusDistribution.map((s) => s.status)}
+              icon={<ChartBarIcon className="h-6 w-6" />}
+              despatchedCount={completedOrdersTotal}
+            />
+            <TopItemsCard
+              title="Top Customers"
+              items={topCustomers}
+              type="customers"
+              theme={theme}
+            />
+            <TopItemsCard
+              title="Top Products"
+              items={topProducts}
+              type="products"
+              theme={theme}
+            />
+          </>
+        )}
       </div>
 
-      {/* Activity and Alerts Row */}
+      {/* Activity and Alerts Row — always last 6 months */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentActivityCard activities={recentActivity} theme={theme} />
-        <LowStockAlerts alerts={lowStockAlerts} theme={theme} />
+        {chartLoading ? (
+          <>
+            <ChartSkeleton />
+            <ChartSkeleton />
+          </>
+        ) : (
+          <>
+            <RecentActivityCard activities={recentActivity} theme={theme} />
+            <LowStockAlerts alerts={lowStockAlerts} theme={theme} />
+          </>
+        )}
       </div>
     </div>
   );
