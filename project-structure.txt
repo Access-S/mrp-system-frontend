@@ -80,4 +80,4 @@
 ├── update-structure.sh
 └── vite.config.ts
 
-16 directories, 65 files
+15 directories, 65 files
