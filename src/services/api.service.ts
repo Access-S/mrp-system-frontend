@@ -191,7 +191,11 @@ export const updatePo = async (
 
 export const updatePurchaseOrderStatus = async (
   poId: string, 
-  status: string
+  status: string,
+  despatchDetails?: {
+    deliveryDate: string;
+    docketNumber: string;
+  }
 ): Promise<ApiResponse<{ statuses: string[] }>> => {
   if (!poId) {
     throw new Error('Purchase Order ID is required');
@@ -201,9 +205,16 @@ export const updatePurchaseOrderStatus = async (
     throw new Error('Status is required');
   }
 
+  const body: Record<string, any> = { status };
+  
+  if (despatchDetails) {
+    body.deliveryDate = despatchDetails.deliveryDate;
+    body.docketNumber = despatchDetails.docketNumber;
+  }
+
   return apiClient.patch<ApiResponse<{ statuses: string[] }>>(
     `/purchase-orders/${poId}/status`, 
-    { status }
+    body
   );
 };
 

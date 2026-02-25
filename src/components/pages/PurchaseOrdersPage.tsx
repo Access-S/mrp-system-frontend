@@ -1,4 +1,4 @@
-// BLOCK 1: Imports (keep as is)
+// BLOCK 1: Imports — ADD DespatchPoForm
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Button, Typography, Card, CardBody, Input,
@@ -12,6 +12,7 @@ import {
 import { useTheme } from "../../contexts/ThemeContext";
 import { PoDetailModal } from "../modals/PoDetailModal";
 import { EditPoForm } from "../forms/EditPoForm";
+import { DespatchPoForm } from "../forms/DespatchPoForm";  // ✅ ADD THIS
 import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
 import { PaginationControls } from "../PaginationControls";
 import { PurchaseOrder, PoStatus, ALL_PO_STATUSES } from "../../types/mrp.types";
@@ -19,7 +20,7 @@ import toast from "react-hot-toast";
 import { useDebounce } from 'use-debounce';
 import { fetchPurchaseOrders, updatePurchaseOrderStatus, deletePo, PaginatedApiResponse } from "../../services/api.service";
 
-// BLOCK 2: Constants
+// BLOCK 2: Constants (unchanged)
 const TABLE_HEAD = [
   "PO Number",
   "Product Code",
@@ -30,14 +31,14 @@ const TABLE_HEAD = [
   "Actions",
 ];
 
-// BLOCK 3: Main Component Definition
+// BLOCK 3: Main Component Definition (unchanged)
 interface PurchaseOrdersPageProps {
   onCreatePo: () => void;
   onImport: () => void;
 }
 
 export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageProps) {
-  // BLOCK 4: State
+  // BLOCK 4: State — ADD despatch state
   const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
@@ -53,7 +54,11 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [poToDelete, setPoToDelete] = useState<any | null>(null);
 
-  // BLOCK 5: Data Fetching (keep as is)
+  // ✅ ADD: Despatch form state
+  const [isDespatchFormOpen, setIsDespatchFormOpen] = useState(false);
+  const [poToDespatch, setPoToDespatch] = useState<any | null>(null);
+
+  // BLOCK 5: Data Fetching (unchanged)
   const loadPurchaseOrders = useCallback(async (page: number, search: string, status: string, limit: number) => {
     setLoading(true);
     try {
@@ -69,7 +74,7 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
     loadPurchaseOrders(1, debouncedSearchQuery, statusFilter, itemsPerPage);
   }, [debouncedSearchQuery, statusFilter, sortDirection, itemsPerPage, loadPurchaseOrders]);
 
-  // BLOCK 6: Pagination Handlers (keep as is)
+  // BLOCK 6: Pagination Handlers (unchanged)
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= pagination.totalPages) {
       loadPurchaseOrders(newPage, debouncedSearchQuery, statusFilter, itemsPerPage);
@@ -80,88 +85,146 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
     setItemsPerPage(newLimit);
   };
 
-  // BLOCK 7: Status Business Rules (keep as is)
-const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
-  const blocked = new Set<string>();
-  const has = (s: string) => currentStatuses.includes(s);
+  // BLOCK 7: Status Business Rules (unchanged)
+  const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
+    const blocked = new Set<string>();
+    const has = (s: string) => currentStatuses.includes(s);
 
-  // PO Check (system-generated) → can only add PO Canceled
-  if (has('PO Check')) {
-    ALL_PO_STATUSES.forEach(s => {
-      if (s !== 'PO Canceled') blocked.add(s);
-    });
-    return blocked;
-  }
-
-  // PO Canceled → can only add Closed or toggle off PO Canceled
-  if (has('PO Canceled')) {
-    ALL_PO_STATUSES.forEach(s => {
-      if (s !== 'Closed' && s !== 'PO Canceled') blocked.add(s);
-    });
-    return blocked;
-  }
-
-  // Closed with terminal → fully locked except toggling off
-  if (has('Closed')) {
-    ALL_PO_STATUSES.forEach(s => {
-      if (s !== 'Closed' && s !== 'Despatched/ Completed' && s !== 'PO Canceled') {
-        blocked.add(s);
-      }
-    });
-    return blocked;
-  }
-
-  // Despatched/Completed → can only add Closed or toggle off
-  if (has('Despatched/ Completed')) {
-    ALL_PO_STATUSES.forEach(s => {
-      if (s !== 'Closed' && s !== 'Despatched/ Completed') blocked.add(s);
-    });
-    return blocked;
-  }
-
-  // Normal state → everything allowed except Closed (needs terminal first)
-  blocked.add('Closed');
-
-  return blocked;
-};
-
-  // BLOCK 8: Status Update Handler (keep as is)
-  const handleStatusUpdate = async (poId: string, status: string, currentStatuses: { status: string }[]) => {
-  const statusList = currentStatuses?.map(s => s.status) || [];
-  const isCurrentlyActive = statusList.includes(status);
-
-  // If adding a new status (not toggling off), check business rules
-  if (!isCurrentlyActive) {
-    const blocked = getBlockedStatuses(statusList);
-    if (blocked.has(status)) {
-      toast.error(`Cannot add "${status}" with current statuses: ${statusList.join(', ')}`);
-      return;
+    if (has('PO Check')) {
+      ALL_PO_STATUSES.forEach(s => {
+        if (s !== 'PO Canceled') blocked.add(s);
+      });
+      return blocked;
     }
-  }
 
-  const toastId = toast.loading(`Updating status...`);
-  try {
-    const response = await updatePurchaseOrderStatus(poId, status);
-    // Extract the statuses array from the response
-    const updatedStatuses = response.data?.statuses || response.statuses || [];
-    
-    setPurchaseOrders(prevPOs =>
-      prevPOs.map(p => {
-        if (p.id === poId) {
-          const newStatusArray = updatedStatuses.map((s: string) => ({ status: s }));
-          const newCurrentStatus = updatedStatuses.length > 0 ? updatedStatuses[updatedStatuses.length - 1] : 'Open';
-          return { ...p, statuses: newStatusArray, current_status: newCurrentStatus };
+    if (has('PO Canceled')) {
+      ALL_PO_STATUSES.forEach(s => {
+        if (s !== 'Closed' && s !== 'PO Canceled') blocked.add(s);
+      });
+      return blocked;
+    }
+
+    if (has('Closed')) {
+      ALL_PO_STATUSES.forEach(s => {
+        if (s !== 'Closed' && s !== 'Despatched/ Completed' && s !== 'PO Canceled') {
+          blocked.add(s);
         }
-        return p;
-      })
-    );
-    toast.success('Status updated!', { id: toastId });
-  } catch (error: any) {
-    toast.error(error.message, { id: toastId });
-  }
-};
+      });
+      return blocked;
+    }
 
-  // BLOCK 9: Modal/Form Handlers (keep as is)
+    if (has('Despatched/ Completed')) {
+      ALL_PO_STATUSES.forEach(s => {
+        if (s !== 'Closed' && s !== 'Despatched/ Completed') blocked.add(s);
+      });
+      return blocked;
+    }
+
+    blocked.add('Closed');
+    return blocked;
+  };
+
+  // ✅ BLOCK 8: MODIFIED — Status Update Handler with Despatch Intercept
+  const handleStatusUpdate = async (
+    poId: string,
+    status: string,
+    currentStatuses: { status: string }[]
+  ) => {
+    const statusList = currentStatuses?.map(s => s.status) || [];
+    const isCurrentlyActive = statusList.includes(status);
+
+    // If adding a new status (not toggling off), check business rules
+    if (!isCurrentlyActive) {
+      const blocked = getBlockedStatuses(statusList);
+      if (blocked.has(status)) {
+        toast.error(`Cannot add "${status}" with current statuses: ${statusList.join(', ')}`);
+        return;
+      }
+
+      // ✅ INTERCEPT: If adding "Despatched/ Completed", open despatch form first
+      if (status === 'Despatched/ Completed') {
+        const po = purchaseOrders.find(p => p.id === poId);
+        if (po) {
+          setPoToDespatch(po);
+          setIsDespatchFormOpen(true);
+        }
+        return; // Stop here — don't call the API yet
+      }
+    }
+
+    // Normal status update flow (for all other statuses)
+    const toastId = toast.loading(`Updating status...`);
+    try {
+      const response = await updatePurchaseOrderStatus(poId, status);
+      const updatedStatuses = response.data?.statuses || response.statuses || [];
+
+      setPurchaseOrders(prevPOs =>
+        prevPOs.map(p => {
+          if (p.id === poId) {
+            const newStatusArray = updatedStatuses.map((s: string) => ({ status: s }));
+            const newCurrentStatus = updatedStatuses.length > 0
+              ? updatedStatuses[updatedStatuses.length - 1]
+              : 'Open';
+            return { ...p, statuses: newStatusArray, current_status: newCurrentStatus };
+          }
+          return p;
+        })
+      );
+      toast.success('Status updated!', { id: toastId });
+    } catch (error: any) {
+      toast.error(error.message, { id: toastId });
+    }
+  };
+
+  // ✅ ADD: Despatch form submission handler
+  const handleDespatchSubmit = async (deliveryDate: string, docketNumber: string) => {
+    if (!poToDespatch) return;
+
+    const toastId = toast.loading('Updating despatch details...');
+    try {
+      // Step 1: Update the status to "Despatched/ Completed" with despatch details
+      const response = await updatePurchaseOrderStatus(
+        poToDespatch.id,
+        'Despatched/ Completed',
+        { deliveryDate, docketNumber } // ✅ Pass despatch details to API
+      );
+
+      const updatedStatuses = response.data?.statuses || response.statuses || [];
+
+      // Step 2: Update local state
+      setPurchaseOrders(prevPOs =>
+        prevPOs.map(p => {
+          if (p.id === poToDespatch.id) {
+            const newStatusArray = updatedStatuses.map((s: string) => ({ status: s }));
+            const newCurrentStatus = updatedStatuses.length > 0
+              ? updatedStatuses[updatedStatuses.length - 1]
+              : 'Open';
+            return {
+              ...p,
+              statuses: newStatusArray,
+              current_status: newCurrentStatus,
+              delivery_date: deliveryDate,
+              delivery_docket_number: docketNumber,
+            };
+          }
+          return p;
+        })
+      );
+
+      toast.success(
+        `PO ${poToDespatch.po_number} despatched successfully!`,
+        { id: toastId }
+      );
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update despatch details.', { id: toastId });
+    } finally {
+      // Step 3: Clean up modal state
+      setIsDespatchFormOpen(false);
+      setPoToDespatch(null);
+    }
+  };
+
+  // BLOCK 9: Modal/Form Handlers (unchanged)
   const handleOpenViewModal = (po: any | null) => setPoToView(po);
   const handleSort = () => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
 
@@ -184,7 +247,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
   const handleOpenEditForm = (po: any | null) => { setPoToEdit(po); setIsEditFormOpen(!!po); };
   const handlePoUpdate = (updatedPo: any) => { toast.success(`PO ${updatedPo.po_number} updated successfully!`); setPurchaseOrders(prevPOs => prevPOs.map(p => (p.id === updatedPo.id ? updatedPo : p))); };
 
-  // BLOCK 10: Table Helper Functions (keep as is)
+  // BLOCK 10: Table Helper Functions (unchanged)
   const getHeaderClasses = (index: number) => {
     let classes = `${theme.tableHeaderBg} p-4 text-center`;
     if (index < TABLE_HEAD.length - 1) {
@@ -207,7 +270,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
     return style;
   };
 
-  // BLOCK 11: Initial Loading State (keep as is)
+  // BLOCK 11: Initial Loading State (unchanged)
   if (loading && purchaseOrders.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4">
@@ -224,48 +287,39 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
   return (
     <Card className={`w-full ${theme.cards} shadow-sm`}>
       {/* Header */}
-        <div className={`flex items-center justify-between p-4 border-b ${theme.borderColor}`}>
-          <div>
-            <Typography variant="h5" className={theme.text}>Purchase Orders</Typography>
-            <Typography color="gray" className={`mt-1 font-normal ${theme.text} opacity-80`}>
-              Manage all incoming customer orders. Click any row to view details.
-            </Typography>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="text" className="flex items-center gap-2" onClick={handleSort}>
-              {sortDirection === "desc"
-                ? <ArrowDownIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
-                : <ArrowUpIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
-              }
-              <Typography variant="small" className={`font-normal ${theme.text}`}>
-                Sort by {sortDirection === "desc" ? "Newest" : "Oldest"}
-              </Typography>
-            </Button>
-            {/* Import Button - ADD THIS */}
-            <Button 
-              onClick={onImport}
-              variant="outlined"
-              className="flex items-center gap-2" 
-              size="sm"
-            >
-              <ArrowDownIcon strokeWidth={2} className="h-4 w-4" /> Import
-            </Button>
-            <Button 
-              onClick={() => {
-                console.log("✅ Create PO button clicked in PurchaseOrdersPage");
-                if (onCreatePo) {
-                  onCreatePo();
-                }
-              }} 
-              className="flex items-center gap-3" 
-              size="sm"
-            >
-              <PlusIcon strokeWidth={2} className="h-4 w-4" /> Create New PO
-            </Button>
-          </div>
+      <div className={`flex items-center justify-between p-4 border-b ${theme.borderColor}`}>
+        <div>
+          <Typography variant="h5" className={theme.text}>Purchase Orders</Typography>
+          <Typography color="gray" className={`mt-1 font-normal ${theme.text} opacity-80`}>
+            Manage all incoming customer orders. Click any row to view details.
+          </Typography>
         </div>
+        <div className="flex items-center gap-2">
+          <Button variant="text" className="flex items-center gap-2" onClick={handleSort}>
+            {sortDirection === "desc"
+              ? <ArrowDownIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
+              : <ArrowUpIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
+            }
+            <Typography variant="small" className={`font-normal ${theme.text}`}>
+              Sort by {sortDirection === "desc" ? "Newest" : "Oldest"}
+            </Typography>
+          </Button>
+          <Button onClick={onImport} variant="outlined" className="flex items-center gap-2" size="sm">
+            <ArrowDownIcon strokeWidth={2} className="h-4 w-4" /> Import
+          </Button>
+          <Button
+            onClick={() => {
+              console.log("✅ Create PO button clicked in PurchaseOrdersPage");
+              if (onCreatePo) { onCreatePo(); }
+            }}
+            className="flex items-center gap-3"
+            size="sm"
+          >
+            <PlusIcon strokeWidth={2} className="h-4 w-4" /> Create New PO
+          </Button>
+        </div>
+      </div>
 
-      {/* Rest of the component remains exactly the same... */}
       {/* Search, Filter, Quick Nav */}
       <div className={`flex flex-wrap items-center justify-between border-b ${theme.borderColor}`}>
         <div className="p-4 flex-grow">
@@ -303,7 +357,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table - UNCHANGED */}
       {loading ? (
         <div className="flex flex-col items-center justify-center h-64 gap-4">
           <svg className="animate-spin" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
@@ -323,7 +377,6 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
                     if (head === 'Description') {
                       thClasses = thClasses.replace('text-center', 'text-left');
                     }
-
                     return (
                       <th key={head} className={thClasses} style={getHeaderStyle(head)}>
                         {head.includes("|") ? (
@@ -352,49 +405,24 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
                     className={`${theme.hoverBg} cursor-pointer transition-colors`}
                     onClick={() => handleOpenViewModal(po)}
                   >
-                    {/* PO Number */}
                     <td className={getCellClasses()}>
-                      <Typography variant="body" className={`font-bold ${theme.text}`}>
-                        {po.po_number}
-                      </Typography>
+                      <Typography variant="body" className={`font-bold ${theme.text}`}>{po.po_number}</Typography>
                     </td>
-
-                    {/* Product Code */}
                     <td className={getCellClasses()}>
-                      <Typography variant="body" className={`font-normal ${theme.text}`}>
-                        {po.product?.product_code || 'N/A'}
-                      </Typography>
+                      <Typography variant="body" className={`font-normal ${theme.text}`}>{po.product?.product_code || 'N/A'}</Typography>
                     </td>
-
-                    {/* Description */}
                     <td className={getCellClasses(false, 'left')}>
-                      <Typography variant="body" className={`font-normal ${theme.text}`}>
-                        {po.description}
-                      </Typography>
+                      <Typography variant="body" className={`font-normal ${theme.text}`}>{po.description}</Typography>
                     </td>
-
-                    {/* Order Qty */}
                     <td className={getCellClasses()}>
-                      <Typography variant="body" className={`font-semibold ${theme.text}`}>
-                        {Number(po.ordered_qty_shippers || 0).toFixed(2)}
-                      </Typography>
+                      <Typography variant="body" className={`font-semibold ${theme.text}`}>{Number(po.ordered_qty_shippers || 0).toFixed(2)}</Typography>
                     </td>
-
-                    {/* Prod Time */}
                     <td className={getCellClasses()}>
                       <Typography variant="body" className={`font-normal ${theme.text}`}>
-                        {(po.hourly_run_rate > 0
-                          ? po.ordered_qty_shippers / po.hourly_run_rate
-                          : 0
-                        ).toFixed(2)}
+                        {(po.hourly_run_rate > 0 ? po.ordered_qty_shippers / po.hourly_run_rate : 0).toFixed(2)}
                       </Typography>
                     </td>
-
-                    {/* Status */}
-                    <td
-                      className={getCellClasses()}
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <td className={getCellClasses()} onClick={(e) => e.stopPropagation()}>
                       <Menu>
                         <MenuHandler>
                           <div className="flex flex-wrap justify-center items-center gap-1 p-1 cursor-pointer">
@@ -405,20 +433,14 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
                               else if (s.status === "Open") chipClass = theme.chip.green;
                               else if (s.status === "PO Canceled") chipClass = theme.chip.red;
                               else if (s.status === "Closed") chipClass = theme.chip.blue;
-
                               return (
-                                <div
-                                  key={s.status}
-                                  className={`py-1.5 px-3 rounded-md text-sm font-medium leading-none ${chipClass}`}
-                                >
+                                <div key={s.status} className={`py-1.5 px-3 rounded-md text-sm font-medium leading-none ${chipClass}`}>
                                   {s.status}
                                 </div>
                               );
                             })}
                             {(!po.statuses || po.statuses.length === 0) && (
-                              <div className={`py-1.5 px-3 rounded-md text-sm font-medium leading-none ${theme.chip.green}`}>
-                                Open
-                              </div>
+                              <div className={`py-1.5 px-3 rounded-md text-sm font-medium leading-none ${theme.chip.green}`}>Open</div>
                             )}
                           </div>
                         </MenuHandler>
@@ -428,7 +450,6 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
                             const isChecked = currentStatuses.includes(statusOption);
                             const blocked = getBlockedStatuses(currentStatuses);
                             const isBlocked = !isChecked && blocked.has(statusOption);
-
                             return (
                               <MenuItem
                                 key={statusOption}
@@ -441,17 +462,11 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
                                 className={isBlocked ? 'opacity-40 cursor-not-allowed' : ''}
                               >
                                 <span className={`mr-2 ${isChecked ? "opacity-100 text-green-600 font-bold" : "opacity-0"}`}>✓</span>
-                                <span className={isBlocked ? 'line-through' : ''}>
-                                  {statusOption}
-                                </span>
-                                {isBlocked && (
-                                  <span className="ml-auto text-xs text-red-400">blocked</span>
-                                )}
+                                <span className={isBlocked ? 'line-through' : ''}>{statusOption}</span>
+                                {isBlocked && <span className="ml-auto text-xs text-red-400">blocked</span>}
                               </MenuItem>
                             );
                           })}
-
-                          {/* Show PO Check if system-generated (read-only) */}
                           {po.statuses?.some((s: { status: string }) => s.status === 'PO Check') && (
                             <>
                               <hr className="my-1" />
@@ -464,12 +479,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
                         </MenuList>
                       </Menu>
                     </td>
-
-                    {/* Actions */}
-                    <td
-                      className={getCellClasses(true)}
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <td className={getCellClasses(true)} onClick={(e) => e.stopPropagation()}>
                       <Menu>
                         <MenuHandler>
                           <IconButton variant="text" size="sm">
@@ -477,20 +487,12 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
                           </IconButton>
                         </MenuHandler>
                         <MenuList>
-                          <MenuItem
-                            className="flex items-center gap-2"
-                            onClick={() => handleOpenEditForm(po)}
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                            Edit PO Details
+                          <MenuItem className="flex items-center gap-2" onClick={() => handleOpenEditForm(po)}>
+                            <PencilIcon className="h-4 w-4" /> Edit PO Details
                           </MenuItem>
                           <hr className="my-2" />
-                          <MenuItem
-                            className="flex items-center gap-2 text-red-500 hover:bg-red-50 focus:bg-red-50 active:bg-red-50"
-                            onClick={() => handleOpenDeleteConfirm(po)}
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                            Delete PO
+                          <MenuItem className="flex items-center gap-2 text-red-500 hover:bg-red-50 focus:bg-red-50 active:bg-red-50" onClick={() => handleOpenDeleteConfirm(po)}>
+                            <TrashIcon className="h-4 w-4" /> Delete PO
                           </MenuItem>
                         </MenuList>
                       </Menu>
@@ -504,9 +506,7 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
       ) : (
         <div className="p-8 text-center">
           <Typography color="gray" className={theme.text}>
-            {searchQuery || statusFilter
-              ? `No purchase orders found matching the current filters.`
-              : "No purchase orders found."}
+            {searchQuery || statusFilter ? `No purchase orders found matching the current filters.` : "No purchase orders found."}
           </Typography>
         </div>
       )}
@@ -524,6 +524,16 @@ const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
       <PoDetailModal open={poToView !== null} handleOpen={() => handleOpenViewModal(null)} po={poToView} />
       <EditPoForm open={isEditFormOpen} handleOpen={() => handleOpenEditForm(null)} po={poToEdit} onUpdate={handlePoUpdate} />
       <ConfirmationDialog open={isDeleteConfirmOpen} handleOpen={() => handleOpenDeleteConfirm(null)} onConfirm={handleConfirmDelete} title="Delete Purchase Order?" message={`Are you sure you want to permanently delete PO ${poToDelete?.po_number}?`} />
+
+      {/* ✅ ADD: Despatch Form Modal */}
+      <DespatchPoForm
+        open={isDespatchFormOpen}
+        handleOpen={() => {
+          setIsDespatchFormOpen(false);
+          setPoToDespatch(null);
+        }}
+        onSubmit={handleDespatchSubmit}
+      />
     </Card>
   );
 }

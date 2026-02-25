@@ -1,90 +1,90 @@
 .
-.env.local
-.env.production
-eslint.config.js
-.git
-.gitignore
-index.html
-package.json
-package-lock.json
-postcss.config.js
-project-structure.txt
-public
-public/vite.svg
-README.md
-render.yaml
-src
-src/App.tsx
-src/components
-src/components/dashboard
-src/components/dashboard/charts
-src/components/dashboard/charts/BarChart.tsx
-src/components/dashboard/charts/index.ts
-src/components/dashboard/charts/LineChart.tsx
-src/components/dashboard/charts/PieChart.tsx
-src/components/dashboard/charts/RadialBarChart.tsx
-src/components/dashboard/KPICard.tsx
-src/components/dialogs
-src/components/dialogs/ConfirmationDialog.tsx
-src/components/dialogs/FormAlert.tsx
-src/components/forms
-src/components/forms/CreatePoForm.tsx
-src/components/forms/CreateProductForm.tsx
-src/components/forms/DespatchPoForm.tsx
-src/components/forms/EditPoForm.tsx
-src/components/forms/EditProductForm.tsx
-src/components/modals
-src/components/modals/AddBomComponentModal.tsx
-src/components/modals/BomDetailModal.tsx
-src/components/modals/EditBomComponentModal.tsx
-src/components/modals/ExcelImportModal.tsx
-src/components/modals/PoDetailModal.tsx
-src/components/pages
-src/components/pages/CreatePOPage.tsx
-src/components/pages/DashboardPage.tsx
-src/components/pages/ForecastsPage.tsx
-src/components/pages/ImportPage.tsx
-src/components/pages/InventoryPage.tsx
-src/components/pages/ProductDashboardPage.tsx
-src/components/pages/ProductDetailPage.tsx
-src/components/pages/ProductsPage.tsx
-src/components/pages/PurchaseOrdersPage.tsx
-src/components/pages/SohPage.tsx
-src/components/PaginationControls.tsx
-src/components/Sidebar.tsx
-src/components/tabs
-src/components/tabs/BomManagementTab.tsx
-src/components/tabs/ProductInfoTab.tsx
-src/components/ui
-src/components/ui/DatePicker.tsx
-src/components/ui/ElasticTabsGlass.tsx
-src/components/ui/ElasticTabsMaterial.tsx
-src/components/ui/ElasticTabs.tsx
-src/components/ui/WidgetCard.tsx
-src/contexts
-src/contexts/ThemeContext.tsx
-src/index.css
-src/main.tsx
-src/services
-src/services/api.service.ts
-src/services/bom.service.ts
-src/services/dashboard.api.ts
-src/services/dashboard.service.ts
-src/services/forecast.service.ts
-src/services/import.service.ts
-src/services/inventory.service.ts
-src/services/mrp.service.ts
-src/services/product.service.ts
-src/services/purchaseOrder.service.ts
-src/styles
-src/styles/flatpickr-custom.css
-src/styles/themes.ts
-src/supabase.config.ts
-src/types
-src/types/mrp.types.ts
-src/vite-env.d.ts
-tailwind.config.js
-tsconfig.json
-tsconfig.node.json
-update-structure.sh
-vite.config.ts
+|____public
+| |____vite.svg
+|____README.md
+|____index.html
+|____tsconfig.json
+|____eslint.config.js
+|____update-structure.sh
+|____.env.local
+|____render.yaml
+|____project-structure.txt
+|____.git
+|____package.json
+|____tsconfig.node.json
+|____.env.production
+|____vite.config.ts
+|____src
+| |____services
+| | |____bom.service.ts
+| | |____api.service.ts
+| | |____inventory.service.ts
+| | |____forecast.service.ts
+| | |____dashboard.api.ts
+| | |____mrp.service.ts
+| | |____purchaseOrder.service.ts
+| | |____product.service.ts
+| | |____import.service.ts
+| | |____dashboard.service.ts
+| |____contexts
+| | |____ThemeContext.tsx
+| |____types
+| | |____mrp.types.ts
+| |____styles
+| | |____themes.ts
+| | |____flatpickr-custom.css
+| |____App.tsx
+| |____supabase.config.ts
+| |____vite-env.d.ts
+| |____main.tsx
+| |____components
+| | |____tabs
+| | | |____BomManagementTab.tsx
+| | | |____ProductInfoTab.tsx
+| | |____dialogs
+| | | |____ConfirmationDialog.tsx
+| | | |____FormAlert.tsx
+| | |____PaginationControls.tsx
+| | |____ui
+| | | |____ElasticTabs.tsx
+| | | |____ElasticTabsGlass.tsx
+| | | |____ElasticTabsMaterial.tsx
+| | | |____DatePicker.tsx
+| | | |____WidgetCard.tsx
+| | |____pages
+| | | |____DashboardPage.tsx
+| | | |____ImportPage.tsx
+| | | |____PurchaseOrdersPage.tsx
+| | | |____CreatePOPage.tsx
+| | | |____ProductDashboardPage.tsx
+| | | |____ProductDetailPage.tsx
+| | | |____InventoryPage.tsx
+| | | |____SohPage.tsx
+| | | |____ForecastsPage.tsx
+| | | |____ProductsPage.tsx
+| | |____forms
+| | | |____EditPoForm.tsx
+| | | |____CreateProductForm.tsx
+| | | |____EditProductForm.tsx
+| | | |____CreatePoForm.tsx
+| | | |____DespatchPoForm.tsx
+| | |____modals
+| | | |____BomDetailModal.tsx
+| | | |____PoDetailModal.tsx
+| | | |____AddBomComponentModal.tsx
+| | | |____ExcelImportModal.tsx
+| | | |____EditBomComponentModal.tsx
+| | |____dashboard
+| | | |____charts
+| | | | |____RadialBarChart.tsx
+| | | | |____BarChart.tsx
+| | | | |____index.ts
+| | | | |____PieChart.tsx
+| | | | |____LineChart.tsx
+| | | |____KPICard.tsx
+| | |____Sidebar.tsx
+| |____index.css
+|____package-lock.json
+|____.gitignore
+|____postcss.config.js
+|____tailwind.config.js

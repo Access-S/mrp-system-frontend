@@ -10,6 +10,6 @@ fi
 
 git add project-structure.txt
 git commit -m "docs: Update project structure documentation"
-git push origin feature/mrp-update
+git push origin HEAD  # This pushes to your current branch
 
 echo "✅ Frontend project structure updated!"
