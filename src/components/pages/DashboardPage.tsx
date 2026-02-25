@@ -448,8 +448,10 @@ export function DashboardPage() {
     return () => clearInterval(interval);
   }, []); // <-- Empty dependency array: runs once on mount, never re-runs on filter change
 
-  // ─── Loading State — show skeletons if either dataset is still loading ───────
-  if (kpiLoading && !kpiData) {
+  // ─── Loading State — block render until BOTH kpiData and chartData are ready ──
+  // Previously only checked kpiLoading, so if KPI data arrived first the component
+  // would try to render with chartData still null, causing the destructure crash.
+  if ((kpiLoading && !kpiData) || (chartLoading && !chartData)) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -457,7 +459,17 @@ export function DashboardPage() {
             <KPISkeleton key={i} />
           ))}
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <KPISkeleton key={i} />
+          ))}
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartSkeleton />
+          <ChartSkeleton />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <ChartSkeleton />
           <ChartSkeleton />
           <ChartSkeleton />
         </div>
