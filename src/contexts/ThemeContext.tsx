@@ -1,7 +1,11 @@
 // src/contexts/ThemeContext.tsx
 
+// ============== BLOCK 1: Imports ==============
+
 import React, { createContext, useState, useContext, useMemo, useEffect } from "react";
 import { themes, ThemeName, Theme } from "../styles/themes";
+
+// ============== BLOCK 2: Types ==============
 
 interface ThemeContextType {
   themeName: ThemeName;
@@ -11,8 +15,11 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+// ============== BLOCK 3: Provider Component ==============
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [themeName, setThemeName] = useState<ThemeName>("classic");
+  // Changed default from "classic" to "dark"
+  const [themeName, setThemeName] = useState<ThemeName>("dark");
 
   // Sync dark mode with document class for Tailwind dark: prefix
   useEffect(() => {
@@ -70,6 +77,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
+
+// ============== BLOCK 4: Hook ==============
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
