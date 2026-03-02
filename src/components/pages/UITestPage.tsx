@@ -1,3 +1,7 @@
+// src/components/pages/UITestPage.tsx
+
+// ============== BLOCK 1: Imports ==============
+
 import React, { useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { Button } from "../ui/Button";
@@ -6,7 +10,30 @@ import { Dialog } from "../ui/Dialog";
 import { Card, CardHeader, CardContent, CardFooter } from "../ui/Card";
 import { StatusBadge, Status } from "../ui/StatusBadge";
 import { WidgetCard, WidgetHeader, WidgetBody, MiniActionButton } from "../ui/WidgetCard";
+import { Table } from "../ui/Table";
 import { PlusIcon, ArrowPathIcon, EyeIcon } from "@heroicons/react/24/outline";
+
+// ============== BLOCK 2: Sample Data ==============
+
+const sampleTableData = [
+  { id: 1, name: "Widget Pro X1", sku: "WPX-001", stock: 150, price: "$299.00", status: "In Stock" },
+  { id: 2, name: "Gadget Elite", sku: "GDE-042", stock: 23, price: "$149.00", status: "Low Stock" },
+  { id: 3, name: "Component Alpha", sku: "CPA-118", stock: 0, price: "$49.00", status: "Out of Stock" },
+  { id: 4, name: "Module Beta Plus", sku: "MBP-205", stock: 89, price: "$199.00", status: "In Stock" },
+  { id: 5, name: "Assembly Kit Pro", sku: "AKP-331", stock: 12, price: "$599.00", status: "Low Stock" },
+  { id: 6, name: "Connector Series Z", sku: "CSZ-087", stock: 200, price: "$29.00", status: "In Stock" },
+];
+
+const allStatuses: Status[] = [
+  "Open",
+  "Completed",
+  "Despatched/ Completed",
+  "PO Check",
+  "PO Canceled",
+  "Closed",
+];
+
+// ============== BLOCK 3: Component Definition & State ==============
 
 const UITestPage: React.FC = () => {
   const { theme, themeName, setThemeName } = useTheme();
@@ -15,14 +42,22 @@ const UITestPage: React.FC = () => {
   const [inputValue, setInputValue] = useState("");
   const [inputError, setInputError] = useState(false);
 
-  const allStatuses: Status[] = [
-    "Open",
-    "Completed",
-    "Despatched/ Completed",
-    "PO Check",
-    "PO Canceled",
-    "Closed",
-  ];
+  // ============== BLOCK 4: Helper Function for Stock Status ==============
+
+  const getStockStatusColor = (status: string) => {
+    switch (status) {
+      case "In Stock":
+        return "text-green-600 dark:text-green-400";
+      case "Low Stock":
+        return "text-yellow-600 dark:text-yellow-400";
+      case "Out of Stock":
+        return "text-red-600 dark:text-red-400";
+      default:
+        return "text-gray-600 dark:text-gray-400";
+    }
+  };
+
+  // ============== BLOCK 5: Return Statement Start + Page Header ==============
 
   return (
     <div className="space-y-12">
@@ -48,7 +83,8 @@ const UITestPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Section 1: Buttons */}
+      {/* ============== BLOCK 6: Section 1 - Buttons ============== */}
+      
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Buttons</h2>
 
@@ -122,7 +158,8 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 2: Inputs */}
+      {/* ============== BLOCK 7: Section 2 - Inputs ============== */}
+
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Inputs</h2>
 
@@ -181,7 +218,8 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 3: Status Badges */}
+      {/* ============== BLOCK 8: Section 3 - Status Badges ============== */}
+
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Status Badges</h2>
         <div className="flex flex-wrap gap-3">
@@ -191,7 +229,187 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 4: Cards */}
+      {/* ============== BLOCK 9: Section 4 - Tables (NEW) ============== */}
+
+      <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Tables</h2>
+
+        {/* Default Table - Striped & Hoverable */}
+        <div className="mb-8">
+          <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>
+            Default (Striped + Hoverable + Sticky Header)
+          </h3>
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>Product Name</Table.Head>
+                <Table.Head>SKU</Table.Head>
+                <Table.Head>Stock</Table.Head>
+                <Table.Head>Price</Table.Head>
+                <Table.Head>Status</Table.Head>
+                <Table.Head>Actions</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {sampleTableData.map((item) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell className="font-medium">{item.name}</Table.Cell>
+                  <Table.Cell>{item.sku}</Table.Cell>
+                  <Table.Cell>{item.stock}</Table.Cell>
+                  <Table.Cell>{item.price}</Table.Cell>
+                  <Table.Cell>
+                    <span className={`font-medium ${getStockStatusColor(item.status)}`}>
+                      {item.status}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Button size="sm" variant="ghost">
+                      <EyeIcon className="w-4 h-4" />
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
+
+        {/* Table Sizes */}
+        <div className="mb-8">
+          <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>
+            Size Variants
+          </h3>
+          <div className="space-y-6">
+            {/* Small */}
+            <div>
+              <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Small (sm)</p>
+              <Table size="sm">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head>Name</Table.Head>
+                    <Table.Head>SKU</Table.Head>
+                    <Table.Head>Stock</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {sampleTableData.slice(0, 3).map((item) => (
+                    <Table.Row key={item.id}>
+                      <Table.Cell>{item.name}</Table.Cell>
+                      <Table.Cell>{item.sku}</Table.Cell>
+                      <Table.Cell>{item.stock}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+
+            {/* Large */}
+            <div>
+              <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Large (lg)</p>
+              <Table size="lg">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head>Name</Table.Head>
+                    <Table.Head>SKU</Table.Head>
+                    <Table.Head>Stock</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {sampleTableData.slice(0, 3).map((item) => (
+                    <Table.Row key={item.id}>
+                      <Table.Cell>{item.name}</Table.Cell>
+                      <Table.Cell>{item.sku}</Table.Cell>
+                      <Table.Cell>{item.stock}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+          </div>
+        </div>
+
+        {/* Bordered Variant */}
+        <div className="mb-8">
+          <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>
+            Bordered Variant
+          </h3>
+          <Table variant="bordered" hoverable={false}>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>Name</Table.Head>
+                <Table.Head>SKU</Table.Head>
+                <Table.Head>Stock</Table.Head>
+                <Table.Head>Price</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {sampleTableData.slice(0, 3).map((item) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell>{item.name}</Table.Cell>
+                  <Table.Cell>{item.sku}</Table.Cell>
+                  <Table.Cell>{item.stock}</Table.Cell>
+                  <Table.Cell>{item.price}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
+
+        {/* Wide Table - Horizontal Scroll Demo */}
+        <div>
+          <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>
+            Wide Table (Horizontal Scroll)
+          </h3>
+          <p className={`text-xs ${theme.text} opacity-50 mb-2`}>
+            Resize your browser to see horizontal scroll behavior
+          </p>
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>Product Name</Table.Head>
+                <Table.Head>SKU</Table.Head>
+                <Table.Head>Stock Quantity</Table.Head>
+                <Table.Head>Unit Price</Table.Head>
+                <Table.Head>Status</Table.Head>
+                <Table.Head>Category</Table.Head>
+                <Table.Head>Supplier</Table.Head>
+                <Table.Head>Last Updated</Table.Head>
+                <Table.Head>Actions</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {sampleTableData.map((item) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell className="font-medium">{item.name}</Table.Cell>
+                  <Table.Cell>{item.sku}</Table.Cell>
+                  <Table.Cell>{item.stock}</Table.Cell>
+                  <Table.Cell>{item.price}</Table.Cell>
+                  <Table.Cell>
+                    <span className={`font-medium ${getStockStatusColor(item.status)}`}>
+                      {item.status}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>Electronics</Table.Cell>
+                  <Table.Cell>Acme Corp</Table.Cell>
+                  <Table.Cell>2025-06-15</Table.Cell>
+                  <Table.Cell>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="ghost">
+                        <EyeIcon className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost">
+                        <ArrowPathIcon className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
+      </section>
+
+      {/* ============== BLOCK 10: Section 5 - Cards ============== */}
+
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Cards</h2>
 
@@ -243,7 +461,8 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 5: Widget Cards */}
+      {/* ============== BLOCK 11: Section 6 - Widget Cards ============== */}
+
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Widget Cards</h2>
 
@@ -282,7 +501,8 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 6: Dialogs */}
+      {/* ============== BLOCK 12: Section 7 - Dialogs ============== */}
+
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Dialogs</h2>
 
@@ -327,7 +547,8 @@ const UITestPage: React.FC = () => {
         </Dialog>
       </section>
 
-      {/* Section 7: Component Checklist */}
+      {/* ============== BLOCK 13: Section 8 - Migration Checklist ============== */}
+
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Migration Checklist</h2>
 
@@ -339,6 +560,7 @@ const UITestPage: React.FC = () => {
             { name: "Card", status: "done" },
             { name: "StatusBadge", status: "done" },
             { name: "WidgetCard", status: "done" },
+            { name: "Table", status: "done" },
             { name: "Typography", status: "pending" },
             { name: "Spinner", status: "pending" },
             { name: "IconButton", status: "pending" },
@@ -367,5 +589,7 @@ const UITestPage: React.FC = () => {
     </div>
   );
 };
+
+// ============== BLOCK 14: Export ==============
 
 export default UITestPage;
