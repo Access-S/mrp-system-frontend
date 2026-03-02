@@ -1,3 +1,5 @@
+/*src/index.css*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,7 +9,7 @@
   .force-transition {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
-  
+
   .force-grid-transition {
     transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
@@ -22,7 +24,8 @@
   font-size: 16px;
 }
 
-th, td {
+th,
+td {
   font-size: clamp(12px, 0.8vw, 15px);
 }
 
@@ -34,19 +37,3 @@ th, td {
 .go2138849764 {
   z-index: 9999 !important;
 }
-
-/* BLOCK 2: Ripple Animation */
-@keyframes ripple {
-  0% {
-    transform: scale(0);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(4);
-    opacity: 0;
-  }
-}
-.animate-ripple {
-  animation: ripple 600ms linear;
-}
-

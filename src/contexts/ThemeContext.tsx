@@ -1,12 +1,6 @@
 // src/contexts/ThemeContext.tsx
 
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useMemo,
-  useEffect,
-} from "react";
+import React, { createContext, useState, useContext, useMemo, useEffect } from "react";
 import { themes, ThemeName, Theme } from "../styles/themes";
 
 interface ThemeContextType {
@@ -17,19 +11,20 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themeName, setThemeName] = useState<ThemeName>("classic");
 
-  // NEW: Sync with DaisyUI theme system
+  // Sync dark mode with document class for Tailwind dark: prefix
   useEffect(() => {
     const currentTheme = themes[themeName];
-    const daisyTheme = currentTheme.isDark ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", daisyTheme);
+    if (currentTheme.isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   }, [themeName]);
 
-  // Dynamically inject scrollbar styles into the document head
+  // Dynamically inject scrollbar styles
   useEffect(() => {
     const currentTheme = themes[themeName];
     if (!currentTheme || !currentTheme.scrollbar) {
@@ -58,7 +53,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       .drawer-content::-webkit-scrollbar-thumb:hover {
         background: ${currentTheme.scrollbar.thumbHover};
       }
-      /* For Firefox */
       .drawer-content {
         scrollbar-width: thin;
         scrollbar-color: ${currentTheme.scrollbar.thumb} ${currentTheme.scrollbar.track};
@@ -74,9 +68,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     theme,
   };
 
-  return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = () => {

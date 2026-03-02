@@ -1,4 +1,6 @@
-// BLOCK 1: Imports
+//src/App.tsx
+
+
 import React, { useState } from "react";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { Sidebar } from "./components/Sidebar";
@@ -17,14 +19,13 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ImportPage } from "./components/pages/ImportPage";
 import UITestPage from "./components/pages/UITestPage";
 
-// BLOCK 2: Type Definitions
 export type Page =
   | "dashboard"
   | "products"
   | "product-detail"
   | "purchase-orders"
   | "create-po"
-  | "import" 
+  | "import"
   | "inventory"
   | "forecasts"
   | "soh"
@@ -32,14 +33,13 @@ export type Page =
   | "reporting"
   | "ui-test";
 
-// BLOCK 3: A new, dedicated component for our Toaster
 function ToasterPortal() {
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
     setMountNode(document.body);
   }, []);
-  
+
   const toaster = (
     <Toaster
       position="top-right"
@@ -56,14 +56,12 @@ function ToasterPortal() {
   return mountNode ? createPortal(toaster, mountNode) : toaster;
 }
 
-// BLOCK 4: AppLayout Component
 function AppLayout() {
   const { theme } = useTheme();
   const [activePage, setActivePage] = useState<Page>("dashboard");
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [selectedProductDescription, setSelectedProductDescription] = useState<string | null>(null);
 
-  // Add detailed logging
   console.log("🔵 AppLayout rendered with activePage:", activePage);
 
   const handlePageChange = (newPage: Page) => {
@@ -77,12 +75,13 @@ function AppLayout() {
     "product-detail": "",
     "purchase-orders": "Purchase Orders",
     "create-po": "",
-    "import": "Import Data",
+    import: "Import Data",
     inventory: "Inventory Planning Dashboard",
     forecasts: "Sales Forecasts",
     soh: "Stock On Hand",
     analytics: "Analytics",
-    reporting: "Reporting"
+    reporting: "Reporting",
+    "ui-test": "UI Component Testing",
   };
 
   const handleViewProduct = (productCode: string, description?: string) => {
@@ -98,7 +97,6 @@ function AppLayout() {
   };
 
   const renderNavbarContent = () => {
-    // Product Detail breadcrumb
     if (activePage === "product-detail" && selectedProductCode) {
       return (
         <div className="flex items-center gap-4 w-full">
@@ -109,7 +107,7 @@ function AppLayout() {
             <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
           </button>
           <div className="flex items-center gap-2">
-            <span 
+            <span
               className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity text-base`}
               onClick={handleBackToProducts}
             >
@@ -127,7 +125,6 @@ function AppLayout() {
       );
     }
 
-    // Create PO breadcrumb
     if (activePage === "create-po") {
       return (
         <div className="flex items-center gap-4 w-full">
@@ -138,7 +135,7 @@ function AppLayout() {
             <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
           </button>
           <div className="flex items-center gap-2">
-            <span 
+            <span
               className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity text-base`}
               onClick={() => handlePageChange("purchase-orders")}
             >
@@ -152,34 +149,31 @@ function AppLayout() {
         </div>
       );
     }
-    
+
     return (
-      <h1 className={`text-2xl font-bold ${theme.text}`}>
-        {pageTitles[activePage]}
-      </h1>
+      <h1 className={`text-2xl font-bold ${theme.text}`}>{pageTitles[activePage]}</h1>
     );
   };
 
   return (
     <div className={`flex h-screen ${theme.background} transition-all duration-500`}>
       <Sidebar activePage={activePage} setActivePage={handlePageChange} />
-      
+
       <div className="flex-1 flex flex-col min-w-0">
-        <div className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 flex-shrink-0 z-20`}>
+        <div
+          className={`${theme.navbar} shadow-sm border-b p-4 transition-all duration-500 flex items-center gap-4 flex-shrink-0 z-20`}
+        >
           {renderNavbarContent()}
         </div>
-        
+
         <main className="flex-1 p-4 md:p-8 overflow-auto">
           {activePage === "dashboard" && <DashboardPage />}
           {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
           {activePage === "product-detail" && selectedProductCode && (
-            <ProductDashboardPage
-              productCode={selectedProductCode} 
-              onBack={handleBackToProducts}
-            />
+            <ProductDashboardPage productCode={selectedProductCode} onBack={handleBackToProducts} />
           )}
           {activePage === "purchase-orders" && (
-            <PurchaseOrdersPage 
+            <PurchaseOrdersPage
               onCreatePo={() => {
                 console.log("🟢 PurchaseOrdersPage calling onCreatePo");
                 handlePageChange("create-po");
@@ -213,7 +207,6 @@ function AppLayout() {
   );
 }
 
-// BLOCK 5: App Component
 function App() {
   return (
     <ThemeProvider>
@@ -223,5 +216,4 @@ function App() {
   );
 }
 
-// BLOCK 6: Default Export
 export default App;
