@@ -15,6 +15,7 @@ import { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ImportPage } from "./components/pages/ImportPage";
+import UITestPage from "./components/pages/UITestPage";
 
 // BLOCK 2: Type Definitions
 export type Page =
@@ -28,7 +29,8 @@ export type Page =
   | "forecasts"
   | "soh"
   | "analytics"
-  | "reporting";
+  | "reporting"
+  | "ui-test";
 
 // BLOCK 3: A new, dedicated component for our Toaster
 function ToasterPortal() {
@@ -204,6 +206,7 @@ function AppLayout() {
           {activePage === "forecasts" && <ForecastsPage />}
           {activePage === "soh" && <SohPage />}
           {activePage === "inventory" && <InventoryPage />}
+          {activePage === "ui-test" && <UITestPage />}
         </main>
       </div>
     </div>
