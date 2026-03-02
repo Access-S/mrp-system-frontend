@@ -12,6 +12,7 @@ import { StatusBadge, Status } from "../ui/StatusBadge";
 import { WidgetCard, WidgetHeader, WidgetBody, MiniActionButton } from "../ui/WidgetCard";
 import { Table } from "../ui/Table";
 import { Select, SelectOption } from "../ui/Select";
+import { useToast } from "../ui/Toast";
 import { PlusIcon, ArrowPathIcon, EyeIcon, TagIcon } from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Sample Data ==============
@@ -62,6 +63,7 @@ const supplierOptions: SelectOption[] = [
 
 const UITestPage: React.FC = () => {
   const { theme, themeName, setThemeName } = useTheme();
+  const { toast, setPosition } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDialogWithFooterOpen, setIsDialogWithFooterOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -313,6 +315,147 @@ const UITestPage: React.FC = () => {
             options={categoryOptions}
             placeholder="Large select"
           />
+        </div>
+      </section>
+
+            {/* ============== BLOCK 7.6: Section 2.6 - Toast/Notifications ============== */}
+
+            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Toast / Notifications</h2>
+
+        <div className="space-y-6">
+          {/* Toast Variants */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Variants</h3>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant="primary"
+                onClick={() => toast.success("Product saved successfully!")}
+              >
+                Success Toast
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => toast.error("Failed to create purchase order")}
+              >
+                Error Toast
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => toast.warning("Stock is running low")}
+              >
+                Warning Toast
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => toast.info("Importing data in progress...")}
+              >
+                Info Toast
+              </Button>
+            </div>
+          </div>
+
+          {/* Custom Duration */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Custom Duration</h3>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => toast.success("Quick toast (2s)", 2000)}
+              >
+                2 Second Toast
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => toast.info("Long toast (10s)", 10000)}
+              >
+                10 Second Toast
+              </Button>
+            </div>
+          </div>
+
+          {/* Stacking Demo */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Stacking</h3>
+            <Button
+              variant="black"
+              onClick={() => {
+                toast.success("First notification");
+                setTimeout(() => toast.info("Second notification"), 300);
+                setTimeout(() => toast.warning("Third notification"), 600);
+                setTimeout(() => toast.error("Fourth notification"), 900);
+              }}
+            >
+              Show Multiple Toasts
+            </Button>
+          </div>
+
+          {/* Position Control */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Position</h3>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setPosition("top-right");
+                  toast.info("Position: Top Right");
+                }}
+              >
+                Top Right
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setPosition("top-left");
+                  toast.info("Position: Top Left");
+                }}
+              >
+                Top Left
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setPosition("top-center");
+                  toast.info("Position: Top Center");
+                }}
+              >
+                Top Center
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setPosition("bottom-right");
+                  toast.info("Position: Bottom Right");
+                }}
+              >
+                Bottom Right
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setPosition("bottom-left");
+                  toast.info("Position: Bottom Left");
+                }}
+              >
+                Bottom Left
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setPosition("bottom-center");
+                  toast.info("Position: Bottom Center");
+                }}
+              >
+                Bottom Center
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -655,17 +798,17 @@ const UITestPage: React.FC = () => {
             { name: "Button", status: "done" },
             { name: "Input", status: "done" },
             { name: "Select", status: "done" },
+            { name: "Toast", status: "done" },
             { name: "Dialog", status: "done" },
             { name: "Card", status: "done" },
             { name: "StatusBadge", status: "done" },
             { name: "WidgetCard", status: "done" },
             { name: "Table", status: "done" },
-            { name: "Toast", status: "pending" },
             { name: "Skeleton", status: "pending" },
             { name: "Spinner", status: "pending" },
+            { name: "Empty State", status: "pending" },
             { name: "Menu/Dropdown", status: "pending" },
             { name: "Accordion", status: "pending" },
-            { name: "Alert", status: "pending" },
           ].map((component) => (
             <div
               key={component.name}

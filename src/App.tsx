@@ -1,8 +1,10 @@
-//src/App.tsx
+// src/App.tsx
 
+// ============== BLOCK 1: Imports ==============
 
 import React, { useState } from "react";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
+import { ToastProvider, ToastContainer } from "./components/ui/Toast";
 import { Sidebar } from "./components/Sidebar";
 import { DashboardPage } from "./components/pages/DashboardPage";
 import { ProductsPage } from "./components/pages/ProductsPage";
@@ -19,6 +21,8 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ImportPage } from "./components/pages/ImportPage";
 import UITestPage from "./components/pages/UITestPage";
 
+// ============== BLOCK 2: Types ==============
+
 export type Page =
   | "dashboard"
   | "products"
@@ -32,6 +36,8 @@ export type Page =
   | "analytics"
   | "reporting"
   | "ui-test";
+
+// ============== BLOCK 3: Toaster Portal (Legacy - react-hot-toast) ==============
 
 function ToasterPortal() {
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
@@ -55,6 +61,8 @@ function ToasterPortal() {
 
   return mountNode ? createPortal(toaster, mountNode) : toaster;
 }
+
+// ============== BLOCK 4: AppLayout Component ==============
 
 function AppLayout() {
   const { theme } = useTheme();
@@ -95,6 +103,8 @@ function AppLayout() {
     setSelectedProductDescription(null);
     handlePageChange("products");
   };
+
+  // ============== BLOCK 5: Navbar Content Renderer ==============
 
   const renderNavbarContent = () => {
     if (activePage === "product-detail" && selectedProductCode) {
@@ -155,6 +165,8 @@ function AppLayout() {
     );
   };
 
+  // ============== BLOCK 6: Render ==============
+
   return (
     <div className={`flex h-screen ${theme.background} transition-all duration-500`}>
       <Sidebar activePage={activePage} setActivePage={handlePageChange} />
@@ -203,15 +215,22 @@ function AppLayout() {
           {activePage === "ui-test" && <UITestPage />}
         </main>
       </div>
+
+      {/* Custom Toast Container */}
+      <ToastContainer />
     </div>
   );
 }
 
+// ============== BLOCK 7: App Root ==============
+
 function App() {
   return (
     <ThemeProvider>
-      <AppLayout />
-      <ToasterPortal />
+      <ToastProvider defaultPosition="top-right">
+        <AppLayout />
+        <ToasterPortal /> {/* Legacy react-hot-toast - remove when fully migrated */}
+      </ToastProvider>
     </ThemeProvider>
   );
 }
