@@ -8,6 +8,7 @@ export default {
         fadeIn: "fadeIn 0.2s ease-out",
         scaleIn: "scaleIn 0.2s ease-out",
         ripple: "ripple 1000ms linear forwards",
+        shimmer: "shimmer 1.5s infinite",
       },
       keyframes: {
         fadeIn: {
@@ -21,6 +22,9 @@ export default {
         ripple: {
           "0%": { transform: "scale(0)", opacity: "0.4" },
           "100%": { transform: "scale(4)", opacity: "0" },
+        },
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
         },
       },
       height: {

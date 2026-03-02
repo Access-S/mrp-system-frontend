@@ -13,6 +13,7 @@ import { WidgetCard, WidgetHeader, WidgetBody, MiniActionButton } from "../ui/Wi
 import { Table } from "../ui/Table";
 import { Select, SelectOption } from "../ui/Select";
 import { useToast } from "../ui/Toast";
+import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButton } from "../ui/Skeleton";
 import { PlusIcon, ArrowPathIcon, EyeIcon, TagIcon } from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Sample Data ==============
@@ -459,6 +460,100 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
+            {/* ============== BLOCK 7.7: Section 2.7 - Skeleton Loaders ============== */}
+
+            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Skeleton Loaders</h2>
+
+        <div className="space-y-8">
+          {/* Text Variants */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Text Variants</h3>
+            <div className="space-y-4 max-w-md">
+              <Skeleton variant="text" />
+              <Skeleton variant="text" width="80%" />
+              <Skeleton variant="text" width="60%" />
+              <Skeleton variant="text" lines={3} />
+            </div>
+          </div>
+
+          {/* Shape Variants */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Shape Variants</h3>
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="text-center">
+                <SkeletonAvatar size={48} />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>Avatar</p>
+              </div>
+              <div className="text-center">
+                <Skeleton variant="rectangular" width={100} height={60} />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>Rectangular</p>
+              </div>
+              <div className="text-center">
+                <Skeleton variant="rounded" width={100} height={60} />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>Rounded</p>
+              </div>
+              <div className="text-center">
+                <SkeletonButton width={120} />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>Button</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Animation Types */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Animation Types</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Pulse (Default)</p>
+                <Skeleton variant="rounded" height={60} animation="pulse" />
+              </div>
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Shimmer</p>
+                <Skeleton variant="rounded" height={60} animation="shimmer" />
+              </div>
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>None</p>
+                <Skeleton variant="rounded" height={60} animation="none" />
+              </div>
+            </div>
+          </div>
+
+          {/* Card Skeleton */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Card Skeleton</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          </div>
+
+          {/* Table Skeleton */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Table Skeleton</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Name</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">SKU</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Stock</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Price</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-900">
+                  <SkeletonTableRow columns={5} />
+                  <SkeletonTableRow columns={5} />
+                  <SkeletonTableRow columns={5} />
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ============== BLOCK 8: Section 3 - Status Badges ============== */}
 
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
@@ -799,12 +894,12 @@ const UITestPage: React.FC = () => {
             { name: "Input", status: "done" },
             { name: "Select", status: "done" },
             { name: "Toast", status: "done" },
+            { name: "Skeleton", status: "done" },
             { name: "Dialog", status: "done" },
             { name: "Card", status: "done" },
             { name: "StatusBadge", status: "done" },
             { name: "WidgetCard", status: "done" },
             { name: "Table", status: "done" },
-            { name: "Skeleton", status: "pending" },
             { name: "Spinner", status: "pending" },
             { name: "Empty State", status: "pending" },
             { name: "Menu/Dropdown", status: "pending" },
