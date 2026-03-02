@@ -100,26 +100,6 @@ const UITestPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Sizes */}
-        <div className="mb-6">
-          <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button size="sm">Small</Button>
-            <Button size="md">Medium</Button>
-            <Button size="lg">Large</Button>
-          </div>
-        </div>
-
-        {/* Black Variant Sizes */}
-        <div className="mb-6">
-          <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Black Glossy - All Sizes</h3>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="black" size="sm">Small Black</Button>
-            <Button variant="black" size="md">Medium Black</Button>
-            <Button variant="black" size="lg">Large Black</Button>
-          </div>
-        </div>
-
         {/* States */}
         <div className="mb-6">
           <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>States</h3>
@@ -132,7 +112,7 @@ const UITestPage: React.FC = () => {
         </div>
 
         {/* With Icons */}
-        <div className="mb-6">
+        <div>
           <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Icons</h3>
           <div className="flex flex-wrap gap-3">
             <Button leftIcon={<PlusIcon className="w-4 h-4" />}>Add Item</Button>
@@ -145,15 +125,6 @@ const UITestPage: React.FC = () => {
             >
               View Details
             </Button>
-          </div>
-        </div>
-
-        {/* Full Width */}
-        <div>
-          <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Full Width</h3>
-          <div className="space-y-2">
-            <Button fullWidth>Full Width Primary</Button>
-            <Button fullWidth variant="black">Full Width Black Glossy</Button>
           </div>
         </div>
       </section>
