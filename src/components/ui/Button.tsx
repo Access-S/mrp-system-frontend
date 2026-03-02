@@ -1,3 +1,5 @@
+//src/components/ui/Button.tsx
+
 import React, {
   ButtonHTMLAttributes,
   forwardRef,
@@ -6,7 +8,7 @@ import React, {
 } from "react";
 import clsx from "clsx";
 
-type Variant = "primary" | "secondary" | "danger" | "ghost";
+type Variant = "primary" | "secondary" | "danger" | "ghost" | "black";
 type Size = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -30,6 +32,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth = false,
       className,
       disabled,
+      onClick,
       ...props
     },
     ref
@@ -37,11 +40,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const internalRef = useRef<HTMLButtonElement>(null);
     useImperativeHandle(ref, () => internalRef.current!);
 
-    const createRipple = (
-      event: React.MouseEvent<HTMLButtonElement>
-    ) => {
+    const createRipple = (event: React.MouseEvent<HTMLButtonElement>) => {
       const button = internalRef.current;
-      if (!button) return;
+      if (!button || disabled || loading) return;
 
       const rect = button.getBoundingClientRect();
       const size = Math.max(button.clientWidth, button.clientHeight);
@@ -54,10 +55,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ripple.style.left = `${x}px`;
       ripple.style.top = `${y}px`;
 
+      // Ripple color based on variant
       const rippleColor =
         variant === "secondary" || variant === "ghost"
           ? "bg-black/20"
-          : "bg-white/40";
+          : "bg-white/30";
 
       ripple.className = clsx(
         "absolute rounded-full pointer-events-none animate-ripple",
@@ -66,23 +68,57 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
       button.appendChild(ripple);
 
+      // Remove ripple after animation (500ms)
       setTimeout(() => {
         ripple.remove();
-      }, 600);
+      }, 500);
     };
 
-    const baseStyles =
-      "relative overflow-hidden inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none select-none";
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      createRipple(e);
+      onClick?.(e);
+    };
+
+    const baseStyles = clsx(
+      "relative overflow-hidden inline-flex items-center justify-center gap-2",
+      "font-medium transition-all duration-200",
+      "rounded-md", // Small rounded corners, rectangular shape
+      "select-none",
+      "disabled:opacity-50 disabled:pointer-events-none",
+      "focus:outline-none" // Remove focus ring completely
+    );
 
     const variantStyles: Record<Variant, string> = {
-      primary:
-        "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
-      secondary:
-        "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-400",
-      danger:
-        "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
-      ghost:
-        "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400",
+      primary: clsx(
+        "bg-blue-600 text-white",
+        "hover:bg-blue-700",
+        "active:bg-blue-800"
+      ),
+      secondary: clsx(
+        "bg-gray-200 text-gray-900",
+        "hover:bg-gray-300",
+        "active:bg-gray-400",
+        "dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+      ),
+      danger: clsx(
+        "bg-red-600 text-white",
+        "hover:bg-red-700",
+        "active:bg-red-800"
+      ),
+      ghost: clsx(
+        "bg-transparent text-gray-700",
+        "hover:bg-gray-100",
+        "active:bg-gray-200",
+        "dark:text-gray-300 dark:hover:bg-gray-800 dark:active:bg-gray-700"
+      ),
+      black: clsx(
+        "text-white",
+        "bg-gradient-to-b from-gray-700 via-gray-900 to-black", // Glossy gradient
+        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]", // Top shine
+        "hover:from-gray-600 hover:via-gray-800 hover:to-gray-900",
+        "active:from-gray-800 active:via-gray-950 active:to-black",
+        "border border-gray-600"
+      ),
     };
 
     const sizeStyles: Record<Size, string> = {
@@ -100,11 +136,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={internalRef}
+        type="button"
         disabled={disabled || loading}
-        onClick={(e) => {
-          createRipple(e);
-          props.onClick?.(e);
-        }}
+        onClick={handleClick}
         className={clsx(
           baseStyles,
           variantStyles[variant],

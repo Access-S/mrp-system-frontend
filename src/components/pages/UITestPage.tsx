@@ -1,6 +1,3 @@
-// src/components/pages/UITestPage.tsx
-
-
 import React, { useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { Button } from "../ui/Button";
@@ -63,6 +60,7 @@ const UITestPage: React.FC = () => {
             <Button variant="secondary">Secondary</Button>
             <Button variant="danger">Danger</Button>
             <Button variant="ghost">Ghost</Button>
+            <Button variant="black">Black Glossy</Button>
           </div>
         </div>
 
@@ -76,6 +74,16 @@ const UITestPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Black Variant Sizes */}
+        <div className="mb-6">
+          <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Black Glossy - All Sizes</h3>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="black" size="sm">Small Black</Button>
+            <Button variant="black" size="md">Medium Black</Button>
+            <Button variant="black" size="lg">Large Black</Button>
+          </div>
+        </div>
+
         {/* States */}
         <div className="mb-6">
           <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>States</h3>
@@ -83,6 +91,7 @@ const UITestPage: React.FC = () => {
             <Button disabled>Disabled</Button>
             <Button loading>Loading</Button>
             <Button loading variant="secondary">Loading Secondary</Button>
+            <Button loading variant="black">Loading Black</Button>
           </div>
         </div>
 
@@ -96,8 +105,7 @@ const UITestPage: React.FC = () => {
             </Button>
             <Button
               leftIcon={<EyeIcon className="w-4 h-4" />}
-              rightIcon={<span className="text-xs">→</span>}
-              variant="ghost"
+              variant="black"
             >
               View Details
             </Button>
@@ -107,7 +115,10 @@ const UITestPage: React.FC = () => {
         {/* Full Width */}
         <div>
           <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Full Width</h3>
-          <Button fullWidth>Full Width Button</Button>
+          <div className="space-y-2">
+            <Button fullWidth>Full Width Primary</Button>
+            <Button fullWidth variant="black">Full Width Black Glossy</Button>
+          </div>
         </div>
       </section>
 
