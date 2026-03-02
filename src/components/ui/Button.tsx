@@ -20,6 +20,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
+// Ripple animation duration in milliseconds - keep in sync with tailwind.config.js
+const RIPPLE_DURATION = 1000;
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -68,10 +71,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
       button.appendChild(ripple);
 
-      // Remove ripple after animation (500ms)
+      // Remove ripple after animation completes (1000ms)
       setTimeout(() => {
         ripple.remove();
-      }, 500);
+      }, RIPPLE_DURATION);
     };
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -82,10 +85,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = clsx(
       "relative overflow-hidden inline-flex items-center justify-center gap-2",
       "font-medium transition-all duration-200",
-      "rounded-md", // Small rounded corners, rectangular shape
+      "rounded-md",
       "select-none",
       "disabled:opacity-50 disabled:pointer-events-none",
-      "focus:outline-none" // Remove focus ring completely
+      "focus:outline-none"
     );
 
     const variantStyles: Record<Variant, string> = {
@@ -113,8 +116,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ),
       black: clsx(
         "text-white",
-        "bg-gradient-to-b from-gray-700 via-gray-900 to-black", // Glossy gradient
-        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]", // Top shine
+        "bg-gradient-to-b from-gray-700 via-gray-900 to-black",
+        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]",
         "hover:from-gray-600 hover:via-gray-800 hover:to-gray-900",
         "active:from-gray-800 active:via-gray-950 active:to-black",
         "border border-gray-600"

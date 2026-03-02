@@ -7,7 +7,7 @@ export default {
       animation: {
         fadeIn: "fadeIn 0.2s ease-out",
         scaleIn: "scaleIn 0.2s ease-out",
-        ripple: "ripple 500ms linear forwards",
+        ripple: "ripple 1000ms linear forwards",
       },
       keyframes: {
         fadeIn: {

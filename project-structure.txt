@@ -9,7 +9,17 @@
 |____.env.local
 |____render.yaml
 |____project-structure.txt
+|____node_modules
 |____.git
+|____docs
+| |____mrp_simulation.md
+| |____audits
+| | |____AUDIT_EXECUTIVE_SUMMARY.md
+| | |____TAILWIND_MATERIAL_AUDIT_REPORT.md
+| |____prd.md
+| |____ai-instructions
+| | |____AI_CODE_ASSISTANT_RULES.md
+| |____maturity_audit.md
 |____package.json
 |____tsconfig.node.json
 |____.env.production
@@ -46,12 +56,19 @@
 | | | |____FormAlert.tsx
 | | |____PaginationControls.tsx
 | | |____ui
+| | | |____Card.tsx
+| | | |____CreateProductModal.tsx
+| | | |____Dialog.tsx
 | | | |____ElasticTabs.tsx
+| | | |____StatusBadge.tsx
 | | | |____ElasticTabsGlass.tsx
 | | | |____ElasticTabsMaterial.tsx
 | | | |____DatePicker.tsx
+| | | |____Input.tsx
+| | | |____Button.tsx
 | | | |____WidgetCard.tsx
 | | |____pages
+| | | |____UITestPage.tsx
 | | | |____DashboardPage.tsx
 | | | |____ImportPage.tsx
 | | | |____PurchaseOrdersPage.tsx
