@@ -11,7 +11,8 @@ import { Card, CardHeader, CardContent, CardFooter } from "../ui/Card";
 import { StatusBadge, Status } from "../ui/StatusBadge";
 import { WidgetCard, WidgetHeader, WidgetBody, MiniActionButton } from "../ui/WidgetCard";
 import { Table } from "../ui/Table";
-import { PlusIcon, ArrowPathIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { Select, SelectOption } from "../ui/Select";
+import { PlusIcon, ArrowPathIcon, EyeIcon, TagIcon } from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Sample Data ==============
 
@@ -33,6 +34,30 @@ const allStatuses: Status[] = [
   "Closed",
 ];
 
+// Sample options for Select component
+const categoryOptions: SelectOption[] = [
+  { value: "electronics", label: "Electronics" },
+  { value: "furniture", label: "Furniture" },
+  { value: "clothing", label: "Clothing" },
+  { value: "food", label: "Food & Beverages" },
+  { value: "other", label: "Other" },
+];
+
+const statusOptions: SelectOption[] = [
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+  { value: "pending", label: "Pending Review" },
+  { value: "archived", label: "Archived", disabled: true },
+];
+
+const supplierOptions: SelectOption[] = [
+  { value: "acme", label: "Acme Corporation" },
+  { value: "globex", label: "Globex Industries" },
+  { value: "initech", label: "Initech Solutions" },
+  { value: "umbrella", label: "Umbrella Corp" },
+  { value: "wayne", label: "Wayne Enterprises" },
+];
+
 // ============== BLOCK 3: Component Definition & State ==============
 
 const UITestPage: React.FC = () => {
@@ -41,6 +66,12 @@ const UITestPage: React.FC = () => {
   const [isDialogWithFooterOpen, setIsDialogWithFooterOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [inputError, setInputError] = useState(false);
+
+  // Select states
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [selectError, setSelectError] = useState(false);
 
   // ============== BLOCK 4: Helper Function for Stock Status ==============
 
@@ -186,6 +217,102 @@ const UITestPage: React.FC = () => {
 
           {/* Different Types */}
           <Input label="Password Input" type="password" placeholder="Enter password" />
+        </div>
+      </section>
+
+            {/* ============== BLOCK 7.5: Section 2.5 - Select/Dropdown ============== */}
+
+            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Select / Dropdown</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Basic Select */}
+          <Select
+            label="Category"
+            options={categoryOptions}
+            placeholder="Select a category"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          />
+
+          {/* With Helper Text */}
+          <Select
+            label="Status"
+            options={statusOptions}
+            placeholder="Select status"
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            helperText="Archived items cannot be selected"
+          />
+
+          {/* With Left Icon */}
+          <Select
+            label="Supplier"
+            options={supplierOptions}
+            placeholder="Choose supplier"
+            value={selectedSupplier}
+            onChange={(e) => setSelectedSupplier(e.target.value)}
+            leftIcon={<TagIcon className="w-5 h-5" />}
+          />
+
+          {/* Filled Variant */}
+          <Select
+            label="Filled Variant"
+            variant="filled"
+            options={categoryOptions}
+            placeholder="Select category"
+          />
+
+          {/* Error State */}
+          <div>
+            <Select
+              label="With Error"
+              options={categoryOptions}
+              placeholder="Select category"
+              error={selectError}
+              helperText={selectError ? "This field is required" : "Click button to toggle error"}
+            />
+            <Button
+              size="sm"
+              variant={selectError ? "danger" : "secondary"}
+              onClick={() => setSelectError(!selectError)}
+              className="mt-2"
+            >
+              {selectError ? "Clear Error" : "Trigger Error"}
+            </Button>
+          </div>
+
+          {/* Disabled State */}
+          <Select
+            label="Disabled"
+            options={categoryOptions}
+            placeholder="Cannot select"
+            disabled
+          />
+
+          {/* Loading State */}
+          <Select
+            label="Loading"
+            options={categoryOptions}
+            placeholder="Loading options..."
+            loading
+          />
+
+          {/* Size Small */}
+          <Select
+            label="Small Size"
+            size="sm"
+            options={categoryOptions}
+            placeholder="Small select"
+          />
+
+          {/* Size Large */}
+          <Select
+            label="Large Size"
+            size="lg"
+            options={categoryOptions}
+            placeholder="Large select"
+          />
         </div>
       </section>
 
@@ -527,14 +654,15 @@ const UITestPage: React.FC = () => {
           {[
             { name: "Button", status: "done" },
             { name: "Input", status: "done" },
+            { name: "Select", status: "done" },
             { name: "Dialog", status: "done" },
             { name: "Card", status: "done" },
             { name: "StatusBadge", status: "done" },
             { name: "WidgetCard", status: "done" },
             { name: "Table", status: "done" },
-            { name: "Typography", status: "pending" },
+            { name: "Toast", status: "pending" },
+            { name: "Skeleton", status: "pending" },
             { name: "Spinner", status: "pending" },
-            { name: "IconButton", status: "pending" },
             { name: "Menu/Dropdown", status: "pending" },
             { name: "Accordion", status: "pending" },
             { name: "Alert", status: "pending" },
