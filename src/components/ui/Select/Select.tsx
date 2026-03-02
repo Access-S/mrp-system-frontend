@@ -3,13 +3,14 @@
 // ============== BLOCK 1: Imports ==============
 
 import React, {
-    SelectHTMLAttributes,
     forwardRef,
     useRef,
-    useImperativeHandle,
+    useState,
+    useEffect,
+    useCallback,
   } from "react";
   import clsx from "clsx";
-  import { ChevronDownIcon } from "@heroicons/react/24/outline";
+  import { ChevronDownIcon, CheckIcon } from "@heroicons/react/24/outline";
   
   // ============== BLOCK 2: Types & Interfaces ==============
   
@@ -22,7 +23,7 @@ import React, {
     disabled?: boolean;
   }
   
-  interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, "size"> {
+  interface SelectProps {
     label?: string;
     options: SelectOption[];
     placeholder?: string;
@@ -33,42 +34,55 @@ import React, {
     loading?: boolean;
     leftIcon?: React.ReactNode;
     fullWidth?: boolean;
+    disabled?: boolean;
+    value?: string;
+    onChange?: (value: string) => void;
+    className?: string;
+    name?: string;
   }
   
   // ============== BLOCK 3: Style Definitions ==============
   
-  const sizeStyles: Record<SelectSize, { select: string; icon: string; label: string }> = {
+  const sizeStyles: Record<SelectSize, { 
+    trigger: string; 
+    icon: string; 
+    label: string;
+    option: string;
+  }> = {
     sm: {
-      select: "px-3 py-1.5 text-sm pr-8",
-      icon: "w-4 h-4 right-2",
+      trigger: "px-3 py-1.5 text-sm",
+      icon: "w-4 h-4",
       label: "text-xs mb-1",
+      option: "px-3 py-1.5 text-sm",
     },
     md: {
-      select: "px-4 py-2.5 text-sm pr-10",
-      icon: "w-5 h-5 right-3",
+      trigger: "px-4 py-2.5 text-sm",
+      icon: "w-5 h-5",
       label: "text-sm mb-1.5",
+      option: "px-4 py-2.5 text-sm",
     },
     lg: {
-      select: "px-4 py-3 text-base pr-12",
-      icon: "w-5 h-5 right-4",
+      trigger: "px-4 py-3 text-base",
+      icon: "w-5 h-5",
       label: "text-base mb-2",
+      option: "px-4 py-3 text-base",
     },
   };
   
   const variantStyles: Record<SelectVariant, { base: string; focus: string }> = {
     default: {
       base: "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600",
-      focus: "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
+      focus: "ring-2 ring-blue-500/20 border-blue-500",
     },
     filled: {
       base: "bg-gray-100 dark:bg-gray-700 border border-transparent",
-      focus: "focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
+      focus: "bg-white dark:bg-gray-800 ring-2 ring-blue-500/20 border-blue-500",
     },
   };
   
   // ============== BLOCK 4: Component Definition ==============
   
-  export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+  export const Select = forwardRef<HTMLDivElement, SelectProps>(
     (
       {
         label,
@@ -81,40 +95,159 @@ import React, {
         loading = false,
         leftIcon,
         fullWidth = false,
-        disabled,
+        disabled = false,
+        value = "",
+        onChange,
         className,
-        value,
-        ...props
+        name,
       },
       ref
     ) => {
-      const internalRef = useRef<HTMLSelectElement>(null);
-      useImperativeHandle(ref, () => internalRef.current!);
+      const [isOpen, setIsOpen] = useState(false);
+      const [highlightedIndex, setHighlightedIndex] = useState(-1);
+      const containerRef = useRef<HTMLDivElement>(null);
+      const listRef = useRef<HTMLUListElement>(null);
   
       const isDisabled = disabled || loading;
   
-      // ============== BLOCK 5: Base Styles ==============
+      // Find selected option label
+      const selectedOption = options.find((opt) => opt.value === value);
   
-      const baseSelectStyles = clsx(
-        "appearance-none",
-        "rounded-lg",
+      // ============== BLOCK 5: Event Handlers ==============
+  
+      // Close dropdown when clicking outside
+      useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+          if (
+            containerRef.current &&
+            !containerRef.current.contains(event.target as Node)
+          ) {
+            setIsOpen(false);
+          }
+        };
+  
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+      }, []);
+  
+      // Handle keyboard navigation
+      const handleKeyDown = useCallback(
+        (event: React.KeyboardEvent) => {
+          if (isDisabled) return;
+  
+          switch (event.key) {
+            case "Enter":
+            case " ":
+              event.preventDefault();
+              if (isOpen && highlightedIndex >= 0) {
+                const option = options[highlightedIndex];
+                if (!option.disabled) {
+                  onChange?.(option.value);
+                  setIsOpen(false);
+                }
+              } else {
+                setIsOpen(true);
+              }
+              break;
+  
+            case "ArrowDown":
+              event.preventDefault();
+              if (!isOpen) {
+                setIsOpen(true);
+              } else {
+                setHighlightedIndex((prev) => {
+                  let next = prev + 1;
+                  while (next < options.length && options[next].disabled) {
+                    next++;
+                  }
+                  return next < options.length ? next : prev;
+                });
+              }
+              break;
+  
+            case "ArrowUp":
+              event.preventDefault();
+              if (isOpen) {
+                setHighlightedIndex((prev) => {
+                  let next = prev - 1;
+                  while (next >= 0 && options[next].disabled) {
+                    next--;
+                  }
+                  return next >= 0 ? next : prev;
+                });
+              }
+              break;
+  
+            case "Escape":
+              event.preventDefault();
+              setIsOpen(false);
+              break;
+  
+            case "Tab":
+              setIsOpen(false);
+              break;
+          }
+        },
+        [isOpen, highlightedIndex, options, onChange, isDisabled]
+      );
+  
+      // Handle option selection
+      const handleSelect = (option: SelectOption) => {
+        if (option.disabled) return;
+        onChange?.(option.value);
+        setIsOpen(false);
+      };
+  
+      // Toggle dropdown
+      const toggleDropdown = () => {
+        if (!isDisabled) {
+          setIsOpen((prev) => !prev);
+          if (!isOpen) {
+            setHighlightedIndex(
+              options.findIndex((opt) => opt.value === value && !opt.disabled)
+            );
+          }
+        }
+      };
+  
+      // ============== BLOCK 6: Style Classes ==============
+  
+      const triggerStyles = clsx(
+        "relative w-full flex items-center justify-between gap-2",
+        "rounded-lg cursor-pointer",
         "transition-all duration-200",
         "outline-none",
-        "cursor-pointer",
-        "text-gray-900 dark:text-gray-100",
+        "text-left",
+        sizeStyles[size].trigger,
         variantStyles[variant].base,
-        variantStyles[variant].focus,
-        sizeStyles[size].select,
-        leftIcon && "pl-10",
-        fullWidth ? "w-full" : "min-w-[200px]",
-        error && "border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-500/20",
+        isOpen && variantStyles[variant].focus,
+        error && "border-red-500 dark:border-red-500",
         isDisabled && "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800"
       );
   
-      // ============== BLOCK 6: Render ==============
+      const dropdownStyles = clsx(
+        "absolute z-50 w-full mt-1",
+        "bg-white dark:bg-gray-800",
+        "border border-gray-200 dark:border-gray-700",
+        "rounded-lg shadow-lg",
+        "overflow-hidden",
+        "transition-all duration-200 ease-out",
+        "transform origin-top",
+        isOpen
+          ? "opacity-100 scale-y-100 translate-y-0"
+          : "opacity-0 scale-y-95 -translate-y-2 pointer-events-none"
+      );
+  
+      // ============== BLOCK 7: Render ==============
   
       return (
-        <div className={clsx("flex flex-col", fullWidth && "w-full")}>
+        <div
+          ref={containerRef}
+          className={clsx("flex flex-col", fullWidth ? "w-full" : "min-w-[200px]", className)}
+        >
+          {/* Hidden input for form submission */}
+          {name && <input type="hidden" name={name} value={value} />}
+  
           {/* Label */}
           {label && (
             <label
@@ -129,81 +262,112 @@ import React, {
             </label>
           )}
   
-          {/* Select Wrapper */}
-          <div className="relative">
-            {/* Left Icon */}
-            {leftIcon && (
+          {/* Select Container */}
+          <div ref={ref} className="relative">
+            {/* Trigger Button */}
+            <div
+              role="combobox"
+              aria-expanded={isOpen}
+              aria-haspopup="listbox"
+              aria-disabled={isDisabled}
+              tabIndex={isDisabled ? -1 : 0}
+              onClick={toggleDropdown}
+              onKeyDown={handleKeyDown}
+              className={triggerStyles}
+            >
+              {/* Left Icon */}
+              {leftIcon && (
+                <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">
+                  {leftIcon}
+                </span>
+              )}
+  
+              {/* Selected Value / Placeholder */}
               <span
                 className={clsx(
-                  "absolute left-3 top-1/2 -translate-y-1/2",
-                  "text-gray-500 dark:text-gray-400",
-                  "pointer-events-none"
+                  "flex-1 truncate",
+                  selectedOption
+                    ? "text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-400"
                 )}
               >
-                {leftIcon}
+                {selectedOption ? selectedOption.label : placeholder}
               </span>
-            )}
   
-            {/* Select Element */}
-            <select
-              ref={internalRef}
-              disabled={isDisabled}
-              value={value}
-              className={clsx(baseSelectStyles, className)}
-              {...props}
-            >
-              {/* Placeholder Option */}
-              {placeholder && (
-                <option value="" disabled>
-                  {placeholder}
-                </option>
-              )}
-  
-              {/* Options */}
-              {options.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}
-                  disabled={option.disabled}
-                >
-                  {option.label}
-                </option>
-              ))}
-            </select>
-  
-            {/* Dropdown Icon / Loading Spinner */}
-            <span
-              className={clsx(
-                "absolute top-1/2 -translate-y-1/2 pointer-events-none",
-                sizeStyles[size].icon,
-                "text-gray-500 dark:text-gray-400"
-              )}
-            >
-              {loading ? (
-                <svg
-                  className="animate-spin h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
+              {/* Loading Spinner or Chevron */}
+              <span className="flex-shrink-0 text-gray-500 dark:text-gray-400">
+                {loading ? (
+                  <svg
+                    className={clsx("animate-spin", sizeStyles[size].icon)}
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                ) : (
+                  <ChevronDownIcon
+                    className={clsx(
+                      sizeStyles[size].icon,
+                      "transition-transform duration-200",
+                      isOpen && "rotate-180"
+                    )}
                   />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-              ) : (
-                <ChevronDownIcon className="w-full h-full" />
-              )}
-            </span>
+                )}
+              </span>
+            </div>
+  
+            {/* Dropdown Menu */}
+            <ul
+              ref={listRef}
+              role="listbox"
+              aria-label={label || "Select options"}
+              className={dropdownStyles}
+            >
+              <div className="max-h-60 overflow-y-auto py-1">
+                {options.map((option, index) => (
+                  <li
+                    key={option.value}
+                    role="option"
+                    aria-selected={value === option.value}
+                    aria-disabled={option.disabled}
+                    onClick={() => handleSelect(option)}
+                    onMouseEnter={() => !option.disabled && setHighlightedIndex(index)}
+                    className={clsx(
+                      sizeStyles[size].option,
+                      "flex items-center justify-between gap-2",
+                      "cursor-pointer transition-colors duration-100",
+                      option.disabled
+                        ? "opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500"
+                        : clsx(
+                            "text-gray-900 dark:text-gray-100",
+                            highlightedIndex === index &&
+                              "bg-blue-50 dark:bg-blue-900/30",
+                            value === option.value &&
+                              "bg-blue-100 dark:bg-blue-900/50"
+                          )
+                    )}
+                  >
+                    <span className="truncate">{option.label}</span>
+                    {value === option.value && (
+                      <CheckIcon className={clsx(sizeStyles[size].icon, "text-blue-600 dark:text-blue-400 flex-shrink-0")} />
+                    )}
+                  </li>
+                ))}
+              </div>
+            </ul>
           </div>
   
           {/* Helper Text */}
@@ -224,7 +388,7 @@ import React, {
     }
   );
   
-  // ============== BLOCK 7: Display Name ==============
+  // ============== BLOCK 8: Display Name ==============
   
   Select.displayName = "Select";
   

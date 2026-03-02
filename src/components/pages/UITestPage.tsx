@@ -220,9 +220,9 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
-            {/* ============== BLOCK 7.5: Section 2.5 - Select/Dropdown ============== */}
+      {/* ============== BLOCK 7.5: Section 2.5 - Select/Dropdown ============== */}
 
-            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+      <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Select / Dropdown</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -232,7 +232,7 @@ const UITestPage: React.FC = () => {
             options={categoryOptions}
             placeholder="Select a category"
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={setSelectedCategory}
           />
 
           {/* With Helper Text */}
@@ -241,7 +241,7 @@ const UITestPage: React.FC = () => {
             options={statusOptions}
             placeholder="Select status"
             value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
+            onChange={setSelectedStatus}
             helperText="Archived items cannot be selected"
           />
 
@@ -251,7 +251,7 @@ const UITestPage: React.FC = () => {
             options={supplierOptions}
             placeholder="Choose supplier"
             value={selectedSupplier}
-            onChange={(e) => setSelectedSupplier(e.target.value)}
+            onChange={setSelectedSupplier}
             leftIcon={<TagIcon className="w-5 h-5" />}
           />
 
