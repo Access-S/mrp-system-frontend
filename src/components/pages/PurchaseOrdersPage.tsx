@@ -1,204 +1,419 @@
-// BLOCK 1: Imports — ADD DespatchPoForm
+// src/components/pages/PurchaseOrdersPage.tsx
+
+// ============== BLOCK 1: Imports ==============
+
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Button, Typography, Card, CardBody, Input,
-  Menu, MenuHandler, MenuList, MenuItem, IconButton
-} from "@material-tailwind/react";
-import {
-  PlusIcon, MagnifyingGlassIcon, ArrowDownIcon,
-  ArrowUpIcon, ArrowLeftIcon, ArrowRightIcon, EllipsisVerticalIcon,
-  PencilIcon, TrashIcon
+  MagnifyingGlassIcon,
+  PlusIcon,
+  ArrowDownTrayIcon,
+  ArrowsUpDownIcon,
+  EllipsisVerticalIcon,
+  PencilSquareIcon,
+  TrashIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useDebounce } from "use-debounce";
+import toast from "react-hot-toast";
+
+// UI Components
+import { Table } from "../ui/Table";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Select, SelectOption } from "../ui/Select";
+import { Menu } from "../ui/Menu";
+import { StatusBadge, Status } from "../ui/StatusBadge";
+import { Pagination, PaginationInfo } from "../ui/Pagination";
+import { Spinner } from "../ui/Spinner";
+import { Skeleton } from "../ui/Skeleton";
+import { EmptyState, EmptySearchState } from "../ui/EmptyState";
+import { Tooltip } from "../ui/Tooltip";
+
+// Modals & Forms
 import { PoDetailModal } from "../modals/PoDetailModal";
 import { EditPoForm } from "../forms/EditPoForm";
-import { DespatchPoForm } from "../forms/DespatchPoForm";  // ✅ ADD THIS
+import { DespatchPoForm } from "../forms/DespatchPoForm";
 import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
-import { PaginationControls } from "../PaginationControls";
-import { PurchaseOrder, PoStatus, ALL_PO_STATUSES } from "../../types/mrp.types";
-import toast from "react-hot-toast";
-import { useDebounce } from 'use-debounce';
-import { fetchPurchaseOrders, updatePurchaseOrderStatus, deletePo, PaginatedApiResponse } from "../../services/api.service";
 
-// BLOCK 2: Constants (unchanged)
-const TABLE_HEAD = [
-  "PO Number",
-  "Product Code",
-  "Description",
-  "Order Qty|(shippers)",
-  "Prod. Time|(hrs)",
-  "Status",
-  "Actions",
-];
+// Services & Types
+import {
+  fetchPurchaseOrders,
+  updatePurchaseOrderStatus,
+  deletePo,
+  PaginatedApiResponse,
+} from "../../services/api.service";
+import { PoStatus, ALL_PO_STATUSES } from "../../types/mrp.types";
 
-// BLOCK 3: Main Component Definition (unchanged)
+// ============== BLOCK 2: Types & Interfaces ==============
+
 interface PurchaseOrdersPageProps {
   onCreatePo: () => void;
   onImport: () => void;
 }
 
+interface PurchaseOrder {
+  id: string;
+  po_number: string;
+  description: string;
+  ordered_qty_shippers: number;
+  hourly_run_rate: number;
+  current_status: string;
+  delivery_date?: string;
+  delivery_docket_number?: string;
+  statuses: { status: string }[];
+  product?: {
+    product_code: string;
+  };
+}
+
+// ============== BLOCK 3: Constants ==============
+
+const STATUS_OPTIONS: SelectOption[] = [
+  { value: "", label: "All Statuses" },
+  { value: "Open", label: "Open" },
+  { value: "Wip Called", label: "Wip Called" },
+  { value: "Packaging Called", label: "Packaging Called" },
+  { value: "In Production", label: "In Production" },
+  { value: "Despatched/ Completed", label: "Despatched/ Completed" },
+  { value: "Closed", label: "Closed" },
+  { value: "PO Canceled", label: "PO Canceled" },
+];
+
+const ITEMS_PER_PAGE_OPTIONS: SelectOption[] = [
+  { value: "10", label: "10 per page" },
+  { value: "25", label: "25 per page" },
+  { value: "50", label: "50 per page" },
+  { value: "100", label: "100 per page" },
+];
+
+// ============== BLOCK 4: Helper Functions ==============
+
+const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
+  const blocked = new Set<string>();
+  const has = (s: string) => currentStatuses.includes(s);
+
+  if (has("PO Check")) {
+    ALL_PO_STATUSES.forEach((s) => {
+      if (s !== "PO Canceled") blocked.add(s);
+    });
+    return blocked;
+  }
+
+  if (has("PO Canceled")) {
+    ALL_PO_STATUSES.forEach((s) => {
+      if (s !== "Closed" && s !== "PO Canceled") blocked.add(s);
+    });
+    return blocked;
+  }
+
+  if (has("Closed")) {
+    ALL_PO_STATUSES.forEach((s) => {
+      if (s !== "Closed" && s !== "Despatched/ Completed" && s !== "PO Canceled") {
+        blocked.add(s);
+      }
+    });
+    return blocked;
+  }
+
+  if (has("Despatched/ Completed")) {
+    ALL_PO_STATUSES.forEach((s) => {
+      if (s !== "Closed" && s !== "Despatched/ Completed") blocked.add(s);
+    });
+    return blocked;
+  }
+
+  blocked.add("Closed");
+  return blocked;
+};
+
+const calculateProductionTime = (qty: number, rate: number): string => {
+  if (rate <= 0) return "0.00";
+  return (qty / rate).toFixed(2);
+};
+
+// ============== BLOCK 5: Skeleton Loading Component ==============
+
+const TableSkeleton: React.FC = () => {
+  return (
+    <>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Table.Row key={index}>
+          <Table.Cell><Skeleton className="h-4 w-24" /></Table.Cell>
+          <Table.Cell><Skeleton className="h-4 w-20" /></Table.Cell>
+          <Table.Cell><Skeleton className="h-4 w-96" /></Table.Cell>
+          <Table.Cell><Skeleton className="h-4 w-16" /></Table.Cell>
+          <Table.Cell><Skeleton className="h-4 w-16" /></Table.Cell>
+          <Table.Cell><Skeleton className="h-6 w-24 rounded-full" /></Table.Cell>
+          <Table.Cell><Skeleton className="h-8 w-8 rounded" /></Table.Cell>
+        </Table.Row>
+      ))}
+    </>
+  );
+};
+
+// ============== BLOCK 6: Status Cell Component ==============
+
+interface StatusCellProps {
+  po: PurchaseOrder;
+  onStatusUpdate: (poId: string, status: string, currentStatuses: { status: string }[]) => void;
+}
+
+const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
+  const currentStatuses = po.statuses?.map((s) => s.status) || [];
+  const blocked = getBlockedStatuses(currentStatuses);
+
+  return (
+    <Menu>
+      <Menu.Trigger>
+        <div className="flex flex-wrap items-center gap-1.5 cursor-pointer p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          {po.statuses && po.statuses.length > 0 ? (
+            po.statuses.map((s) => (
+              <StatusBadge
+                key={s.status}
+                status={s.status as Status}
+                size="sm"
+                variant="subtle"
+              />
+            ))
+          ) : (
+            <StatusBadge status="Open" size="sm" variant="subtle" />
+          )}
+          <ChevronDownIcon className="w-3 h-3 text-gray-400 ml-1" />
+        </div>
+      </Menu.Trigger>
+      <Menu.Content position="bottom-start" minWidth={220}>
+        <Menu.Label>Update Status</Menu.Label>
+        <Menu.Divider />
+        {ALL_PO_STATUSES.map((statusOption) => {
+          const isChecked = currentStatuses.includes(statusOption);
+          const isBlocked = !isChecked && blocked.has(statusOption);
+
+          return (
+            <Menu.Item
+              key={statusOption}
+              onClick={() => {
+                if (!isBlocked) {
+                  onStatusUpdate(po.id, statusOption, po.statuses || []);
+                }
+              }}
+              disabled={isBlocked}
+              icon={
+                isChecked ? (
+                  <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+                ) : (
+                  <span className="opacity-0">✓</span>
+                )
+              }
+              rightIcon={
+                isBlocked ? (
+                  <span className="text-xs text-red-400">blocked</span>
+                ) : undefined
+              }
+              className={isBlocked ? "line-through opacity-50" : ""}
+            >
+              {statusOption}
+            </Menu.Item>
+          );
+        })}
+        {po.statuses?.some((s) => s.status === "PO Check") && (
+          <>
+            <Menu.Divider />
+            <Menu.Item disabled icon={<span className="text-amber-600">⚠</span>}>
+              PO Check (System)
+            </Menu.Item>
+          </>
+        )}
+      </Menu.Content>
+    </Menu>
+  );
+};
+
+// ============== BLOCK 7: Actions Cell Component ==============
+
+interface ActionsCellProps {
+  po: PurchaseOrder;
+  onEdit: (po: PurchaseOrder) => void;
+  onDelete: (po: PurchaseOrder) => void;
+}
+
+const ActionsCell: React.FC<ActionsCellProps> = ({ po, onEdit, onDelete }) => {
+  return (
+    <Menu>
+      <Menu.Trigger>
+        <Tooltip content="Actions" position="top">
+          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <EllipsisVerticalIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          </button>
+        </Tooltip>
+      </Menu.Trigger>
+      <Menu.Content position="bottom-end" minWidth={160}>
+        <Menu.Item
+          icon={<PencilSquareIcon className="w-4 h-4" />}
+          onClick={() => onEdit(po)}
+        >
+          Edit PO Details
+        </Menu.Item>
+        <Menu.Divider />
+        <Menu.Item
+          icon={<TrashIcon className="w-4 h-4" />}
+          onClick={() => onDelete(po)}
+          danger
+        >
+          Delete PO
+        </Menu.Item>
+      </Menu.Content>
+    </Menu>
+  );
+};
+
+// ============== BLOCK 8: Main Component ==============
+
 export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageProps) {
-  // BLOCK 4: State — ADD despatch state
-  const { theme } = useTheme();
+  // ============== BLOCK 9: State ==============
+
   const [loading, setLoading] = useState(true);
-  const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
-  const [pagination, setPagination] = useState<PaginatedApiResponse['pagination']>({ total: 0, page: 1, limit: 25, totalPages: 1 });
-  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
+  const [pagination, setPagination] = useState<PaginatedApiResponse["pagination"]>({
+    total: 0,
+    page: 1,
+    limit: 25,
+    totalPages: 1,
+  });
+
+  // Filters & Search
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>("desc");
-  const [poToView, setPoToView] = useState<any | null>(null);
+
+  // Modals & Forms
+  const [poToView, setPoToView] = useState<PurchaseOrder | null>(null);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-  const [poToEdit, setPoToEdit] = useState<any | null>(null);
+  const [poToEdit, setPoToEdit] = useState<PurchaseOrder | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [poToDelete, setPoToDelete] = useState<any | null>(null);
-
-  // ✅ ADD: Despatch form state
+  const [poToDelete, setPoToDelete] = useState<PurchaseOrder | null>(null);
   const [isDespatchFormOpen, setIsDespatchFormOpen] = useState(false);
-  const [poToDespatch, setPoToDespatch] = useState<any | null>(null);
+  const [poToDespatch, setPoToDespatch] = useState<PurchaseOrder | null>(null);
 
-  // BLOCK 5: Data Fetching (unchanged)
-  const loadPurchaseOrders = useCallback(async (page: number, search: string, status: string, limit: number) => {
-    setLoading(true);
-    try {
-      const response = await fetchPurchaseOrders({ page, search, status, limit, sortDirection });
-      setPurchaseOrders(response.data);
-      setPagination(response.pagination);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to load purchase orders.");
-    } finally { setLoading(false); }
-  }, [sortDirection]);
+  // ============== BLOCK 10: Data Fetching ==============
+
+  const loadPurchaseOrders = useCallback(
+    async (page: number, search: string, status: string, limit: number) => {
+      setLoading(true);
+      try {
+        const response = await fetchPurchaseOrders({
+          page,
+          search,
+          status,
+          limit,
+          sortDirection,
+        });
+        setPurchaseOrders(response.data);
+        setPagination(response.pagination);
+      } catch (error: any) {
+        toast.error(error.message || "Failed to load purchase orders.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [sortDirection]
+  );
 
   useEffect(() => {
     loadPurchaseOrders(1, debouncedSearchQuery, statusFilter, itemsPerPage);
   }, [debouncedSearchQuery, statusFilter, sortDirection, itemsPerPage, loadPurchaseOrders]);
 
-  // BLOCK 6: Pagination Handlers (unchanged)
+  // ============== BLOCK 11: Pagination Handlers ==============
+
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= pagination.totalPages) {
       loadPurchaseOrders(newPage, debouncedSearchQuery, statusFilter, itemsPerPage);
     }
   };
 
-  const handleItemsPerPageChange = (newLimit: number) => {
+  const handleItemsPerPageChange = (value: string) => {
+    const newLimit = parseInt(value, 10);
     setItemsPerPage(newLimit);
   };
 
-  // BLOCK 7: Status Business Rules (unchanged)
-  const getBlockedStatuses = (currentStatuses: string[]): Set<string> => {
-    const blocked = new Set<string>();
-    const has = (s: string) => currentStatuses.includes(s);
+  // ============== BLOCK 12: Sort Handler ==============
 
-    if (has('PO Check')) {
-      ALL_PO_STATUSES.forEach(s => {
-        if (s !== 'PO Canceled') blocked.add(s);
-      });
-      return blocked;
-    }
-
-    if (has('PO Canceled')) {
-      ALL_PO_STATUSES.forEach(s => {
-        if (s !== 'Closed' && s !== 'PO Canceled') blocked.add(s);
-      });
-      return blocked;
-    }
-
-    if (has('Closed')) {
-      ALL_PO_STATUSES.forEach(s => {
-        if (s !== 'Closed' && s !== 'Despatched/ Completed' && s !== 'PO Canceled') {
-          blocked.add(s);
-        }
-      });
-      return blocked;
-    }
-
-    if (has('Despatched/ Completed')) {
-      ALL_PO_STATUSES.forEach(s => {
-        if (s !== 'Closed' && s !== 'Despatched/ Completed') blocked.add(s);
-      });
-      return blocked;
-    }
-
-    blocked.add('Closed');
-    return blocked;
+  const handleSort = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
-  // ✅ BLOCK 8: MODIFIED — Status Update Handler with Despatch Intercept
+  // ============== BLOCK 13: Status Update Handler ==============
+
   const handleStatusUpdate = async (
     poId: string,
     status: string,
     currentStatuses: { status: string }[]
   ) => {
-    const statusList = currentStatuses?.map(s => s.status) || [];
+    const statusList = currentStatuses?.map((s) => s.status) || [];
     const isCurrentlyActive = statusList.includes(status);
 
-    // If adding a new status (not toggling off), check business rules
     if (!isCurrentlyActive) {
       const blocked = getBlockedStatuses(statusList);
       if (blocked.has(status)) {
-        toast.error(`Cannot add "${status}" with current statuses: ${statusList.join(', ')}`);
+        toast.error(`Cannot add "${status}" with current statuses: ${statusList.join(", ")}`);
         return;
       }
 
-      // ✅ INTERCEPT: If adding "Despatched/ Completed", open despatch form first
-      if (status === 'Despatched/ Completed') {
-        const po = purchaseOrders.find(p => p.id === poId);
+      // Intercept: If adding "Despatched/ Completed", open despatch form
+      if (status === "Despatched/ Completed") {
+        const po = purchaseOrders.find((p) => p.id === poId);
         if (po) {
           setPoToDespatch(po);
           setIsDespatchFormOpen(true);
         }
-        return; // Stop here — don't call the API yet
+        return;
       }
     }
 
-    // Normal status update flow (for all other statuses)
-    const toastId = toast.loading(`Updating status...`);
+    const toastId = toast.loading("Updating status...");
     try {
       const response = await updatePurchaseOrderStatus(poId, status);
       const updatedStatuses = response.data?.statuses || response.statuses || [];
 
-      setPurchaseOrders(prevPOs =>
-        prevPOs.map(p => {
+      setPurchaseOrders((prevPOs) =>
+        prevPOs.map((p) => {
           if (p.id === poId) {
             const newStatusArray = updatedStatuses.map((s: string) => ({ status: s }));
-            const newCurrentStatus = updatedStatuses.length > 0
-              ? updatedStatuses[updatedStatuses.length - 1]
-              : 'Open';
+            const newCurrentStatus =
+              updatedStatuses.length > 0 ? updatedStatuses[updatedStatuses.length - 1] : "Open";
             return { ...p, statuses: newStatusArray, current_status: newCurrentStatus };
           }
           return p;
         })
       );
-      toast.success('Status updated!', { id: toastId });
+      toast.success("Status updated!", { id: toastId });
     } catch (error: any) {
       toast.error(error.message, { id: toastId });
     }
   };
 
-  // ✅ ADD: Despatch form submission handler
+  // ============== BLOCK 14: Despatch Handler ==============
+
   const handleDespatchSubmit = async (deliveryDate: string, docketNumber: string) => {
     if (!poToDespatch) return;
 
-    const toastId = toast.loading('Updating despatch details...');
+    const toastId = toast.loading("Updating despatch details...");
     try {
-      // Step 1: Update the status to "Despatched/ Completed" with despatch details
       const response = await updatePurchaseOrderStatus(
         poToDespatch.id,
-        'Despatched/ Completed',
-        { deliveryDate, docketNumber } // ✅ Pass despatch details to API
+        "Despatched/ Completed",
+        { deliveryDate, docketNumber }
       );
 
       const updatedStatuses = response.data?.statuses || response.statuses || [];
 
-      // Step 2: Update local state
-      setPurchaseOrders(prevPOs =>
-        prevPOs.map(p => {
+      setPurchaseOrders((prevPOs) =>
+        prevPOs.map((p) => {
           if (p.id === poToDespatch.id) {
             const newStatusArray = updatedStatuses.map((s: string) => ({ status: s }));
-            const newCurrentStatus = updatedStatuses.length > 0
-              ? updatedStatuses[updatedStatuses.length - 1]
-              : 'Open';
+            const newCurrentStatus =
+              updatedStatuses.length > 0 ? updatedStatuses[updatedStatuses.length - 1] : "Open";
             return {
               ...p,
               statuses: newStatusArray,
@@ -211,31 +426,44 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
         })
       );
 
-      toast.success(
-        `PO ${poToDespatch.po_number} despatched successfully!`,
-        { id: toastId }
-      );
+      toast.success(`PO ${poToDespatch.po_number} despatched successfully!`, { id: toastId });
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update despatch details.', { id: toastId });
+      toast.error(error.message || "Failed to update despatch details.", { id: toastId });
     } finally {
-      // Step 3: Clean up modal state
       setIsDespatchFormOpen(false);
       setPoToDespatch(null);
     }
   };
 
-  // BLOCK 9: Modal/Form Handlers (unchanged)
-  const handleOpenViewModal = (po: any | null) => setPoToView(po);
-  const handleSort = () => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+  // ============== BLOCK 15: Modal/Form Handlers ==============
 
-  const handleOpenDeleteConfirm = (po: any | null) => { setPoToDelete(po); setIsDeleteConfirmOpen(!!po); };
+  const handleOpenViewModal = (po: PurchaseOrder | null) => setPoToView(po);
+
+  const handleOpenEditForm = (po: PurchaseOrder | null) => {
+    setPoToEdit(po);
+    setIsEditFormOpen(!!po);
+  };
+
+  const handlePoUpdate = (updatedPo: PurchaseOrder) => {
+    toast.success(`PO ${updatedPo.po_number} updated successfully!`);
+    setPurchaseOrders((prevPOs) =>
+      prevPOs.map((p) => (p.id === updatedPo.id ? updatedPo : p))
+    );
+  };
+
+  const handleOpenDeleteConfirm = (po: PurchaseOrder | null) => {
+    setPoToDelete(po);
+    setIsDeleteConfirmOpen(!!po);
+  };
+
   const handleConfirmDelete = async () => {
     if (!poToDelete) return;
+
     const toastId = toast.loading(`Deleting PO ${poToDelete.po_number}...`);
     try {
       await deletePo(poToDelete.id);
-      setPurchaseOrders(prevPOs => prevPOs.filter(p => p.id !== poToDelete.id));
-      setPagination(prev => ({ ...prev, total: prev.total - 1 }));
+      setPurchaseOrders((prevPOs) => prevPOs.filter((p) => p.id !== poToDelete.id));
+      setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
       toast.success(`PO ${poToDelete.po_number} deleted successfully.`, { id: toastId });
     } catch (error: any) {
       toast.error(error.message, { id: toastId });
@@ -244,288 +472,262 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
     }
   };
 
-  const handleOpenEditForm = (po: any | null) => { setPoToEdit(po); setIsEditFormOpen(!!po); };
-  const handlePoUpdate = (updatedPo: any) => { toast.success(`PO ${updatedPo.po_number} updated successfully!`); setPurchaseOrders(prevPOs => prevPOs.map(p => (p.id === updatedPo.id ? updatedPo : p))); };
+  // ============== BLOCK 16: Render - Initial Loading ==============
 
-  // BLOCK 10: Table Helper Functions (unchanged)
-  const getHeaderClasses = (index: number) => {
-    let classes = `${theme.tableHeaderBg} p-4 text-center`;
-    if (index < TABLE_HEAD.length - 1) {
-      classes += ` border-r-2 ${theme.borderColor}`;
-    }
-    return classes;
-  };
-
-  const getCellClasses = (isLast = false, align = 'center') => {
-    let classes = `p-2 border-b-2 ${theme.borderColor} text-${align}`;
-    if (!isLast) { classes += ` border-r-2 ${theme.borderColor}`; }
-    return classes;
-  };
-
-  const getHeaderStyle = (head: string): React.CSSProperties => {
-    const style: React.CSSProperties = { minWidth: '120px' };
-    if (head === 'Actions') style.minWidth = '60px';
-    if (head === 'Description') style.minWidth = '470px';
-    if (head === 'Status') style.minWidth = '250px';
-    return style;
-  };
-
-  // BLOCK 11: Initial Loading State (unchanged)
   if (loading && purchaseOrders.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <svg className="animate-spin" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
-          <path d="M32 3C35.8083 3 39.5794 3.75011 43.0978 5.20749C46.6163 6.66488 49.8132 8.80101 52.5061 11.4939C55.199 14.1868 57.3351 17.3837 58.7925 20.9022C60.2499 24.4206 61 28.1917 61 32C61 35.8083 60.2499 39.5794 58.7925 43.0978C57.3351 46.6163 55.199 49.8132 52.5061 52.5061C49.8132 55.199 46.6163 57.3351 43.0978 58.7925C39.5794 60.2499 35.8083 61 32 61C28.1917 61 24.4206 60.2499 20.9022 58.7925C17.3837 57.3351 14.1868 55.199 11.4939 52.5061C8.801 49.8132 6.66487 46.6163 5.20749 43.0978C3.7501 39.5794 3 35.8083 3 32C3 28.1917 3.75011 24.4206 5.2075 20.9022C6.66489 17.3837 8.80101 14.1868 11.4939 11.4939C14.1868 8.80099 17.3838 6.66487 20.9022 5.20749C24.4206 3.7501 28.1917 3 32 3L32 3Z" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 dark:text-gray-600" />
-          <path d="M32 3C36.5778 3 41.0906 4.08374 45.1692 6.16256C49.2477 8.24138 52.7762 11.2562 55.466 14.9605C58.1558 18.6647 59.9304 22.9531 60.6448 27.4748C61.3591 31.9965 60.9928 36.6232 59.5759 40.9762" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900 dark:text-gray-100" />
-        </svg>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">Loading purchase orders...</p>
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-80" />
+          </div>
+          <div className="flex gap-3">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+
+        {/* Filters Skeleton */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Skeleton className="h-10 w-full sm:w-80" />
+          <Skeleton className="h-10 w-full sm:w-48" />
+          <Skeleton className="h-10 w-full sm:w-36" />
+        </div>
+
+        {/* Table Skeleton */}
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <Table stickyHeader>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>PO Number</Table.Head>
+                <Table.Head>Product Code</Table.Head>
+                <Table.Head>Description</Table.Head>
+                <Table.Head>Order Qty</Table.Head>
+                <Table.Head>Prod. Time</Table.Head>
+                <Table.Head>Status</Table.Head>
+                <Table.Head>Actions</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              <TableSkeleton />
+            </Table.Body>
+          </Table>
+        </div>
       </div>
     );
   }
 
-  // BLOCK 12: Main Render
+  // ============== BLOCK 17: Render - Main Content ==============
+
   return (
-    <Card className={`w-full ${theme.cards} shadow-sm`}>
-      {/* Header */}
-      <div className={`flex items-center justify-between p-4 border-b ${theme.borderColor}`}>
+    <div className="space-y-6">
+      {/* ============== BLOCK 18: Page Header ============== */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <Typography variant="h5" className={theme.text}>Purchase Orders</Typography>
-          <Typography color="gray" className={`mt-1 font-normal ${theme.text} opacity-80`}>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Purchase Orders
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Manage all incoming customer orders. Click any row to view details.
-          </Typography>
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="text" className="flex items-center gap-2" onClick={handleSort}>
-            {sortDirection === "desc"
-              ? <ArrowDownIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
-              : <ArrowUpIcon strokeWidth={2} className={`h-4 w-4 ${theme.text}`} />
-            }
-            <Typography variant="small" className={`font-normal ${theme.text}`}>
-              Sort by {sortDirection === "desc" ? "Newest" : "Oldest"}
-            </Typography>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="secondary" leftIcon={<ArrowDownTrayIcon className="w-4 h-4" />} onClick={onImport}>
+            Import
           </Button>
-          <Button onClick={onImport} variant="outlined" className="flex items-center gap-2" size="sm">
-            <ArrowDownIcon strokeWidth={2} className="h-4 w-4" /> Import
-          </Button>
-          <Button
-            onClick={() => {
-              console.log("✅ Create PO button clicked in PurchaseOrdersPage");
-              if (onCreatePo) { onCreatePo(); }
-            }}
-            className="flex items-center gap-3"
-            size="sm"
-          >
-            <PlusIcon strokeWidth={2} className="h-4 w-4" /> Create New PO
+          <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
+            Create New PO
           </Button>
         </div>
       </div>
 
-      {/* Search, Filter, Quick Nav */}
-      <div className={`flex flex-wrap items-center justify-between border-b ${theme.borderColor}`}>
-        <div className="p-4 flex-grow">
+      {/* ============== BLOCK 19: Filters Bar ============== */}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+        {/* Search Input */}
+        <div className="flex-1 max-w-md">
           <Input
-            label="Search all purchase orders..."
-            icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+            placeholder="Search purchase orders..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            color={theme.isDark ? "white" : "black"}
+            leftIcon={<MagnifyingGlassIcon className="w-5 h-5" />}
+            size="md"
           />
         </div>
-        <div className="p-4 w-full md:w-auto">
-          <select
+
+        {/* Status Filter */}
+        <div className="w-full sm:w-48">
+          <Select
+            options={STATUS_OPTIONS}
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className={`w-full p-2 border rounded-md ${theme.borderColor} ${theme.cards} ${theme.text}`}
+            onChange={setStatusFilter}
+            placeholder="All Statuses"
+            size="md"
+          />
+        </div>
+
+        {/* Items Per Page */}
+        <div className="w-full sm:w-40">
+          <Select
+            options={ITEMS_PER_PAGE_OPTIONS}
+            value={itemsPerPage.toString()}
+            onChange={handleItemsPerPageChange}
+            size="md"
+          />
+        </div>
+
+        {/* Sort Button */}
+        <Tooltip content={`Sort by ${sortDirection === "desc" ? "Oldest" : "Newest"}`}>
+          <Button
+            variant="ghost"
+            leftIcon={<ArrowsUpDownIcon className="w-4 h-4" />}
+            onClick={handleSort}
           >
-            <option value="">All Statuses</option>
-            <option value="Open">Open</option>
-            <option value="Wip Called">Wip Called</option>
-            <option value="Packaging Called">Packaging Called</option>
-            <option value="In Production">In Production</option>
-            <option value="Despatched/ Completed">Despatched/ Completed</option>
-            <option value="Closed">Closed</option>
-            <option value="PO Canceled">PO Canceled</option>
-          </select>
-        </div>
-        <div className="p-4 flex items-center gap-4">
-          <Button variant="text" onClick={() => handlePageChange(pagination.page - 1)} disabled={pagination.page <= 1} className={theme.buttonText}>
-            <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
+            {sortDirection === "desc" ? "Newest First" : "Oldest First"}
           </Button>
-          <Button variant="text" onClick={() => handlePageChange(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages} className={theme.buttonText}>
-            Next <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
-          </Button>
-        </div>
+        </Tooltip>
       </div>
 
-      {/* Table - UNCHANGED */}
+      {/* ============== BLOCK 20: Table ============== */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <svg className="animate-spin" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
-            <path d="M32 3C35.8083 3 39.5794 3.75011 43.0978 5.20749C46.6163 6.66488 49.8132 8.80101 52.5061 11.4939C55.199 14.1868 57.3351 17.3837 58.7925 20.9022C60.2499 24.4206 61 28.1917 61 32C61 35.8083 60.2499 39.5794 58.7925 43.0978C57.3351 46.6163 55.199 49.8132 52.5061 52.5061C49.8132 55.199 46.6163 57.3351 43.0978 58.7925C39.5794 60.2499 35.8083 61 32 61C28.1917 61 24.4206 60.2499 20.9022 58.7925C17.3837 57.3351 14.1868 55.199 11.4939 52.5061C8.801 49.8132 6.66487 46.6163 5.20749 43.0978C3.7501 39.5794 3 35.8083 3 32C3 28.1917 3.75011 24.4206 5.2075 20.9022C6.66489 17.3837 8.80101 14.1868 11.4939 11.4939C14.1868 8.80099 17.3838 6.66487 20.9022 5.20749C24.4206 3.7501 28.1917 3 32 3L32 3Z" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 dark:text-gray-600" />
-            <path d="M32 3C36.5778 3 41.0906 4.08374 45.1692 6.16256C49.2477 8.24138 52.7762 11.2562 55.466 14.9605C58.1558 18.6647 59.9304 22.9531 60.6448 27.4748C61.3591 31.9965 60.9928 36.6232 59.5759 40.9762" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900 dark:text-gray-100" />
-          </svg>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">Loading purchase orders...</p>
+        <div className="flex items-center justify-center py-20">
+          <Spinner size="lg" />
         </div>
       ) : purchaseOrders.length > 0 ? (
-        <CardBody className="overflow-x-auto p-0">
-          <div className={`border-2 ${theme.borderColor} rounded-lg m-4 overflow-hidden`}>
-            <table className="w-full table-auto text-left">
-              <thead className={`border-b-2 ${theme.borderColor}`}>
-                <tr>
-                  {TABLE_HEAD.map((head, index) => {
-                    let thClasses = getHeaderClasses(index);
-                    if (head === 'Description') {
-                      thClasses = thClasses.replace('text-center', 'text-left');
-                    }
-                    return (
-                      <th key={head} className={thClasses} style={getHeaderStyle(head)}>
-                        {head.includes("|") ? (
-                          <div>
-                            <Typography variant="small" className={`font-bold text-base ${theme.text}`}>
-                              {head.split("|")[0]}
-                            </Typography>
-                            <Typography variant="small" className={`font-bold text-base ${theme.text} opacity-80`}>
-                              {head.split("|")[1]}
-                            </Typography>
-                          </div>
-                        ) : (
-                          <Typography variant="small" className={`font-bold text-base ${theme.text}`}>
-                            {head}
-                          </Typography>
-                        )}
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {purchaseOrders.map((po) => (
-                  <tr
-                    key={po.id}
-                    className={`${theme.hoverBg} cursor-pointer transition-colors`}
-                    onClick={() => handleOpenViewModal(po)}
-                  >
-                    <td className={getCellClasses()}>
-                      <Typography variant="body" className={`font-bold ${theme.text}`}>{po.po_number}</Typography>
-                    </td>
-                    <td className={getCellClasses()}>
-                      <Typography variant="body" className={`font-normal ${theme.text}`}>{po.product?.product_code || 'N/A'}</Typography>
-                    </td>
-                    <td className={getCellClasses(false, 'left')}>
-                      <Typography variant="body" className={`font-normal ${theme.text}`}>{po.description}</Typography>
-                    </td>
-                    <td className={getCellClasses()}>
-                      <Typography variant="body" className={`font-semibold ${theme.text}`}>{Number(po.ordered_qty_shippers || 0).toFixed(2)}</Typography>
-                    </td>
-                    <td className={getCellClasses()}>
-                      <Typography variant="body" className={`font-normal ${theme.text}`}>
-                        {(po.hourly_run_rate > 0 ? po.ordered_qty_shippers / po.hourly_run_rate : 0).toFixed(2)}
-                      </Typography>
-                    </td>
-                    <td className={getCellClasses()} onClick={(e) => e.stopPropagation()}>
-                      <Menu>
-                        <MenuHandler>
-                          <div className="flex flex-wrap justify-center items-center gap-1 p-1 cursor-pointer">
-                            {po.statuses?.map((s: { status: string }) => {
-                              let chipClass = theme.chip.blueGray;
-                              if (s.status === "PO Check") chipClass = theme.chip.red;
-                              else if (s.status === "Despatched/ Completed") chipClass = theme.chip.blue;
-                              else if (s.status === "Open") chipClass = theme.chip.green;
-                              else if (s.status === "PO Canceled") chipClass = theme.chip.red;
-                              else if (s.status === "Closed") chipClass = theme.chip.blue;
-                              return (
-                                <div key={s.status} className={`py-1.5 px-3 rounded-md text-sm font-medium leading-none ${chipClass}`}>
-                                  {s.status}
-                                </div>
-                              );
-                            })}
-                            {(!po.statuses || po.statuses.length === 0) && (
-                              <div className={`py-1.5 px-3 rounded-md text-sm font-medium leading-none ${theme.chip.green}`}>Open</div>
-                            )}
-                          </div>
-                        </MenuHandler>
-                        <MenuList>
-                          {ALL_PO_STATUSES.map((statusOption) => {
-                            const currentStatuses = po.statuses?.map((s: { status: string }) => s.status) || [];
-                            const isChecked = currentStatuses.includes(statusOption);
-                            const blocked = getBlockedStatuses(currentStatuses);
-                            const isBlocked = !isChecked && blocked.has(statusOption);
-                            return (
-                              <MenuItem
-                                key={statusOption}
-                                onClick={() => {
-                                  if (!isBlocked) {
-                                    handleStatusUpdate(po.id, statusOption, po.statuses || []);
-                                  }
-                                }}
-                                disabled={isBlocked}
-                                className={isBlocked ? 'opacity-40 cursor-not-allowed' : ''}
-                              >
-                                <span className={`mr-2 ${isChecked ? "opacity-100 text-green-600 font-bold" : "opacity-0"}`}>✓</span>
-                                <span className={isBlocked ? 'line-through' : ''}>{statusOption}</span>
-                                {isBlocked && <span className="ml-auto text-xs text-red-400">blocked</span>}
-                              </MenuItem>
-                            );
-                          })}
-                          {po.statuses?.some((s: { status: string }) => s.status === 'PO Check') && (
-                            <>
-                              <hr className="my-1" />
-                              <MenuItem disabled className="opacity-60">
-                                <span className="mr-2 text-red-600 font-bold">⚠</span>
-                                PO Check (System)
-                              </MenuItem>
-                            </>
-                          )}
-                        </MenuList>
-                      </Menu>
-                    </td>
-                    <td className={getCellClasses(true)} onClick={(e) => e.stopPropagation()}>
-                      <Menu>
-                        <MenuHandler>
-                          <IconButton variant="text" size="sm">
-                            <EllipsisVerticalIcon className={`h-5 w-5 ${theme.text}`} />
-                          </IconButton>
-                        </MenuHandler>
-                        <MenuList>
-                          <MenuItem className="flex items-center gap-2" onClick={() => handleOpenEditForm(po)}>
-                            <PencilIcon className="h-4 w-4" /> Edit PO Details
-                          </MenuItem>
-                          <hr className="my-2" />
-                          <MenuItem className="flex items-center gap-2 text-red-500 hover:bg-red-50 focus:bg-red-50 active:bg-red-50" onClick={() => handleOpenDeleteConfirm(po)}>
-                            <TrashIcon className="h-4 w-4" /> Delete PO
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardBody>
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <Table stickyHeader hoverable variant="striped" size="md">
+            <Table.Header>
+              <Table.Row>
+                <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
+                <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
+                <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
+                <Table.Head style={{ minWidth: "120px" }}>Order Qty (shippers)</Table.Head>
+                <Table.Head style={{ minWidth: "120px" }}>Prod. Time (hrs)</Table.Head>
+                <Table.Head style={{ minWidth: "200px" }}>Status</Table.Head>
+                <Table.Head style={{ minWidth: "80px" }}>Actions</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {purchaseOrders.map((po) => (
+                <Table.Row
+                  key={po.id}
+                  className="cursor-pointer"
+                  onClick={() => handleOpenViewModal(po)}
+                >
+                  <Table.Cell>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                      {po.po_number}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      {po.product?.product_code || "N/A"}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      {po.description}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {Number(po.ordered_qty_shippers || 0).toFixed(2)}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell onClick={(e) => e.stopPropagation()}>
+                    <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
+                  </Table.Cell>
+                  <Table.Cell onClick={(e) => e.stopPropagation()}>
+                    <ActionsCell
+                      po={po}
+                      onEdit={handleOpenEditForm}
+                      onDelete={handleOpenDeleteConfirm}
+                    />
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
       ) : (
-        <div className="p-8 text-center">
-          <Typography color="gray" className={theme.text}>
-            {searchQuery || statusFilter ? `No purchase orders found matching the current filters.` : "No purchase orders found."}
-          </Typography>
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+          {searchQuery || statusFilter ? (
+            <EmptySearchState
+              query={searchQuery}
+              action={
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setStatusFilter("");
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              }
+            />
+          ) : (
+            <EmptyState
+              variant="document"
+              title="No purchase orders yet"
+              description="Get started by creating your first purchase order."
+              action={
+                <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
+                  Create New PO
+                </Button>
+              }
+            />
+          )}
         </div>
       )}
 
-      <PaginationControls
-        currentPage={pagination.page}
-        totalPages={pagination.totalPages}
-        itemsPerPage={itemsPerPage}
-        totalItems={pagination.total}
-        onPageChange={handlePageChange}
-        onItemsPerPageChange={handleItemsPerPageChange}
+      {/* ============== BLOCK 21: Pagination ============== */}
+      {purchaseOrders.length > 0 && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4">
+          <PaginationInfo
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            itemsPerPage={itemsPerPage}
+          />
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+            showFirstLast
+            maxVisiblePages={5}
+          />
+        </div>
+      )}
+
+      {/* ============== BLOCK 22: Modals & Dialogs ============== */}
+      <PoDetailModal
+        open={poToView !== null}
+        handleOpen={() => handleOpenViewModal(null)}
+        po={poToView}
       />
 
-      {/* Modals */}
-      <PoDetailModal open={poToView !== null} handleOpen={() => handleOpenViewModal(null)} po={poToView} />
-      <EditPoForm open={isEditFormOpen} handleOpen={() => handleOpenEditForm(null)} po={poToEdit} onUpdate={handlePoUpdate} />
-      <ConfirmationDialog open={isDeleteConfirmOpen} handleOpen={() => handleOpenDeleteConfirm(null)} onConfirm={handleConfirmDelete} title="Delete Purchase Order?" message={`Are you sure you want to permanently delete PO ${poToDelete?.po_number}?`} />
+      <EditPoForm
+        open={isEditFormOpen}
+        handleOpen={() => handleOpenEditForm(null)}
+        po={poToEdit}
+        onUpdate={handlePoUpdate}
+      />
 
-      {/* ✅ ADD: Despatch Form Modal */}
+      <ConfirmationDialog
+        open={isDeleteConfirmOpen}
+        handleOpen={() => handleOpenDeleteConfirm(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Purchase Order?"
+        message={`Are you sure you want to permanently delete PO ${poToDelete?.po_number}?`}
+      />
+
       <DespatchPoForm
         open={isDespatchFormOpen}
         handleOpen={() => {
@@ -534,6 +736,10 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
         }}
         onSubmit={handleDespatchSubmit}
       />
-    </Card>
+    </div>
   );
 }
+
+// ============== BLOCK 23: Export ==============
+
+export default PurchaseOrdersPage;

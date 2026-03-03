@@ -9,6 +9,9 @@ import clsx from "clsx";
 
 export type Status =
   | "Open"
+  | "Wip Called"
+  | "Packaging Called"
+  | "In Production"
   | "Completed"
   | "Despatched/ Completed"
   | "PO Check"
@@ -42,6 +45,24 @@ const STATUS_COLORS: Record<Status, ColorScheme> = {
     subtle: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
     dot: "bg-blue-500",
   },
+  "Wip Called": {
+    filled: "bg-violet-600 text-white dark:bg-violet-500",
+    outlined: "border border-violet-600 text-violet-600 dark:border-violet-400 dark:text-violet-400",
+    subtle: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
+    dot: "bg-violet-500",
+  },
+  "Packaging Called": {
+    filled: "bg-cyan-600 text-white dark:bg-cyan-500",
+    outlined: "border border-cyan-600 text-cyan-600 dark:border-cyan-400 dark:text-cyan-400",
+    subtle: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
+    dot: "bg-cyan-500",
+  },
+  "In Production": {
+    filled: "bg-orange-600 text-white dark:bg-orange-500",
+    outlined: "border border-orange-600 text-orange-600 dark:border-orange-400 dark:text-orange-400",
+    subtle: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+    dot: "bg-orange-500",
+  },
   Completed: {
     filled: "bg-green-600 text-white dark:bg-green-500",
     outlined: "border border-green-600 text-green-600 dark:border-green-400 dark:text-green-400",
@@ -49,10 +70,10 @@ const STATUS_COLORS: Record<Status, ColorScheme> = {
     dot: "bg-green-500",
   },
   "Despatched/ Completed": {
-    filled: "bg-green-600 text-white dark:bg-green-500",
-    outlined: "border border-green-600 text-green-600 dark:border-green-400 dark:text-green-400",
-    subtle: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    dot: "bg-green-500",
+    filled: "bg-emerald-600 text-white dark:bg-emerald-500",
+    outlined: "border border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400",
+    subtle: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    dot: "bg-emerald-500",
   },
   "PO Check": {
     filled: "bg-amber-600 text-white dark:bg-amber-500",
@@ -92,6 +113,23 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   className,
 }) => {
   const colors = STATUS_COLORS[status];
+
+  // Fallback for unknown statuses
+  if (!colors) {
+    return (
+      <span
+        className={clsx(
+          "inline-flex items-center gap-1.5 rounded font-semibold",
+          "transition-colors duration-150",
+          sizeStyles[size],
+          "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+          className
+        )}
+      >
+        {status}
+      </span>
+    );
+  }
 
   return (
     <span
