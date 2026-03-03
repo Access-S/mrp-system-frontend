@@ -3,6 +3,7 @@
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState, useEffect, useCallback } from "react";
+import clsx from "clsx";
 import {
   MagnifyingGlassIcon,
   PlusIcon,
@@ -165,19 +166,32 @@ const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
   return (
     <Menu>
       <Menu.Trigger>
-        <div className="inline-flex flex-wrap items-center gap-1 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-w-[120px] max-w-[280px]">
-          {po.statuses && po.statuses.length > 0 ? (
-            po.statuses.map((s) => (
-              <StatusBadge
-                key={s.status}
-                status={s.status as Status}
-                size="sm"
-                variant="subtle"
-              />
-            ))
-          ) : (
-            <StatusBadge status="Open" size="sm" variant="subtle" />
+        <div 
+          className={clsx(
+            "flex items-center gap-1 cursor-pointer",
+            "p-1.5 rounded-md",
+            "hover:bg-gray-100 dark:hover:bg-gray-800",
+            "transition-colors",
+            "overflow-x-auto",
+            "max-w-[250px]",
+            "scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
           )}
+        >
+          <div className="flex items-center gap-1 flex-nowrap">
+            {po.statuses && po.statuses.length > 0 ? (
+              po.statuses.map((s) => (
+                <StatusBadge
+                  key={s.status}
+                  status={s.status as Status}
+                  size="sm"
+                  variant="subtle"
+                  className="flex-shrink-0"
+                />
+              ))
+            ) : (
+              <StatusBadge status="Open" size="sm" variant="subtle" className="flex-shrink-0" />
+            )}
+          </div>
           <ChevronDownIcon className="w-3 h-3 text-gray-400 flex-shrink-0 ml-1" />
         </div>
       </Menu.Trigger>
@@ -472,57 +486,58 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
     }
   };
 
-  // ============== BLOCK 16: Render - Initial Loading ==============
+// ============== BLOCK 16: Render - Initial Loading ==============
 
-  if (loading && purchaseOrders.length === 0) {
-    return (
-      <div className="space-y-6">
-        {/* Header Skeleton */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <Skeleton className="h-8 w-48 mb-2" />
-            <Skeleton className="h-4 w-80" />
-          </div>
-          <div className="flex gap-3">
-            <Skeleton className="h-10 w-24" />
-            <Skeleton className="h-10 w-32" />
-          </div>
+if (loading && purchaseOrders.length === 0) {
+  return (
+    <div className="flex flex-col h-full min-h-[calc(100vh-140px)]">
+      {/* Header Skeleton */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="h-4 w-80" />
         </div>
-
-        {/* Filters Skeleton */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Skeleton className="h-10 w-full sm:w-80" />
-          <Skeleton className="h-10 w-full sm:w-48" />
-          <Skeleton className="h-10 w-full sm:w-36" />
-        </div>
-
-        {/* Table Skeleton */}
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-          <Table stickyHeader>
-            <Table.Header>
-              <Table.Row>
-                <Table.Head>PO Number</Table.Head>
-                <Table.Head>Product Code</Table.Head>
-                <Table.Head>Description</Table.Head>
-                <Table.Head>Order Qty</Table.Head>
-                <Table.Head>Prod. Time</Table.Head>
-                <Table.Head>Status</Table.Head>
-                <Table.Head>Actions</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              <TableSkeleton />
-            </Table.Body>
-          </Table>
+        <div className="flex gap-3">
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-32" />
         </div>
       </div>
-    );
-  }
 
-  // ============== BLOCK 17: Render - Main Content ==============
+      {/* Filters Skeleton */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <Skeleton className="h-10 w-full sm:w-80" />
+        <Skeleton className="h-10 w-full sm:w-48" />
+        <Skeleton className="h-10 w-full sm:w-36" />
+      </div>
 
-  return (
-    <div className="space-y-6">
+      {/* Table Skeleton - Takes remaining space */}
+      <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <Table stickyHeader>
+          <Table.Header>
+            <Table.Row>
+              <Table.Head>PO Number</Table.Head>
+              <Table.Head>Product Code</Table.Head>
+              <Table.Head>Description</Table.Head>
+              <Table.Head>Order Qty</Table.Head>
+              <Table.Head>Prod. Time</Table.Head>
+              <Table.Head>Status</Table.Head>
+              <Table.Head>Actions</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            <TableSkeleton />
+          </Table.Body>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+// ============== BLOCK 17: Render - Main Content ==============
+
+return (
+  <div className="flex flex-col h-full min-h-[calc(100vh-140px)]">
+    
       {/* ============== BLOCK 18: Page Header ============== */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -592,103 +607,108 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
         </div>
 
         // ============== BLOCK 20: Table ==============
-{loading ? (
-  <div className="flex items-center justify-center py-20">
-    <Spinner size="lg" />
-  </div>
-) : purchaseOrders.length > 0 ? (
-  <Table stickyHeader hoverable variant="striped" size="md">
-    <Table.Header>
-      <Table.Row>
-        <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
-        <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
-        <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
-        <Table.Head style={{ minWidth: "140px" }}>Order Qty (shippers)</Table.Head>
-        <Table.Head style={{ minWidth: "130px" }}>Prod. Time (hrs)</Table.Head>
-        <Table.Head style={{ minWidth: "220px" }}>Status</Table.Head>
-        <Table.Head style={{ minWidth: "80px", width: "80px" }}>Actions</Table.Head>
-      </Table.Row>
-    </Table.Header>
-    <Table.Body>
-      {purchaseOrders.map((po) => (
-        <Table.Row
-          key={po.id}
-          className="cursor-pointer"
-          onClick={() => handleOpenViewModal(po)}
-        >
-          <Table.Cell>
-            <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-              {po.po_number}
-            </span>
-          </Table.Cell>
-          <Table.Cell>
-            <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-              {po.product?.product_code || "N/A"}
-            </span>
-          </Table.Cell>
-          <Table.Cell>
-            <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-              {po.description}
-            </span>
-          </Table.Cell>
-          <Table.Cell>
-            <span className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
-              {Number(po.ordered_qty_shippers || 0).toFixed(2)}
-            </span>
-          </Table.Cell>
-          <Table.Cell>
-            <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-              {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
-            </span>
-          </Table.Cell>
-          <Table.Cell onClick={(e) => e.stopPropagation()}>
-            <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
-          </Table.Cell>
-          <Table.Cell onClick={(e) => e.stopPropagation()}>
-            <ActionsCell
-              po={po}
-              onEdit={handleOpenEditForm}
-              onDelete={handleOpenDeleteConfirm}
-            />
-          </Table.Cell>
-        </Table.Row>
-      ))}
-    </Table.Body>
-  </Table>
-) : (
-  <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
-    {searchQuery || statusFilter ? (
-      <EmptySearchState
-        query={searchQuery}
-        action={
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setSearchQuery("");
-              setStatusFilter("");
-            }}
-          >
-            Clear Filters
-          </Button>
-        }
-      />
-    ) : (
-      <EmptyState
-        variant="document"
-        title="No purchase orders yet"
-        description="Get started by creating your first purchase order."
-        action={
-          <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
-            Create New PO
-          </Button>
-        }
-      />
-    )}
-  </div>
-)}
+<div className="flex-1 flex flex-col min-h-0">
+  {loading ? (
+    <div className="flex-1 flex items-center justify-center">
+      <Spinner size="lg" />
+    </div>
+  ) : purchaseOrders.length > 0 ? (
+    <div className="flex-1 overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
+      <Table stickyHeader hoverable variant="striped" size="md">
+        <Table.Header>
+          <Table.Row>
+            <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
+            <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
+            <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
+            <Table.Head style={{ minWidth: "140px" }}>Order Qty (shippers)</Table.Head>
+            <Table.Head style={{ minWidth: "130px" }}>Prod. Time (hrs)</Table.Head>
+            <Table.Head style={{ minWidth: "220px" }}>Status</Table.Head>
+            <Table.Head style={{ minWidth: "80px", width: "80px" }}>Actions</Table.Head>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {purchaseOrders.map((po) => (
+            <Table.Row
+              key={po.id}
+              className="cursor-pointer"
+              onClick={() => handleOpenViewModal(po)}
+            >
+              <Table.Cell>
+                <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                  {po.po_number}
+                </span>
+              </Table.Cell>
+              <Table.Cell>
+                <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                  {po.product?.product_code || "N/A"}
+                </span>
+              </Table.Cell>
+              <Table.Cell>
+                <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                  {po.description}
+                </span>
+              </Table.Cell>
+              <Table.Cell>
+                <span className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                  {Number(po.ordered_qty_shippers || 0).toFixed(2)}
+                </span>
+              </Table.Cell>
+              <Table.Cell>
+                <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                  {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
+                </span>
+              </Table.Cell>
+              <Table.Cell onClick={(e) => e.stopPropagation()}>
+                <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
+              </Table.Cell>
+              <Table.Cell onClick={(e) => e.stopPropagation()}>
+                <ActionsCell
+                  po={po}
+                  onEdit={handleOpenEditForm}
+                  onDelete={handleOpenDeleteConfirm}
+                />
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
+    </div>
+  ) : (
+    <div className="flex-1 flex items-center justify-center border border-gray-200 dark:border-gray-700 rounded-lg">
+      {searchQuery || statusFilter ? (
+        <EmptySearchState
+          query={searchQuery}
+          action={
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("");
+              }}
+            >
+              Clear Filters
+            </Button>
+          }
+        />
+      ) : (
+        <EmptyState
+          variant="document"
+          title="No purchase orders yet"
+          description="Get started by creating your first purchase order."
+          action={
+            <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
+              Create New PO
+            </Button>
+          }
+        />
+      )}
+    </div>
+  )}
+</div>
+
 // ============== BLOCK 21: Pagination ==============
 {purchaseOrders.length > 0 && (
-  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 dark:border-gray-700 pt-4 mt-auto">
+  <div className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 bg-inherit">
     <PaginationInfo
       currentPage={pagination.page}
       totalPages={pagination.totalPages}
