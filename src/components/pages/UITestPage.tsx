@@ -15,6 +15,7 @@ import { Select, SelectOption } from "../ui/Select";
 import { useToast } from "../ui/Toast";
 import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButton } from "../ui/Skeleton";
 import { Spinner, SpinnerPage } from "../ui/Spinner";
+import { EmptyState, EmptySearchState, EmptyProductState, ErrorState } from "../ui/EmptyState";
 import { PlusIcon, ArrowPathIcon, EyeIcon, TagIcon } from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Sample Data ==============
@@ -643,6 +644,124 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
+            {/* ============== BLOCK 7.9: Section 2.9 - Empty States ============== */}
+
+            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Empty States</h2>
+
+        <div className="space-y-8">
+          {/* Variants */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Variants</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <EmptyState variant="default" size="sm" />
+              </div>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <EmptyState variant="search" size="sm" />
+              </div>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <EmptyState variant="product" size="sm" />
+              </div>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <EmptyState variant="error" size="sm" />
+              </div>
+            </div>
+          </div>
+
+          {/* Sizes */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <EmptyState size="sm" title="Small" description="Compact empty state for tight spaces." />
+              </div>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <EmptyState size="md" title="Medium" description="Default size for most use cases." />
+              </div>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <EmptyState size="lg" title="Large" description="Full page empty state for main content areas." />
+              </div>
+            </div>
+          </div>
+
+          {/* With Actions */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Actions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <EmptyProductState
+                  action={
+                    <Button leftIcon={<PlusIcon className="w-4 h-4" />}>
+                      Add Product
+                    </Button>
+                  }
+                />
+              </div>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <ErrorState
+                  title="Failed to load data"
+                  description="Something went wrong while fetching the data."
+                  action={
+                    <Button variant="secondary" leftIcon={<ArrowPathIcon className="w-4 h-4" />}>
+                      Try Again
+                    </Button>
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Search Empty State */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Search Results</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+              <EmptySearchState
+                query="xyz123"
+                action={
+                  <Button variant="ghost" size="sm">
+                    Clear Search
+                  </Button>
+                }
+              />
+            </div>
+          </div>
+
+          {/* In Table */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>In Table</h3>
+            <Table>
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head>Product Name</Table.Head>
+                  <Table.Head>SKU</Table.Head>
+                  <Table.Head>Stock</Table.Head>
+                  <Table.Head>Price</Table.Head>
+                  <Table.Head>Status</Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                <tr>
+                  <td colSpan={5}>
+                    <EmptyState
+                      variant="product"
+                      size="sm"
+                      title="No products found"
+                      description="Try adjusting your filters or add a new product."
+                      action={
+                        <Button size="sm" leftIcon={<PlusIcon className="w-4 h-4" />}>
+                          Add Product
+                        </Button>
+                      }
+                    />
+                  </td>
+                </tr>
+              </Table.Body>
+            </Table>
+          </div>
+        </div>
+      </section>
+
       {/* ============== BLOCK 8: Section 3 - Status Badges ============== */}
 
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
@@ -985,12 +1104,12 @@ const UITestPage: React.FC = () => {
             { name: "Toast", status: "done" },
             { name: "Skeleton", status: "done" },
             { name: "Spinner", status: "done" },
+            { name: "Empty State", status: "done" },
             { name: "Dialog", status: "done" },
             { name: "Card", status: "done" },
             { name: "StatusBadge", status: "done" },
             { name: "WidgetCard", status: "done" },
             { name: "Table", status: "done" },
-            { name: "Empty State", status: "pending" },
             { name: "Menu/Dropdown", status: "pending" },
             { name: "Accordion", status: "pending" },
           ].map((component) => (
