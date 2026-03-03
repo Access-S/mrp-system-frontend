@@ -83,3 +83,6 @@ export {
   WidgetFooter,
   MiniActionButton,
 } from "./WidgetCard";
+
+// ============== BLOCK 17: Pagination ==============
+export { Pagination, PaginationInfo } from "./Pagination";
