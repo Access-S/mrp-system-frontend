@@ -490,9 +490,9 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
 
 if (loading && purchaseOrders.length === 0) {
   return (
-    <div className="flex flex-col h-full min-h-[calc(100vh-140px)]">
+    <div className="space-y-6">
       {/* Header Skeleton */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <Skeleton className="h-8 w-48 mb-2" />
           <Skeleton className="h-4 w-80" />
@@ -504,31 +504,29 @@ if (loading && purchaseOrders.length === 0) {
       </div>
 
       {/* Filters Skeleton */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4">
         <Skeleton className="h-10 w-full sm:w-80" />
         <Skeleton className="h-10 w-full sm:w-48" />
         <Skeleton className="h-10 w-full sm:w-36" />
       </div>
 
-      {/* Table Skeleton - Takes remaining space */}
-      <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-        <Table stickyHeader>
-          <Table.Header>
-            <Table.Row>
-              <Table.Head>PO Number</Table.Head>
-              <Table.Head>Product Code</Table.Head>
-              <Table.Head>Description</Table.Head>
-              <Table.Head>Order Qty</Table.Head>
-              <Table.Head>Prod. Time</Table.Head>
-              <Table.Head>Status</Table.Head>
-              <Table.Head>Actions</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            <TableSkeleton />
-          </Table.Body>
-        </Table>
-      </div>
+      {/* Table Skeleton */}
+      <Table stickyHeader>
+        <Table.Header>
+          <Table.Row>
+            <Table.Head>PO Number</Table.Head>
+            <Table.Head>Product Code</Table.Head>
+            <Table.Head>Description</Table.Head>
+            <Table.Head>Order Qty</Table.Head>
+            <Table.Head>Prod. Time</Table.Head>
+            <Table.Head>Status</Table.Head>
+            <Table.Head>Actions</Table.Head>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <TableSkeleton />
+        </Table.Body>
+      </Table>
     </div>
   );
 }
@@ -536,226 +534,221 @@ if (loading && purchaseOrders.length === 0) {
 // ============== BLOCK 17: Render - Main Content ==============
 
 return (
-  <div className="flex flex-col h-full min-h-[calc(100vh-140px)]">
-    
-      {/* ============== BLOCK 18: Page Header ============== */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Purchase Orders
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Manage all incoming customer orders. Click any row to view details.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="secondary" leftIcon={<ArrowDownTrayIcon className="w-4 h-4" />} onClick={onImport}>
-            Import
-          </Button>
-          <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
-            Create New PO
-          </Button>
-        </div>
+  <div className="space-y-6">
+    {/* ============== BLOCK 18: Page Header ============== */}
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Purchase Orders
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Manage all incoming customer orders. Click any row to view details.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <Button variant="secondary" leftIcon={<ArrowDownTrayIcon className="w-4 h-4" />} onClick={onImport}>
+          Import
+        </Button>
+        <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
+          Create New PO
+        </Button>
+      </div>
+    </div>
+
+    {/* ============== BLOCK 19: Filters Bar ============== */}
+    <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+      {/* Search Input */}
+      <div className="flex-1 max-w-md">
+        <Input
+          placeholder="Search purchase orders..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          leftIcon={<MagnifyingGlassIcon className="w-5 h-5" />}
+          size="md"
+        />
       </div>
 
-      // ============== BLOCK 19: Filters Bar ==============
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-          {/* Search Input */}
-          <div className="flex-1 max-w-md">
-            <Input
-              placeholder="Search purchase orders..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              leftIcon={<MagnifyingGlassIcon className="w-5 h-5" />}
-              size="md"
-            />
-          </div>
+      {/* Right Side Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Status Filter */}
+        <Select
+          options={STATUS_OPTIONS}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          placeholder="All Statuses"
+          size="md"
+          className="w-44"
+        />
 
-          {/* Right Side Filters */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Status Filter */}
-            <Select
-              options={STATUS_OPTIONS}
-              value={statusFilter}
-              onChange={setStatusFilter}
-              placeholder="All Statuses"
-              size="md"
-              className="w-44"
-            />
+        {/* Items Per Page */}
+        <Select
+          options={ITEMS_PER_PAGE_OPTIONS}
+          value={itemsPerPage.toString()}
+          onChange={handleItemsPerPageChange}
+          size="md"
+          className="w-36"
+        />
 
-            {/* Items Per Page */}
-            <Select
-              options={ITEMS_PER_PAGE_OPTIONS}
-              value={itemsPerPage.toString()}
-              onChange={handleItemsPerPageChange}
-              size="md"
-              className="w-36"
-            />
+        {/* Sort Button */}
+        <Tooltip content={`Sort by ${sortDirection === "desc" ? "Oldest" : "Newest"}`}>
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<ArrowsUpDownIcon className="w-4 h-4" />}
+            onClick={handleSort}
+          >
+            {sortDirection === "desc" ? "Newest" : "Oldest"}
+          </Button>
+        </Tooltip>
+      </div>
+    </div>
 
-            {/* Sort Button */}
-            <Tooltip content={`Sort by ${sortDirection === "desc" ? "Oldest" : "Newest"}`}>
+    {/* ============== BLOCK 20: Table ============== */}
+    {loading ? (
+      <div className="flex items-center justify-center py-20">
+        <Spinner size="lg" />
+      </div>
+    ) : purchaseOrders.length > 0 ? (
+      <>
+        <Table stickyHeader hoverable variant="striped" size="md">
+          <Table.Header>
+            <Table.Row>
+              <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
+              <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
+              <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
+              <Table.Head style={{ minWidth: "140px" }}>Order Qty (shippers)</Table.Head>
+              <Table.Head style={{ minWidth: "130px" }}>Prod. Time (hrs)</Table.Head>
+              <Table.Head style={{ minWidth: "220px" }}>Status</Table.Head>
+              <Table.Head style={{ minWidth: "80px", width: "80px" }}>Actions</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {purchaseOrders.map((po) => (
+              <Table.Row
+                key={po.id}
+                className="cursor-pointer"
+                onClick={() => handleOpenViewModal(po)}
+              >
+                <Table.Cell>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    {po.po_number}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {po.product?.product_code || "N/A"}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {po.description}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    {Number(po.ordered_qty_shippers || 0).toFixed(2)}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
+                  </span>
+                </Table.Cell>
+                <Table.Cell onClick={(e) => e.stopPropagation()}>
+                  <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
+                </Table.Cell>
+                <Table.Cell onClick={(e) => e.stopPropagation()}>
+                  <ActionsCell
+                    po={po}
+                    onEdit={handleOpenEditForm}
+                    onDelete={handleOpenDeleteConfirm}
+                  />
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+
+        {/* ============== BLOCK 21: Pagination ============== */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+          <PaginationInfo
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            itemsPerPage={itemsPerPage}
+          />
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+            showFirstLast
+            maxVisiblePages={5}
+          />
+        </div>
+      </>
+    ) : (
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+        {searchQuery || statusFilter ? (
+          <EmptySearchState
+            query={searchQuery}
+            action={
               <Button
                 variant="secondary"
-                size="md"
-                leftIcon={<ArrowsUpDownIcon className="w-4 h-4" />}
-                onClick={handleSort}
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("");
+                }}
               >
-                {sortDirection === "desc" ? "Newest" : "Oldest"}
+                Clear Filters
               </Button>
-            </Tooltip>
-          </div>
-        </div>
+            }
+          />
+        ) : (
+          <EmptyState
+            variant="document"
+            title="No purchase orders yet"
+            description="Get started by creating your first purchase order."
+            action={
+              <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
+                Create New PO
+              </Button>
+            }
+          />
+        )}
+      </div>
+    )}
 
-        // ============== BLOCK 20: Table ==============
-<div className="flex-1 flex flex-col min-h-0">
-  {loading ? (
-    <div className="flex-1 flex items-center justify-center">
-      <Spinner size="lg" />
-    </div>
-  ) : purchaseOrders.length > 0 ? (
-    <div className="flex-1 overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
-      <Table stickyHeader hoverable variant="striped" size="md">
-        <Table.Header>
-          <Table.Row>
-            <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
-            <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
-            <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
-            <Table.Head style={{ minWidth: "140px" }}>Order Qty (shippers)</Table.Head>
-            <Table.Head style={{ minWidth: "130px" }}>Prod. Time (hrs)</Table.Head>
-            <Table.Head style={{ minWidth: "220px" }}>Status</Table.Head>
-            <Table.Head style={{ minWidth: "80px", width: "80px" }}>Actions</Table.Head>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {purchaseOrders.map((po) => (
-            <Table.Row
-              key={po.id}
-              className="cursor-pointer"
-              onClick={() => handleOpenViewModal(po)}
-            >
-              <Table.Cell>
-                <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                  {po.po_number}
-                </span>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                  {po.product?.product_code || "N/A"}
-                </span>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                  {po.description}
-                </span>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                  {Number(po.ordered_qty_shippers || 0).toFixed(2)}
-                </span>
-              </Table.Cell>
-              <Table.Cell>
-                <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                  {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
-                </span>
-              </Table.Cell>
-              <Table.Cell onClick={(e) => e.stopPropagation()}>
-                <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
-              </Table.Cell>
-              <Table.Cell onClick={(e) => e.stopPropagation()}>
-                <ActionsCell
-                  po={po}
-                  onEdit={handleOpenEditForm}
-                  onDelete={handleOpenDeleteConfirm}
-                />
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
-    </div>
-  ) : (
-    <div className="flex-1 flex items-center justify-center border border-gray-200 dark:border-gray-700 rounded-lg">
-      {searchQuery || statusFilter ? (
-        <EmptySearchState
-          query={searchQuery}
-          action={
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setSearchQuery("");
-                setStatusFilter("");
-              }}
-            >
-              Clear Filters
-            </Button>
-          }
-        />
-      ) : (
-        <EmptyState
-          variant="document"
-          title="No purchase orders yet"
-          description="Get started by creating your first purchase order."
-          action={
-            <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
-              Create New PO
-            </Button>
-          }
-        />
-      )}
-    </div>
-  )}
-</div>
-
-// ============== BLOCK 21: Pagination ==============
-{purchaseOrders.length > 0 && (
-  <div className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 bg-inherit">
-    <PaginationInfo
-      currentPage={pagination.page}
-      totalPages={pagination.totalPages}
-      totalItems={pagination.total}
-      itemsPerPage={itemsPerPage}
+    {/* ============== BLOCK 22: Modals & Dialogs ============== */}
+    <PoDetailModal
+      open={poToView !== null}
+      handleOpen={() => handleOpenViewModal(null)}
+      po={poToView}
     />
-    <Pagination
-      currentPage={pagination.page}
-      totalPages={pagination.totalPages}
-      onPageChange={handlePageChange}
-      showFirstLast
-      maxVisiblePages={5}
+
+    <EditPoForm
+      open={isEditFormOpen}
+      handleOpen={() => handleOpenEditForm(null)}
+      po={poToEdit}
+      onUpdate={handlePoUpdate}
+    />
+
+    <ConfirmationDialog
+      open={isDeleteConfirmOpen}
+      handleOpen={() => handleOpenDeleteConfirm(null)}
+      onConfirm={handleConfirmDelete}
+      title="Delete Purchase Order?"
+      message={`Are you sure you want to permanently delete PO ${poToDelete?.po_number}?`}
+    />
+
+    <DespatchPoForm
+      open={isDespatchFormOpen}
+      handleOpen={() => {
+        setIsDespatchFormOpen(false);
+        setPoToDespatch(null);
+      }}
+      onSubmit={handleDespatchSubmit}
     />
   </div>
-)}
-
-      {/* ============== BLOCK 22: Modals & Dialogs ============== */}
-      <PoDetailModal
-        open={poToView !== null}
-        handleOpen={() => handleOpenViewModal(null)}
-        po={poToView}
-      />
-
-      <EditPoForm
-        open={isEditFormOpen}
-        handleOpen={() => handleOpenEditForm(null)}
-        po={poToEdit}
-        onUpdate={handlePoUpdate}
-      />
-
-      <ConfirmationDialog
-        open={isDeleteConfirmOpen}
-        handleOpen={() => handleOpenDeleteConfirm(null)}
-        onConfirm={handleConfirmDelete}
-        title="Delete Purchase Order?"
-        message={`Are you sure you want to permanently delete PO ${poToDelete?.po_number}?`}
-      />
-
-      <DespatchPoForm
-        open={isDespatchFormOpen}
-        handleOpen={() => {
-          setIsDespatchFormOpen(false);
-          setPoToDespatch(null);
-        }}
-        onSubmit={handleDespatchSubmit}
-      />
-    </div>
   );
 }
 
