@@ -3,20 +3,29 @@
 // ============== BLOCK 1: Accordion ==============
 export { Accordion } from "./Accordion";
 
-// ============== BLOCK 2: Button ==============
+// ============== BLOCK 2: Avatar ==============
+export { Avatar, AvatarGroup } from "./Avatar";
+
+// ============== BLOCK 3: Badge ==============
+export { Badge } from "./Badge";
+
+// ============== BLOCK 4: Breadcrumb ==============
+export { Breadcrumb } from "./Breadcrumb";
+
+// ============== BLOCK 5: Button ==============
 export { Button } from "./Button";
 
-// ============== BLOCK 3: Card ==============
+// ============== BLOCK 6: Card ==============
 export { Card, CardHeader, CardContent, CardFooter } from "./Card";
 
-// ============== BLOCK 4: DatePicker ==============
+// ============== BLOCK 7: DatePicker ==============
 export { DatePicker } from "./DatePicker";
 
-// ============== BLOCK 5: Dialog ==============
+// ============== BLOCK 8: Dialog ==============
 export { Dialog } from "./Dialog";
 export type { DialogProps } from "./Dialog";
 
-// ============== BLOCK 6: EmptyState ==============
+// ============== BLOCK 9: EmptyState ==============
 export {
   EmptyState,
   EmptyTableState,
@@ -25,18 +34,21 @@ export {
   ErrorState,
 } from "./EmptyState";
 
-// ============== BLOCK 7: Input ==============
+// ============== BLOCK 10: Input ==============
 export { Input } from "./Input";
 export type { InputProps } from "./Input";
 
-// ============== BLOCK 8: Menu ==============
+// ============== BLOCK 11: Menu ==============
 export { Menu } from "./Menu";
 
-// ============== BLOCK 9: Select ==============
+// ============== BLOCK 12: Pagination ==============
+export { Pagination, PaginationInfo } from "./Pagination";
+
+// ============== BLOCK 13: Select ==============
 export { Select } from "./Select";
 export type { SelectOption } from "./Select";
 
-// ============== BLOCK 10: Skeleton ==============
+// ============== BLOCK 14: Skeleton ==============
 export {
   Skeleton,
   SkeletonTableRow,
@@ -45,7 +57,7 @@ export {
   SkeletonButton,
 } from "./Skeleton";
 
-// ============== BLOCK 11: Spinner ==============
+// ============== BLOCK 15: Spinner ==============
 export {
   Spinner,
   SpinnerInline,
@@ -53,19 +65,19 @@ export {
   SpinnerOverlay,
 } from "./Spinner";
 
-// ============== BLOCK 12: StatusBadge ==============
+// ============== BLOCK 16: StatusBadge ==============
 export { StatusBadge } from "./StatusBadge";
 export type { Status } from "./StatusBadge";
 
-// ============== BLOCK 13: Table ==============
+// ============== BLOCK 17: Table ==============
 export { Table } from "./Table";
 export { useTableContext } from "./Table";
 export type { TableVariant, TableSize, TableContextValue } from "./Table";
 
-// ============== BLOCK 14: Tabs ==============
+// ============== BLOCK 18: Tabs ==============
 export { Tabs } from "./Tabs";
 
-// ============== BLOCK 15: Toast ==============
+// ============== BLOCK 19: Toast ==============
 export {
   Toast,
   ToastContainer,
@@ -75,7 +87,10 @@ export {
 } from "./Toast";
 export type { ToastVariant, ToastPosition } from "./Toast";
 
-// ============== BLOCK 16: WidgetCard ==============
+// ============== BLOCK 20: Tooltip ==============
+export { Tooltip } from "./Tooltip";
+
+// ============== BLOCK 21: WidgetCard ==============
 export {
   WidgetCard,
   WidgetHeader,
@@ -83,6 +98,3 @@ export {
   WidgetFooter,
   MiniActionButton,
 } from "./WidgetCard";
-
-// ============== BLOCK 17: Pagination ==============
-export { Pagination, PaginationInfo } from "./Pagination";
