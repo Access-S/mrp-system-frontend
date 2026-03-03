@@ -318,14 +318,23 @@ export function Sidebar({
 
         <div className="flex-1">
           <List className={theme.sidebarText}>
-            <ListItem onClick={() => setActivePage("dashboard")} selected={activePage === "dashboard"}>
+            {/* Dashboard */}
+            <ListItem 
+              onClick={() => setActivePage("dashboard")} 
+              selected={activePage === "dashboard"}
+              className={theme.sidebarText}
+            >
               <ListItemPrefix>
                 <PresentationChartBarIcon className={`h-5 w-5 ${theme.sidebarText}`} />
               </ListItemPrefix>
               <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>Dashboard</Typography>
             </ListItem>
 
-            <Accordion open={open === "operations"} icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === "operations" ? "rotate-180" : ""}`} />}>
+            {/* Operations */}
+            <Accordion 
+              open={open === "operations"} 
+              icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === "operations" ? "rotate-180" : ""}`} />}
+            >
               <ListItem className="p-0" selected={open === "operations"}>
                 <AccordionHeader onClick={() => handleOpen("operations")} className="border-b-0 p-3">
                   <ListItemPrefix>
@@ -336,23 +345,35 @@ export function Sidebar({
               </ListItem>
               <AccordionBody className="py-1">
                 <List className="p-0 pl-4">
-                  <ListItem onClick={() => setActivePage("purchase-orders")} selected={activePage === "purchase-orders"}>
+                  <ListItem 
+                    onClick={() => setActivePage("purchase-orders")} 
+                    selected={activePage === "purchase-orders"}
+                    className={theme.sidebarText}
+                  >
                     <ListItemPrefix>
                       <ShoppingBagIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    Purchase Orders
+                    <span className={theme.sidebarText}>Purchase Orders</span>
                   </ListItem>
-                  <ListItem onClick={() => setActivePage("inventory")} selected={activePage === "inventory"}>
+                  <ListItem 
+                    onClick={() => setActivePage("inventory")} 
+                    selected={activePage === "inventory"}
+                    className={theme.sidebarText}
+                  >
                     <ListItemPrefix>
                       <ArchiveBoxIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    Inventory
+                    <span className={theme.sidebarText}>Inventory</span>
                   </ListItem>
                 </List>
               </AccordionBody>
             </Accordion>
 
-            <Accordion open={open === "insights"} icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === "insights" ? "rotate-180" : ""}`} />}>
+            {/* Insights & Reporting */}
+            <Accordion 
+              open={open === "insights"} 
+              icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === "insights" ? "rotate-180" : ""}`} />}
+            >
               <ListItem className="p-0" selected={open === "insights"}>
                 <AccordionHeader onClick={() => handleOpen("insights")} className="border-b-0 p-3">
                   <ListItemPrefix>
@@ -363,23 +384,37 @@ export function Sidebar({
               </ListItem>
               <AccordionBody className="py-1">
                 <List className="p-0 pl-4">
-                  <ListItem onClick={() => setActivePage("analytics")} selected={activePage === "analytics"} disabled>
+                  <ListItem 
+                    onClick={() => setActivePage("analytics")} 
+                    selected={activePage === "analytics"} 
+                    disabled
+                    className={theme.sidebarText}
+                  >
                     <ListItemPrefix>
                       <ChartBarSquareIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    Analytics
+                    <span className={theme.sidebarText}>Analytics</span>
                   </ListItem>
-                  <ListItem onClick={() => setActivePage("reporting")} selected={activePage === "reporting"} disabled>
+                  <ListItem 
+                    onClick={() => setActivePage("reporting")} 
+                    selected={activePage === "reporting"} 
+                    disabled
+                    className={theme.sidebarText}
+                  >
                     <ListItemPrefix>
                       <DocumentTextIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    Reporting
+                    <span className={theme.sidebarText}>Reporting</span>
                   </ListItem>
                 </List>
               </AccordionBody>
             </Accordion>
 
-            <Accordion open={open === "system-data"} icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === "system-data" ? "rotate-180" : ""}`} />}>
+            {/* System Data */}
+            <Accordion 
+              open={open === "system-data"} 
+              icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === "system-data" ? "rotate-180" : ""}`} />}
+            >
               <ListItem className="p-0" selected={open === "system-data"}>
                 <AccordionHeader onClick={() => handleOpen("system-data")} className="border-b-0 p-3">
                   <ListItemPrefix>
@@ -390,29 +425,74 @@ export function Sidebar({
               </ListItem>
               <AccordionBody className="py-1">
                 <List className="p-0 pl-4">
-                  <ListItem onClick={() => setActivePage("products")} selected={activePage === "products"}>
+                  <ListItem 
+                    onClick={() => setActivePage("products")} 
+                    selected={activePage === "products"}
+                    className={theme.sidebarText}
+                  >
                     <ListItemPrefix>
                       <CubeIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    Products (BOM)
+                    <span className={theme.sidebarText}>Products (BOM)</span>
                   </ListItem>
-                  <ListItem onClick={() => setActivePage("forecasts")} selected={activePage === "forecasts"}>
+                  <ListItem 
+                    onClick={() => setActivePage("forecasts")} 
+                    selected={activePage === "forecasts"}
+                    className={theme.sidebarText}
+                  >
                     <ListItemPrefix>
                       <ChartBarSquareIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    Forecasts
+                    <span className={theme.sidebarText}>Forecasts</span>
                   </ListItem>
-                  <ListItem onClick={() => setActivePage("soh")} selected={activePage === "soh"}>
+                  <ListItem 
+                    onClick={() => setActivePage("soh")} 
+                    selected={activePage === "soh"}
+                    className={theme.sidebarText}
+                  >
                     <ListItemPrefix>
                       <ClipboardDocumentListIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    Stock on Hand
+                    <span className={theme.sidebarText}>Stock on Hand</span>
                   </ListItem>
-                  <ListItem onClick={() => setActivePage("ui-test")} selected={activePage === "ui-test"}>
+                </List>
+              </AccordionBody>
+            </Accordion>
+
+            {/* Testing Room */}
+            <Accordion 
+              open={open === "testing"} 
+              icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === "testing" ? "rotate-180" : ""}`} />}
+            >
+              <ListItem className="p-0" selected={open === "testing"}>
+                <AccordionHeader onClick={() => handleOpen("testing")} className="border-b-0 p-3">
+                  <ListItemPrefix>
+                    <BeakerIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>Testing Room</Typography>
+                </AccordionHeader>
+              </ListItem>
+              <AccordionBody className="py-1">
+                <List className="p-0 pl-4">
+                  <ListItem 
+                    onClick={() => setActivePage("ui-test")} 
+                    selected={activePage === "ui-test"}
+                    className={theme.sidebarText}
+                  >
                     <ListItemPrefix>
                       <CubeIcon className={`h-4 w-4 ${theme.sidebarText}`} />
                     </ListItemPrefix>
-                    UI Test
+                    <span className={theme.sidebarText}>UI Components</span>
+                  </ListItem>
+                  <ListItem 
+                    onClick={() => setActivePage("ui-test-2")} 
+                    selected={activePage === "ui-test-2"}
+                    className={theme.sidebarText}
+                  >
+                    <ListItemPrefix>
+                      <CubeIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    <span className={theme.sidebarText}>UI Components 2</span>
                   </ListItem>
                 </List>
               </AccordionBody>
