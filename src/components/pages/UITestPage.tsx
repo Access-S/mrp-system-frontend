@@ -17,6 +17,7 @@ import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButto
 import { Spinner, SpinnerPage } from "../ui/Spinner";
 import { EmptyState, EmptySearchState, EmptyProductState, ErrorState } from "../ui/EmptyState";
 import { Menu } from "../ui/Menu";
+import { Accordion } from "../ui/Accordion";
 import {
   PlusIcon,
   ArrowPathIcon,
@@ -31,6 +32,10 @@ import {
   UserIcon,
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
+  QuestionMarkCircleIcon,
+  CreditCardIcon,
+  TruckIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Sample Data ==============
@@ -996,6 +1001,200 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
+            {/* ============== BLOCK 7.11: Section 2.11 - Accordion ============== */}
+
+            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Accordion</h2>
+
+        <div className="space-y-8">
+          {/* Default Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Default Variant</h3>
+            <Accordion defaultExpanded={["item-1"]}>
+              <Accordion.Item id="item-1">
+                <Accordion.Trigger>What is your return policy?</Accordion.Trigger>
+                <Accordion.Content>
+                  We offer a 30-day return policy for all unused items in their original packaging. 
+                  Simply contact our support team to initiate a return.
+                </Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="item-2">
+                <Accordion.Trigger>How long does shipping take?</Accordion.Trigger>
+                <Accordion.Content>
+                  Standard shipping takes 5-7 business days. Express shipping is available 
+                  for 2-3 business day delivery at an additional cost.
+                </Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="item-3">
+                <Accordion.Trigger>Do you offer international shipping?</Accordion.Trigger>
+                <Accordion.Content>
+                  Yes, we ship to over 50 countries worldwide. International shipping times 
+                  vary by location and typically take 10-15 business days.
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion>
+          </div>
+
+          {/* Bordered Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Bordered Variant</h3>
+            <Accordion variant="bordered">
+              <Accordion.Item id="bordered-1">
+                <Accordion.Trigger icon={<QuestionMarkCircleIcon className="w-5 h-5" />}>
+                  Frequently Asked Questions
+                </Accordion.Trigger>
+                <Accordion.Content>
+                  Find answers to common questions about our products and services.
+                </Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="bordered-2">
+                <Accordion.Trigger icon={<CreditCardIcon className="w-5 h-5" />}>
+                  Payment Methods
+                </Accordion.Trigger>
+                <Accordion.Content>
+                  We accept all major credit cards, PayPal, and bank transfers.
+                </Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="bordered-3">
+                <Accordion.Trigger icon={<TruckIcon className="w-5 h-5" />}>
+                  Shipping Information
+                </Accordion.Trigger>
+                <Accordion.Content>
+                  Free shipping on orders over $50. Standard delivery in 5-7 business days.
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion>
+          </div>
+
+          {/* Separated Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Separated Variant</h3>
+            <Accordion variant="separated" allowMultiple>
+              <Accordion.Item id="sep-1">
+                <Accordion.Trigger icon={<ShieldCheckIcon className="w-5 h-5" />}>
+                  Security & Privacy
+                </Accordion.Trigger>
+                <Accordion.Content>
+                  Your data is encrypted and securely stored. We never share your 
+                  information with third parties without your consent.
+                </Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="sep-2">
+                <Accordion.Trigger icon={<Cog6ToothIcon className="w-5 h-5" />}>
+                  Account Settings
+                </Accordion.Trigger>
+                <Accordion.Content>
+                  Manage your profile, notifications, and preferences from your account dashboard.
+                </Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="sep-3">
+                <Accordion.Trigger icon={<UserIcon className="w-5 h-5" />}>
+                  User Permissions
+                </Accordion.Trigger>
+                <Accordion.Content>
+                  Control access levels and permissions for team members in your organization.
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion>
+          </div>
+
+          {/* Sizes */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Small */}
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Small</p>
+                <Accordion variant="bordered" size="sm">
+                  <Accordion.Item id="sm-1">
+                    <Accordion.Trigger>Small Item 1</Accordion.Trigger>
+                    <Accordion.Content>Compact content for tight spaces.</Accordion.Content>
+                  </Accordion.Item>
+                  <Accordion.Item id="sm-2">
+                    <Accordion.Trigger>Small Item 2</Accordion.Trigger>
+                    <Accordion.Content>More compact content here.</Accordion.Content>
+                  </Accordion.Item>
+                </Accordion>
+              </div>
+
+              {/* Medium */}
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Medium (Default)</p>
+                <Accordion variant="bordered" size="md">
+                  <Accordion.Item id="md-1">
+                    <Accordion.Trigger>Medium Item 1</Accordion.Trigger>
+                    <Accordion.Content>Standard content size for most use cases.</Accordion.Content>
+                  </Accordion.Item>
+                  <Accordion.Item id="md-2">
+                    <Accordion.Trigger>Medium Item 2</Accordion.Trigger>
+                    <Accordion.Content>More standard content here.</Accordion.Content>
+                  </Accordion.Item>
+                </Accordion>
+              </div>
+
+              {/* Large */}
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Large</p>
+                <Accordion variant="bordered" size="lg">
+                  <Accordion.Item id="lg-1">
+                    <Accordion.Trigger>Large Item 1</Accordion.Trigger>
+                    <Accordion.Content>Spacious content for prominent sections.</Accordion.Content>
+                  </Accordion.Item>
+                  <Accordion.Item id="lg-2">
+                    <Accordion.Trigger>Large Item 2</Accordion.Trigger>
+                    <Accordion.Content>More spacious content here.</Accordion.Content>
+                  </Accordion.Item>
+                </Accordion>
+              </div>
+            </div>
+          </div>
+
+          {/* Allow Multiple */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Allow Multiple Open</h3>
+            <Accordion variant="bordered" allowMultiple defaultExpanded={["multi-1", "multi-2"]}>
+              <Accordion.Item id="multi-1">
+                <Accordion.Trigger>First Section (Expanded)</Accordion.Trigger>
+                <Accordion.Content>
+                  This accordion allows multiple items to be open at the same time.
+                </Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="multi-2">
+                <Accordion.Trigger>Second Section (Expanded)</Accordion.Trigger>
+                <Accordion.Content>
+                  Both this and the first section can be open simultaneously.
+                </Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="multi-3">
+                <Accordion.Trigger>Third Section (Collapsed)</Accordion.Trigger>
+                <Accordion.Content>
+                  Click to expand this section while keeping others open.
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion>
+          </div>
+
+          {/* Disabled Items */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Disabled Items</h3>
+            <Accordion variant="bordered">
+              <Accordion.Item id="dis-1">
+                <Accordion.Trigger>Active Item</Accordion.Trigger>
+                <Accordion.Content>This item can be expanded and collapsed.</Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="dis-2" disabled>
+                <Accordion.Trigger>Disabled Item</Accordion.Trigger>
+                <Accordion.Content>This content cannot be accessed.</Accordion.Content>
+              </Accordion.Item>
+              <Accordion.Item id="dis-3">
+                <Accordion.Trigger>Another Active Item</Accordion.Trigger>
+                <Accordion.Content>This item works normally.</Accordion.Content>
+              </Accordion.Item>
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
       {/* ============== BLOCK 8: Section 3 - Status Badges ============== */}
 
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
@@ -1340,12 +1539,12 @@ const UITestPage: React.FC = () => {
             { name: "Spinner", status: "done" },
             { name: "Empty State", status: "done" },
             { name: "Menu/Dropdown", status: "done" },
+            { name: "Accordion", status: "done" },
             { name: "Dialog", status: "done" },
             { name: "Card", status: "done" },
             { name: "StatusBadge", status: "done" },
             { name: "WidgetCard", status: "done" },
             { name: "Table", status: "done" },
-            { name: "Accordion", status: "pending" },
           ].map((component) => (
             <div
               key={component.name}
@@ -1363,6 +1562,13 @@ const UITestPage: React.FC = () => {
               </span>
             </div>
           ))}
+        </div>
+
+        {/* Celebration Banner */}
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <p className="text-green-800 dark:text-green-300 font-medium text-center">
+            🎉 All components completed! Your custom UI library is ready to use.
+          </p>
         </div>
       </section>
     </div>
