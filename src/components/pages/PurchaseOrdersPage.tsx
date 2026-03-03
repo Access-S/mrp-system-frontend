@@ -165,7 +165,7 @@ const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
   return (
     <Menu>
       <Menu.Trigger>
-        <div className="flex flex-wrap items-center gap-1.5 cursor-pointer p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <div className="inline-flex flex-wrap items-center gap-1 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-w-[120px] max-w-[280px]">
           {po.statuses && po.statuses.length > 0 ? (
             po.statuses.map((s) => (
               <StatusBadge
@@ -178,7 +178,7 @@ const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
           ) : (
             <StatusBadge status="Open" size="sm" variant="subtle" />
           )}
-          <ChevronDownIcon className="w-3 h-3 text-gray-400 ml-1" />
+          <ChevronDownIcon className="w-3 h-3 text-gray-400 flex-shrink-0 ml-1" />
         </div>
       </Menu.Trigger>
       <Menu.Content position="bottom-start" minWidth={220}>
@@ -543,168 +543,167 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
         </div>
       </div>
 
-      {/* ============== BLOCK 19: Filters Bar ============== */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-        {/* Search Input */}
-        <div className="flex-1 max-w-md">
-          <Input
-            placeholder="Search purchase orders..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            leftIcon={<MagnifyingGlassIcon className="w-5 h-5" />}
-            size="md"
-          />
+      // ============== BLOCK 19: Filters Bar ==============
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          {/* Search Input */}
+          <div className="flex-1 max-w-md">
+            <Input
+              placeholder="Search purchase orders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              leftIcon={<MagnifyingGlassIcon className="w-5 h-5" />}
+              size="md"
+            />
+          </div>
+
+          {/* Right Side Filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Status Filter */}
+            <Select
+              options={STATUS_OPTIONS}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              placeholder="All Statuses"
+              size="md"
+              className="w-44"
+            />
+
+            {/* Items Per Page */}
+            <Select
+              options={ITEMS_PER_PAGE_OPTIONS}
+              value={itemsPerPage.toString()}
+              onChange={handleItemsPerPageChange}
+              size="md"
+              className="w-36"
+            />
+
+            {/* Sort Button */}
+            <Tooltip content={`Sort by ${sortDirection === "desc" ? "Oldest" : "Newest"}`}>
+              <Button
+                variant="secondary"
+                size="md"
+                leftIcon={<ArrowsUpDownIcon className="w-4 h-4" />}
+                onClick={handleSort}
+              >
+                {sortDirection === "desc" ? "Newest" : "Oldest"}
+              </Button>
+            </Tooltip>
+          </div>
         </div>
 
-        {/* Status Filter */}
-        <div className="w-full sm:w-48">
-          <Select
-            options={STATUS_OPTIONS}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            placeholder="All Statuses"
-            size="md"
-          />
-        </div>
-
-        {/* Items Per Page */}
-        <div className="w-full sm:w-40">
-          <Select
-            options={ITEMS_PER_PAGE_OPTIONS}
-            value={itemsPerPage.toString()}
-            onChange={handleItemsPerPageChange}
-            size="md"
-          />
-        </div>
-
-        {/* Sort Button */}
-        <Tooltip content={`Sort by ${sortDirection === "desc" ? "Oldest" : "Newest"}`}>
+        // ============== BLOCK 20: Table ==============
+{loading ? (
+  <div className="flex items-center justify-center py-20">
+    <Spinner size="lg" />
+  </div>
+) : purchaseOrders.length > 0 ? (
+  <Table stickyHeader hoverable variant="striped" size="md">
+    <Table.Header>
+      <Table.Row>
+        <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
+        <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
+        <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
+        <Table.Head style={{ minWidth: "140px" }}>Order Qty (shippers)</Table.Head>
+        <Table.Head style={{ minWidth: "130px" }}>Prod. Time (hrs)</Table.Head>
+        <Table.Head style={{ minWidth: "220px" }}>Status</Table.Head>
+        <Table.Head style={{ minWidth: "80px", width: "80px" }}>Actions</Table.Head>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {purchaseOrders.map((po) => (
+        <Table.Row
+          key={po.id}
+          className="cursor-pointer"
+          onClick={() => handleOpenViewModal(po)}
+        >
+          <Table.Cell>
+            <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+              {po.po_number}
+            </span>
+          </Table.Cell>
+          <Table.Cell>
+            <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+              {po.product?.product_code || "N/A"}
+            </span>
+          </Table.Cell>
+          <Table.Cell>
+            <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+              {po.description}
+            </span>
+          </Table.Cell>
+          <Table.Cell>
+            <span className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+              {Number(po.ordered_qty_shippers || 0).toFixed(2)}
+            </span>
+          </Table.Cell>
+          <Table.Cell>
+            <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+              {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
+            </span>
+          </Table.Cell>
+          <Table.Cell onClick={(e) => e.stopPropagation()}>
+            <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
+          </Table.Cell>
+          <Table.Cell onClick={(e) => e.stopPropagation()}>
+            <ActionsCell
+              po={po}
+              onEdit={handleOpenEditForm}
+              onDelete={handleOpenDeleteConfirm}
+            />
+          </Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table>
+) : (
+  <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+    {searchQuery || statusFilter ? (
+      <EmptySearchState
+        query={searchQuery}
+        action={
           <Button
-            variant="ghost"
-            leftIcon={<ArrowsUpDownIcon className="w-4 h-4" />}
-            onClick={handleSort}
+            variant="secondary"
+            onClick={() => {
+              setSearchQuery("");
+              setStatusFilter("");
+            }}
           >
-            {sortDirection === "desc" ? "Newest First" : "Oldest First"}
+            Clear Filters
           </Button>
-        </Tooltip>
-      </div>
-
-      {/* ============== BLOCK 20: Table ============== */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Spinner size="lg" />
-        </div>
-      ) : purchaseOrders.length > 0 ? (
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-          <Table stickyHeader hoverable variant="striped" size="md">
-            <Table.Header>
-              <Table.Row>
-                <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
-                <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
-                <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
-                <Table.Head style={{ minWidth: "120px" }}>Order Qty (shippers)</Table.Head>
-                <Table.Head style={{ minWidth: "120px" }}>Prod. Time (hrs)</Table.Head>
-                <Table.Head style={{ minWidth: "200px" }}>Status</Table.Head>
-                <Table.Head style={{ minWidth: "80px" }}>Actions</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {purchaseOrders.map((po) => (
-                <Table.Row
-                  key={po.id}
-                  className="cursor-pointer"
-                  onClick={() => handleOpenViewModal(po)}
-                >
-                  <Table.Cell>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">
-                      {po.po_number}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-gray-600 dark:text-gray-300">
-                      {po.product?.product_code || "N/A"}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-gray-600 dark:text-gray-300">
-                      {po.description}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
-                      {Number(po.ordered_qty_shippers || 0).toFixed(2)}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-gray-600 dark:text-gray-300">
-                      {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell onClick={(e) => e.stopPropagation()}>
-                    <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
-                  </Table.Cell>
-                  <Table.Cell onClick={(e) => e.stopPropagation()}>
-                    <ActionsCell
-                      po={po}
-                      onEdit={handleOpenEditForm}
-                      onDelete={handleOpenDeleteConfirm}
-                    />
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        </div>
-      ) : (
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
-          {searchQuery || statusFilter ? (
-            <EmptySearchState
-              query={searchQuery}
-              action={
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setStatusFilter("");
-                  }}
-                >
-                  Clear Filters
-                </Button>
-              }
-            />
-          ) : (
-            <EmptyState
-              variant="document"
-              title="No purchase orders yet"
-              description="Get started by creating your first purchase order."
-              action={
-                <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
-                  Create New PO
-                </Button>
-              }
-            />
-          )}
-        </div>
-      )}
-
-      {/* ============== BLOCK 21: Pagination ============== */}
-      {purchaseOrders.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4">
-          <PaginationInfo
-            currentPage={pagination.page}
-            totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            itemsPerPage={itemsPerPage}
-          />
-          <Pagination
-            currentPage={pagination.page}
-            totalPages={pagination.totalPages}
-            onPageChange={handlePageChange}
-            showFirstLast
-            maxVisiblePages={5}
-          />
-        </div>
-      )}
+        }
+      />
+    ) : (
+      <EmptyState
+        variant="document"
+        title="No purchase orders yet"
+        description="Get started by creating your first purchase order."
+        action={
+          <Button variant="primary" leftIcon={<PlusIcon className="w-4 h-4" />} onClick={onCreatePo}>
+            Create New PO
+          </Button>
+        }
+      />
+    )}
+  </div>
+)}
+// ============== BLOCK 21: Pagination ==============
+{purchaseOrders.length > 0 && (
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 dark:border-gray-700 pt-4 mt-auto">
+    <PaginationInfo
+      currentPage={pagination.page}
+      totalPages={pagination.totalPages}
+      totalItems={pagination.total}
+      itemsPerPage={itemsPerPage}
+    />
+    <Pagination
+      currentPage={pagination.page}
+      totalPages={pagination.totalPages}
+      onPageChange={handlePageChange}
+      showFirstLast
+      maxVisiblePages={5}
+    />
+  </div>
+)}
 
       {/* ============== BLOCK 22: Modals & Dialogs ============== */}
       <PoDetailModal
