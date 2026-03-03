@@ -19,7 +19,10 @@ import { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ImportPage } from "./components/pages/ImportPage";
-import UITestPage from "./components/pages/UITestPage";
+import UITestPage from "./components/pages/testing/UITestPage";
+import UITestPage2 from "./components/pages/UITestPage2";
+
+// ============== BLOCK 2: Types ==============
 
 // ============== BLOCK 2: Types ==============
 
@@ -35,7 +38,8 @@ export type Page =
   | "soh"
   | "analytics"
   | "reporting"
-  | "ui-test";
+  | "ui-test"
+  | "ui-test-2";
 
 // ============== BLOCK 3: Toaster Portal (Legacy - react-hot-toast) ==============
 
@@ -89,7 +93,8 @@ function AppLayout() {
     soh: "Stock On Hand",
     analytics: "Analytics",
     reporting: "Reporting",
-    "ui-test": "UI Component Testing",
+    "ui-test": "UI Components Test",
+    "ui-test-2": "UI Components Test - Page 2",
   };
 
   const handleViewProduct = (productCode: string, description?: string) => {
@@ -213,6 +218,7 @@ function AppLayout() {
           {activePage === "soh" && <SohPage />}
           {activePage === "inventory" && <InventoryPage />}
           {activePage === "ui-test" && <UITestPage />}
+          {activePage === "ui-test-2" && <UITestPage2 />}
         </main>
       </div>
 

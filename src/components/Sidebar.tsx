@@ -32,6 +32,7 @@ import {
   ClipboardDocumentListIcon,
   ChartPieIcon,
   DocumentTextIcon,
+  BeakerIcon,
 } from "@heroicons/react/24/outline";
 import { useTheme } from "../contexts/ThemeContext";
 import { themes } from "../styles/themes";
@@ -195,6 +196,37 @@ export function Sidebar({
                     </List>
                   </AccordionBody>
                 </Accordion>
+
+                            {/* Testing Room */}
+            <Accordion
+              open={open === "testing"}
+              icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === "testing" ? "rotate-180" : ""}`} />}
+            >
+              <ListItem className="p-0" selected={open === "testing"}>
+                <AccordionHeader onClick={() => handleOpen("testing")} className="border-b-0 p-3">
+                  <ListItemPrefix>
+                    <BeakerIcon className={`h-5 w-5 ${theme.sidebarText}`} />
+                  </ListItemPrefix>
+                  <Typography className={`mr-auto font-normal ${theme.sidebarText}`}>Testing Room</Typography>
+                </AccordionHeader>
+              </ListItem>
+              <AccordionBody className="py-1">
+                <List className="p-0 pl-4">
+                  <ListItem onClick={() => setActivePage("ui-test")} selected={activePage === "ui-test"}>
+                    <ListItemPrefix>
+                      <CubeIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    UI Components
+                  </ListItem>
+                  <ListItem onClick={() => setActivePage("ui-test-2")} selected={activePage === "ui-test-2"}>
+                    <ListItemPrefix>
+                      <CubeIcon className={`h-4 w-4 ${theme.sidebarText}`} />
+                    </ListItemPrefix>
+                    UI Components 2
+                  </ListItem>
+                </List>
+              </AccordionBody>
+            </Accordion>
               </List>
             </div>
 
