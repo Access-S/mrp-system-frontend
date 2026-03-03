@@ -14,6 +14,7 @@ import { Table } from "../ui/Table";
 import { Select, SelectOption } from "../ui/Select";
 import { useToast } from "../ui/Toast";
 import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButton } from "../ui/Skeleton";
+import { Spinner, SpinnerPage } from "../ui/Spinner";
 import { PlusIcon, ArrowPathIcon, EyeIcon, TagIcon } from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Sample Data ==============
@@ -554,6 +555,94 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
+            {/* ============== BLOCK 7.8: Section 2.8 - Spinners ============== */}
+
+            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Spinners</h2>
+
+        <div className="space-y-8">
+          {/* Sizes */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="text-center">
+                <Spinner size="xs" />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>XS</p>
+              </div>
+              <div className="text-center">
+                <Spinner size="sm" />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>SM</p>
+              </div>
+              <div className="text-center">
+                <Spinner size="md" />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>MD</p>
+              </div>
+              <div className="text-center">
+                <Spinner size="lg" />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>LG</p>
+              </div>
+              <div className="text-center">
+                <Spinner size="xl" />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>XL</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Variants */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Variants</h3>
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="text-center">
+                <Spinner variant="primary" size="md" />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>Primary</p>
+              </div>
+              <div className="text-center">
+                <Spinner variant="secondary" size="md" />
+                <p className={`text-xs ${theme.text} opacity-50 mt-2`}>Secondary</p>
+              </div>
+              <div className="text-center p-3 bg-gray-800 rounded-lg">
+                <Spinner variant="white" size="md" />
+                <p className="text-xs text-white opacity-50 mt-2">White</p>
+              </div>
+              <div className="text-center text-green-500">
+                <Spinner variant="current" size="md" />
+                <p className={`text-xs opacity-50 mt-2`}>Current</p>
+              </div>
+            </div>
+          </div>
+
+          {/* With Label */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Label</h3>
+            <div className="flex flex-wrap items-start gap-8">
+              <Spinner size="sm" showLabel label="Loading..." />
+              <Spinner size="md" showLabel label="Please wait..." />
+              <Spinner size="lg" showLabel label="Fetching data..." />
+            </div>
+          </div>
+
+          {/* Page Loading */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Page Loading</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
+              <SpinnerPage label="Loading content..." />
+            </div>
+          </div>
+
+          {/* In Buttons */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>In Buttons (Compare)</h3>
+            <div className="flex flex-wrap gap-3">
+              <Button loading>Button Loading</Button>
+              <Button variant="secondary">
+                <Spinner size="xs" variant="current" />
+                <span>Custom Spinner</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ============== BLOCK 8: Section 3 - Status Badges ============== */}
 
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
@@ -895,12 +984,12 @@ const UITestPage: React.FC = () => {
             { name: "Select", status: "done" },
             { name: "Toast", status: "done" },
             { name: "Skeleton", status: "done" },
+            { name: "Spinner", status: "done" },
             { name: "Dialog", status: "done" },
             { name: "Card", status: "done" },
             { name: "StatusBadge", status: "done" },
             { name: "WidgetCard", status: "done" },
             { name: "Table", status: "done" },
-            { name: "Spinner", status: "pending" },
             { name: "Empty State", status: "pending" },
             { name: "Menu/Dropdown", status: "pending" },
             { name: "Accordion", status: "pending" },
