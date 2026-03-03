@@ -16,7 +16,22 @@ import { useToast } from "../ui/Toast";
 import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButton } from "../ui/Skeleton";
 import { Spinner, SpinnerPage } from "../ui/Spinner";
 import { EmptyState, EmptySearchState, EmptyProductState, ErrorState } from "../ui/EmptyState";
-import { PlusIcon, ArrowPathIcon, EyeIcon, TagIcon } from "@heroicons/react/24/outline";
+import { Menu } from "../ui/Menu";
+import {
+  PlusIcon,
+  ArrowPathIcon,
+  EyeIcon,
+  TagIcon,
+  PencilIcon,
+  TrashIcon,
+  DocumentDuplicateIcon,
+  ArchiveBoxIcon,
+  EllipsisVerticalIcon,
+  Cog6ToothIcon,
+  UserIcon,
+  ArrowRightOnRectangleIcon,
+  ChevronDownIcon,
+} from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Sample Data ==============
 
@@ -762,6 +777,225 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
+            {/* ============== BLOCK 7.10: Section 2.10 - Menu/Dropdown ============== */}
+
+            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Menu / Dropdown</h2>
+
+        <div className="space-y-8">
+          {/* Basic Menu */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Basic Menu</h3>
+            <div className="flex flex-wrap gap-4">
+              <Menu>
+                <Menu.Trigger>
+                  <Button variant="secondary" rightIcon={<ChevronDownIcon className="w-4 h-4" />}>
+                    Options
+                  </Button>
+                </Menu.Trigger>
+                <Menu.Content>
+                  <Menu.Item icon={<EyeIcon className="w-4 h-4" />}>View Details</Menu.Item>
+                  <Menu.Item icon={<PencilIcon className="w-4 h-4" />}>Edit</Menu.Item>
+                  <Menu.Item icon={<DocumentDuplicateIcon className="w-4 h-4" />}>Duplicate</Menu.Item>
+                  <Menu.Divider />
+                  <Menu.Item icon={<TrashIcon className="w-4 h-4" />} danger>Delete</Menu.Item>
+                </Menu.Content>
+              </Menu>
+
+              {/* Icon Button Trigger */}
+              <Menu>
+                <Menu.Trigger>
+                  <Button variant="ghost" className="p-2">
+                    <EllipsisVerticalIcon className="w-5 h-5" />
+                  </Button>
+                </Menu.Trigger>
+                <Menu.Content position="bottom-end">
+                  <Menu.Item icon={<PencilIcon className="w-4 h-4" />}>Edit</Menu.Item>
+                  <Menu.Item icon={<ArchiveBoxIcon className="w-4 h-4" />}>Archive</Menu.Item>
+                  <Menu.Item icon={<TrashIcon className="w-4 h-4" />} danger>Delete</Menu.Item>
+                </Menu.Content>
+              </Menu>
+            </div>
+          </div>
+
+          {/* With Labels & Sections */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Labels & Sections</h3>
+            <Menu>
+              <Menu.Trigger>
+                <Button variant="primary" rightIcon={<ChevronDownIcon className="w-4 h-4" />}>
+                  Account
+                </Button>
+              </Menu.Trigger>
+              <Menu.Content minWidth={220}>
+                <Menu.Label>My Account</Menu.Label>
+                <Menu.Item icon={<UserIcon className="w-4 h-4" />}>Profile</Menu.Item>
+                <Menu.Item icon={<Cog6ToothIcon className="w-4 h-4" />}>Settings</Menu.Item>
+                <Menu.Divider />
+                <Menu.Label>Actions</Menu.Label>
+                <Menu.Item icon={<PlusIcon className="w-4 h-4" />}>New Project</Menu.Item>
+                <Menu.Item icon={<DocumentDuplicateIcon className="w-4 h-4" />}>Import Data</Menu.Item>
+                <Menu.Divider />
+                <Menu.Item icon={<ArrowRightOnRectangleIcon className="w-4 h-4" />} danger>
+                  Sign Out
+                </Menu.Item>
+              </Menu.Content>
+            </Menu>
+          </div>
+
+          {/* Sizes */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
+            <div className="flex flex-wrap gap-4">
+              <Menu size="sm">
+                <Menu.Trigger>
+                  <Button size="sm" variant="secondary" rightIcon={<ChevronDownIcon className="w-4 h-4" />}>
+                    Small
+                  </Button>
+                </Menu.Trigger>
+                <Menu.Content>
+                  <Menu.Item>Option 1</Menu.Item>
+                  <Menu.Item>Option 2</Menu.Item>
+                  <Menu.Item>Option 3</Menu.Item>
+                </Menu.Content>
+              </Menu>
+
+              <Menu size="md">
+                <Menu.Trigger>
+                  <Button variant="secondary" rightIcon={<ChevronDownIcon className="w-4 h-4" />}>
+                    Medium
+                  </Button>
+                </Menu.Trigger>
+                <Menu.Content>
+                  <Menu.Item>Option 1</Menu.Item>
+                  <Menu.Item>Option 2</Menu.Item>
+                  <Menu.Item>Option 3</Menu.Item>
+                </Menu.Content>
+              </Menu>
+
+              <Menu size="lg">
+                <Menu.Trigger>
+                  <Button size="lg" variant="secondary" rightIcon={<ChevronDownIcon className="w-4 h-4" />}>
+                    Large
+                  </Button>
+                </Menu.Trigger>
+                <Menu.Content>
+                  <Menu.Item>Option 1</Menu.Item>
+                  <Menu.Item>Option 2</Menu.Item>
+                  <Menu.Item>Option 3</Menu.Item>
+                </Menu.Content>
+              </Menu>
+            </div>
+          </div>
+
+          {/* Positions */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Positions</h3>
+            <div className="flex flex-wrap gap-4">
+              <Menu>
+                <Menu.Trigger>
+                  <Button variant="ghost">Bottom Start</Button>
+                </Menu.Trigger>
+                <Menu.Content position="bottom-start">
+                  <Menu.Item>Option 1</Menu.Item>
+                  <Menu.Item>Option 2</Menu.Item>
+                </Menu.Content>
+              </Menu>
+
+              <Menu>
+                <Menu.Trigger>
+                  <Button variant="ghost">Bottom End</Button>
+                </Menu.Trigger>
+                <Menu.Content position="bottom-end">
+                  <Menu.Item>Option 1</Menu.Item>
+                  <Menu.Item>Option 2</Menu.Item>
+                </Menu.Content>
+              </Menu>
+            </div>
+          </div>
+
+          {/* Disabled Items */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Disabled Items</h3>
+            <Menu>
+              <Menu.Trigger>
+                <Button variant="secondary" rightIcon={<ChevronDownIcon className="w-4 h-4" />}>
+                  Actions
+                </Button>
+              </Menu.Trigger>
+              <Menu.Content>
+                <Menu.Item icon={<EyeIcon className="w-4 h-4" />}>View</Menu.Item>
+                <Menu.Item icon={<PencilIcon className="w-4 h-4" />}>Edit</Menu.Item>
+                <Menu.Item icon={<DocumentDuplicateIcon className="w-4 h-4" />} disabled>
+                  Duplicate (Disabled)
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item icon={<TrashIcon className="w-4 h-4" />} disabled danger>
+                  Delete (Disabled)
+                </Menu.Item>
+              </Menu.Content>
+            </Menu>
+          </div>
+
+          {/* In Table Row */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>In Table (Action Column)</h3>
+            <Table>
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head>Product Name</Table.Head>
+                  <Table.Head>SKU</Table.Head>
+                  <Table.Head>Stock</Table.Head>
+                  <Table.Head className="text-right">Actions</Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                <Table.Row>
+                  <Table.Cell className="font-medium">Widget Pro X1</Table.Cell>
+                  <Table.Cell>WPX-001</Table.Cell>
+                  <Table.Cell>150</Table.Cell>
+                  <Table.Cell className="text-right">
+                    <Menu>
+                      <Menu.Trigger>
+                        <Button variant="ghost" size="sm" className="p-1">
+                          <EllipsisVerticalIcon className="w-5 h-5" />
+                        </Button>
+                      </Menu.Trigger>
+                      <Menu.Content position="bottom-end">
+                        <Menu.Item icon={<EyeIcon className="w-4 h-4" />}>View</Menu.Item>
+                        <Menu.Item icon={<PencilIcon className="w-4 h-4" />}>Edit</Menu.Item>
+                        <Menu.Divider />
+                        <Menu.Item icon={<TrashIcon className="w-4 h-4" />} danger>Delete</Menu.Item>
+                      </Menu.Content>
+                    </Menu>
+                  </Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell className="font-medium">Gadget Elite</Table.Cell>
+                  <Table.Cell>GDE-042</Table.Cell>
+                  <Table.Cell>23</Table.Cell>
+                  <Table.Cell className="text-right">
+                    <Menu>
+                      <Menu.Trigger>
+                        <Button variant="ghost" size="sm" className="p-1">
+                          <EllipsisVerticalIcon className="w-5 h-5" />
+                        </Button>
+                      </Menu.Trigger>
+                      <Menu.Content position="bottom-end">
+                        <Menu.Item icon={<EyeIcon className="w-4 h-4" />}>View</Menu.Item>
+                        <Menu.Item icon={<PencilIcon className="w-4 h-4" />}>Edit</Menu.Item>
+                        <Menu.Divider />
+                        <Menu.Item icon={<TrashIcon className="w-4 h-4" />} danger>Delete</Menu.Item>
+                      </Menu.Content>
+                    </Menu>
+                  </Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table>
+          </div>
+        </div>
+      </section>
+
       {/* ============== BLOCK 8: Section 3 - Status Badges ============== */}
 
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
@@ -1105,12 +1339,12 @@ const UITestPage: React.FC = () => {
             { name: "Skeleton", status: "done" },
             { name: "Spinner", status: "done" },
             { name: "Empty State", status: "done" },
+            { name: "Menu/Dropdown", status: "done" },
             { name: "Dialog", status: "done" },
             { name: "Card", status: "done" },
             { name: "StatusBadge", status: "done" },
             { name: "WidgetCard", status: "done" },
             { name: "Table", status: "done" },
-            { name: "Menu/Dropdown", status: "pending" },
             { name: "Accordion", status: "pending" },
           ].map((component) => (
             <div
