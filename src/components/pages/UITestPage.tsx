@@ -9,7 +9,7 @@ import { Input } from "../ui/Input";
 import { Dialog } from "../ui/Dialog";
 import { Card, CardHeader, CardContent, CardFooter } from "../ui/Card";
 import { StatusBadge, Status } from "../ui/StatusBadge";
-import { WidgetCard, WidgetHeader, WidgetBody, MiniActionButton } from "../ui/WidgetCard";
+import { WidgetCard, WidgetHeader, WidgetBody, WidgetFooter, MiniActionButton } from "../ui/WidgetCard";
 import { Table } from "../ui/Table";
 import { Select, SelectOption } from "../ui/Select";
 import { useToast } from "../ui/Toast";
@@ -18,6 +18,8 @@ import { Spinner, SpinnerPage } from "../ui/Spinner";
 import { EmptyState, EmptySearchState, EmptyProductState, ErrorState } from "../ui/EmptyState";
 import { Menu } from "../ui/Menu";
 import { Accordion } from "../ui/Accordion";
+import { Tabs } from "../ui/Tabs";
+import { DatePicker } from "../ui/DatePicker";
 import {
   PlusIcon,
   ArrowPathIcon,
@@ -36,6 +38,13 @@ import {
   CreditCardIcon,
   TruckIcon,
   ShieldCheckIcon,
+  CubeIcon,
+  ShoppingCartIcon,
+  ChartBarIcon,
+  ClipboardDocumentListIcon,
+  MagnifyingGlassIcon,
+  EnvelopeIcon,
+  CalendarIcon,
 } from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Sample Data ==============
@@ -97,6 +106,29 @@ const UITestPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [selectError, setSelectError] = useState(false);
+
+  // Tabs state
+  const [activeTab, setActiveTab] = useState("products");
+
+  // DatePicker state
+  const [selectedDate, setSelectedDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  // Tab options
+  const tabOptions = [
+    { label: "Products", value: "products", icon: <CubeIcon className="w-4 h-4" /> },
+    { label: "Orders", value: "orders", icon: <ShoppingCartIcon className="w-4 h-4" /> },
+    { label: "Analytics", value: "analytics", icon: <ChartBarIcon className="w-4 h-4" /> },
+    { label: "Reports", value: "reports", icon: <ClipboardDocumentListIcon className="w-4 h-4" /> },
+  ];
+
+  const simpleTabOptions = [
+    { label: "Overview", value: "overview" },
+    { label: "Details", value: "details" },
+    { label: "History", value: "history" },
+    { label: "Settings", value: "settings", disabled: true },
+  ];
 
   // ============== BLOCK 4: Helper Function for Stock Status ==============
 
@@ -190,58 +222,131 @@ const UITestPage: React.FC = () => {
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Inputs</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Basic Input */}
-          <Input
-            label="Basic Input"
-            placeholder="Enter some text..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-
-          {/* With Helper Text */}
-          <Input
-            label="With Helper Text"
-            placeholder="Enter your email"
-            helperText="We'll never share your email with anyone."
-          />
-
-          {/* Error State */}
-          <Input
-            label="Error State"
-            placeholder="Required field"
-            error={true}
-            helperText="This field is required"
-          />
-
-          {/* Toggle Error */}
+        <div className="space-y-8">
+          {/* Basic Inputs */}
           <div>
-            <Input
-              label="Interactive Error Toggle"
-              placeholder="Click button to toggle error"
-              error={inputError}
-              helperText={inputError ? "This field has an error!" : "Click below to simulate error"}
-            />
-            <Button
-              size="sm"
-              variant={inputError ? "danger" : "secondary"}
-              onClick={() => setInputError(!inputError)}
-              className="mt-2"
-            >
-              {inputError ? "Clear Error" : "Trigger Error"}
-            </Button>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Basic</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Basic Input"
+                placeholder="Enter some text..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+              />
+              <Input
+                label="With Helper Text"
+                placeholder="Enter your email"
+                helperText="We'll never share your email with anyone."
+              />
+            </div>
           </div>
 
-          {/* Disabled */}
-          <Input
-            label="Disabled Input"
-            placeholder="You can't edit this"
-            disabled
-            value="Disabled value"
-          />
+          {/* With Icons */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Icons</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Left Icon"
+                placeholder="Search..."
+                leftIcon={<MagnifyingGlassIcon className="w-5 h-5" />}
+              />
+              <Input
+                label="Right Icon"
+                placeholder="Enter email"
+                rightIcon={<EnvelopeIcon className="w-5 h-5" />}
+              />
+              <Input
+                label="Both Icons"
+                placeholder="Search products..."
+                leftIcon={<MagnifyingGlassIcon className="w-5 h-5" />}
+                rightIcon={<CubeIcon className="w-5 h-5" />}
+              />
+              <Input
+                label="Calendar Input"
+                placeholder="Select date..."
+                leftIcon={<CalendarIcon className="w-5 h-5" />}
+              />
+            </div>
+          </div>
 
-          {/* Different Types */}
-          <Input label="Password Input" type="password" placeholder="Enter password" />
+          {/* Sizes */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Input
+                label="Small"
+                size="sm"
+                placeholder="Small input"
+              />
+              <Input
+                label="Medium (Default)"
+                size="md"
+                placeholder="Medium input"
+              />
+              <Input
+                label="Large"
+                size="lg"
+                placeholder="Large input"
+              />
+            </div>
+          </div>
+
+          {/* Variants */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Variants</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Default Variant"
+                variant="default"
+                placeholder="Default styling"
+              />
+              <Input
+                label="Filled Variant"
+                variant="filled"
+                placeholder="Filled styling"
+              />
+            </div>
+          </div>
+
+          {/* States */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>States</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Error State"
+                placeholder="Required field"
+                error={true}
+                helperText="This field is required"
+              />
+              <div>
+                <Input
+                  label="Interactive Error Toggle"
+                  placeholder="Click button to toggle error"
+                  error={inputError}
+                  helperText={inputError ? "This field has an error!" : "Click below to simulate error"}
+                />
+                <Button
+                  size="sm"
+                  variant={inputError ? "danger" : "secondary"}
+                  onClick={() => setInputError(!inputError)}
+                  className="mt-2"
+                >
+                  {inputError ? "Clear Error" : "Trigger Error"}
+                </Button>
+              </div>
+              <Input
+                label="Disabled Input"
+                placeholder="You can't edit this"
+                disabled
+                value="Disabled value"
+              />
+              <Input
+                label="Password Input"
+                type="password"
+                placeholder="Enter password"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1195,14 +1300,297 @@ const UITestPage: React.FC = () => {
         </div>
       </section>
 
+            {/* ============== BLOCK 7.12: Section 2.12 - Tabs ============== */}
+
+            <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Tabs</h2>
+
+        <div className="space-y-8">
+          {/* Default Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Default Variant</h3>
+            <Tabs
+              tabs={simpleTabOptions}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="default"
+            />
+            <p className={`text-sm ${theme.text} opacity-50 mt-3`}>
+              Active tab: <span className="font-semibold">{activeTab}</span>
+            </p>
+          </div>
+
+          {/* Glass Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Glass Variant</h3>
+            <Tabs
+              tabs={simpleTabOptions}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="glass"
+            />
+          </div>
+
+          {/* Material Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Material Variant</h3>
+            <Tabs
+              tabs={simpleTabOptions}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="material"
+            />
+          </div>
+
+          {/* Underline Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Underline Variant</h3>
+            <Tabs
+              tabs={simpleTabOptions}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="underline"
+            />
+          </div>
+
+          {/* Pills Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Pills Variant</h3>
+            <Tabs
+              tabs={simpleTabOptions}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="pills"
+            />
+          </div>
+
+          {/* With Icons */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Icons</h3>
+            <Tabs
+              tabs={tabOptions}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="default"
+            />
+          </div>
+
+          {/* Sizes */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
+            <div className="space-y-4">
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Small</p>
+                <Tabs
+                  tabs={simpleTabOptions.slice(0, 3)}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  variant="default"
+                  size="sm"
+                />
+              </div>
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Medium (Default)</p>
+                <Tabs
+                  tabs={simpleTabOptions.slice(0, 3)}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  variant="default"
+                  size="md"
+                />
+              </div>
+              <div>
+                <p className={`text-xs ${theme.text} opacity-50 mb-2`}>Large</p>
+                <Tabs
+                  tabs={simpleTabOptions.slice(0, 3)}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  variant="default"
+                  size="lg"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Full Width */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Full Width</h3>
+            <Tabs
+              tabs={simpleTabOptions.slice(0, 3)}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="material"
+              fullWidth
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ============== BLOCK 7.13: Section 2.13 - DatePicker ============== */}
+
+      <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Date Picker</h2>
+
+        <div className="space-y-8">
+          {/* Basic DatePicker */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <DatePicker
+              label="Select Date"
+              value={selectedDate}
+              onChange={setSelectedDate}
+              placeholder="Choose a date"
+            />
+
+            <DatePicker
+              label="With Helper Text"
+              value={selectedDate}
+              onChange={setSelectedDate}
+              helperText="Select your preferred delivery date"
+            />
+
+            <DatePicker
+              label="Required Field"
+              value={selectedDate}
+              onChange={setSelectedDate}
+              required
+            />
+          </div>
+
+          {/* Sizes */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <DatePicker
+                label="Small"
+                size="sm"
+                value={selectedDate}
+                onChange={setSelectedDate}
+              />
+              <DatePicker
+                label="Medium (Default)"
+                size="md"
+                value={selectedDate}
+                onChange={setSelectedDate}
+              />
+              <DatePicker
+                label="Large"
+                size="lg"
+                value={selectedDate}
+                onChange={setSelectedDate}
+              />
+            </div>
+          </div>
+
+          {/* States */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>States</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <DatePicker
+                label="Error State"
+                value=""
+                onChange={() => {}}
+                error
+                helperText="Please select a valid date"
+              />
+              <DatePicker
+                label="Disabled"
+                value="2025-06-15"
+                onChange={() => {}}
+                disabled
+              />
+              <DatePicker
+                label="With Min/Max Date"
+                value={selectedDate}
+                onChange={setSelectedDate}
+                minDate={new Date()}
+                helperText="Cannot select past dates"
+              />
+            </div>
+          </div>
+
+          {/* Date Range Example */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Date Range (Two Pickers)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <DatePicker
+                label="Start Date"
+                value={startDate}
+                onChange={setStartDate}
+                placeholder="From"
+              />
+              <DatePicker
+                label="End Date"
+                value={endDate}
+                onChange={setEndDate}
+                placeholder="To"
+                minDate={startDate ? new Date(startDate) : undefined}
+              />
+            </div>
+            {startDate && endDate && (
+              <p className={`text-sm ${theme.text} opacity-50 mt-3`}>
+                Selected range: <span className="font-semibold">{startDate}</span> to <span className="font-semibold">{endDate}</span>
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ============== BLOCK 8: Section 3 - Status Badges ============== */}
 
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Status Badges</h2>
-        <div className="flex flex-wrap gap-3">
-          {allStatuses.map((status) => (
-            <StatusBadge key={status} status={status} />
-          ))}
+
+        <div className="space-y-8">
+          {/* Default (Subtle) */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Subtle Variant (Default)</h3>
+            <div className="flex flex-wrap gap-3">
+              {allStatuses.map((status) => (
+                <StatusBadge key={status} status={status} variant="subtle" />
+              ))}
+            </div>
+          </div>
+
+          {/* Filled Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Filled Variant</h3>
+            <div className="flex flex-wrap gap-3">
+              {allStatuses.map((status) => (
+                <StatusBadge key={status} status={status} variant="filled" />
+              ))}
+            </div>
+          </div>
+
+          {/* Outlined Variant */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Outlined Variant</h3>
+            <div className="flex flex-wrap gap-3">
+              {allStatuses.map((status) => (
+                <StatusBadge key={status} status={status} variant="outlined" />
+              ))}
+            </div>
+          </div>
+
+          {/* With Dot Indicator */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Dot Indicator</h3>
+            <div className="flex flex-wrap gap-3">
+              {allStatuses.map((status) => (
+                <StatusBadge key={status} status={status} dot />
+              ))}
+            </div>
+          </div>
+
+          {/* Sizes */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Sizes</h3>
+            <div className="flex flex-wrap items-center gap-3">
+              <StatusBadge status="Open" size="sm" />
+              <StatusBadge status="Open" size="md" />
+              <StatusBadge status="Open" size="lg" />
+              <span className={`text-xs ${theme.text} opacity-50 ml-4`}>sm → md → lg</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1390,51 +1778,102 @@ const UITestPage: React.FC = () => {
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Cards</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Simple Card */}
-          <Card>
-            <CardContent>
-              <h3 className={`font-semibold ${theme.text}`}>Simple Card</h3>
-              <p className={`text-sm ${theme.text} opacity-60 mt-2`}>
-                This is a basic card with just content.
-              </p>
-            </CardContent>
-          </Card>
+        <div className="space-y-8">
+          {/* Variants */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Variants</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card variant="default">
+                <CardContent>
+                  <h4 className={`font-semibold ${theme.text} mb-2`}>Default</h4>
+                  <p className={`text-sm ${theme.text} opacity-60`}>
+                    Standard card with subtle shadow.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card variant="bordered">
+                <CardContent>
+                  <h4 className={`font-semibold ${theme.text} mb-2`}>Bordered</h4>
+                  <p className={`text-sm ${theme.text} opacity-60`}>
+                    Card with prominent border.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card variant="elevated">
+                <CardContent>
+                  <h4 className={`font-semibold ${theme.text} mb-2`}>Elevated</h4>
+                  <p className={`text-sm ${theme.text} opacity-60`}>
+                    Card with larger shadow.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card variant="flat">
+                <CardContent>
+                  <h4 className={`font-semibold ${theme.text} mb-2`}>Flat</h4>
+                  <p className={`text-sm ${theme.text} opacity-60`}>
+                    Card with subtle background.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
-          {/* Card with Header */}
-          <Card>
-            <CardHeader>
-              <h3 className={`font-semibold ${theme.text}`}>Card with Header</h3>
-              <Button size="sm" variant="ghost">
-                Action
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <p className={`text-sm ${theme.text} opacity-60`}>
-                This card has a header section with a title and action button.
-              </p>
-            </CardContent>
-          </Card>
+          {/* With Sections */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Sections</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardContent>
+                  <h4 className={`font-semibold ${theme.text}`}>Simple Card</h4>
+                  <p className={`text-sm ${theme.text} opacity-60 mt-2`}>
+                    This is a basic card with just content.
+                  </p>
+                </CardContent>
+              </Card>
 
-          {/* Full Card */}
-          <Card>
-            <CardHeader>
-              <h3 className={`font-semibold ${theme.text}`}>Full Card</h3>
-            </CardHeader>
-            <CardContent>
+              <Card>
+                <CardHeader>
+                  <h4 className={`font-semibold ${theme.text}`}>Card with Header</h4>
+                  <Button size="sm" variant="ghost">
+                    Action
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <p className={`text-sm ${theme.text} opacity-60`}>
+                    This card has a header with title and action.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <h4 className={`font-semibold ${theme.text}`}>Full Card</h4>
+                </CardHeader>
+                <CardContent>
+                  <p className={`text-sm ${theme.text} opacity-60`}>
+                    Header, content, and footer sections.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="secondary">Cancel</Button>
+                    <Button size="sm">Save</Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            </div>
+          </div>
+
+          {/* With Padding Prop */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>With Padding Prop</h3>
+            <Card padding>
+              <h4 className={`font-semibold ${theme.text} mb-2`}>Padded Card</h4>
               <p className={`text-sm ${theme.text} opacity-60`}>
-                This card has header, content, and footer sections.
+                This card uses the `padding` prop for automatic padding without CardContent.
               </p>
-            </CardContent>
-            <CardFooter>
-              <div className="flex gap-2">
-                <Button size="sm" variant="secondary">
-                  Cancel
-                </Button>
-                <Button size="sm">Save</Button>
-              </div>
-            </CardFooter>
-          </Card>
+            </Card>
+          </div>
         </div>
       </section>
 
@@ -1443,38 +1882,93 @@ const UITestPage: React.FC = () => {
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Widget Cards</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Basic Widget */}
-          <WidgetCard>
-            <WidgetHeader
-              title="Sales Overview"
-              icon={<EyeIcon className="w-5 h-5" />}
-              actions={
-                <>
-                  <MiniActionButton icon={<ArrowPathIcon className="w-4 h-4" />} title="Refresh" />
-                  <MiniActionButton icon={<PlusIcon className="w-4 h-4" />} title="Add" />
-                </>
-              }
-            />
-            <WidgetBody>
-              <p className={`text-sm ${theme.text} opacity-60`}>
-                Widget content goes here. This component is great for dashboard widgets.
-              </p>
-            </WidgetBody>
-          </WidgetCard>
+        <div className="space-y-8">
+          {/* Variants */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Variants</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <WidgetCard variant="default">
+                <WidgetHeader title="Default" />
+                <WidgetBody>
+                  <p className={`text-sm ${theme.text} opacity-60`}>Default widget style.</p>
+                </WidgetBody>
+              </WidgetCard>
+              <WidgetCard variant="bordered">
+                <WidgetHeader title="Bordered" />
+                <WidgetBody>
+                  <p className={`text-sm ${theme.text} opacity-60`}>Bordered widget style.</p>
+                </WidgetBody>
+              </WidgetCard>
+              <WidgetCard variant="elevated">
+                <WidgetHeader title="Elevated" />
+                <WidgetBody>
+                  <p className={`text-sm ${theme.text} opacity-60`}>Elevated widget style.</p>
+                </WidgetBody>
+              </WidgetCard>
+            </div>
+          </div>
 
-          {/* Widget with Badge */}
-          <WidgetCard>
-            <WidgetHeader
-              title="Active Orders"
-              badge={<StatusBadge status="Open" />}
-            />
-            <WidgetBody>
-              <div className="flex items-center justify-center h-32">
-                <span className={`text-4xl font-bold ${theme.text}`}>24</span>
-              </div>
-            </WidgetBody>
-          </WidgetCard>
+          {/* Full Featured */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>Full Featured</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <WidgetCard>
+                <WidgetHeader
+                  title="Sales Overview"
+                  icon={<ChartBarIcon className="w-5 h-5" />}
+                  actions={
+                    <>
+                      <MiniActionButton icon={<ArrowPathIcon className="w-4 h-4" />} title="Refresh" />
+                      <MiniActionButton icon={<PlusIcon className="w-4 h-4" />} title="Add" />
+                    </>
+                  }
+                />
+                <WidgetBody>
+                  <p className={`text-sm ${theme.text} opacity-60`}>
+                    Widget with icon, title, and action buttons.
+                  </p>
+                </WidgetBody>
+                <WidgetFooter>
+                  <div className="flex justify-between items-center">
+                    <span className={`text-xs ${theme.text} opacity-50`}>Last updated: 5 min ago</span>
+                    <Button size="sm" variant="ghost">View All</Button>
+                  </div>
+                </WidgetFooter>
+              </WidgetCard>
+
+              <WidgetCard>
+                <WidgetHeader
+                  title="Active Orders"
+                  badge={<StatusBadge status="Open" size="sm" />}
+                />
+                <WidgetBody>
+                  <div className="flex items-center justify-center h-24">
+                    <span className={`text-4xl font-bold ${theme.text}`}>24</span>
+                  </div>
+                </WidgetBody>
+                <WidgetFooter>
+                  <div className="flex justify-center">
+                    <Button size="sm" variant="primary" fullWidth>
+                      View Orders
+                    </Button>
+                  </div>
+                </WidgetFooter>
+              </WidgetCard>
+            </div>
+          </div>
+
+          {/* No Padding Example */}
+          <div>
+            <h3 className={`text-sm font-medium ${theme.text} opacity-70 mb-3`}>No Padding Body</h3>
+            <WidgetCard>
+              <WidgetHeader title="Chart Widget" />
+              <WidgetBody noPadding>
+                <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                  <span className="text-white font-medium">Chart would go here (no padding)</span>
+                </div>
+              </WidgetBody>
+            </WidgetCard>
+          </div>
         </div>
       </section>
 
@@ -1529,11 +2023,13 @@ const UITestPage: React.FC = () => {
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
         <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Migration Checklist</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             { name: "Button", status: "done" },
             { name: "Input", status: "done" },
             { name: "Select", status: "done" },
+            { name: "DatePicker", status: "done" },
+            { name: "Tabs", status: "done" },
             { name: "Toast", status: "done" },
             { name: "Skeleton", status: "done" },
             { name: "Spinner", status: "done" },
@@ -1567,8 +2063,28 @@ const UITestPage: React.FC = () => {
         {/* Celebration Banner */}
         <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
           <p className="text-green-800 dark:text-green-300 font-medium text-center">
-            🎉 All components completed! Your custom UI library is ready to use.
+            🎉 All 16 components completed! Your custom UI library is ready to use.
           </p>
+        </div>
+
+        {/* Stats */}
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">16</p>
+            <p className={`text-xs ${theme.text} opacity-60`}>Components</p>
+          </div>
+          <div className="text-center p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">0</p>
+            <p className={`text-xs ${theme.text} opacity-60`}>External UI Deps</p>
+          </div>
+          <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">100%</p>
+            <p className={`text-xs ${theme.text} opacity-60`}>Tailwind CSS</p>
+          </div>
+          <div className="text-center p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20">
+            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">✓</p>
+            <p className={`text-xs ${theme.text} opacity-60`}>Dark Mode</p>
+          </div>
         </div>
       </section>
     </div>
