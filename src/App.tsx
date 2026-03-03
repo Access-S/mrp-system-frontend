@@ -19,8 +19,7 @@ import { Toaster } from "react-hot-toast";
 import { createPortal } from "react-dom";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ImportPage } from "./components/pages/ImportPage";
-import UITestPage from "./components/pages/testing/UITestPage";
-import UITestPage2 from "./components/pages/UITestPage2";
+import { UITestPage, UITestPage2 } from "./components/pages/testing";
 
 // ============== BLOCK 2: Types ==============
 

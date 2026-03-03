@@ -1,25 +1,25 @@
-// src/components/pages/UITestPage.tsx
+// src/components/pages/testing/UITestPage.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState } from "react";
-import { useTheme } from "../../contexts/ThemeContext";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { Dialog } from "../ui/Dialog";
-import { Card, CardHeader, CardContent, CardFooter } from "../ui/Card";
-import { StatusBadge, Status } from "../ui/StatusBadge";
-import { WidgetCard, WidgetHeader, WidgetBody, WidgetFooter, MiniActionButton } from "../ui/WidgetCard";
-import { Table } from "../ui/Table";
-import { Select, SelectOption } from "../ui/Select";
-import { useToast } from "../ui/Toast";
-import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButton } from "../ui/Skeleton";
-import { Spinner, SpinnerPage } from "../ui/Spinner";
-import { EmptyState, EmptySearchState, EmptyProductState, ErrorState } from "../ui/EmptyState";
-import { Menu } from "../ui/Menu";
-import { Accordion } from "../ui/Accordion";
-import { Tabs } from "../ui/Tabs";
-import { DatePicker } from "../ui/DatePicker";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { Button } from "../../ui/Button";
+import { Input } from "../../ui/Input";
+import { Dialog } from "../../ui/Dialog";
+import { Card, CardHeader, CardContent, CardFooter } from "../../ui/Card";
+import { StatusBadge, Status } from "../../ui/StatusBadge";
+import { WidgetCard, WidgetHeader, WidgetBody, WidgetFooter, MiniActionButton } from "../../ui/WidgetCard";
+import { Table } from "../../ui/Table";
+import { Select, SelectOption } from "../../ui/Select";
+import { useToast } from "../../ui/Toast";
+import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButton } from "../../ui/Skeleton";
+import { Spinner, SpinnerPage } from "../../ui/Spinner";
+import { EmptyState, EmptySearchState, EmptyProductState, ErrorState } from "../../ui/EmptyState";
+import { Menu } from "../../ui/Menu";
+import { Accordion } from "../../ui/Accordion";
+import { Tabs } from "../../ui/Tabs";
+import { DatePicker } from "../../ui/DatePicker";
 import {
   PlusIcon,
   ArrowPathIcon,
