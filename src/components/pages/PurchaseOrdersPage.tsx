@@ -173,26 +173,30 @@ const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
             "p-1.5 rounded-md",
             "hover:bg-gray-100 dark:hover:bg-gray-800",
             "transition-colors",
-            "overflow-x-auto",
-            "max-w-[250px]",
-            "scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
           )}
         >
-          <div className="flex items-center gap-1 flex-nowrap">
-            {po.statuses && po.statuses.length > 0 ? (
-              po.statuses.map((s) => (
-                <StatusBadge
-                  key={s.status}
-                  status={s.status as Status}
-                  size="sm"
-                  variant="subtle"
-                  className="flex-shrink-0"
-                />
-              ))
-            ) : (
-              <StatusBadge status="Open" size="sm" variant="subtle" className="flex-shrink-0" />
-            )}
-          </div>
+          <ScrollArea
+            orientation="horizontal"
+            maxWidth="220px"
+            thumbSize={4}
+            hideDelay={800}
+          >
+            <div className="flex items-center gap-1 flex-nowrap">
+              {po.statuses && po.statuses.length > 0 ? (
+                po.statuses.map((s) => (
+                  <StatusBadge
+                    key={s.status}
+                    status={s.status as Status}
+                    size="sm"
+                    variant="subtle"
+                    className="flex-shrink-0"
+                  />
+                ))
+              ) : (
+                <StatusBadge status="Open" size="sm" variant="subtle" className="flex-shrink-0" />
+              )}
+            </div>
+          </ScrollArea>
           <ChevronDownIcon className="w-3 h-3 text-gray-400 flex-shrink-0 ml-1" />
         </div>
       </Menu.Trigger>

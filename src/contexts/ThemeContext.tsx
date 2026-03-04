@@ -47,22 +47,75 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     styleTag.innerHTML = `
+      /* Global scrollbar styles */
+      *::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      
+      *::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      *::-webkit-scrollbar-thumb {
+        background: transparent;
+        border-radius: 3px;
+        transition: background 0.2s ease;
+      }
+      
+      *:hover::-webkit-scrollbar-thumb,
+      *:active::-webkit-scrollbar-thumb,
+      *:focus::-webkit-scrollbar-thumb {
+        background: ${currentTheme.scrollbar.thumb};
+      }
+      
+      *::-webkit-scrollbar-thumb:hover {
+        background: ${currentTheme.scrollbar.thumbHover};
+      }
+      
+      *::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+
+      /* Body/HTML scrollbar */
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      
+      html::-webkit-scrollbar-track,
+      body::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      html::-webkit-scrollbar-thumb,
+      body::-webkit-scrollbar-thumb {
+        background: ${currentTheme.scrollbar.thumb};
+        border-radius: 4px;
+      }
+      
+      html::-webkit-scrollbar-thumb:hover,
+      body::-webkit-scrollbar-thumb:hover {
+        background: ${currentTheme.scrollbar.thumbHover};
+      }
+
+      /* Drawer content (existing) */
       .drawer-content::-webkit-scrollbar {
         width: 6px;
       }
+      
       .drawer-content::-webkit-scrollbar-track {
-        background: ${currentTheme.scrollbar.track};
+        background: transparent;
       }
+      
       .drawer-content::-webkit-scrollbar-thumb {
         background: ${currentTheme.scrollbar.thumb};
         border-radius: 3px;
       }
+      
       .drawer-content::-webkit-scrollbar-thumb:hover {
         background: ${currentTheme.scrollbar.thumbHover};
-      }
-      .drawer-content {
-        scrollbar-width: thin;
-        scrollbar-color: ${currentTheme.scrollbar.thumb} ${currentTheme.scrollbar.track};
       }
     `;
   }, [themeName]);
