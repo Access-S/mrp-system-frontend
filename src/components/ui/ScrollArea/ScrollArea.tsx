@@ -25,11 +25,13 @@ export interface ScrollAreaProps {
   thumbSize?: number;
   /** Delay before hiding scrollbar (ms) */
   hideDelay?: number;
+  /** Convert vertical mouse wheel to horizontal scroll (useful for horizontal ScrollAreas) */
+  convertWheelToHorizontal?: boolean;
 }
 
 // ============== BLOCK 3: Constants ==============
 
-const DEFAULT_THUMB_SIZE = 6;
+const DEFAULT_THUMB_SIZE = 8;
 const DEFAULT_HIDE_DELAY = 1000;
 
 // ============== BLOCK 4: Component ==============
@@ -42,6 +44,7 @@ export function ScrollArea({
   className,
   thumbSize = DEFAULT_THUMB_SIZE,
   hideDelay = DEFAULT_HIDE_DELAY,
+  convertWheelToHorizontal = false,
 }: ScrollAreaProps) {
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -67,6 +70,32 @@ export function ScrollArea({
     }, hideDelay);
   }, [hideDelay]);
 
+  // Handle wheel event for horizontal scroll conversion
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      if (!convertWheelToHorizontal || !containerRef.current) return;
+
+      // Only convert if there's vertical wheel movement
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        containerRef.current.scrollLeft += e.deltaY;
+      }
+    },
+    [convertWheelToHorizontal]
+  );
+
+  // Attach wheel event listener
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !convertWheelToHorizontal) return;
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, [convertWheelToHorizontal, handleWheel]);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -75,32 +104,6 @@ export function ScrollArea({
       }
     };
   }, []);
-
-  // Generate dynamic scrollbar styles
-  const scrollbarStyles = `
-    .scroll-area-${containerRef.current?.dataset.scrollId || "default"}::-webkit-scrollbar {
-      width: ${orientation === "horizontal" ? "0" : `${thumbSize}px`};
-      height: ${orientation === "vertical" ? "0" : `${thumbSize}px`};
-    }
-    
-    .scroll-area-${containerRef.current?.dataset.scrollId || "default"}::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    
-    .scroll-area-${containerRef.current?.dataset.scrollId || "default"}::-webkit-scrollbar-thumb {
-      background: ${isVisible ? theme.scrollbar.thumb : "transparent"};
-      border-radius: ${thumbSize}px;
-      transition: background 0.2s ease;
-    }
-    
-    .scroll-area-${containerRef.current?.dataset.scrollId || "default"}::-webkit-scrollbar-thumb:hover {
-      background: ${theme.scrollbar.thumbHover};
-    }
-    
-    .scroll-area-${containerRef.current?.dataset.scrollId || "default"}::-webkit-scrollbar-corner {
-      background: transparent;
-    }
-  `;
 
   // Generate unique ID for this instance
   const scrollId = useRef(`scroll-${Math.random().toString(36).substr(2, 9)}`);

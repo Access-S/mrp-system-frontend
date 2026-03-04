@@ -180,6 +180,7 @@ const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
             maxWidth="220px"
             thumbSize={4}
             hideDelay={800}
+            convertWheelToHorizontal
           >
             <div className="flex items-center gap-1 flex-nowrap">
               {po.statuses && po.statuses.length > 0 ? (
@@ -288,6 +289,7 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ po, onEdit, onDelete }) => {
 // ============== BLOCK 8: Main Component ==============
 
 export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageProps) {
+
   // ============== BLOCK 9: State ==============
 
   const [loading, setLoading] = useState(true);
