@@ -65,13 +65,7 @@ const TableRoot: React.FC<TableProps> = ({
 }) => {
   return (
     <TableContext.Provider value={{ variant, size, hoverable, stickyHeader }}>
-      <div
-        className={clsx(
-          "w-full overflow-x-auto",
-          "scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600",
-          "border border-gray-200 dark:border-gray-700 rounded-lg"
-        )}
-      >
+      <div className="w-full">
         <table
           className={clsx(
             "w-full min-w-table text-left",
