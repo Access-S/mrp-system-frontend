@@ -102,3 +102,12 @@ export {
 // ============== BLOCK 22: ScrollArea ==============
 export { ScrollArea } from "./ScrollArea";
 export type { ScrollAreaProps, ScrollOrientation } from "./ScrollArea";
+
+// ============== BLOCK 23: Divider ==============
+export { Divider } from "./Divider";
+export type {
+  DividerProps,
+  DividerOrientation,
+  DividerSpacing,
+  DividerLabelPosition,
+} from "./Divider";

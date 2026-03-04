@@ -30,6 +30,7 @@ import { Skeleton } from "../ui/Skeleton";
 import { EmptyState, EmptySearchState } from "../ui/EmptyState";
 import { Tooltip } from "../ui/Tooltip";
 import { ScrollArea } from "../ui/ScrollArea";
+import { Divider } from "../ui/Divider";
 
 // Modals & Forms
 import { PoDetailModal } from "../modals/PoDetailModal";
@@ -616,73 +617,74 @@ return (
         <Spinner size="lg" />
       </div>
     ) : purchaseOrders.length > 0 ? (
-      <>
-        <ScrollArea
-          orientation="both"
-          maxHeight="calc(100vh - 320px)"
-        >
-          <Table stickyHeader hoverable variant="striped" size="md">
-            <Table.Header>
-              <Table.Row>
-                <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
-                <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
-                <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
-                <Table.Head style={{ minWidth: "140px" }}>Order Qty (shippers)</Table.Head>
-                <Table.Head style={{ minWidth: "130px" }}>Prod. Time (hrs)</Table.Head>
-                <Table.Head style={{ minWidth: "220px" }}>Status</Table.Head>
-                <Table.Head style={{ minWidth: "80px", width: "80px" }}>Actions</Table.Head>
+      <ScrollArea
+        orientation="both"
+        maxHeight="calc(100vh - 280px)"
+      >
+        <Table stickyHeader hoverable variant="striped" size="md">
+          <Table.Header>
+            <Table.Row>
+              <Table.Head style={{ minWidth: "120px" }}>PO Number</Table.Head>
+              <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
+              <Table.Head style={{ minWidth: "400px" }}>Description</Table.Head>
+              <Table.Head style={{ minWidth: "140px" }}>Order Qty (shippers)</Table.Head>
+              <Table.Head style={{ minWidth: "130px" }}>Prod. Time (hrs)</Table.Head>
+              <Table.Head style={{ minWidth: "220px" }}>Status</Table.Head>
+              <Table.Head style={{ minWidth: "80px", width: "80px" }}>Actions</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {purchaseOrders.map((po) => (
+              <Table.Row
+                key={po.id}
+                className="cursor-pointer"
+                onClick={() => handleOpenViewModal(po)}
+              >
+                <Table.Cell>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    {po.po_number}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {po.product?.product_code || "N/A"}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {po.description}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    {Number(po.ordered_qty_shippers || 0).toFixed(2)}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
+                  </span>
+                </Table.Cell>
+                <Table.Cell onClick={(e) => e.stopPropagation()}>
+                  <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
+                </Table.Cell>
+                <Table.Cell onClick={(e) => e.stopPropagation()}>
+                  <ActionsCell
+                    po={po}
+                    onEdit={handleOpenEditForm}
+                    onDelete={handleOpenDeleteConfirm}
+                  />
+                </Table.Cell>
               </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {purchaseOrders.map((po) => (
-                <Table.Row
-                  key={po.id}
-                  className="cursor-pointer"
-                  onClick={() => handleOpenViewModal(po)}
-                >
-                  <Table.Cell>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                      {po.po_number}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                      {po.product?.product_code || "N/A"}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                      {po.description}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                      {Number(po.ordered_qty_shippers || 0).toFixed(2)}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                      {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell onClick={(e) => e.stopPropagation()}>
-                    <StatusCell po={po} onStatusUpdate={handleStatusUpdate} />
-                  </Table.Cell>
-                  <Table.Cell onClick={(e) => e.stopPropagation()}>
-                    <ActionsCell
-                      po={po}
-                      onEdit={handleOpenEditForm}
-                      onDelete={handleOpenDeleteConfirm}
-                    />
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        </ScrollArea>
+            ))}
+          </Table.Body>
+        </Table>
 
-        {/* ============== BLOCK 21: Pagination ============== */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+        {/* Divider between table and pagination */}
+        <Divider spacing="md" />
+
+        {/* Pagination inside ScrollArea */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 pb-4">
           <PaginationInfo
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
@@ -697,7 +699,7 @@ return (
             maxVisiblePages={5}
           />
         </div>
-      </>
+      </ScrollArea>
     ) : (
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
         {searchQuery || statusFilter ? (
