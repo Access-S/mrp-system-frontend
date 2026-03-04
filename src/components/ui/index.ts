@@ -98,3 +98,7 @@ export {
   WidgetFooter,
   MiniActionButton,
 } from "./WidgetCard";
+
+// ============== BLOCK 22: ScrollArea ==============
+export { ScrollArea } from "./ScrollArea";
+export type { ScrollAreaProps, ScrollOrientation } from "./ScrollArea";
