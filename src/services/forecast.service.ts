@@ -1,18 +1,38 @@
 // src/services/forecast.service.ts
 
-// BLOCK 1: Imports
+// ============== BLOCK 1: Imports ==============
 import { supabase } from "../supabase.config";
 import { handleApiError } from "./api.service";
 import * as XLSX from "xlsx";
 
-// BLOCK 2: Forecast Service Class
+// ============== BLOCK 2: Types & Interfaces ==============
+export interface ForecastReviewItem {
+  row_number: number;
+  product_code: string;
+  description: string;
+  forecast_values: Record<string, number>;
+  reason: 'unknown_product' | 'invalid_date';
+}
+
+export interface ForecastImportResult {
+  success: boolean;
+  message: string;
+  imported: number;
+  pending_review: number;
+  review_items: ForecastReviewItem[];
+  requires_review?: boolean;
+  debug?: any;
+}
+
+export interface ForecastReviewApproval {
+  product_code: string;
+  action: 'create_placeholder' | 'map_to_existing' | 'skip';
+  mapped_product_code?: string;
+}
+
+// ============== BLOCK 3: Forecast Service Class ==============
 class ForecastService {
 
-  /**
-   * Parses a month header (e.g., "Jul-25") into a "YYYY-MM" format
-   * @param header - The string header to parse
-   * @returns A formatted string like "2025-07" or null if invalid
-   */
   private parseMonthHeader(header: string): string | null {
     if (typeof header !== "string") return null;
     const parts = header.trim().split("-");
@@ -32,16 +52,7 @@ class ForecastService {
     return `${year}-${month}`;
   }
 
-  /**
-   * Imports forecast data from Excel file to Backend API
-   * @param file - Excel file to import
-   * @returns Promise<{successCount: number, errorCount: number, errors: string[]}>
-   */
-  async importForecastData(file: File): Promise<{
-    successCount: number;
-    errorCount: number;
-    errors: string[];
-  }> {
+  async importForecastData(file: File): Promise<ForecastImportResult> {
     try {
       console.log('📊 Starting forecast import...');
 
@@ -53,8 +64,6 @@ class ForecastService {
         header: 1,
         raw: false,
       });
-
-      console.log("Raw Excel data (first 5 rows):", rawData.slice(0, 5));
 
       let headerRowIndex = -1;
       for (let i = 0; i < Math.min(5, rawData.length); i++) {
@@ -88,9 +97,6 @@ class ForecastService {
         return obj;
       });
 
-      console.log("Processed JSON data:", jsonData);
-      console.log("Headers found:", headers);
-
       if (!jsonData || jsonData.length === 0) {
         throw new Error("No data found after header row.");
       }
@@ -107,7 +113,7 @@ class ForecastService {
       formData.append('forecastFile', file);
       formData.append('data', JSON.stringify(jsonData));
 
-      console.log("Sending to backend...");
+      // Fixed: Trimmed trailing spaces from URL
       const response = await fetch('https://mrp-1.onrender.com/api/forecasts/upload', {
         method: 'POST',
         body: formData,
@@ -118,14 +124,15 @@ class ForecastService {
         throw new Error(errorData.message || 'Failed to import forecasts');
       }
 
-      const result = await response.json();
-      if (result.success) {
-        const successCount = result.debug?.recordsInserted || jsonData.length;
-        console.log(`✅ Forecast import completed: ${successCount} records imported`);
-        return { successCount, errorCount: 0, errors: [] };
-      } else {
-        throw new Error(result.message || 'Import failed');
+      const result: ForecastImportResult = await response.json();
+      
+      console.log(`✅ Forecast import completed: ${result.imported} records imported`);
+      
+      if (result.pending_review > 0) {
+        console.log(`⚠️ ${result.pending_review} items pending review`);
       }
+      
+      return result;
 
     } catch (error) {
       console.error('❌ Forecast import failed:', error);
@@ -133,13 +140,46 @@ class ForecastService {
     }
   }
 
-  /**
-   * Fetches the full forecast table data (headers + rows) from backend
-   * Matches the structure returned by your Express API
-   */
+  async finalizeForecastReview(
+    importBatchId: string,
+    approvals: ForecastReviewApproval[]
+  ): Promise<{ success: boolean; message: string; results: any }> {
+    try {
+      console.log('📋 Finalizing forecast review...', { importBatchId, approvalCount: approvals.length });
+
+      // Fixed: Trimmed trailing spaces from URL
+      const response = await fetch('https://mrp-1.onrender.com/api/forecasts/review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          import_batch_id: importBatchId,
+          approvals,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to finalize review');
+      }
+
+      const result = await response.json();
+      console.log(`✅ Review finalized: ${result.message}`);
+      
+      return result;
+
+    } catch (error) {
+      console.error('❌ Forecast review finalization failed:', error);
+      throw new Error(handleApiError(error));
+    }
+  }
+
   async getAllForecastsTable() {
     try {
       console.log('📊 Fetching all forecasts...');
+      
+      // Fixed: Trimmed trailing spaces from URL
       const response = await fetch('https://mrp-1.onrender.com/api/forecasts');
       
       if (!response.ok) {
@@ -150,7 +190,7 @@ class ForecastService {
       
       if (result.success && result.tableData) {
         console.log(`✅ Fetched ${result.tableData.rows.length} forecasts`);
-        return result.tableData; // { headers: [...], rows: [...] }
+        return result.tableData;
       }
       
       console.warn('Unexpected API response format:', result);
@@ -161,41 +201,41 @@ class ForecastService {
     }
   }
 
-  /**
- * Fetches forecasts in the format expected by InventoryPage:
- * { productCode, description, monthlyForecast }
- */
-async getAllForecasts() {
-  const tableData = await this.getAllForecastsTable();
-  
-  return tableData.rows.map(row => {
-    const { product_code, description, ...rest } = row;
+  async getAllForecasts() {
+    const tableData = await this.getAllForecastsTable();
     
-    // Extract only valid YYYY-MM keys as monthlyForecast
-    const monthlyForecast: Record<string, number> = {};
-    for (const [key, value] of Object.entries(rest)) {
-      if (/^\d{4}-\d{2}$/.test(key) && typeof value === 'number') {
-        monthlyForecast[key] = value;
+    return tableData.rows.map(row => {
+      const { product_code, description, ...rest } = row;
+      
+      const monthlyForecast: Record<string, number> = {};
+      for (const [key, value] of Object.entries(rest)) {
+        if (/^\d{4}-\d{2}$/.test(key) && typeof value === 'number') {
+          monthlyForecast[key] = value;
+        }
       }
-    }
 
-    return {
-      productCode: product_code || '',
-      description: description || '',
-      monthlyForecast,
-    };
-  });
-}
+      return {
+        productCode: product_code || '',
+        description: description || '',
+        monthlyForecast,
+      };
+    });
+  }
 }
 
-// BLOCK 3: Export singleton instance
+// ============== BLOCK 4: Export Singleton Instance ==============
 export const forecastService = new ForecastService();
 
-// BLOCK 4: Export individual functions
+// ============== BLOCK 5: Export Individual Functions ==============
 export const importForecastData = (file: File) => forecastService.importForecastData(file);
+export const finalizeForecastReview = (
+  importBatchId: string,
+  approvals: ForecastReviewApproval[]
+) => forecastService.finalizeForecastReview(importBatchId, approvals);
 export const getAllForecastsTable = () => forecastService.getAllForecastsTable();
+export const getAllForecasts = () => forecastService.getAllForecasts();
 
-// BLOCK 5: Utility functions (unchanged)
+// ============== BLOCK 6: Utility Functions ==============
 export const parseMonthHeader = (header: string): string | null => {
   if (typeof header !== "string") return null;
   const parts = header.trim().split("-");
@@ -329,8 +369,6 @@ export const getForecastColor = (value: number, max: number): string => {
   return 'green';
 };
 
-// ============== BLOCK 6: Forecast with Product Hours ==============
-
 export interface ForecastWithHours {
   productCode: string;
   description: string;
@@ -357,9 +395,6 @@ export interface ForecastTableData {
   activeProducts: number;
 }
 
-/**
- * Generates week keys and labels for a given number of weeks starting from current week
- */
 export const generateWeekColumns = (
   weeks: number = 4
 ): { key: string; label: string; startDate: Date; endDate: Date }[] => {
@@ -394,9 +429,6 @@ export const generateWeekColumns = (
   return result;
 };
 
-/**
- * Converts monthly forecast data to weekly forecast data
- */
 export const convertMonthlyToWeekly = (
   monthlyForecast: Record<string, number>,
   weekColumns: { key: string; startDate: Date; endDate: Date }[]
@@ -426,9 +458,6 @@ export const convertMonthlyToWeekly = (
   return weeklyForecast;
 };
 
-/**
- * Calculates demand hours from forecast units
- */
 export const calculateDemandHours = (
   units: number,
   minsPerShipper: number,
@@ -441,9 +470,6 @@ export const calculateDemandHours = (
   return Math.round(hours * 100) / 100;
 };
 
-/**
- * Fetches forecast data combined with product hours information
- */
 export const getForecastsWithProductData = async (
   products: Array<{
     productCode: string;
@@ -454,7 +480,7 @@ export const getForecastsWithProductData = async (
   weeks: number = 4
 ): Promise<ForecastTableData> => {
   try {
-    const forecastData = await forecastService.getAllForecasts();
+    const forecastData = await getAllForecasts();
     const weekColumns = generateWeekColumns(weeks);
 
     const productMap = new Map(
@@ -533,11 +559,8 @@ export const getForecastsWithProductData = async (
   }
 };
 
-// BLOCK 7: Export the service class
 export { ForecastService };
 export default forecastService;
-export const getAllForecasts = () => forecastService.getAllForecasts();
-// Export types
 export type {
   ForecastWithHours,
   WeeklyDemandSummary,
