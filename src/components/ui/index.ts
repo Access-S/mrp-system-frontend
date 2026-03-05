@@ -111,3 +111,6 @@ export type {
   DividerSpacing,
   DividerLabelPosition,
 } from "./Divider";
+
+// ============== BLOCK 23: Drawer ==============
+export { Drawer } from "./Drawer";

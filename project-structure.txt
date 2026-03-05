@@ -19,6 +19,8 @@
 | |____prd.md
 | |____ai-instructions
 | | |____AI_CODE_ASSISTANT_RULES.md
+| |____ui-library
+| | |____README.md
 | |____maturity_audit.md
 |____package.json
 |____tsconfig.node.json
@@ -92,27 +94,51 @@
 | | | |____Select
 | | | | |____Select.tsx
 | | | | |____index.ts
+| | | |____Tooltip
+| | | | |____index.ts
+| | | | |____Tooltip.tsx
 | | | |____WidgetCard
 | | | | |____index.ts
 | | | | |____WidgetCard.tsx
+| | | |____ScrollArea
+| | | | |____ScrollArea.tsx
+| | | | |____index.ts
 | | | |____EmptyState
 | | | | |____index.ts
 | | | | |____EmptyState.tsx
+| | | |____Breadcrumb
+| | | | |____index.ts
+| | | | |____Breadcrumb.tsx
 | | | |____Table
 | | | | |____Table.tsx
 | | | | |____index.ts
 | | | | |____TableContext.tsx
+| | | |____Pagination
+| | | | |____index.ts
+| | | | |____Pagination.tsx
 | | | |____Dialog
 | | | | |____Dialog.tsx
 | | | | |____index.ts
 | | | |____Accordion
 | | | | |____index.ts
 | | | | |____Accordion.tsx
+| | | |____Badge
+| | | | |____Badge.tsx
+| | | | |____index.ts
+| | | |____Avatar
+| | | | |____index.ts
+| | | | |____Avatar.tsx
+| | | |____Divider
+| | | | |____Divider.tsx
+| | | | |____index.ts
 | | |____pages
-| | | |____UITestPage.tsx
 | | | |____DashboardPage.tsx
 | | | |____ImportPage.tsx
 | | | |____PurchaseOrdersPage.tsx
+| | | |____testing
+| | | | |____UITestPage.tsx
+| | | | |____index.ts
+| | | | |____UITestPage2.tsx
 | | | |____CreatePOPage.tsx
 | | | |____ProductDashboardPage.tsx
 | | | |____ProductDetailPage.tsx
