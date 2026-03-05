@@ -329,7 +329,7 @@ export const getForecastColor = (value: number, max: number): string => {
   return 'green';
 };
 
-// ============== BLOCK 7: Forecast with Product Hours ==============
+// ============== BLOCK 6: Forecast with Product Hours ==============
 
 export interface ForecastWithHours {
   productCode: string;
@@ -533,17 +533,10 @@ export const getForecastsWithProductData = async (
   }
 };
 
-// BLOCK 6: Export the service class
+// BLOCK 7: Export the service class
 export { ForecastService };
 export default forecastService;
 export const getAllForecasts = () => forecastService.getAllForecasts();
-export {
-  generateWeekColumns,
-  convertMonthlyToWeekly,
-  calculateDemandHours,
-  getForecastsWithProductData,
-};
-
 // Export types
 export type {
   ForecastWithHours,
