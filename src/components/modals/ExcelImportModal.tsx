@@ -358,13 +358,38 @@ export function ExcelImportModal({
       setError("Please select a file to import.");
       return;
     }
-
+  
     setIsImporting(true);
     setError(null);
-
+  
     try {
-      const result = await onImport(selectedFile);
+      console.log('🚀 Starting import with file:', selectedFile.name);
+      console.log('🔍 onImport type:', typeof onImport);
+      
+      // Call onImport and handle both Promise and void returns
+      const importPromise = onImport(selectedFile);
+      
+      console.log('🔍 importPromise:', importPromise);
+      console.log('🔍 importPromise type:', typeof importPromise);
+      
+      // Check if onImport returned a Promise
+      if (!importPromise || typeof importPromise.then !== 'function') {
+        console.warn('⚠️ onImport did not return a Promise. Closing modal.');
+        handleClose();
+        onImportComplete?.();
+        return;
+      }
+      
+      const result = await importPromise;
       console.log('📊 Import result:', result);
+      
+      // If no result returned (old behavior), just close
+      if (!result) {
+        console.log('⚠️ No result returned from onImport. Closing modal.');
+        handleClose();
+        onImportComplete?.();
+        return;
+      }
       
       setImportResult(result);
       
@@ -373,7 +398,7 @@ export function ExcelImportModal({
         setImportBatchId(result.debug.import_batch_id);
         console.log('📋 Import batch ID:', result.debug.import_batch_id);
       }
-
+  
       if (result.pending_review > 0 && result.review_items?.length > 0) {
         setIsReviewing(true);
         // Initialize approvals with default action
