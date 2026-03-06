@@ -628,7 +628,6 @@ return (
                     <Table.Head className="min-w-[120px]">Product Code</Table.Head>
                     <Table.Head className="min-w-[200px]">Description</Table.Head>
                     {weekColumns.map((week) => {
-                      // Safe helper to extract date from label without inline regex issues
                       const getDatePart = (label: string): string => {
                         const match = label.match(/\(([^)]+)\)/);
                         return match ? match[1] : "";
@@ -648,7 +647,6 @@ return (
                 </Table.Header>
                 <Table.Body>
                   {filteredRows.map((row, rowIndex) => {
-                    // Calculate row max for heat map
                     const rowValues = weekColumns.map(
                       (week) => row.weeklyForecast?.[week.key] || 0
                     );
@@ -724,6 +722,9 @@ return (
     />
   </div>
 );
+}
+
+
 
 // ============== BLOCK 17: Default Export ==============
 
