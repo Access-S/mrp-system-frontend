@@ -189,7 +189,7 @@ const ForecastSkeleton: React.FC = () => {
 
 export function ForecastsPage() {
   const { theme } = useTheme();
-  const { showToast } = useToast();
+  const { toast } = useToast();
 
   // ============== BLOCK 7: State Management ==============
 
@@ -232,11 +232,7 @@ export function ForecastsPage() {
     } catch (err: any) {
       console.error("Failed to fetch forecast data:", err);
       setError(err.message || "Failed to load forecast data");
-      showToast({
-        type: "error",
-        title: "Error",
-        message: "Failed to load forecast data",
-      });
+      toast.error("Failed to load forecast data");
     } finally {
       setIsLoading(false);
     }
@@ -331,36 +327,20 @@ const chartFormatValue = useCallback(
 // ============== BLOCK 12: Event Handlers ==============
 
 const handleImport = async (file: File): Promise<ForecastImportResult> => {
-  showToast({
-    type: "loading",
-    title: "Importing",
-    message: "Processing forecast data...",
-  });
+  toast.info("Processing forecast data...");
 
   try {
     const result = await importForecastData(file);
     
     if (result.pending_review > 0) {
-      showToast({
-        type: "warning",
-        title: "Review Required",
-        message: `${result.imported} records imported. ${result.pending_review} items need review.`,
-      });
+      toast.warning(`${result.imported} records imported. ${result.pending_review} items need review.`);
     } else {
-      showToast({
-        type: "success",
-        title: "Success",
-        message: `${result.imported} forecast records imported successfully!`,
-      });
+      toast.success(`${result.imported} forecast records imported successfully!`);
     }
     
     return result;
   } catch (err: any) {
-    showToast({
-      type: "error",
-      title: "Import Failed",
-      message: err.message || "Failed to import forecast data",
-    });
+    toast.error(err.message || "Failed to import forecast data");
     throw err;
   }
 };
@@ -372,11 +352,7 @@ const handleImportComplete = () => {
 
 const handleExport = (format: string) => {
   if (!forecastData || filteredRows.length === 0) {
-    showToast({
-      type: "warning",
-      title: "No Data",
-      message: "No data available to export",
-    });
+    toast.warning("No data available to export");
     return;
   }
 
@@ -405,19 +381,11 @@ const handleExport = (format: string) => {
       format as ExportFormat
     );
 
-    showToast({
-      type: "success",
-      title: "Exported",
-      message: `Forecast exported as ${format.toUpperCase()}`,
-    });
+    toast.success(`Forecast exported as ${format.toUpperCase()}`);
 
     setIsExportMenuOpen(false);
   } catch (err: any) {
-    showToast({
-      type: "error",
-      title: "Export Failed",
-      message: err.message || "Failed to export data",
-    });
+    toast.error(err.message || "Failed to export data");
   }
 };
 
