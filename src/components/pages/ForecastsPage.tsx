@@ -588,12 +588,12 @@ return (
     {/* Toolbar & Table Card */}
     <Card>
       <CardContent className="space-y-4">
-        {/* Toolbar - Simplified without Export button */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          {/* Search - Full width on mobile, flexible on desktop */}
-          <div className="flex-1 min-w-0">
+        {/* Toolbar - Search left, controls right */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          {/* Search - Fixed width, left side */}
+          <div className="w-full sm:w-64 md:w-80">
             <Input
-              placeholder="Search by Product Code or Description..."
+              placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
@@ -601,15 +601,20 @@ return (
             />
           </div>
 
-          {/* Week Filter */}
-          <div className="w-36 flex-shrink-0">
-            <Select
-              options={WEEK_OPTIONS}
-              value={selectedWeeks}
-              onChange={handleWeekChange}
-              placeholder="Weeks"
-              size="md"
-            />
+          {/* Right side controls - Room for future buttons */}
+          <div className="flex items-center gap-3">
+            {/* Future buttons can go here */}
+
+            {/* Week Filter */}
+            <div className="w-32">
+              <Select
+                options={WEEK_OPTIONS}
+                value={selectedWeeks}
+                onChange={handleWeekChange}
+                placeholder="Weeks"
+                size="md"
+              />
+            </div>
           </div>
         </div>
 
@@ -736,7 +741,6 @@ return (
   </div>
 );
 }
-
 // ============== BLOCK 17: Default Export ==============
 
 export default ForecastsPage;
