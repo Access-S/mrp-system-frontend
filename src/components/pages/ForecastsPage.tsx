@@ -530,19 +530,19 @@ return (
       </div>
     </Drawer>
 
-    {/* Demand Chart - Only re-renders when data changes */}
-    {forecastData && forecastData.weeklyDemand.length > 0 && (
-      <div key={`chart-wrapper-${selectedWeeks}`}>
-        <BarChart
-          title="Weekly Demand Overview"
-          subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
-          data={chartData.units}
-          categories={chartData.categories}
-          icon={<ChartBarIcon className="h-6 w-6" />}
-          formatValue={(val) => formatNumber(val)}
-        />
-      </div>
-    )}
+      {/* Demand Chart - Only re-renders when data changes */}
+      {forecastData && forecastData.weeklyDemand.length > 0 && (
+        <div key={`chart-wrapper-${selectedWeeks}`}>
+          <MemoizedBarChart
+            title="Weekly Demand Overview"
+            subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
+            data={chartData.units}
+            categories={chartData.categories}
+            icon={<ChartBarIcon className="h-6 w-6" />}
+            formatValue={(val) => formatNumber(val)}
+          />
+        </div>
+      )}
 
     {/* Toolbar & Table Card */}
     <Card>
@@ -561,7 +561,7 @@ return (
           </div>
 
           {/* Controls Container - Flex row with gap */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="relative flex items-center gap-3 flex-shrink-0">
             {/* Week Filter */}
             <div className="w-36">
               <Select
@@ -573,7 +573,7 @@ return (
               />
             </div>
 
-            {/* Export Button with contained dropdown */}
+            {/* Export Button */}
             <div className="relative">
               <Button
                 variant="secondary"
@@ -587,34 +587,29 @@ return (
               >
                 Export
               </Button>
-
-              {/* Export Dropdown - Fixed positioning */}
-              {isExportMenuOpen && (
-                <>
-                  {/* Backdrop to close on outside click */}
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setIsExportMenuOpen(false)}
-                  />
-                  {/* Dropdown menu */}
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50">
-                    {EXPORT_OPTIONS.map((option) => (
-                      <button
-                        key={option.key}
-                        onClick={() => {
-                          handleExport(option.key);
-                          setIsExportMenuOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
-                      >
-                        <span>{option.icon}</span>
-                        <span>{option.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
+
+            {/* Export Dropdown - Fixed positioning (now relative to controls container) */}
+            {isExportMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsExportMenuOpen(false)} />
+                <div className="absolute left-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50">
+                  {EXPORT_OPTIONS.map((option) => (
+                    <button
+                      key={option.key}
+                      onClick={() => {
+                        handleExport(option.key);
+                        setIsExportMenuOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
+                    >
+                      <span>{option.icon}</span>
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
