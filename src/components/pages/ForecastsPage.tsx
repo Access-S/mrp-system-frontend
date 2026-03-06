@@ -530,79 +530,91 @@ return (
       </div>
     </Drawer>
 
-    {/* Demand Chart - Memoized with stable key */}
+    {/* Demand Chart - Only re-renders when data changes */}
     {forecastData && forecastData.weeklyDemand.length > 0 && (
-      <MemoizedBarChart
-        key={`chart-${selectedWeeks}-${forecastData.weeklyDemand.length}`}
-        title="Weekly Demand Overview"
-        subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
-        data={chartData.units}
-        categories={chartData.categories}
-        icon={<ChartBarIcon className="h-6 w-6" />}
-        formatValue={(val) => formatNumber(val)}
-      />
+      <div key={`chart-wrapper-${selectedWeeks}`}>
+        <BarChart
+          title="Weekly Demand Overview"
+          subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
+          data={chartData.units}
+          categories={chartData.categories}
+          icon={<ChartBarIcon className="h-6 w-6" />}
+          formatValue={(val) => formatNumber(val)}
+        />
+      </div>
     )}
 
     {/* Toolbar & Table Card */}
     <Card>
       <CardContent className="space-y-4">
-        {/* Toolbar - Responsive with flex-wrap and proper containment */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Search - Flexible with min-width */}
-          <div className="flex-1 min-w-[200px]">
+        {/* Toolbar - Fixed layout with proper spacing */}
+        <div className="flex flex-col lg:flex-row gap-3 lg:gap-4">
+          {/* Search - Full width on mobile, flexible on desktop */}
+          <div className="flex-1 min-w-0">
             <Input
-              placeholder="Search..."
+              placeholder="Search by Product Code or Description..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
               size="md"
-              className="w-full"
             />
           </div>
 
-          {/* Week Filter - Fixed width, flex-shrink-0 */}
-          <div className="w-32 flex-shrink-0">
-            <Select
-              options={WEEK_OPTIONS}
-              value={selectedWeeks}
-              onChange={handleWeekChange}
-              placeholder="Weeks"
-              size="md"
-              className="w-full"
-            />
-          </div>
+          {/* Controls Container - Flex row with gap */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Week Filter */}
+            <div className="w-36">
+              <Select
+                options={WEEK_OPTIONS}
+                value={selectedWeeks}
+                onChange={handleWeekChange}
+                placeholder="Weeks"
+                size="md"
+              />
+            </div>
 
-          {/* Export Button - Contained dropdown */}
-          <div className="relative flex-shrink-0">
-            <Button
-              variant="secondary"
-              size="md"
-              leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
-              rightIcon={<ChevronDownIcon className="h-4 w-4" />}
-              onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
-              className="whitespace-nowrap"
-            >
-              <span className="hidden sm:inline">Export</span>
-            </Button>
+            {/* Export Button with contained dropdown */}
+            <div className="relative">
+              <Button
+                variant="secondary"
+                size="md"
+                leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
+                rightIcon={<ChevronDownIcon className="h-4 w-4" />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExportMenuOpen(!isExportMenuOpen);
+                }}
+              >
+                Export
+              </Button>
 
-            {/* Dropdown - Positioned with z-index and containment */}
-            {isExportMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[60]">
-                {EXPORT_OPTIONS.map((option) => (
-                  <button
-                    key={option.key}
-                    onClick={() => {
-                      handleExport(option.key);
-                      setIsExportMenuOpen(false);
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
-                  >
-                    <span>{option.icon}</span>
-                    <span>{option.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+              {/* Export Dropdown - Fixed positioning */}
+              {isExportMenuOpen && (
+                <>
+                  {/* Backdrop to close on outside click */}
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setIsExportMenuOpen(false)}
+                  />
+                  {/* Dropdown menu */}
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50">
+                    {EXPORT_OPTIONS.map((option) => (
+                      <button
+                        key={option.key}
+                        onClick={() => {
+                          handleExport(option.key);
+                          setIsExportMenuOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
+                      >
+                        <span>{option.icon}</span>
+                        <span>{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
