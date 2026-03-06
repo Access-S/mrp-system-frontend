@@ -306,7 +306,9 @@ const kpiMetrics = useMemo(() => {
   };
 }, [forecastData]); // ✅ Add forecastData as dependency
 
-// ============== BLOCK 11: Chart Data (Fix memoization) ==============
+// src/components/pages/ForecastsPage.tsx
+
+// ============== BLOCK 11: Chart Data (Proper Memoization) ==============
 
 const chartData = useMemo(() => {
   if (!forecastData?.weeklyDemand) {
@@ -320,7 +322,10 @@ const chartData = useMemo(() => {
     units: forecastData.weeklyDemand.map((w) => w.totalUnits),
     hours: forecastData.weeklyDemand.map((w) => w.totalHours),
   };
-}, [forecastData?.weeklyDemand]); 
+}, [forecastData?.weeklyDemand]);
+
+// Memoized chart component wrapper to prevent re-renders on parent state changes
+const MemoizedBarChart = React.memo(BarChart);
 
   // ============== BLOCK 12: Event Handlers ==============
 
@@ -453,7 +458,7 @@ return (
               Manage and view forecasted sales data for all products
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Button
               variant="ghost"
               size="md"
@@ -525,9 +530,10 @@ return (
       </div>
     </Drawer>
 
-    {/* Demand Chart */}
+    {/* Demand Chart - Memoized with stable key */}
     {forecastData && forecastData.weeklyDemand.length > 0 && (
-      <BarChart
+      <MemoizedBarChart
+        key={`chart-${selectedWeeks}-${forecastData.weeklyDemand.length}`}
         title="Weekly Demand Overview"
         subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
         data={chartData.units}
@@ -540,12 +546,12 @@ return (
     {/* Toolbar & Table Card */}
     <Card>
       <CardContent className="space-y-4">
-        {/* Toolbar - Responsive with proper spacing */}
-        <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-          {/* Search - Flexible width */}
-          <div className="flex-1 min-w-0">
+        {/* Toolbar - Responsive with flex-wrap and proper containment */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search - Flexible with min-width */}
+          <div className="flex-1 min-w-[200px]">
             <Input
-              placeholder="Search by Product Code or Description..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
@@ -554,8 +560,8 @@ return (
             />
           </div>
 
-          {/* Week Filter - Fixed width on desktop, full on mobile */}
-          <div className="w-full md:w-36 flex-shrink-0">
+          {/* Week Filter - Fixed width, flex-shrink-0 */}
+          <div className="w-32 flex-shrink-0">
             <Select
               options={WEEK_OPTIONS}
               value={selectedWeeks}
@@ -566,7 +572,7 @@ return (
             />
           </div>
 
-          {/* Export Button - Prevent overflow */}
+          {/* Export Button - Contained dropdown */}
           <div className="relative flex-shrink-0">
             <Button
               variant="secondary"
@@ -574,14 +580,14 @@ return (
               leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
               rightIcon={<ChevronDownIcon className="h-4 w-4" />}
               onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
-              className="w-full md:w-auto justify-center md:justify-start"
+              className="whitespace-nowrap"
             >
               <span className="hidden sm:inline">Export</span>
             </Button>
 
-            {/* Export Dropdown - Position fixed to prevent clipping */}
+            {/* Dropdown - Positioned with z-index and containment */}
             {isExportMenuOpen && (
-              <div className="absolute right-0 md:right-auto md:left-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[60]">
                 {EXPORT_OPTIONS.map((option) => (
                   <button
                     key={option.key}
@@ -723,8 +729,6 @@ return (
   </div>
 );
 }
-
-
 
 // ============== BLOCK 17: Default Export ==============
 
