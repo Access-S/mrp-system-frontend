@@ -204,39 +204,39 @@ export function ForecastsPage() {
   const [forecastData, setForecastData] = useState<ForecastTableData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // ============== BLOCK 8: Data Fetching ==============
+// ============== BLOCK 8: Data Fetching ==============
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+const fetchData = useCallback(async () => {
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      // Fetch products first to get hours data
-      const products = await getAllProducts();
+  try {
+    // Fetch products first to get hours data
+    const products = await getAllProducts();
 
-      // Map products to the format needed by getForecastsWithProductData
-      const productData = products.map((p) => ({
-        productCode: p.productCode,
-        description: p.description,
-        minsPerShipper: p.minsPerShipper || 0,
-        unitsPerShipper: p.unitsPerShipper || 0,
-      }));
+    // Map products to the format needed by getForecastsWithProductData
+    const productData = products.map((p) => ({
+      productCode: p.productCode,
+      description: p.description,
+      minsPerShipper: p.minsPerShipper || 0,
+      unitsPerShipper: p.unitsPerShipper || 0,
+    }));
 
-      // Fetch forecasts with product data
-      const data = await getForecastsWithProductData(
-        productData,
-        parseInt(selectedWeeks)
-      );
+    // Fetch forecasts with product data
+    const data = await getForecastsWithProductData(
+      productData,
+      parseInt(selectedWeeks)
+    );
 
-      setForecastData(data);
-    } catch (err: any) {
-      console.error("Failed to fetch forecast data:", err);
-      setError(err.message || "Failed to load forecast data");
-      toast.error("Failed to load forecast data");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedWeeks, showToast]);
+    setForecastData(data);
+  } catch (err: any) {
+    console.error("Failed to fetch forecast data:", err);
+    setError(err.message || "Failed to load forecast data");
+    toast.error("Failed to load forecast data");
+  } finally {
+    setIsLoading(false);
+  }
+}, [selectedWeeks, toast]);
 
   useEffect(() => {
     fetchData();
