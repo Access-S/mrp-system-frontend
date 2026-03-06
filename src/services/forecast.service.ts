@@ -55,16 +55,29 @@ class ForecastService {
   async importForecastData(file: File): Promise<ForecastImportResult> {
     try {
       console.log('📊 Starting forecast import...');
-
+      console.log('🔍 File:', file.name, file.size, file.type);
+  
       const data = await file.arrayBuffer();
+      console.log('🔍 ArrayBuffer loaded, size:', data.byteLength);
+  
+      console.log('🔍 XLSX object:', typeof XLSX);
+      console.log('🔍 XLSX.read:', typeof XLSX.read);
+      
       const workbook = XLSX.read(data, { cellDates: true });
+      console.log('🔍 Workbook loaded, sheets:', workbook.SheetNames);
+  
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-
+      console.log('🔍 Worksheet loaded');
+  
+      console.log('🔍 XLSX.utils:', typeof XLSX.utils);
+      console.log('🔍 XLSX.utils.sheet_to_json:', typeof XLSX.utils.sheet_to_json);
+  
       const rawData: any[][] = XLSX.utils.sheet_to_json(worksheet, {
         header: 1,
         raw: false,
       });
-
+      console.log('🔍 Raw data rows:', rawData.length);
+  
       let headerRowIndex = -1;
       for (let i = 0; i < Math.min(5, rawData.length); i++) {
         const row = rawData[i];
@@ -81,14 +94,19 @@ class ForecastService {
           }
         }
       }
-
+  
+      console.log('🔍 Header row index:', headerRowIndex);
+  
       if (headerRowIndex === -1) {
         throw new Error("Could not find header row with 'Product' and 'Description' columns.");
       }
-
+  
       const headers = rawData[headerRowIndex];
+      console.log('🔍 Headers:', headers);
+  
       const dataRows = rawData.slice(headerRowIndex + 1);
-
+      console.log('🔍 Data rows count:', dataRows.length);
+  
       const jsonData = dataRows.map(row => {
         const obj: any = {};
         headers.forEach((header, index) => {
@@ -96,34 +114,41 @@ class ForecastService {
         });
         return obj;
       });
-
+  
+      console.log('🔍 JSON data sample:', jsonData.slice(0, 2));
+  
       if (!jsonData || jsonData.length === 0) {
         throw new Error("No data found after header row.");
       }
-
+  
       const productCodeHeader = headers.find(h =>
         h && typeof h === 'string' && h.toLowerCase().includes('product')
       );
-
+  
+      console.log('🔍 Product code header:', productCodeHeader);
+  
       if (!productCodeHeader) {
         throw new Error(`Could not find 'Product' column. Headers: ${headers.join(", ")}`);
       }
-
+  
       const formData = new FormData();
       formData.append('forecastFile', file);
       formData.append('data', JSON.stringify(jsonData));
-
-      // Fixed: Trimmed trailing spaces from URL
+  
+      console.log('🔍 FormData prepared, sending to backend...');
+  
       const response = await fetch('https://mrp-1.onrender.com/api/forecasts/upload', {
         method: 'POST',
         body: formData,
       });
-
+  
+      console.log('🔍 Response status:', response.status);
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to import forecasts');
       }
-
+  
       const result: ForecastImportResult = await response.json();
       
       console.log(`✅ Forecast import completed: ${result.imported} records imported`);
@@ -133,7 +158,7 @@ class ForecastService {
       }
       
       return result;
-
+  
     } catch (error) {
       console.error('❌ Forecast import failed:', error);
       throw new Error(handleApiError(error));
