@@ -469,7 +469,7 @@ return (
               {isDrawerOpen ? "Hide Insights" : "Show Insights"}
             </Button>
 
-            {/* Export Button - Moved here from toolbar */}
+            {/* Export Button */}
             <div className="relative">
               <Button
                 variant="secondary"
@@ -589,9 +589,9 @@ return (
     <Card>
       <CardContent className="space-y-4">
         {/* Toolbar - Search left, controls right */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          {/* Search - Fixed width, left side */}
-          <div className="w-full sm:w-64 md:w-80">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          {/* Search Input - Fixed width like PurchaseOrdersPage */}
+          <div className="flex-1 max-w-md">
             <Input
               placeholder="Search products..."
               value={searchQuery}
@@ -601,20 +601,19 @@ return (
             />
           </div>
 
-          {/* Right side controls - Room for future buttons */}
-          <div className="flex items-center gap-3">
+          {/* Right Side Controls */}
+          <div className="flex flex-wrap items-center gap-3">
             {/* Future buttons can go here */}
 
-            {/* Week Filter */}
-            <div className="w-32">
-              <Select
-                options={WEEK_OPTIONS}
-                value={selectedWeeks}
-                onChange={handleWeekChange}
-                placeholder="Weeks"
-                size="md"
-              />
-            </div>
+            {/* Week Filter - className directly on Select like PurchaseOrdersPage */}
+            <Select
+              options={WEEK_OPTIONS}
+              value={selectedWeeks}
+              onChange={handleWeekChange}
+              placeholder="Weeks"
+              size="md"
+              className="w-36"
+            />
           </div>
         </div>
 
@@ -741,6 +740,7 @@ return (
   </div>
 );
 }
+
 // ============== BLOCK 17: Default Export ==============
 
 export default ForecastsPage;
