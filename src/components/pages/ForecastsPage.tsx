@@ -437,188 +437,293 @@ const chartData = useMemo(() => {
     h.key.startsWith("week_")
   ) || [];
 
- // ============== BLOCK 16: Render — Toolbar Section ==============
+// ============== BLOCK 16: Render ==============
 
-{/* Toolbar & Table Card */}
-<Card>
-  <CardContent className="space-y-4">
-    {/* Toolbar - Responsive with proper spacing */}
-    <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-      {/* Search - Flexible width */}
-      <div className="flex-1 min-w-0">
-        <Input
-          placeholder="Search by Product Code or Description..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
-          size="md"
-          className="w-full"
-        />
-      </div>
-
-      {/* Week Filter - Fixed width on desktop, full on mobile */}
-      <div className="w-full md:w-36 flex-shrink-0">
-        <Select
-          options={WEEK_OPTIONS}
-          value={selectedWeeks}
-          onChange={handleWeekChange}
-          placeholder="Weeks"
-          size="md"
-          className="w-full"
-        />
-      </div>
-
-      {/* Export Button - Prevent overflow */}
-      <div className="relative flex-shrink-0">
-        <Button
-          variant="secondary"
-          size="md"
-          leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
-          rightIcon={<ChevronDownIcon className="h-4 w-4" />}
-          onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
-          className="w-full md:w-auto justify-center md:justify-start"
-        >
-          <span className="hidden sm:inline">Export</span>
-        </Button>
-
-        {/* Export Dropdown - Position fixed to prevent clipping */}
-        {isExportMenuOpen && (
-          <div className="absolute right-0 md:right-auto md:left-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
-            {EXPORT_OPTIONS.map((option) => (
-              <button
-                key={option.key}
-                onClick={() => {
-                  handleExport(option.key);
-                  setIsExportMenuOpen(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
-              >
-                <span>{option.icon}</span>
-                <span>{option.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-
-          {/* Results Count */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Showing{" "}
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {filteredRows.length}
-              </span>{" "}
-              of{" "}
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {forecastData?.totalProducts || 0}
-              </span>{" "}
-              products
+return (
+  <div className="space-y-6">
+    {/* Header Card */}
+    <Card>
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              Sales Forecasts
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Manage and view forecasted sales data for all products
             </p>
-            <Badge variant="subtle" color="primary" size="sm">
-              {selectedWeeks} Week View
-            </Badge>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="md"
+              leftIcon={<ChartBarIcon className="h-4 w-4" />}
+              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+            >
+              {isDrawerOpen ? "Hide Insights" : "Show Insights"}
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
+              onClick={() => setIsImportModalOpen(true)}
+            >
+              Import Forecast
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
+
+    {/* KPI Drawer */}
+    <Drawer
+      isOpen={isDrawerOpen}
+      onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
+      showHeader={false}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard
+          title="Active Products"
+          value={kpiMetrics.activeProducts}
+          format="number"
+          color="blue"
+          trend={{
+            value: kpiMetrics.totalProducts,
+            isPositive: true,
+          }}
+          sparklineData={chartData.units.slice(0, 4)}
+          sparklineType="bar"
+          sparklineColor="#3b82f6"
+        />
+        <KPICard
+          title="Total Demand"
+          value={kpiMetrics.totalDemandUnits}
+          format="number"
+          color="green"
+          sparklineData={chartData.units}
+          sparklineType="area"
+          sparklineColor="#10b981"
+        />
+        <KPICard
+          title="Total Hours"
+          value={kpiMetrics.totalDemandHours}
+          format="hours"
+          color="purple"
+          sparklineData={chartData.hours}
+          sparklineType="line"
+          sparklineColor="#8b5cf6"
+        />
+        <KPICard
+          title="Peak Week"
+          value={kpiMetrics.peakWeek.units}
+          format="number"
+          color="yellow"
+          sparklineData={chartData.units}
+          sparklineType="bar"
+          sparklineColor="#f59e0b"
+        />
+      </div>
+    </Drawer>
+
+    {/* Demand Chart */}
+    {forecastData && forecastData.weeklyDemand.length > 0 && (
+      <BarChart
+        title="Weekly Demand Overview"
+        subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
+        data={chartData.units}
+        categories={chartData.categories}
+        icon={<ChartBarIcon className="h-6 w-6" />}
+        formatValue={(val) => formatNumber(val)}
+      />
+    )}
+
+    {/* Toolbar & Table Card */}
+    <Card>
+      <CardContent className="space-y-4">
+        {/* Toolbar - Responsive with proper spacing */}
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+          {/* Search - Flexible width */}
+          <div className="flex-1 min-w-0">
+            <Input
+              placeholder="Search by Product Code or Description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
+              size="md"
+              className="w-full"
+            />
           </div>
 
-          {/* Table */}
-          {filteredRows.length > 0 ? (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <Table variant="striped" size="sm" hoverable>
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.Head className="min-w-[120px]">Product Code</Table.Head>
-                      <Table.Head className="min-w-[200px]">Description</Table.Head>
-                      {weekColumns.map((week) => (
+          {/* Week Filter - Fixed width on desktop, full on mobile */}
+          <div className="w-full md:w-36 flex-shrink-0">
+            <Select
+              options={WEEK_OPTIONS}
+              value={selectedWeeks}
+              onChange={handleWeekChange}
+              placeholder="Weeks"
+              size="md"
+              className="w-full"
+            />
+          </div>
+
+          {/* Export Button - Prevent overflow */}
+          <div className="relative flex-shrink-0">
+            <Button
+              variant="secondary"
+              size="md"
+              leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
+              rightIcon={<ChevronDownIcon className="h-4 w-4" />}
+              onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+              className="w-full md:w-auto justify-center md:justify-start"
+            >
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+
+            {/* Export Dropdown - Position fixed to prevent clipping */}
+            {isExportMenuOpen && (
+              <div className="absolute right-0 md:right-auto md:left-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                {EXPORT_OPTIONS.map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => {
+                      handleExport(option.key);
+                      setIsExportMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
+                  >
+                    <span>{option.icon}</span>
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Showing{" "}
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {filteredRows.length}
+            </span>{" "}
+            of{" "}
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {forecastData?.totalProducts || 0}
+            </span>{" "}
+            products
+          </p>
+          <Badge variant="subtle" color="primary" size="sm">
+            {selectedWeeks} Week View
+          </Badge>
+        </div>
+
+        {/* Table */}
+        {filteredRows.length > 0 ? (
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table variant="striped" size="sm" hoverable>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head className="min-w-[120px]">Product Code</Table.Head>
+                    <Table.Head className="min-w-[200px]">Description</Table.Head>
+                    {weekColumns.map((week) => {
+                      // Safe helper to extract date from label without inline regex issues
+                      const getDatePart = (label: string): string => {
+                        const match = label.match(/\(([^)]+)\)/);
+                        return match ? match[1] : "";
+                      };
+                      
+                      return (
                         <Table.Head key={week.key} className="text-center min-w-[100px]">
                           {week.label.replace("Week ", "W").split(" (")[0]}
                           <div className="text-xs font-normal text-gray-400">
-                            {week.label.match(/\(([^)]+)\)/)?.[1] || ""}
+                            {getDatePart(week.label)}
                           </div>
                         </Table.Head>
-                      ))}
-                      <Table.Head className="text-center min-w-[80px]">Total</Table.Head>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {filteredRows.map((row, rowIndex) => {
-                      // Calculate row max for heat map
-                      const rowValues = weekColumns.map(
-                        (week) => row.weeklyForecast?.[week.key] || 0
-                      );
-                      const rowMax = Math.max(...rowValues, 0);
-                      const rowTotal = rowValues.reduce((sum, val) => sum + val, 0);
-
-                      return (
-                        <Table.Row key={`${row.productCode}-${rowIndex}`}>
-                          <Table.Cell className="font-medium">
-                            {row.productCode}
-                          </Table.Cell>
-                          <Table.Cell className="text-gray-600 dark:text-gray-400">
-                            {row.description || "-"}
-                          </Table.Cell>
-                          {weekColumns.map((week) => {
-                            const value = row.weeklyForecast?.[week.key] || 0;
-                            const colorClass = getHeatMapColor(
-                              value,
-                              rowMax,
-                              theme.isDark
-                            );
-
-                            return (
-                              <Table.Cell
-                                key={week.key}
-                                className={`text-center ${colorClass} transition-colors`}
-                              >
-                                {value > 0 ? formatNumber(value) : "-"}
-                              </Table.Cell>
-                            );
-                          })}
-                          <Table.Cell className="text-center font-semibold">
-                            {rowTotal > 0 ? formatNumber(rowTotal) : "-"}
-                          </Table.Cell>
-                        </Table.Row>
                       );
                     })}
-                  </Table.Body>
-                </Table>
-              </div>
-            </div>
-          ) : (
-            <EmptyState
-              variant={searchQuery ? "search" : "default"}
-              title={searchQuery ? "No matching products" : "No forecast data"}
-              description={
-                searchQuery
-                  ? `No products found matching "${searchQuery}"`
-                  : "Import a forecast file to get started"
-              }
-              action={
-                !searchQuery && (
-                  <Button
-                    variant="primary"
-                    leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
-                    onClick={() => setIsImportModalOpen(true)}
-                  >
-                    Import Forecast
-                  </Button>
-                )
-              }
-            />
-          )}
-        </CardContent>
-      </Card>
+                    <Table.Head className="text-center min-w-[80px]">Total</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {filteredRows.map((row, rowIndex) => {
+                    // Calculate row max for heat map
+                    const rowValues = weekColumns.map(
+                      (week) => row.weeklyForecast?.[week.key] || 0
+                    );
+                    const rowMax = Math.max(...rowValues, 0);
+                    const rowTotal = rowValues.reduce((sum, val) => sum + val, 0);
 
-      {/* Import Modal */}
-      <ExcelImportModal
-        open={isImportModalOpen}
-        handleOpen={() => setIsImportModalOpen(!isImportModalOpen)}
-        onImport={handleImport}
-        title="Import Sales Forecast"
-      />
-    </div>
-  );
-}
+                    return (
+                      <Table.Row key={`${row.productCode}-${rowIndex}`}>
+                        <Table.Cell className="font-medium">
+                          {row.productCode}
+                        </Table.Cell>
+                        <Table.Cell className="text-gray-600 dark:text-gray-400">
+                          {row.description || "-"}
+                        </Table.Cell>
+                        {weekColumns.map((week) => {
+                          const value = row.weeklyForecast?.[week.key] || 0;
+                          const colorClass = getHeatMapColor(
+                            value,
+                            rowMax,
+                            theme.isDark
+                          );
+
+                          return (
+                            <Table.Cell
+                              key={week.key}
+                              className={`text-center ${colorClass} transition-colors`}
+                            >
+                              {value > 0 ? formatNumber(value) : "-"}
+                            </Table.Cell>
+                          );
+                        })}
+                        <Table.Cell className="text-center font-semibold">
+                          {rowTotal > 0 ? formatNumber(rowTotal) : "-"}
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table>
+            </div>
+          </div>
+        ) : (
+          <EmptyState
+            variant={searchQuery ? "search" : "default"}
+            title={searchQuery ? "No matching products" : "No forecast data"}
+            description={
+              searchQuery
+                ? `No products found matching "${searchQuery}"`
+                : "Import a forecast file to get started"
+            }
+            action={
+              !searchQuery && (
+                <Button
+                  variant="primary"
+                  leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
+                  onClick={() => setIsImportModalOpen(true)}
+                >
+                  Import Forecast
+                </Button>
+              )
+            }
+          />
+        )}
+      </CardContent>
+    </Card>
+
+    {/* Import Modal */}
+    <ExcelImportModal
+      open={isImportModalOpen}
+      handleOpen={() => setIsImportModalOpen(!isImportModalOpen)}
+      onImport={handleImport}
+      title="Import Sales Forecast"
+    />
+  </div>
+);
 
 // ============== BLOCK 17: Default Export ==============
 
