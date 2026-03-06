@@ -1,8 +1,12 @@
 // src/components/dashboard/charts/BarChart.tsx
 
-import React, { useEffect, useRef } from 'react';
+// ============== BLOCK 1: Imports ==============
+
+import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import ApexCharts from 'apexcharts';
 import { useTheme } from '../../../contexts/ThemeContext';
+
+// ============== BLOCK 2: Types & Interfaces ==============
 
 interface BarChartProps {
   title: string;
@@ -25,8 +29,19 @@ interface MultipleBarChartProps {
   formatValue?: (value: number) => string;
 }
 
-// Single Bar Chart (keep existing)
-export function BarChart({
+// ============== BLOCK 3: Debug Helper ==============
+
+const DEBUG_CHARTS = true; // Set to false to disable logging
+
+const debugLog = (chartTitle: string, message: string, data?: any) => {
+  if (!DEBUG_CHARTS) return;
+  const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
+  console.log(`[${timestamp}] 📊 ${chartTitle}: ${message}`, data || '');
+};
+
+// ============== BLOCK 4: Single Bar Chart ==============
+
+export const BarChart = React.memo(function BarChart({
   title,
   subtitle,
   data,
@@ -39,9 +54,32 @@ export function BarChart({
   const { theme } = useTheme();
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<ApexCharts | null>(null);
+  const renderCount = useRef(0);
+
+  // Track renders
+  renderCount.current += 1;
+  debugLog(title, `Component render #${renderCount.current}`);
+
+  // Memoize the formatter to prevent unnecessary re-renders
+  const stableFormatValue = useCallback(
+    (val: number) => {
+      return formatValue ? formatValue(val) : val.toString();
+    },
+    []
+  );
+
+  // Memoize data arrays to detect actual changes
+  const dataKey = useMemo(() => JSON.stringify(data), [data]);
+  const categoriesKey = useMemo(() => JSON.stringify(categories), [categories]);
 
   useEffect(() => {
     if (!chartRef.current) return;
+
+    debugLog(title, 'useEffect triggered - Creating/Updating chart', {
+      dataLength: data.length,
+      categoriesLength: categories.length,
+      isDark: theme.isDark,
+    });
 
     const chartConfig: ApexCharts.ApexOptions = {
       series: [
@@ -57,6 +95,11 @@ export function BarChart({
           show: false,
         },
         background: 'transparent',
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 300,
+        },
       },
       dataLabels: {
         enabled: false,
@@ -93,7 +136,7 @@ export function BarChart({
             fontFamily: 'inherit',
             fontWeight: 400,
           },
-          formatter: formatValue || ((val) => val.toString()),
+          formatter: stableFormatValue,
         },
       },
       grid: {
@@ -116,24 +159,27 @@ export function BarChart({
       tooltip: {
         theme: theme.isDark ? 'dark' : 'light',
         y: {
-          formatter: formatValue || ((val) => val.toString()),
+          formatter: stableFormatValue,
         },
       },
     };
 
     if (chartInstance.current) {
+      debugLog(title, 'Destroying previous chart instance');
       chartInstance.current.destroy();
     }
 
+    debugLog(title, 'Creating new chart instance');
     chartInstance.current = new ApexCharts(chartRef.current, chartConfig);
     chartInstance.current.render();
 
     return () => {
       if (chartInstance.current) {
+        debugLog(title, 'Cleanup - Destroying chart instance');
         chartInstance.current.destroy();
       }
     };
-  }, [data, categories, theme.isDark, color, height, title, formatValue]);
+  }, [dataKey, categoriesKey, theme.isDark, color, height, title, stableFormatValue]);
 
   return (
     <div className={`relative flex flex-col rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md`}>
@@ -159,10 +205,11 @@ export function BarChart({
       </div>
     </div>
   );
-}
+});
 
-// Multiple Bar Chart (NEW)
-export function MultipleBarChart({
+// ============== BLOCK 5: Multiple Bar Chart ==============
+
+export const MultipleBarChart = React.memo(function MultipleBarChart({
   title,
   subtitle,
   series,
@@ -174,9 +221,33 @@ export function MultipleBarChart({
   const { theme } = useTheme();
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<ApexCharts | null>(null);
+  const renderCount = useRef(0);
+
+  // Track renders
+  renderCount.current += 1;
+  debugLog(title, `Component render #${renderCount.current}`);
+
+  // Memoize the formatter to prevent unnecessary re-renders
+  const stableFormatValue = useCallback(
+    (val: number) => {
+      return formatValue ? formatValue(val) : Math.round(val).toString();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  // Memoize data arrays to detect actual changes
+  const seriesKey = useMemo(() => JSON.stringify(series), [series]);
+  const categoriesKey = useMemo(() => JSON.stringify(categories), [categories]);
 
   useEffect(() => {
     if (!chartRef.current) return;
+
+    debugLog(title, 'useEffect triggered - Creating/Updating chart', {
+      seriesCount: series.length,
+      categoriesLength: categories.length,
+      isDark: theme.isDark,
+    });
 
     // Default colors: Blue for Received, Green for Despatched
     const defaultColors = theme.isDark 
@@ -184,7 +255,7 @@ export function MultipleBarChart({
       : ['#020617', '#10b981']; // Dark gray, Green (light mode)
 
     const chartConfig: ApexCharts.ApexOptions = {
-      series: series.map((s, index) => ({
+      series: series.map((s) => ({
         name: s.name,
         data: s.data,
       })),
@@ -195,6 +266,11 @@ export function MultipleBarChart({
           show: false,
         },
         background: 'transparent',
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 300,
+        },
       },
       plotOptions: {
         bar: {
@@ -238,7 +314,7 @@ export function MultipleBarChart({
             fontFamily: 'inherit',
             fontWeight: 400,
           },
-          formatter: formatValue || ((val) => Math.round(val).toString()),
+          formatter: stableFormatValue,
         },
       },
       grid: {
@@ -273,24 +349,27 @@ export function MultipleBarChart({
       tooltip: {
         theme: theme.isDark ? 'dark' : 'light',
         y: {
-          formatter: formatValue || ((val) => val.toString()),
+          formatter: stableFormatValue,
         },
       },
     };
 
     if (chartInstance.current) {
+      debugLog(title, 'Destroying previous chart instance');
       chartInstance.current.destroy();
     }
 
+    debugLog(title, 'Creating new chart instance');
     chartInstance.current = new ApexCharts(chartRef.current, chartConfig);
     chartInstance.current.render();
 
     return () => {
       if (chartInstance.current) {
+        debugLog(title, 'Cleanup - Destroying chart instance');
         chartInstance.current.destroy();
       }
     };
-  }, [series, categories, theme.isDark, height, formatValue]);
+  }, [seriesKey, categoriesKey, theme.isDark, height, title, series, stableFormatValue]);
 
   return (
     <div className={`relative flex flex-col rounded-xl ${theme.isDark ? 'bg-slate-800' : 'bg-white'} shadow-md`}>
@@ -316,4 +395,8 @@ export function MultipleBarChart({
       </div>
     </div>
   );
-}
+});
+
+// ============== BLOCK 6: Exports ==============
+
+export default BarChart;

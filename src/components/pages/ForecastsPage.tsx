@@ -306,8 +306,6 @@ const kpiMetrics = useMemo(() => {
   };
 }, [forecastData]); // ✅ Add forecastData as dependency
 
-// src/components/pages/ForecastsPage.tsx
-
 // ============== BLOCK 11: Chart Data (Proper Memoization) ==============
 
 const chartData = useMemo(() => {
@@ -324,8 +322,11 @@ const chartData = useMemo(() => {
   };
 }, [forecastData?.weeklyDemand]);
 
-// Memoized chart component wrapper to prevent re-renders on parent state changes
-const MemoizedBarChart = React.memo(BarChart);
+// Stable formatter to prevent chart re-renders
+const chartFormatValue = useCallback(
+  (val: number) => formatNumber(val),
+  []
+);
 
   // ============== BLOCK 12: Event Handlers ==============
 
@@ -467,6 +468,48 @@ return (
             >
               {isDrawerOpen ? "Hide Insights" : "Show Insights"}
             </Button>
+            
+            {/* Export Button - Moved here from toolbar */}
+            <div className="relative">
+              <Button
+                variant="secondary"
+                size="md"
+                leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
+                rightIcon={<ChevronDownIcon className="h-4 w-4" />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExportMenuOpen(!isExportMenuOpen);
+                }}
+              >
+                Export
+              </Button>
+
+              {/* Export Dropdown */}
+              {isExportMenuOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setIsExportMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50">
+                    {EXPORT_OPTIONS.map((option) => (
+                      <button
+                        key={option.key}
+                        onClick={() => {
+                          handleExport(option.key);
+                          setIsExportMenuOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
+                      >
+                        <span>{option.icon}</span>
+                        <span>{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
             <Button
               variant="primary"
               size="md"
@@ -530,25 +573,23 @@ return (
       </div>
     </Drawer>
 
-      {/* Demand Chart - Only re-renders when data changes */}
-      {forecastData && forecastData.weeklyDemand.length > 0 && (
-        <div key={`chart-wrapper-${selectedWeeks}`}>
-          <MemoizedBarChart
-            title="Weekly Demand Overview"
-            subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
-            data={chartData.units}
-            categories={chartData.categories}
-            icon={<ChartBarIcon className="h-6 w-6" />}
-            formatValue={(val) => formatNumber(val)}
-          />
-        </div>
-      )}
+    {/* Demand Chart - Only re-renders when data changes */}
+    {forecastData && forecastData.weeklyDemand.length > 0 && (
+      <BarChart
+        title="Weekly Demand Overview"
+        subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
+        data={chartData.units}
+        categories={chartData.categories}
+        icon={<ChartBarIcon className="h-6 w-6" />}
+        formatValue={chartFormatValue}
+      />
+    )}
 
     {/* Toolbar & Table Card */}
     <Card>
       <CardContent className="space-y-4">
-        {/* Toolbar - Fixed layout with proper spacing */}
-        <div className="flex flex-col lg:flex-row gap-3 lg:gap-4">
+        {/* Toolbar - Simplified without Export button */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           {/* Search - Full width on mobile, flexible on desktop */}
           <div className="flex-1 min-w-0">
             <Input
@@ -560,18 +601,17 @@ return (
             />
           </div>
 
-          {/* Controls Container - Flex row with gap */}
-          <div className="relative flex items-center gap-3 flex-shrink-0">
-            {/* Week Filter */}
-            <div className="w-36">
-              <Select
-                options={WEEK_OPTIONS}
-                value={selectedWeeks}
-                onChange={handleWeekChange}
-                placeholder="Weeks"
-                size="md"
-              />
-            </div>
+          {/* Week Filter */}
+          <div className="w-36 flex-shrink-0">
+            <Select
+              options={WEEK_OPTIONS}
+              value={selectedWeeks}
+              onChange={handleWeekChange}
+              placeholder="Weeks"
+              size="md"
+            />
+          </div>
+        </div>
 
             {/* Export Button */}
             <div className="relative">
