@@ -246,80 +246,81 @@ export function ForecastsPage() {
     fetchData();
   }, [fetchData]);
 
-  // ============== BLOCK 9: Filtered Data ==============
+// ============== BLOCK 9: Filtered Data (Add forecastData to deps) ==============
 
-  const filteredRows = useMemo(() => {
-    if (!forecastData?.rows) return [];
+const filteredRows = useMemo(() => {
+  if (!forecastData?.rows) return [];
 
-    if (!searchQuery.trim()) return forecastData.rows;
+  if (!searchQuery.trim()) return forecastData.rows;
 
-    const query = searchQuery.toLowerCase().trim();
-    return forecastData.rows.filter(
-      (row) =>
-        row.productCode.toLowerCase().includes(query) ||
-        row.description.toLowerCase().includes(query)
-    );
-  }, [forecastData?.rows, searchQuery]);
+  const query = searchQuery.toLowerCase().trim();
+  return forecastData.rows.filter(
+    (row) =>
+      row.productCode.toLowerCase().includes(query) ||
+      row.description.toLowerCase().includes(query)
+  );
+}, [forecastData?.rows, searchQuery]);
 
-  // ============== BLOCK 10: KPI Calculations ==============
 
-  const kpiMetrics = useMemo(() => {
-    if (!forecastData) {
-      return {
-        activeProducts: 0,
-        totalProducts: 0,
-        totalDemandUnits: 0,
-        totalDemandHours: 0,
-        peakWeek: { label: "-", units: 0 },
-        avgWeeklyDemand: 0,
-      };
-    }
+// ============== BLOCK 10: KPI Calculations (Add missing deps) ==============
 
-    const totalDemandUnits = forecastData.weeklyDemand.reduce(
-      (sum, week) => sum + week.totalUnits,
-      0
-    );
-
-    const totalDemandHours = forecastData.weeklyDemand.reduce(
-      (sum, week) => sum + week.totalHours,
-      0
-    );
-
-    const peakWeek = forecastData.weeklyDemand.reduce(
-      (peak, week) => (week.totalUnits > peak.units ? { label: week.weekLabel, units: week.totalUnits } : peak),
-      { label: "-", units: 0 }
-    );
-
-    const avgWeeklyDemand =
-      forecastData.weeklyDemand.length > 0
-        ? totalDemandUnits / forecastData.weeklyDemand.length
-        : 0;
-
+const kpiMetrics = useMemo(() => {
+  if (!forecastData) {
     return {
-      activeProducts: forecastData.activeProducts,
-      totalProducts: forecastData.totalProducts,
-      totalDemandUnits,
-      totalDemandHours,
-      peakWeek,
-      avgWeeklyDemand,
+      activeProducts: 0,
+      totalProducts: 0,
+      totalDemandUnits: 0,
+      totalDemandHours: 0,
+      peakWeek: { label: "-", units: 0 },
+      avgWeeklyDemand: 0,
     };
-  }, [forecastData]);
+  }
 
-  // ============== BLOCK 11: Chart Data ==============
+  const totalDemandUnits = forecastData.weeklyDemand.reduce(
+    (sum, week) => sum + week.totalUnits,
+    0
+  );
 
-  const chartData = useMemo(() => {
-    if (!forecastData?.weeklyDemand) {
-      return { categories: [], units: [], hours: [] };
-    }
+  const totalDemandHours = forecastData.weeklyDemand.reduce(
+    (sum, week) => sum + week.totalHours,
+    0
+  );
 
-    return {
-      categories: forecastData.weeklyDemand.map((w) =>
-        w.weekLabel.replace("Week ", "W").split(" (")[0]
-      ),
-      units: forecastData.weeklyDemand.map((w) => w.totalUnits),
-      hours: forecastData.weeklyDemand.map((w) => w.totalHours),
-    };
-  }, [forecastData?.weeklyDemand]);
+  const peakWeek = forecastData.weeklyDemand.reduce(
+    (peak, week) => (week.totalUnits > peak.units ? { label: week.weekLabel, units: week.totalUnits } : peak),
+    { label: "-", units: 0 }
+  );
+
+  const avgWeeklyDemand =
+    forecastData.weeklyDemand.length > 0
+      ? totalDemandUnits / forecastData.weeklyDemand.length
+      : 0;
+
+  return {
+    activeProducts: forecastData.activeProducts,
+    totalProducts: forecastData.totalProducts,
+    totalDemandUnits,
+    totalDemandHours,
+    peakWeek,
+    avgWeeklyDemand,
+  };
+}, [forecastData]); // ✅ Add forecastData as dependency
+
+// ============== BLOCK 11: Chart Data (Fix memoization) ==============
+
+const chartData = useMemo(() => {
+  if (!forecastData?.weeklyDemand) {
+    return { categories: [], units: [], hours: [] };
+  }
+
+  return {
+    categories: forecastData.weeklyDemand.map((w) =>
+      w.weekLabel.replace("Week ", "W").split(" (")[0]
+    ),
+    units: forecastData.weeklyDemand.map((w) => w.totalUnits),
+    hours: forecastData.weeklyDemand.map((w) => w.totalHours),
+  };
+}, [forecastData?.weeklyDemand]); 
 
   // ============== BLOCK 12: Event Handlers ==============
 
@@ -436,162 +437,70 @@ export function ForecastsPage() {
     h.key.startsWith("week_")
   ) || [];
 
-  // ============== BLOCK 16: Render ==============
+ // ============== BLOCK 16: Render — Toolbar Section ==============
 
-  return (
-    <div className="space-y-6">
-      {/* Header Card */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                Sales Forecasts
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Manage and view forecasted sales data for all products
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="md"
-                leftIcon={<ChartBarIcon className="h-4 w-4" />}
-                onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              >
-                {isDrawerOpen ? "Hide Insights" : "Show Insights"}
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
-                onClick={() => setIsImportModalOpen(true)}
-              >
-                Import Forecast
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* KPI Drawer */}
-      <Drawer
-        isOpen={isDrawerOpen}
-        onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
-        showHeader={false}
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KPICard
-            title="Active Products"
-            value={kpiMetrics.activeProducts}
-            format="number"
-            color="blue"
-            trend={{
-              value: kpiMetrics.totalProducts,
-              isPositive: true,
-            }}
-            sparklineData={chartData.units.slice(0, 4)}
-            sparklineType="bar"
-            sparklineColor="#3b82f6"
-          />
-          <KPICard
-            title="Total Demand"
-            value={kpiMetrics.totalDemandUnits}
-            format="number"
-            color="green"
-            sparklineData={chartData.units}
-            sparklineType="area"
-            sparklineColor="#10b981"
-          />
-          <KPICard
-            title="Total Hours"
-            value={kpiMetrics.totalDemandHours}
-            format="hours"
-            color="purple"
-            sparklineData={chartData.hours}
-            sparklineType="line"
-            sparklineColor="#8b5cf6"
-          />
-          <KPICard
-            title="Peak Week"
-            value={kpiMetrics.peakWeek.units}
-            format="number"
-            color="yellow"
-            sparklineData={chartData.units}
-            sparklineType="bar"
-            sparklineColor="#f59e0b"
-          />
-        </div>
-      </Drawer>
-
-      {/* Demand Chart */}
-      {forecastData && forecastData.weeklyDemand.length > 0 && (
-        <BarChart
-          title="Weekly Demand Overview"
-          subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
-          data={chartData.units}
-          categories={chartData.categories}
-          icon={<ChartBarIcon className="h-6 w-6" />}
-          formatValue={(val) => formatNumber(val)}
+{/* Toolbar & Table Card */}
+<Card>
+  <CardContent className="space-y-4">
+    {/* Toolbar - Responsive with proper spacing */}
+    <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+      {/* Search - Flexible width */}
+      <div className="flex-1 min-w-0">
+        <Input
+          placeholder="Search by Product Code or Description..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
+          size="md"
+          className="w-full"
         />
-      )}
+      </div>
 
-      {/* Toolbar & Table Card */}
-      <Card>
-        <CardContent className="space-y-4">
-          {/* Toolbar */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1">
-              <Input
-                placeholder="Search by Product Code or Description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
-                size="md"
-              />
-            </div>
+      {/* Week Filter - Fixed width on desktop, full on mobile */}
+      <div className="w-full md:w-36 flex-shrink-0">
+        <Select
+          options={WEEK_OPTIONS}
+          value={selectedWeeks}
+          onChange={handleWeekChange}
+          placeholder="Weeks"
+          size="md"
+          className="w-full"
+        />
+      </div>
 
-            {/* Week Filter */}
-            <div className="w-full sm:w-40">
-              <Select
-                options={WEEK_OPTIONS}
-                value={selectedWeeks}
-                onChange={handleWeekChange}
-                placeholder="Select weeks"
-                size="md"
-              />
-            </div>
+      {/* Export Button - Prevent overflow */}
+      <div className="relative flex-shrink-0">
+        <Button
+          variant="secondary"
+          size="md"
+          leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
+          rightIcon={<ChevronDownIcon className="h-4 w-4" />}
+          onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+          className="w-full md:w-auto justify-center md:justify-start"
+        >
+          <span className="hidden sm:inline">Export</span>
+        </Button>
 
-            {/* Export Button */}
-            <div className="relative">
-              <Button
-                variant="secondary"
-                size="md"
-                leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
-                rightIcon={<ChevronDownIcon className="h-4 w-4" />}
-                onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+        {/* Export Dropdown - Position fixed to prevent clipping */}
+        {isExportMenuOpen && (
+          <div className="absolute right-0 md:right-auto md:left-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+            {EXPORT_OPTIONS.map((option) => (
+              <button
+                key={option.key}
+                onClick={() => {
+                  handleExport(option.key);
+                  setIsExportMenuOpen(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
               >
-                Export
-              </Button>
-
-              {/* Export Dropdown */}
-              {isExportMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
-                  {EXPORT_OPTIONS.map((option) => (
-                    <button
-                      key={option.key}
-                      onClick={() => handleExport(option.key)}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
-                    >
-                      <span>{option.icon}</span>
-                      <span>{option.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                <span>{option.icon}</span>
+                <span>{option.label}</span>
+              </button>
+            ))}
           </div>
+        )}
+      </div>
+    </div>
 
           {/* Results Count */}
           <div className="flex items-center justify-between">
