@@ -232,11 +232,10 @@ const fetchData = useCallback(async () => {
   } catch (err: any) {
     console.error("Failed to fetch forecast data:", err);
     setError(err.message || "Failed to load forecast data");
-    toast.error("Failed to load forecast data");
   } finally {
     setIsLoading(false);
   }
-}, [selectedWeeks, toast]);
+}, [selectedWeeks]);
 
   useEffect(() => {
     fetchData();
