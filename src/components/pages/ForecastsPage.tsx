@@ -437,12 +437,303 @@ const chartFormatValue = useCallback(
     );
   }
 
-  // ============== BLOCK 15: Week Columns for Table ==============
+// ============== BLOCK 15: Week Columns for Table ==============
 
-  const weekColumns = forecastData?.headers.filter((h) =>
-    h.key.startsWith("week_")
-  ) || [];
+const weekColumns = forecastData?.headers.filter((h) =>
+  h.key.startsWith("week_")
+) || [];
 
+// ============== BLOCK 16: Render ==============
+
+return (
+  <div className="space-y-6">
+    {/* Header Card */}
+    <Card>
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              Sales Forecasts
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Manage and view forecasted sales data for all products
+            </p>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button
+              variant="ghost"
+              size="md"
+              leftIcon={<ChartBarIcon className="h-4 w-4" />}
+              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+            >
+              {isDrawerOpen ? "Hide Insights" : "Show Insights"}
+            </Button>
+
+            {/* Export Button - Moved here from toolbar */}
+            <div className="relative">
+              <Button
+                variant="secondary"
+                size="md"
+                leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
+                rightIcon={<ChevronDownIcon className="h-4 w-4" />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExportMenuOpen(!isExportMenuOpen);
+                }}
+              >
+                Export
+              </Button>
+
+              {/* Export Dropdown */}
+              {isExportMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsExportMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50">
+                    {EXPORT_OPTIONS.map((option) => (
+                      <button
+                        key={option.key}
+                        onClick={() => {
+                          handleExport(option.key);
+                          setIsExportMenuOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
+                      >
+                        <span>{option.icon}</span>
+                        <span>{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
+              onClick={() => setIsImportModalOpen(true)}
+            >
+              Import Forecast
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
+
+    {/* KPI Drawer */}
+    <Drawer
+      isOpen={isDrawerOpen}
+      onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
+      showHeader={false}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard
+          title="Active Products"
+          value={kpiMetrics.activeProducts}
+          format="number"
+          color="blue"
+          trend={{
+            value: kpiMetrics.totalProducts,
+            isPositive: true,
+          }}
+          sparklineData={chartData.units.slice(0, 4)}
+          sparklineType="bar"
+          sparklineColor="#3b82f6"
+        />
+        <KPICard
+          title="Total Demand"
+          value={kpiMetrics.totalDemandUnits}
+          format="number"
+          color="green"
+          sparklineData={chartData.units}
+          sparklineType="area"
+          sparklineColor="#10b981"
+        />
+        <KPICard
+          title="Total Hours"
+          value={kpiMetrics.totalDemandHours}
+          format="hours"
+          color="purple"
+          sparklineData={chartData.hours}
+          sparklineType="line"
+          sparklineColor="#8b5cf6"
+        />
+        <KPICard
+          title="Peak Week"
+          value={kpiMetrics.peakWeek.units}
+          format="number"
+          color="yellow"
+          sparklineData={chartData.units}
+          sparklineType="bar"
+          sparklineColor="#f59e0b"
+        />
+      </div>
+    </Drawer>
+
+    {/* Demand Chart - Only re-renders when data changes */}
+    {forecastData && forecastData.weeklyDemand.length > 0 && (
+      <BarChart
+        title="Weekly Demand Overview"
+        subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
+        data={chartData.units}
+        categories={chartData.categories}
+        icon={<ChartBarIcon className="h-6 w-6" />}
+        formatValue={chartFormatValue}
+      />
+    )}
+
+    {/* Toolbar & Table Card */}
+    <Card>
+      <CardContent className="space-y-4">
+        {/* Toolbar - Simplified without Export button */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          {/* Search - Full width on mobile, flexible on desktop */}
+          <div className="flex-1 min-w-0">
+            <Input
+              placeholder="Search by Product Code or Description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
+              size="md"
+            />
+          </div>
+
+          {/* Week Filter */}
+          <div className="w-36 flex-shrink-0">
+            <Select
+              options={WEEK_OPTIONS}
+              value={selectedWeeks}
+              onChange={handleWeekChange}
+              placeholder="Weeks"
+              size="md"
+            />
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Showing{" "}
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {filteredRows.length}
+            </span>{" "}
+            of{" "}
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {forecastData?.totalProducts || 0}
+            </span>{" "}
+            products
+          </p>
+          <Badge variant="subtle" color="primary" size="sm">
+            {selectedWeeks} Week View
+          </Badge>
+        </div>
+
+        {/* Table */}
+        {filteredRows.length > 0 ? (
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table variant="striped" size="sm" hoverable>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head className="min-w-[120px]">Product Code</Table.Head>
+                    <Table.Head className="min-w-[200px]">Description</Table.Head>
+                    {weekColumns.map((week) => {
+                      const getDatePart = (label: string): string => {
+                        const match = label.match(/\(([^)]+)\)/);
+                        return match ? match[1] : "";
+                      };
+
+                      return (
+                        <Table.Head key={week.key} className="text-center min-w-[100px]">
+                          {week.label.replace("Week ", "W").split(" (")[0]}
+                          <div className="text-xs font-normal text-gray-400">
+                            {getDatePart(week.label)}
+                          </div>
+                        </Table.Head>
+                      );
+                    })}
+                    <Table.Head className="text-center min-w-[80px]">Total</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {filteredRows.map((row, rowIndex) => {
+                    const rowValues = weekColumns.map(
+                      (week) => row.weeklyForecast?.[week.key] || 0
+                    );
+                    const rowMax = Math.max(...rowValues, 0);
+                    const rowTotal = rowValues.reduce((sum, val) => sum + val, 0);
+
+                    return (
+                      <Table.Row key={`${row.productCode}-${rowIndex}`}>
+                        <Table.Cell className="font-medium">
+                          {row.productCode}
+                        </Table.Cell>
+                        <Table.Cell className="text-gray-600 dark:text-gray-400">
+                          {row.description || "-"}
+                        </Table.Cell>
+                        {weekColumns.map((week) => {
+                          const value = row.weeklyForecast?.[week.key] || 0;
+                          const colorClass = getHeatMapColor(
+                            value,
+                            rowMax,
+                            theme.isDark
+                          );
+
+                          return (
+                            <Table.Cell
+                              key={week.key}
+                              className={`text-center ${colorClass} transition-colors`}
+                            >
+                              {value > 0 ? formatNumber(value) : "-"}
+                            </Table.Cell>
+                          );
+                        })}
+                        <Table.Cell className="text-center font-semibold">
+                          {rowTotal > 0 ? formatNumber(rowTotal) : "-"}
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table>
+            </div>
+          </div>
+        ) : (
+          <EmptyState
+            variant={searchQuery ? "search" : "default"}
+            title={searchQuery ? "No matching products" : "No forecast data"}
+            description={
+              searchQuery
+                ? `No products found matching "${searchQuery}"`
+                : "Import a forecast file to get started"
+            }
+            action={
+              !searchQuery && (
+                <Button
+                  variant="primary"
+                  leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
+                  onClick={() => setIsImportModalOpen(true)}
+                >
+                  Import Forecast
+                </Button>
+              )
+            }
+          />
+        )}
+      </CardContent>
+    </Card>
+
+    {/* Import Modal */}
+    <ExcelImportModal
+      open={isImportModalOpen}
+      handleOpen={() => setIsImportModalOpen(!isImportModalOpen)}
+      onImport={handleImport}
+      title="Import Sales Forecast"
+    />
+  </div>
 );
 }
 
