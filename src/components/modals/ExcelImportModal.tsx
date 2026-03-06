@@ -1,7 +1,7 @@
 // src/components/modals/ExcelImportModal.tsx
 
 // ============== BLOCK 1: Imports ==============
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import {
   ArrowUpTrayIcon,
@@ -17,15 +17,24 @@ import {
 import { Dialog } from "../ui/Dialog";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
-import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+
+// Services
+import { 
+  ForecastImportResult, 
+  ForecastReviewApproval,
+  finalizeForecastReview 
+} from "../../services/forecast.service";
+import { getAllProducts } from "../../services/product.service";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 interface ExcelImportModalProps {
   open: boolean;
   handleOpen: () => void;
-  onImport: (file: File) => void;
+  onImport: (file: File) => Promise<ForecastImportResult>;
   title: string;
+  onImportComplete?: () => void;
 }
 
 interface FileRequirement {
@@ -109,7 +118,8 @@ const ReviewItemRow: React.FC<{
   approval: ReviewApproval;
   onUpdate: (productCode: string, approval: ReviewApproval) => void;
   existingProducts: string[];
-}> = ({ item, approval, onUpdate, existingProducts }) => {
+  isLoadingProducts: boolean;
+}> = ({ item, approval, onUpdate, existingProducts, isLoadingProducts }) => {
   return (
     <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
       <div className="flex items-start justify-between mb-2">
@@ -151,6 +161,7 @@ const ReviewItemRow: React.FC<{
                 onUpdate(item.product_code, {
                   product_code: item.product_code,
                   action: value as ReviewApproval['action'],
+                  mapped_product_code: undefined,
                 })
               }
               size="sm"
@@ -159,23 +170,36 @@ const ReviewItemRow: React.FC<{
           </div>
 
           {approval.action === 'map_to_existing' && (
-            <Select
-              options={existingProducts.map((code) => ({
-                value: code,
-                label: code,
-              }))}
-              value={approval.mapped_product_code || ''}
-              onChange={(value) =>
-                onUpdate(item.product_code, {
-                  product_code: item.product_code,
-                  action: 'map_to_existing',
-                  mapped_product_code: value,
-                })
-              }
-              placeholder="Select product code..."
-              size="sm"
-              className="w-full"
-            />
+            <div className="relative">
+              {isLoadingProducts ? (
+                <div className="flex items-center gap-2 p-2 text-sm text-gray-500">
+                  <Spinner size="sm" />
+                  <span>Loading products...</span>
+                </div>
+              ) : existingProducts.length > 0 ? (
+                <Select
+                  options={existingProducts.map((code) => ({
+                    value: code,
+                    label: code,
+                  }))}
+                  value={approval.mapped_product_code || ''}
+                  onChange={(value) =>
+                    onUpdate(item.product_code, {
+                      product_code: item.product_code,
+                      action: 'map_to_existing',
+                      mapped_product_code: value,
+                    })
+                  }
+                  placeholder="Select product code..."
+                  size="sm"
+                  className="w-full"
+                />
+              ) : (
+                <p className="text-sm text-red-500 dark:text-red-400 p-2">
+                  No existing products found. Please create a placeholder instead.
+                </p>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -209,19 +233,50 @@ export function ExcelImportModal({
   handleOpen,
   onImport,
   title,
+  onImportComplete,
 }: ExcelImportModalProps) {
   // ============== BLOCK 6: State ==============
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
-  const [importResult, setImportResult] = useState<any>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  
+  // Review state
+  const [importResult, setImportResult] = useState<ForecastImportResult | null>(null);
+  const [importBatchId, setImportBatchId] = useState<string | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
   const [approvals, setApprovals] = useState<Record<string, ReviewApproval>>({});
   const [isFinalizing, setIsFinalizing] = useState(false);
+  
+  // Products for mapping
+  const [existingProducts, setExistingProducts] = useState<string[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ============== BLOCK 7: Validation ==============
+  // ============== BLOCK 7: Fetch Products on Review ==============
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (isReviewing && existingProducts.length === 0) {
+        setIsLoadingProducts(true);
+        try {
+          const products = await getAllProducts();
+          const productCodes = products.map(p => p.productCode).sort();
+          setExistingProducts(productCodes);
+          console.log(`✅ Loaded ${productCodes.length} existing products for mapping`);
+        } catch (err) {
+          console.error('❌ Failed to fetch products:', err);
+        } finally {
+          setIsLoadingProducts(false);
+        }
+      }
+    };
+
+    fetchProducts();
+  }, [isReviewing, existingProducts.length]);
+
+  // ============== BLOCK 8: Validation ==============
   const validateFile = (file: File): string | null => {
     const validExtensions = [".xlsx", ".xls", ".csv"];
     const fileExtension = file.name
@@ -240,7 +295,7 @@ export function ExcelImportModal({
     return null;
   };
 
-  // ============== BLOCK 8: Handlers ==============
+  // ============== BLOCK 9: Handlers ==============
   const handleFileSelect = (file: File) => {
     const validationError = validateFile(file);
 
@@ -253,6 +308,7 @@ export function ExcelImportModal({
     setSelectedFile(file);
     setError(null);
     setImportResult(null);
+    setImportBatchId(null);
     setIsReviewing(false);
   };
 
@@ -289,6 +345,7 @@ export function ExcelImportModal({
     setSelectedFile(null);
     setError(null);
     setImportResult(null);
+    setImportBatchId(null);
     setIsReviewing(false);
     setApprovals({});
     if (fileInputRef.current) {
@@ -302,15 +359,26 @@ export function ExcelImportModal({
       return;
     }
 
+    setIsImporting(true);
+    setError(null);
+
     try {
       const result = await onImport(selectedFile);
+      console.log('📊 Import result:', result);
+      
       setImportResult(result);
+      
+      // Store the import batch ID if provided
+      if (result.debug?.import_batch_id) {
+        setImportBatchId(result.debug.import_batch_id);
+        console.log('📋 Import batch ID:', result.debug.import_batch_id);
+      }
 
-      if (result.pending_review > 0) {
+      if (result.pending_review > 0 && result.review_items?.length > 0) {
         setIsReviewing(true);
         // Initialize approvals with default action
         const initialApprovals: Record<string, ReviewApproval> = {};
-        result.review_items.forEach((item: ReviewItem) => {
+        result.review_items.forEach((item) => {
           initialApprovals[item.product_code] = {
             product_code: item.product_code,
             action: 'create_placeholder',
@@ -318,10 +386,15 @@ export function ExcelImportModal({
         });
         setApprovals(initialApprovals);
       } else {
+        // No review needed, close modal and trigger refresh
         handleClose();
+        onImportComplete?.();
       }
     } catch (err: any) {
+      console.error('❌ Import error:', err);
       setError(err.message || "Import failed");
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -333,12 +406,38 @@ export function ExcelImportModal({
   };
 
   const handleFinalizeReview = async () => {
+    if (!importBatchId) {
+      setError("Missing import batch ID. Please try importing again.");
+      return;
+    }
+
+    // Validate that all 'map_to_existing' approvals have a mapped product
+    const invalidApprovals = Object.values(approvals).filter(
+      (a) => a.action === 'map_to_existing' && !a.mapped_product_code
+    );
+
+    if (invalidApprovals.length > 0) {
+      setError(`Please select a product to map for: ${invalidApprovals.map(a => a.product_code).join(', ')}`);
+      return;
+    }
+
     setIsFinalizing(true);
+    setError(null);
+
     try {
-      // This would call the finalizeForecastReview service function
-      // For now, just close the modal
+      // Convert to the format expected by the service
+      const formattedApprovals: ForecastReviewApproval[] = Object.values(approvals);
+      
+      console.log('📋 Finalizing review:', { importBatchId, approvals: formattedApprovals });
+      
+      const result = await finalizeForecastReview(importBatchId, formattedApprovals);
+      
+      console.log('✅ Review finalized:', result);
+      
       handleClose();
+      onImportComplete?.();
     } catch (err: any) {
+      console.error('❌ Finalization error:', err);
       setError(err.message || "Failed to finalize review");
     } finally {
       setIsFinalizing(false);
@@ -350,25 +449,28 @@ export function ExcelImportModal({
     setError(null);
     setIsDragging(false);
     setShowChecklist(false);
+    setIsImporting(false);
     setImportResult(null);
+    setImportBatchId(null);
     setIsReviewing(false);
     setApprovals({});
+    setExistingProducts([]);
     handleOpen();
   };
 
-  // ============== BLOCK 9: Format File Size ==============
+  // ============== BLOCK 10: Format File Size ==============
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
 
-  // ============== BLOCK 10: Render ==============
+  // ============== BLOCK 11: Render ==============
   return (
     <Dialog
       open={open}
       onClose={handleClose}
-      title={title}
+      title={isReviewing ? "Review Import" : title}
       size={isReviewing ? "2xl" : "lg"}
       footer={
         <div className="flex items-center justify-between w-full">
@@ -383,16 +485,16 @@ export function ExcelImportModal({
                 {showChecklist ? "Hide" : "Show"} pre-import checklist
               </button>
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={handleClose}>
+                <Button variant="secondary" onClick={handleClose} disabled={isImporting}>
                   Cancel
                 </Button>
                 <Button
                   variant="primary"
                   onClick={handleConfirmImport}
-                  disabled={!selectedFile}
-                  leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
+                  disabled={!selectedFile || isImporting}
+                  leftIcon={isImporting ? <Spinner size="sm" /> : <ArrowUpTrayIcon className="h-4 w-4" />}
                 >
-                  Import File
+                  {isImporting ? "Importing..." : "Import File"}
                 </Button>
               </div>
             </>
@@ -402,14 +504,14 @@ export function ExcelImportModal({
                 {importResult?.pending_review || 0} items require review
               </div>
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={handleClose}>
+                <Button variant="secondary" onClick={handleClose} disabled={isFinalizing}>
                   Cancel
                 </Button>
                 <Button
                   variant="primary"
                   onClick={handleFinalizeReview}
                   disabled={isFinalizing}
-                  leftIcon={<CheckCircleIcon className="h-4 w-4" />}
+                  leftIcon={isFinalizing ? <Spinner size="sm" /> : <CheckCircleIcon className="h-4 w-4" />}
                 >
                   {isFinalizing ? "Processing..." : "Finalize Import"}
                 </Button>
@@ -427,10 +529,11 @@ export function ExcelImportModal({
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              onClick={handleBrowseClick}
+              onClick={!isImporting ? handleBrowseClick : undefined}
               className={clsx(
                 "relative flex flex-col items-center justify-center",
-                "w-full p-8 rounded-xl cursor-pointer",
+                "w-full p-8 rounded-xl",
+                isImporting ? "cursor-not-allowed opacity-60" : "cursor-pointer",
                 "border-2 border-dashed transition-all duration-200",
                 isDragging
                   ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
@@ -445,6 +548,7 @@ export function ExcelImportModal({
                 onChange={handleInputChange}
                 className="hidden"
                 accept={ACCEPTED_FILE_TYPES}
+                disabled={isImporting}
               />
 
               <div
@@ -470,17 +574,19 @@ export function ExcelImportModal({
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     {formatFileSize(selectedFile.size)}
                   </p>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveFile();
-                    }}
-                    className="mt-3 text-sm text-red-600 dark:text-red-400 hover:underline flex items-center gap-1 mx-auto"
-                  >
-                    <XMarkIcon className="h-4 w-4" />
-                    Remove file
-                  </button>
+                  {!isImporting && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFile();
+                      }}
+                      className="mt-3 text-sm text-red-600 dark:text-red-400 hover:underline flex items-center gap-1 mx-auto"
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                      Remove file
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="text-center">
@@ -545,6 +651,19 @@ export function ExcelImportModal({
         ) : (
           /* Review Step */
           <div className="space-y-4">
+            {/* Success summary */}
+            {importResult && importResult.imported > 0 && (
+              <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <CheckCircleIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <div>
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    <strong>{importResult.imported}</strong> forecast records imported successfully.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Review required notice */}
             <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <ArrowPathIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               <div>
@@ -557,8 +676,17 @@ export function ExcelImportModal({
               </div>
             </div>
 
+            {/* Error display */}
+            {error && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                <ExclamationTriangleIcon className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+              </div>
+            )}
+
+            {/* Review items list */}
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {importResult?.review_items?.map((item: ReviewItem) => (
+              {importResult?.review_items?.map((item) => (
                 <ReviewItemRow
                   key={item.product_code}
                   item={item}
@@ -569,7 +697,8 @@ export function ExcelImportModal({
                     }
                   }
                   onUpdate={handleApprovalUpdate}
-                  existingProducts={[]} // TODO: Fetch from products service
+                  existingProducts={existingProducts}
+                  isLoadingProducts={isLoadingProducts}
                 />
               ))}
             </div>
@@ -580,5 +709,5 @@ export function ExcelImportModal({
   );
 }
 
-// ============== BLOCK 11: Default Export ==============
+// ============== BLOCK 12: Default Export ==============
 export default ExcelImportModal;

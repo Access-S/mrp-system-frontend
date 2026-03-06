@@ -22,7 +22,6 @@ import { Badge } from "../ui/Badge";
 import { Drawer } from "../ui/Drawer";
 import { Skeleton, SkeletonTableRow } from "../ui/Skeleton";
 import { EmptyState } from "../ui/EmptyState";
-import { Menu } from "../ui/Menu";
 import { useToast } from "../ui/Toast";
 
 // Dashboard Components
@@ -36,6 +35,7 @@ import {
   generateWeekColumns,
   ForecastTableData,
   ForecastWithHours,
+  ForecastImportResult,
 } from "../../services/forecast.service";
 import { getAllProducts } from "../../services/product.service";
 import { exportForecastData, ExportFormat } from "../../services/export.service";
@@ -328,87 +328,102 @@ const chartFormatValue = useCallback(
   []
 );
 
-  // ============== BLOCK 12: Event Handlers ==============
+// ============== BLOCK 12: Event Handlers ==============
 
-  const handleImport = async (file: File) => {
-    showToast({
-      type: "loading",
-      title: "Importing",
-      message: "Processing forecast data...",
-    });
+const handleImport = async (file: File): Promise<ForecastImportResult> => {
+  showToast({
+    type: "loading",
+    title: "Importing",
+    message: "Processing forecast data...",
+  });
 
-    try {
-      await importForecastData(file);
+  try {
+    const result = await importForecastData(file);
+    
+    if (result.pending_review > 0) {
+      showToast({
+        type: "warning",
+        title: "Review Required",
+        message: `${result.imported} records imported. ${result.pending_review} items need review.`,
+      });
+    } else {
       showToast({
         type: "success",
         title: "Success",
-        message: "Forecast data imported successfully!",
-      });
-      setIsImportModalOpen(false);
-      fetchData();
-    } catch (err: any) {
-      showToast({
-        type: "error",
-        title: "Import Failed",
-        message: err.message || "Failed to import forecast data",
+        message: `${result.imported} forecast records imported successfully!`,
       });
     }
-  };
+    
+    return result;
+  } catch (err: any) {
+    showToast({
+      type: "error",
+      title: "Import Failed",
+      message: err.message || "Failed to import forecast data",
+    });
+    throw err;
+  }
+};
 
-  const handleExport = (format: string) => {
-    if (!forecastData || filteredRows.length === 0) {
-      showToast({
-        type: "warning",
-        title: "No Data",
-        message: "No data available to export",
+const handleImportComplete = () => {
+  setIsImportModalOpen(false);
+  fetchData();
+};
+
+const handleExport = (format: string) => {
+  if (!forecastData || filteredRows.length === 0) {
+    showToast({
+      type: "warning",
+      title: "No Data",
+      message: "No data available to export",
+    });
+    return;
+  }
+
+  try {
+    const weekColumns = forecastData.headers
+      .filter((h) => h.key.startsWith("week_"))
+      .map((h) => ({ key: h.key, label: h.label }));
+
+    const exportData = filteredRows.map((row) => {
+      const rowData: Record<string, any> = {
+        productCode: row.productCode,
+        description: row.description,
+      };
+      weekColumns.forEach((week) => {
+        rowData[week.key] = row.weeklyForecast?.[week.key] || 0;
       });
-      return;
-    }
+      return rowData;
+    });
 
-    try {
-      const weekColumns = forecastData.headers
-        .filter((h) => h.key.startsWith("week_"))
-        .map((h) => ({ key: h.key, label: h.label }));
+    const filename = `forecast_${selectedWeeks}weeks_${new Date().toISOString().split("T")[0]}`;
 
-      const exportData = filteredRows.map((row) => {
-        const rowData: Record<string, any> = {
-          productCode: row.productCode,
-          description: row.description,
-        };
-        weekColumns.forEach((week) => {
-          rowData[week.key] = row.weeklyForecast?.[week.key] || 0;
-        });
-        return rowData;
-      });
+    exportForecastData(
+      exportData,
+      weekColumns,
+      filename,
+      format as ExportFormat
+    );
 
-      const filename = `forecast_${selectedWeeks}weeks_${new Date().toISOString().split("T")[0]}`;
+    showToast({
+      type: "success",
+      title: "Exported",
+      message: `Forecast exported as ${format.toUpperCase()}`,
+    });
 
-      exportForecastData(
-        exportData,
-        weekColumns,
-        filename,
-        format as ExportFormat
-      );
+    setIsExportMenuOpen(false);
+  } catch (err: any) {
+    showToast({
+      type: "error",
+      title: "Export Failed",
+      message: err.message || "Failed to export data",
+    });
+  }
+};
 
-      showToast({
-        type: "success",
-        title: "Exported",
-        message: `Forecast exported as ${format.toUpperCase()}`,
-      });
-
-      setIsExportMenuOpen(false);
-    } catch (err: any) {
-      showToast({
-        type: "error",
-        title: "Export Failed",
-        message: err.message || "Failed to export data",
-      });
-    }
-  };
-
-  const handleWeekChange = (value: string) => {
-    setSelectedWeeks(value);
-  };
+const handleWeekChange = (value: string) => {
+  setSelectedWeeks(value);
+};
 
   // ============== BLOCK 13: Loading State ==============
 
@@ -730,13 +745,14 @@ return (
       </CardContent>
     </Card>
 
-    {/* Import Modal */}
-    <ExcelImportModal
-      open={isImportModalOpen}
-      handleOpen={() => setIsImportModalOpen(!isImportModalOpen)}
-      onImport={handleImport}
-      title="Import Sales Forecast"
-    />
+      {/* Import Modal */}
+      <ExcelImportModal
+        open={isImportModalOpen}
+        handleOpen={() => setIsImportModalOpen(!isImportModalOpen)}
+        onImport={handleImport}
+        title="Import Sales Forecast"
+        onImportComplete={handleImportComplete}
+      />
   </div>
 );
 }
