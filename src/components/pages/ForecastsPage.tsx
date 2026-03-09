@@ -661,7 +661,7 @@ return (
                           {row.description || "-"}
                         </Table.Cell>
                         {weekColumns.map((week) => {
-                          const value = row.weeklyForecast?.[week.key] || 0;
+                          const value = row.weeklyData?.[week.key] || 0;
                           const colorClass = getHeatMapColor(
                             value,
                             rowMax,
