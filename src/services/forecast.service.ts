@@ -226,6 +226,34 @@ export const finalizeForecastReview = (
 ) => forecastService.finalizeForecastReview(importBatchId, approvals);
 export const getWeeklyForecasts = () => forecastService.getWeeklyForecasts();
 
+// Backward compatibility for InventoryPage and other pages
+export const getAllForecasts = async () => {
+  const { rows } = await forecastService.getWeeklyForecasts();
+  
+  // Transform to the old format expected by InventoryPage
+  return rows.map((row: any) => {
+    const { product_code, description, ...weeklyData } = row;
+    
+    // Convert weekly data to the format: { productCode, description, weeklyForecast }
+    const weeklyForecast: Record<string, number> = {};
+    for (const [key, value] of Object.entries(weeklyData)) {
+      if (typeof value === 'number') {
+        weeklyForecast[key] = value;
+      }
+    }
+
+    return {
+      productCode: product_code || '',
+      description: description || '',
+      weeklyForecast,
+    };
+  });
+};
+
+export const getAllForecastsTable = async () => {
+  return forecastService.getWeeklyForecasts();
+};
+
 // ============== BLOCK 7: Utility Functions ==============
 
 /**
