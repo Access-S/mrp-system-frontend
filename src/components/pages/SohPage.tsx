@@ -6,6 +6,7 @@ import {
   ArrowUpTrayIcon,
   MagnifyingGlassIcon,
   ArchiveBoxIcon,
+  CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
 
 // Custom UI Components
@@ -24,6 +25,7 @@ import {
   getSohData,
   importSohData,
   formatStock,
+  formatCurrency,
   SohRecord,
   SohSummary,
   SohImportResult,
@@ -60,7 +62,7 @@ const SohSkeleton: React.FC = () => {
               <table className="w-full">
                 <thead>
                   <tr>
-                    {[...Array(3)].map((_, i) => (
+                    {[...Array(4)].map((_, i) => (  // Changed from 3 to 4
                       <th key={i} className="p-3 bg-gray-50 dark:bg-gray-800">
                         <Skeleton variant="text" height={20} />
                       </th>
@@ -69,7 +71,7 @@ const SohSkeleton: React.FC = () => {
                 </thead>
                 <tbody>
                   {[...Array(10)].map((_, i) => (
-                    <SkeletonTableRow key={i} columns={3} />
+                    <SkeletonTableRow key={i} columns={4} />  // Changed from 3 to 4
                   ))}
                 </tbody>
               </table>
@@ -205,6 +207,30 @@ export function SohPage() {
         </CardHeader>
       </Card>
 
+      {/* KPI Card - Total Stock Value */}
+      {summary && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                  <CurrencyDollarIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Stock Value</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {formatCurrency(summary.totalStockValue)}
+                  </p>
+                </div>
+              </div>
+              <Badge variant="subtle" color="primary" size="lg">
+                {formatStock(summary.totalStock)} units
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Table Card */}
       <Card>
         <CardContent className="space-y-4">
@@ -237,45 +263,51 @@ export function SohPage() {
             </p>
             {summary && (
               <Badge variant="subtle" color="primary" size="sm">
-                Total Stock: {formatStock(summary.totalStock)}
+                Zero Stock: {summary.zeroStockCount} products
               </Badge>
             )}
           </div>
 
           {/* Table */}
           {filteredRecords.length > 0 ? (
-            <ScrollArea orientation="both" maxHeight="calc(100vh - 350px)">
+            <ScrollArea orientation="both" maxHeight="calc(100vh - 400px)">
               <Table stickyHeader hoverable variant="striped" size="sm">
                 <Table.Header>
                   <Table.Row>
-                    <Table.Head style={{ minWidth: "150px" }}>
+                    <Table.Head style={{ minWidth: "150px", textAlign: "left" }}>
                       Product Code
                     </Table.Head>
-                    <Table.Head style={{ minWidth: "300px" }}>
+                    <Table.Head style={{ minWidth: "300px", textAlign: "left" }}>
                       Description
                     </Table.Head>
                     <Table.Head
-                      style={{ minWidth: "130px" }}
-                      className="text-right"
+                      style={{ minWidth: "130px", textAlign: "center" }}
+                      className="text-center"
                     >
                       Stock on Hand
+                    </Table.Head>
+                    <Table.Head
+                      style={{ minWidth: "150px", textAlign: "right" }}
+                      className="text-right"
+                    >
+                      Stock Value
                     </Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
                   {filteredRecords.map((record, index) => (
                     <Table.Row key={record.id || index}>
-                      <Table.Cell>
+                      <Table.Cell className="text-left">
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
                           {record.product_id}
                         </span>
                       </Table.Cell>
-                      <Table.Cell>
+                      <Table.Cell className="text-left">
                         <span className="text-gray-600 dark:text-gray-300">
                           {record.description || "-"}
                         </span>
                       </Table.Cell>
-                      <Table.Cell className="text-right">
+                      <Table.Cell className="text-center">
                         <span
                           className={`font-semibold ${
                             record.stock_on_hand === 0
@@ -284,6 +316,11 @@ export function SohPage() {
                           }`}
                         >
                           {formatStock(record.stock_on_hand)}
+                        </span>
+                      </Table.Cell>
+                      <Table.Cell className="text-right">
+                        <span className="font-semibold text-gray-900 dark:text-gray-100">
+                          {formatCurrency(record.stock_value)}
                         </span>
                       </Table.Cell>
                     </Table.Row>

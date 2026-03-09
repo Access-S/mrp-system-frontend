@@ -10,6 +10,7 @@ export interface SohRecord {
   product_id: string;
   description: string;
   stock_on_hand: number;
+  stock_value: number;
   import_batch_id: string;
   import_source: string;
   created_at: string;
@@ -19,9 +20,9 @@ export interface SohRecord {
 export interface SohSummary {
   totalRecords: number;
   totalStock: number;
+  totalStockValue: number;
   zeroStockCount: number;
 }
-
 export interface SohImportResult {
   success: boolean;
   message: string;
@@ -143,6 +144,18 @@ export const getSohData = (search?: string) => sohService.getSohData(search);
  */
 export const formatStock = (value: number): string => {
   return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
+};
+
+/**
+ * Format currency (for stock value)
+ */
+export const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
 };
 
 // ============== BLOCK 8: Default Export ==============
