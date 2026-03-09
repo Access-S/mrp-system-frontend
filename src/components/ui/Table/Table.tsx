@@ -172,7 +172,7 @@ const TableHead: React.FC<TableHeadProps> = ({
       className={clsx(
         sizeStyles[size].head,
         "font-semibold text-gray-700 dark:text-gray-300",
-        "text-left whitespace-nowrap",
+        "whitespace-nowrap",
         "bg-gray-50 dark:bg-gray-800",
         sortable && "cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700",
         className
@@ -180,16 +180,18 @@ const TableHead: React.FC<TableHeadProps> = ({
       onClick={sortable ? onSort : undefined}
       {...props}
     >
-      <div className="flex items-center gap-2">
-        {children}
-        {sortable && (
+      {sortable ? (
+        <div className="flex items-center gap-2">
+          {children}
           <span className="text-gray-400">
             {sortDirection === "asc" && "↑"}
             {sortDirection === "desc" && "↓"}
             {sortDirection === null && "↕"}
           </span>
-        )}
-      </div>
+        </div>
+      ) : (
+        children
+      )}
     </th>
   );
 };
@@ -208,7 +210,6 @@ const TableCell: React.FC<TableCellProps> = ({
       className={clsx(
         sizeStyles[size].cell,
         "text-gray-900 dark:text-gray-100",
-        "whitespace-nowrap",
         className
       )}
       {...props}

@@ -274,22 +274,16 @@ export function SohPage() {
             <Table stickyHeader hoverable variant="striped" size="sm">
               <Table.Header>
                 <Table.Row>
-                  <Table.Head style={{ minWidth: "150px" }}>
+                  <Table.Head className="text-left" style={{ minWidth: "150px" }}>
                     Product Code
                   </Table.Head>
-                  <Table.Head style={{ minWidth: "300px" }}>
+                  <Table.Head className="text-left" style={{ minWidth: "300px" }}>
                     Description
                   </Table.Head>
-                  <Table.Head
-                    style={{ minWidth: "130px" }}
-                    className="text-center"
-                  >
+                  <Table.Head className="text-center" style={{ minWidth: "130px" }}>
                     Stock on Hand
                   </Table.Head>
-                  <Table.Head
-                    style={{ minWidth: "150px" }}
-                    className="text-right"
-                  >
+                  <Table.Head className="text-right" style={{ minWidth: "150px" }}>
                     Stock Value
                   </Table.Head>
                 </Table.Row>
@@ -297,12 +291,12 @@ export function SohPage() {
               <Table.Body>
                 {filteredRecords.map((record, index) => (
                   <Table.Row key={record.id || index}>
-                    <Table.Cell>
+                    <Table.Cell className="text-left">
                       <span className="font-semibold text-gray-900 dark:text-gray-100">
                         {record.product_id}
                       </span>
                     </Table.Cell>
-                    <Table.Cell>
+                    <Table.Cell className="text-left">
                       <span className="text-gray-600 dark:text-gray-300">
                         {record.description || "-"}
                       </span>
