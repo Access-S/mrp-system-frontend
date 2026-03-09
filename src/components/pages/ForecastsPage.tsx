@@ -23,6 +23,7 @@ import { Drawer } from "../ui/Drawer";
 import { Skeleton, SkeletonTableRow } from "../ui/Skeleton";
 import { EmptyState } from "../ui/EmptyState";
 import { useToast } from "../ui/Toast";
+import { ScrollArea } from "../ui/ScrollArea";
 
 // Dashboard Components
 import { KPICard } from "../dashboard/KPICard";
@@ -32,9 +33,7 @@ import { BarChart } from "../dashboard/charts";
 import {
   importForecastData,
   getForecastsWithProductData,
-  generateWeekColumns,
   ForecastTableData,
-  ForecastWithHours,
   ForecastImportResult,
 } from "../../services/forecast.service";
 import { getAllProducts } from "../../services/product.service";
@@ -67,54 +66,6 @@ const EXPORT_OPTIONS = [
 ];
 
 // ============== BLOCK 4: Helper Functions ==============
-
-/**
- * Gets heat map color based on value relative to row maximum
- */
-const getHeatMapColor = (
-  value: number,
-  rowMax: number,
-  isDark: boolean
-): string => {
-  if (value === 0) {
-    return isDark
-      ? "bg-gray-800 text-gray-500"
-      : "bg-gray-50 text-gray-400";
-  }
-
-  if (rowMax === 0) {
-    return isDark
-      ? "bg-gray-700 text-gray-300"
-      : "bg-gray-100 text-gray-600";
-  }
-
-  const percentage = (value / rowMax) * 100;
-
-  if (percentage >= 80) {
-    return isDark
-      ? "bg-red-900/40 text-red-300"
-      : "bg-red-100 text-red-800";
-  }
-  if (percentage >= 60) {
-    return isDark
-      ? "bg-orange-900/40 text-orange-300"
-      : "bg-orange-100 text-orange-800";
-  }
-  if (percentage >= 40) {
-    return isDark
-      ? "bg-yellow-900/40 text-yellow-300"
-      : "bg-yellow-100 text-yellow-800";
-  }
-  if (percentage >= 20) {
-    return isDark
-      ? "bg-blue-900/40 text-blue-300"
-      : "bg-blue-100 text-blue-800";
-  }
-
-  return isDark
-    ? "bg-gray-700 text-gray-300"
-    : "bg-gray-100 text-gray-600";
-};
 
 /**
  * Formats a number with thousand separators
@@ -619,66 +570,71 @@ return (
 
         {/* Table */}
         {filteredRows.length > 0 ? (
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <Table variant="striped" size="sm" hoverable>
-                <Table.Header>
-                  <Table.Row>
-                    <Table.Head className="min-w-[120px]">Product Code</Table.Head>
-                    <Table.Head className="min-w-[200px]">Description</Table.Head>
-                    {weekColumns.map((week) => (
-                        <Table.Head key={week.key} className="text-center min-w-[100px]">
-                          <div className="text-xs font-medium">
-                            {week.label}
-                          </div>
-                        </Table.Head>
-                      ))}
-                    <Table.Head className="text-center min-w-[80px]">Total</Table.Head>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {filteredRows.map((row, rowIndex) => {
-                    const rowValues = weekColumns.map(
-                      (week) => row.weeklyData?.[week.key] || 0
-                    );
-                    const rowMax = Math.max(...rowValues, 0);
-                    const rowTotal = rowValues.reduce((sum, val) => sum + val, 0);
+          <ScrollArea
+            orientation="both"
+            maxHeight="calc(100vh - 400px)"
+          >
+            <Table stickyHeader hoverable variant="striped" size="sm">
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
+                  <Table.Head style={{ minWidth: "250px" }}>Description</Table.Head>
+                  {weekColumns.map((week) => (
+                    <Table.Head 
+                      key={week.key} 
+                      style={{ minWidth: "100px" }}
+                      className="text-center"
+                    >
+                      <div className="text-xs font-medium">
+                        {week.label}
+                      </div>
+                    </Table.Head>
+                  ))}
+                  <Table.Head style={{ minWidth: "100px" }} className="text-center">
+                    Total
+                  </Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {filteredRows.map((row, rowIndex) => {
+                  const rowValues = weekColumns.map(
+                    (week) => row.weeklyData?.[week.key] || 0
+                  );
+                  const rowTotal = rowValues.reduce((sum, val) => sum + val, 0);
 
-                    return (
-                      <Table.Row key={`${row.productCode}-${rowIndex}`}>
-                        <Table.Cell className="font-medium">
+                  return (
+                    <Table.Row key={`${row.productCode}-${rowIndex}`}>
+                      <Table.Cell>
+                        <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                           {row.productCode}
-                        </Table.Cell> 
-                        <Table.Cell className="text-gray-600 dark:text-gray-400">
+                        </span>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
                           {row.description || "-"}
-                        </Table.Cell>
-                        {weekColumns.map((week) => {
-                          const value = row.weeklyData?.[week.key] || 0;
-                          const colorClass = getHeatMapColor(
-                            value,
-                            rowMax,
-                            theme.isDark
-                          );
+                        </span>
+                      </Table.Cell>
+                      {weekColumns.map((week) => {
+                        const value = row.weeklyData?.[week.key] || 0;
 
-                          return (
-                            <Table.Cell
-                              key={week.key}
-                              className={`text-center ${colorClass} transition-colors`}
-                            >
-                              {value > 0 ? formatNumber(value) : "-"}
-                            </Table.Cell>
-                          );
-                        })}
-                        <Table.Cell className="text-center font-semibold">
-                          {rowTotal > 0 ? formatNumber(rowTotal) : "-"}
-                        </Table.Cell>
-                      </Table.Row>
-                    );
-                  })}
-                </Table.Body>
-              </Table>
-            </div>
-          </div>
+                        return (
+                          <Table.Cell
+                            key={week.key}
+                            className="text-center whitespace-nowrap"
+                          >
+                            {value > 0 ? formatNumber(value) : "-"}
+                          </Table.Cell>
+                        );
+                      })}
+                      <Table.Cell className="text-center font-semibold whitespace-nowrap">
+                        {rowTotal > 0 ? formatNumber(rowTotal) : "-"}
+                      </Table.Cell>
+                    </Table.Row>
+                  );
+                })}
+              </Table.Body>
+            </Table>
+          </ScrollArea>
         ) : (
           <EmptyState
             variant={searchQuery ? "search" : "default"}
