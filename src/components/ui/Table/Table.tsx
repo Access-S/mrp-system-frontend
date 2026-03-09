@@ -155,44 +155,27 @@ const TableRow: React.FC<TableRowProps> = ({
   );
 };
 
-// ============== BLOCK 8: Table Head Cell Component ==============
+// ============== BLOCK 9: Table Cell Component ==============
 
-const TableHead: React.FC<TableHeadProps> = ({
+const TableCell: React.FC<TableCellProps> = ({
   children,
-  sortable = false,
-  sortDirection = null,
-  onSort,
   className,
   ...props
 }) => {
   const { size } = useTableContext();
 
   return (
-    <th
+    <td
       className={clsx(
-        sizeStyles[size].head,
-        "font-semibold text-gray-700 dark:text-gray-300",
+        sizeStyles[size].cell,
+        "text-gray-900 dark:text-gray-100",
         "whitespace-nowrap",
-        "bg-gray-50 dark:bg-gray-800",
-        sortable && "cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700",
         className
       )}
-      onClick={sortable ? onSort : undefined}
       {...props}
     >
-      {sortable ? (
-        <div className="flex items-center gap-2">
-          {children}
-          <span className="text-gray-400">
-            {sortDirection === "asc" && "↑"}
-            {sortDirection === "desc" && "↓"}
-            {sortDirection === null && "↕"}
-          </span>
-        </div>
-      ) : (
-        children
-      )}
-    </th>
+      {children}
+    </td>
   );
 };
 
@@ -210,6 +193,7 @@ const TableCell: React.FC<TableCellProps> = ({
       className={clsx(
         sizeStyles[size].cell,
         "text-gray-900 dark:text-gray-100",
+        "whitespace-nowrap",
         className
       )}
       {...props}
