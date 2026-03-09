@@ -155,27 +155,48 @@ const TableRow: React.FC<TableRowProps> = ({
   );
 };
 
-// ============== BLOCK 9: Table Cell Component ==============
+// ============== BLOCK 8: Table Head Cell Component ==============
 
-const TableCell: React.FC<TableCellProps> = ({
+const TableHead: React.FC<TableHeadProps> = ({
   children,
+  sortable = false,
+  sortDirection = null,
+  onSort,
   className,
   ...props
 }) => {
   const { size } = useTableContext();
 
+  // Check if alignment class is provided
+  const hasAlignmentClass = className && /text-(left|center|right)/.test(className);
+
   return (
-    <td
+    <th
       className={clsx(
-        sizeStyles[size].cell,
-        "text-gray-900 dark:text-gray-100",
+        sizeStyles[size].head,
+        "font-semibold text-gray-700 dark:text-gray-300",
+        !hasAlignmentClass && "text-left",
         "whitespace-nowrap",
+        "bg-gray-50 dark:bg-gray-800",
+        sortable && "cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700",
         className
       )}
+      onClick={sortable ? onSort : undefined}
       {...props}
     >
-      {children}
-    </td>
+      {sortable ? (
+        <div className="flex items-center gap-2">
+          {children}
+          <span className="text-gray-400">
+            {sortDirection === "asc" && "↑"}
+            {sortDirection === "desc" && "↓"}
+            {sortDirection === null && "↕"}
+          </span>
+        </div>
+      ) : (
+        children
+      )}
+    </th>
   );
 };
 
