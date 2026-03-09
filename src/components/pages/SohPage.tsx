@@ -271,63 +271,63 @@ export function SohPage() {
           {/* Table */}
           {filteredRecords.length > 0 ? (
             <ScrollArea orientation="both" maxHeight="calc(100vh - 400px)">
-              <Table stickyHeader hoverable variant="striped" size="sm">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.Head style={{ minWidth: "150px", textAlign: "left" }}>
-                      Product Code
-                    </Table.Head>
-                    <Table.Head style={{ minWidth: "300px", textAlign: "left" }}>
-                      Description
-                    </Table.Head>
-                    <Table.Head
-                      style={{ minWidth: "130px", textAlign: "center" }}
-                      className="text-center"
-                    >
-                      Stock on Hand
-                    </Table.Head>
-                    <Table.Head
-                      style={{ minWidth: "150px", textAlign: "right" }}
-                      className="text-right"
-                    >
-                      Stock Value
-                    </Table.Head>
+            <Table stickyHeader hoverable variant="striped" size="sm">
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head style={{ minWidth: "150px" }}>
+                    Product Code
+                  </Table.Head>
+                  <Table.Head style={{ minWidth: "300px" }}>
+                    Description
+                  </Table.Head>
+                  <Table.Head
+                    style={{ minWidth: "130px" }}
+                    className="text-center"
+                  >
+                    Stock on Hand
+                  </Table.Head>
+                  <Table.Head
+                    style={{ minWidth: "150px" }}
+                    className="text-right"
+                  >
+                    Stock Value
+                  </Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {filteredRecords.map((record, index) => (
+                  <Table.Row key={record.id || index}>
+                    <Table.Cell>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        {record.product_id}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {record.description || "-"}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell className="text-center">
+                      <span
+                        className={`font-semibold ${
+                          record.stock_on_hand === 0
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-gray-900 dark:text-gray-100"
+                        }`}
+                      >
+                        {formatStock(record.stock_on_hand)}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell className="text-right">
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        {formatCurrency(record.stock_value)}
+                      </span>
+                    </Table.Cell>
                   </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {filteredRecords.map((record, index) => (
-                    <Table.Row key={record.id || index}>
-                      <Table.Cell className="text-left">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100">
-                          {record.product_id}
-                        </span>
-                      </Table.Cell>
-                      <Table.Cell className="text-left">
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {record.description || "-"}
-                        </span>
-                      </Table.Cell>
-                      <Table.Cell className="text-center">
-                        <span
-                          className={`font-semibold ${
-                            record.stock_on_hand === 0
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-gray-900 dark:text-gray-100"
-                          }`}
-                        >
-                          {formatStock(record.stock_on_hand)}
-                        </span>
-                      </Table.Cell>
-                      <Table.Cell className="text-right">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100">
-                          {formatCurrency(record.stock_value)}
-                        </span>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            </ScrollArea>
+                ))}
+              </Table.Body>
+            </Table>
+          </ScrollArea>
           ) : (
             <EmptyState
               variant={searchQuery ? "search" : "default"}
