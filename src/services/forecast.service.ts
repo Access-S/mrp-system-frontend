@@ -257,15 +257,14 @@ export const getAllForecastsTable = async () => {
 // ============== BLOCK 7: Utility Functions ==============
 
 /**
- * Calculate demand hours from units
+ * Calculate demand hours from shippers
+ * Formula: shippers × minsPerShipper ÷ 60
  */
 export const calculateDemandHours = (
-  units: number,
-  minsPerShipper: number,
-  unitsPerShipper: number
+  shippers: number,
+  minsPerShipper: number
 ): number => {
-  if (unitsPerShipper === 0 || minsPerShipper === 0) return 0;
-  const shippers = units / unitsPerShipper;
+  if (minsPerShipper === 0) return 0;
   const minutes = shippers * minsPerShipper;
   const hours = minutes / 60;
   return Math.round(hours * 100) / 100;
@@ -333,32 +332,29 @@ export const getForecastsWithProductData = async (
       };
     });
 
-    // Calculate weekly demand summaries
-    const weeklyDemand: WeeklyDemandSummary[] = limitedDateHeaders.map((dateHeader) => {
-      let totalUnits = 0;
-      let totalHours = 0;
+        // Calculate weekly demand summaries
+        const weeklyDemand: WeeklyDemandSummary[] = limitedDateHeaders.map((dateHeader) => {
+          let totalUnits = 0;
+          let totalHours = 0;
 
-      transformedRows.forEach((row) => {
-        const units = row.weeklyData[dateHeader.key] || 0;
-        totalUnits += units;
-        
-        const product = productMap.get(row.productCode.toUpperCase());
-        if (product) {
-          totalHours += calculateDemandHours(
-            units,
-            product.minsPerShipper,
-            product.unitsPerShipper
-          );
-        }
-      });
+          transformedRows.forEach((row) => {
+            const units = row.weeklyData[dateHeader.key] || 0;
+            totalUnits += units;
+            
+            // Get minsPerShipper from the product map
+            const product = productMap.get(row.productCode.toUpperCase());
+            if (product && product.minsPerShipper) {
+              totalHours += calculateDemandHours(units, product.minsPerShipper);
+            }
+          });
 
-      return {
-        weekDate: dateHeader.key,
-        weekLabel: dateHeader.label,
-        totalUnits,
-        totalHours: Math.round(totalHours * 100) / 100,
-      };
-    });
+          return {
+            weekDate: dateHeader.key,
+            weekLabel: dateHeader.label,
+            totalUnits,
+            totalHours: Math.round(totalHours * 100) / 100,
+          };
+        });
 
     // Count active products (products with any forecast > 0)
     const activeProducts = transformedRows.filter((row) => {

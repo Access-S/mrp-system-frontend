@@ -260,17 +260,15 @@ const chartData = useMemo(() => {
   }
 
   return {
-    categories: forecastData.weeklyDemand.map((w) =>
-      w.weekLabel.replace("Week ", "W").split(" (")[0]
-    ),
+    categories: forecastData.weeklyDemand.map((w) => w.weekLabel),
     units: forecastData.weeklyDemand.map((w) => w.totalUnits),
     hours: forecastData.weeklyDemand.map((w) => w.totalHours),
   };
 }, [forecastData?.weeklyDemand]);
 
-// Stable formatter to prevent chart re-renders
+// Stable formatter to show hours
 const chartFormatValue = useCallback(
-  (val: number) => formatNumber(val),
+  (val: number) => `${formatNumber(val)} hrs`,
   []
 );
 
@@ -506,17 +504,17 @@ return (
       </div>
     </Drawer>
 
-    {/* Demand Chart - Only re-renders when data changes */}
-    {forecastData && forecastData.weeklyDemand.length > 0 && (
-      <BarChart
-        title="Weekly Demand Overview"
-        subtitle={`Forecasted demand for next ${selectedWeeks} weeks`}
-        data={chartData.units}
-        categories={chartData.categories}
-        icon={<ChartBarIcon className="h-6 w-6" />}
-        formatValue={chartFormatValue}
-      />
-    )}
+      {/* Demand Chart - Shows weekly demand in hours */}
+      {forecastData && forecastData.weeklyDemand.length > 0 && (
+        <BarChart
+          title="Weekly Demand in Hours"
+          subtitle={`Production hours required for next ${selectedWeeks} weeks`}
+          data={chartData.hours}
+          categories={chartData.categories}
+          icon={<ChartBarIcon className="h-6 w-6" />}
+          formatValue={chartFormatValue}
+        />
+      )}
 
     {/* Toolbar & Table Card */}
     <Card>
