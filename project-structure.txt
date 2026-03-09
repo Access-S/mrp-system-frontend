@@ -3,6 +3,7 @@
 | |____vite.svg
 |____README.md
 |____index.html
+|____dist
 |____tsconfig.json
 |____eslint.config.js
 |____update-structure.sh
@@ -19,6 +20,7 @@
 | |____prd.md
 | |____ai-instructions
 | | |____AI_CODE_ASSISTANT_RULES.md
+| |____forecast_comparison_specification.md
 | |____ui-library
 | | |____README.md
 | |____maturity_audit.md
@@ -30,6 +32,7 @@
 | |____services
 | | |____bom.service.ts
 | | |____api.service.ts
+| | |____export.service.ts
 | | |____inventory.service.ts
 | | |____forecast.service.ts
 | | |____dashboard.api.ts
@@ -122,6 +125,9 @@
 | | | |____Accordion
 | | | | |____index.ts
 | | | | |____Accordion.tsx
+| | | |____Drawer
+| | | | |____index.ts
+| | | | |____Drawer.tsx
 | | | |____Badge
 | | | | |____Badge.tsx
 | | | | |____index.ts
