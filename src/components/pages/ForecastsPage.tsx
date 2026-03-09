@@ -357,8 +357,8 @@ const handleExport = (format: string) => {
 
   try {
     const weekColumns = forecastData.headers
-      .filter((h) => h.key.startsWith("week_"))
-      .map((h) => ({ key: h.key, label: h.label }));
+    .filter((h) => h.key !== "productCode" && h.key !== "description")
+    .map((h) => ({ key: h.key, label: h.label }));
 
     const exportData = filteredRows.map((row) => {
       const rowData: Record<string, any> = {
@@ -366,7 +366,7 @@ const handleExport = (format: string) => {
         description: row.description,
       };
       weekColumns.forEach((week) => {
-        rowData[week.key] = row.weeklyForecast?.[week.key] || 0;
+        rowData[week.key] = row.weeklyData?.[week.key] || 0;
       });
       return rowData;
     });
@@ -422,7 +422,7 @@ const handleWeekChange = (value: string) => {
 // ============== BLOCK 15: Week Columns for Table ==============
 
 const weekColumns = forecastData?.headers.filter((h) =>
-  h.key.startsWith("week_")
+  h.key !== "productCode" && h.key !== "description"
 ) || [];
 
 // ============== BLOCK 16: Render ==============
@@ -626,28 +626,20 @@ return (
                   <Table.Row>
                     <Table.Head className="min-w-[120px]">Product Code</Table.Head>
                     <Table.Head className="min-w-[200px]">Description</Table.Head>
-                    {weekColumns.map((week) => {
-                      const getDatePart = (label: string): string => {
-                        const match = label.match(/\(([^)]+)\)/);
-                        return match ? match[1] : "";
-                      };
-
-                      return (
+                    {weekColumns.map((week) => (
                         <Table.Head key={week.key} className="text-center min-w-[100px]">
-                          {week.label.replace("Week ", "W").split(" (")[0]}
-                          <div className="text-xs font-normal text-gray-400">
-                            {getDatePart(week.label)}
+                          <div className="text-xs font-medium">
+                            {week.label}
                           </div>
                         </Table.Head>
-                      );
-                    })}
+                      ))}
                     <Table.Head className="text-center min-w-[80px]">Total</Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
                   {filteredRows.map((row, rowIndex) => {
                     const rowValues = weekColumns.map(
-                      (week) => row.weeklyForecast?.[week.key] || 0
+                      (week) => row.weeklyData?.[week.key] || 0
                     );
                     const rowMax = Math.max(...rowValues, 0);
                     const rowTotal = rowValues.reduce((sum, val) => sum + val, 0);
@@ -656,7 +648,7 @@ return (
                       <Table.Row key={`${row.productCode}-${rowIndex}`}>
                         <Table.Cell className="font-medium">
                           {row.productCode}
-                        </Table.Cell>
+                        </Table.Cell> 
                         <Table.Cell className="text-gray-600 dark:text-gray-400">
                           {row.description || "-"}
                         </Table.Cell>
