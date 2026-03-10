@@ -7,6 +7,8 @@ import {
   MagnifyingGlassIcon,
   ArchiveBoxIcon,
   CurrencyDollarIcon,
+  DocumentArrowDownIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 
 // Custom UI Components
@@ -30,11 +32,19 @@ import {
   SohSummary,
   SohImportResult,
 } from "../../services/soh.service";
+import { exportData, ExportFormat, ExportColumn } from "../../services/export.service";
 
 // Modals
 import { ExcelImportModal } from "../modals/ExcelImportModal";
 
-// ============== BLOCK 2: Loading Skeleton Component ==============
+// ============== BLOCK 2: Constants ==============
+const EXPORT_OPTIONS = [
+  { key: "csv", label: "Export as CSV", icon: "📄" },
+  { key: "excel", label: "Export as Excel", icon: "📊" },
+  { key: "pdf", label: "Export as PDF", icon: "📑" },
+];
+
+// ============== BLOCK 3: Loading Skeleton Component ==============
 const SohSkeleton: React.FC = () => {
   return (
     <div className="space-y-6">
@@ -62,7 +72,7 @@ const SohSkeleton: React.FC = () => {
               <table className="w-full">
                 <thead>
                   <tr>
-                    {[...Array(4)].map((_, i) => (  // Changed from 3 to 4
+                    {[...Array(4)].map((_, i) => (
                       <th key={i} className="p-3 bg-gray-50 dark:bg-gray-800">
                         <Skeleton variant="text" height={20} />
                       </th>
@@ -71,7 +81,7 @@ const SohSkeleton: React.FC = () => {
                 </thead>
                 <tbody>
                   {[...Array(10)].map((_, i) => (
-                    <SkeletonTableRow key={i} columns={4} />  // Changed from 3 to 4
+                    <SkeletonTableRow key={i} columns={4} />
                   ))}
                 </tbody>
               </table>
@@ -83,19 +93,20 @@ const SohSkeleton: React.FC = () => {
   );
 };
 
-// ============== BLOCK 3: Main Component ==============
+// ============== BLOCK 4: Main Component ==============
 export function SohPage() {
   const { toast } = useToast();
 
-  // ============== BLOCK 4: State Management ==============
+  // ============== BLOCK 5: State Management ==============
   const [isLoading, setIsLoading] = useState(true);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sohRecords, setSohRecords] = useState<SohRecord[]>([]);
   const [summary, setSummary] = useState<SohSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // ============== BLOCK 5: Data Fetching ==============
+  // ============== BLOCK 6: Data Fetching ==============
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -116,7 +127,7 @@ export function SohPage() {
     fetchData();
   }, [fetchData]);
 
-  // ============== BLOCK 6: Filtered Data ==============
+  // ============== BLOCK 7: Filtered Data ==============
   const filteredRecords = useMemo(() => {
     if (!sohRecords) return [];
 
@@ -130,35 +141,75 @@ export function SohPage() {
     );
   }, [sohRecords, searchQuery]);
 
-  // ============== BLOCK 7: Event Handlers ==============
-  const handleImport = async (file: File): Promise<SohImportResult> => {
-    toast.info("Processing SOH data...");
+  // ============== BLOCK 8: Event Handlers ==============
+const handleImport = async (file: File): Promise<SohImportResult> => {
+  toast.info("Processing SOH data...");
 
-    try {
-      const result = await importSohData(file);
+  try {
+    const result = await importSohData(file);
 
-      toast.success(
-        `${result.data.imported} records imported. ${result.data.archived} previous records archived.`
-      );
+    toast.success(
+      `${result.data.imported} records imported. ${result.data.archived} previous records archived.`
+    );
 
-      return result;
-    } catch (err: any) {
-      toast.error(err.message || "Failed to import SOH data");
-      throw err;
-    }
-  };
+    return result;
+  } catch (err: any) {
+    toast.error(err.message || "Failed to import SOH data");
+    throw err;
+  }
+};
 
-  const handleImportComplete = () => {
-    setIsImportModalOpen(false);
-    fetchData();
-  };
+const handleImportComplete = () => {
+  setIsImportModalOpen(false);
+  fetchData();
+};
 
-  // ============== BLOCK 8: Loading State ==============
+const handleExport = (format: string) => {
+  if (!filteredRecords || filteredRecords.length === 0) {
+    toast.warning("No data available to export");
+    return;
+  }
+
+  try {
+    const columns: ExportColumn[] = [
+      { key: "product_id", header: "Product Code", width: 15 },
+      { key: "description", header: "Description", width: 35 },
+      { key: "stock_on_hand", header: "Stock on Hand", width: 15 },
+      { key: "stock_value", header: "Stock Value", width: 15 },
+    ];
+
+    const exportDataRows = filteredRecords.map((record) => ({
+      product_id: record.product_id,
+      description: record.description || "-",
+      stock_on_hand: record.stock_on_hand,
+      stock_value: formatCurrency(record.stock_value),
+    }));
+
+    const filename = `stock_on_hand_${new Date().toISOString().split("T")[0]}`;
+
+    exportData(format as ExportFormat, {
+      filename,
+      title: "Stock on Hand Report",
+      subtitle: `Total: ${formatStock(summary?.totalStock || 0)} units | Value: ${formatCurrency(summary?.totalStockValue || 0)}`,
+      columns,
+      data: exportDataRows,
+      orientation: "portrait",
+      dateGenerated: true,
+    });
+
+    toast.success(`Stock on Hand exported as ${format.toUpperCase()}`);
+    setIsExportMenuOpen(false);
+  } catch (err: any) {
+    toast.error(err.message || "Failed to export data");
+  }
+};
+
+  // ============== BLOCK 9: Loading State ==============
   if (isLoading) {
     return <SohSkeleton />;
   }
 
-  // ============== BLOCK 9: Error State ==============
+  // ============== BLOCK 10: Error State ==============
   if (error) {
     return (
       <Card>
@@ -178,34 +229,72 @@ export function SohPage() {
     );
   }
 
-  // ============== BLOCK 10: Render ==============
+  // ============== BLOCK 11: Render ==============
   return (
     <div className="space-y-6">
-      {/* Header Card */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                Stock on Hand
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                View and manage current inventory stock levels
-              </p>
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
-                onClick={() => setIsImportModalOpen(true)}
-              >
-                Import SOH
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
+{/* Header Card */}
+<Card>
+  <CardHeader>
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
+      <div>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          Stock on Hand
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          View and manage current inventory stock levels
+        </p>
+      </div>
+      <div className="flex items-center gap-3 flex-wrap">
+        {/* Export Button */}
+        <div className="relative">
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
+            rightIcon={<ChevronDownIcon className="h-4 w-4" />}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExportMenuOpen(!isExportMenuOpen);
+            }}
+          >
+            Export
+          </Button>
+
+          {/* Export Dropdown */}
+          {isExportMenuOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setIsExportMenuOpen(false)}
+              />
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50">
+                {EXPORT_OPTIONS.map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => handleExport(option.key)}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
+                  >
+                    <span>{option.icon}</span>
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <Button
+          variant="primary"
+          size="md"
+          leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
+          onClick={() => setIsImportModalOpen(true)}
+        >
+          Import SOH
+        </Button>
+      </div>
+    </div>
+  </CardHeader>
+</Card>
 
       {/* KPI Card - Total Stock Value */}
       {summary && (
@@ -360,5 +449,5 @@ export function SohPage() {
   );
 }
 
-// ============== BLOCK 11: Default Export ==============
+// ============== BLOCK 12: Default Export ==============
 export default SohPage;
