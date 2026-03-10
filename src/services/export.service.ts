@@ -185,6 +185,8 @@ export const exportToPDF = (options: ExportOptions): void => {
     });
 
     const pageWidth = doc.internal.pageSize.getWidth();
+    const margins = { top: 10, right: 14, bottom: 10, left: 14 };
+    const usableWidth = pageWidth - margins.left - margins.right;
     let yPosition = 15;
 
     // Add title if provided
@@ -230,12 +232,24 @@ export const exportToPDF = (options: ExportOptions): void => {
       })
     );
 
+    // Calculate proportional column widths based on defined widths
+    const totalDefinedWidth = columns.reduce((sum, col) => sum + (col.width || 15), 0);
+    const columnStyles = columns.reduce((acc, col, index) => {
+      const proportionalWidth = ((col.width || 15) / totalDefinedWidth) * usableWidth;
+      acc[index] = {
+        cellWidth: proportionalWidth,
+        halign: index <= 1 ? "left" : "center", // First 2 columns left-aligned, rest centered
+      };
+      return acc;
+    }, {} as Record<number, any>);
+
     // Generate table
     autoTable(doc, {
       head: [headers],
       body: rows,
       startY: yPosition,
       theme: "grid",
+      tableWidth: usableWidth,
       headStyles: {
         fillColor: [55, 65, 81], // gray-700
         textColor: [255, 255, 255],
@@ -253,14 +267,8 @@ export const exportToPDF = (options: ExportOptions): void => {
       alternateRowStyles: {
         fillColor: [249, 250, 251], // gray-50
       },
-      columnStyles: columns.reduce((acc, col, index) => {
-        acc[index] = {
-          cellWidth: col.width ? col.width * 0.5 : "auto",
-          halign: index <= 1 ? "left" : "center", // First 2 columns left-aligned, rest centered
-        };
-        return acc;
-      }, {} as Record<number, any>),
-      margin: { top: 10, right: 10, bottom: 10, left: 10 },
+      columnStyles: columnStyles,
+      margin: margins,
       didDrawPage: (data) => {
         // Add page numbers
         const pageCount = doc.getNumberOfPages();
