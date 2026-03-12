@@ -38,7 +38,7 @@ export function PoDetailModal({ open, handleOpen, po }: PoDetailModalProps) {
   const [isLoadingBom, setIsLoadingBom] = useState(false);
 
   useEffect(() => {
-    const productCode = po?.product?.product_code || po?.product?.productCode;
+    const productCode = po?.product?.productCode;
     if (open && productCode && components.length === 0) {
       setIsLoadingBom(true);
       getBomForProduct(productCode)
@@ -70,20 +70,20 @@ export function PoDetailModal({ open, handleOpen, po }: PoDetailModalProps) {
             <Card className={`lg:col-span-1 p-4 ${theme.cards} border-2 ${theme.borderColor} rounded-lg`}>
               <Typography variant="h6" className={`mb-2 pb-2 border-b-2 ${theme.borderColor}`}>Order Information</Typography>
               <div className="space-y-1">
-                <DetailRow label="Customer" value={po.customer_name} />
-                <DetailRow label="Created Date" value={formatDate(po.po_created_date)} />
-                <DetailRow label="Received Date" value={formatDate(po.po_received_date)} />
-                <DetailRow label="Qty (Pieces)" value={po.ordered_qty_pieces.toLocaleString()} />
-                <DetailRow label="Qty (Shippers)" value={Number(po.ordered_qty_shippers).toFixed(2)} />
-                <DetailRow label="Customer Amount" value={`$${Number(po.customer_amount).toFixed(2)}`} />
-                <DetailRow label="System Amount" value={`$${Number(po.system_amount).toFixed(2)}`} />
-                <DetailRow label="Hourly Run Rate" value={Number(po.hourly_run_rate).toFixed(2)} />
-                <DetailRow label="Mins per Shipper" value={Number(po.mins_per_shipper).toFixed(3)} />
-                
-                {po.delivery_date && (
+                <DetailRow label="Customer" value={po.customerName} />
+                <DetailRow label="Created Date" value={formatDate(po.poCreatedDate)} />
+                <DetailRow label="Received Date" value={formatDate(po.poReceivedDate)} />
+                <DetailRow label="Qty (Pieces)" value={po.orderedQtyPieces.toLocaleString()} />
+                <DetailRow label="Qty (Shippers)" value={Number(po.orderedQtyShippers).toFixed(2)} />
+                <DetailRow label="Customer Amount" value={`$${Number(po.customerAmount).toFixed(2)}`} />
+                <DetailRow label="System Amount" value={`$${Number(po.systemAmount).toFixed(2)}`} />
+                <DetailRow label="Hourly Run Rate" value={Number(po.hourlyRunRate).toFixed(2)} />
+                <DetailRow label="Mins per Shipper" value={Number(po.minsPerShipper).toFixed(3)} />
+
+                {po.deliveryDate && (
                   <>
-                    <DetailRow label="Despatch Date" value={formatDate(po.delivery_date)} />
-                    <DetailRow label="Docket Number" value={po.delivery_docket_number || 'N/A'} />
+                    <DetailRow label="Despatch Date" value={formatDate(po.deliveryDate)} />
+                    <DetailRow label="Docket Number" value={po.deliveryDocketNumber || 'N/A'} />
                   </>
                 )}
               </div>

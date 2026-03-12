@@ -61,22 +61,25 @@ export interface PurchaseOrder {
   id: string;
   poNumber: string;
   sequence?: number;
-  productCode: string;
   description?: string;
-  minsPerShipper?: number;
-  hourlyRunRate?: number;
-  components?: BomComponent[];
   customerName: string;
-  poCreatedDate: Date;
-  poReceivedDate: Date;
-  requestedDeliveryDate: Date;
+  poCreatedDate: string;
+  poReceivedDate: string;
+  requestedDeliveryDate?: string;
   orderedQtyPieces: number;
   orderedQtyShippers: number;
   customerAmount: number;
   systemAmount: number;
-  status: PoStatus[];
-  deliveryDate?: Date;
+  currentStatus: string;
+  statuses: string[];
+  deliveryDate?: string;
   deliveryDocketNumber?: string;
+  hourlyRunRate?: number;
+  minsPerShipper?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  product?: Product;
+  components?: BomComponent[];
 }
 
 // Constant array of all possible statuses

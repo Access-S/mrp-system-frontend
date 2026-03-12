@@ -1,11 +1,10 @@
 //src/services/purchaseOrder.service.ts
 
 // BLOCK 1: Imports
-import { supabase } from "../supabase.config";
-import { 
-  apiClient, 
-  handleApiError, 
-  ApiResponse, 
+import {
+  apiClient,
+  handleApiError,
+  ApiResponse,
   PaginatedApiResponse,
   fetchPurchaseOrders as apiFetchPurchaseOrders,
   createPo as apiCreatePo,
@@ -112,7 +111,7 @@ class PurchaseOrderService {
       const response: ApiResponse<PurchaseOrder> = await apiFetchPoById(poId);
       
       if (response.success && response.data) {
-        console.log(`✅ Fetched PO: ${response.data.po_number}`);
+        console.log(`✅ Fetched PO: ${response.data.poNumber}`);
         return response.data;
       }
       
@@ -246,7 +245,7 @@ class PurchaseOrderService {
       const response: ApiResponse<PurchaseOrder> = await apiUpdatePo(poId, newData);
       
       if (response.success && response.data) {
-        console.log(`✅ PO updated: ${response.data.po_number}`);
+        console.log(`✅ PO updated: ${response.data.poNumber}`);
         return response.data;
       }
       

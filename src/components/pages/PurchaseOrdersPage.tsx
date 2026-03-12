@@ -45,7 +45,7 @@ import {
   deletePo,
   PaginatedApiResponse,
 } from "../../services/api.service";
-import { PoStatus, ALL_PO_STATUSES } from "../../types/mrp.types";
+import { PurchaseOrder, PoStatus, ALL_PO_STATUSES } from "../../types/mrp.types";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 
@@ -158,17 +158,17 @@ const TableSkeleton: React.FC = () => {
 
 interface StatusCellProps {
   po: PurchaseOrder;
-  onStatusUpdate: (poId: string, status: string, currentStatuses: { status: string }[]) => void;
+  onStatusUpdate: (poId: string, status: string, currentStatuses: string[]) => void;
 }
 
 const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
-  const currentStatuses = po.statuses?.map((s) => s.status) || [];
+  const currentStatuses = po.statuses || [];
   const blocked = getBlockedStatuses(currentStatuses);
 
   return (
     <Menu>
       <Menu.Trigger>
-        <div 
+        <div
           className={clsx(
             "flex items-center gap-1 cursor-pointer",
             "p-1.5 rounded-md",
@@ -184,11 +184,11 @@ const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
             convertWheelToHorizontal
           >
             <div className="flex items-center gap-1 flex-nowrap">
-              {po.statuses && po.statuses.length > 0 ? (
-                po.statuses.map((s) => (
+              {currentStatuses.length > 0 ? (
+                currentStatuses.map((s) => (
                   <StatusBadge
-                    key={s.status}
-                    status={s.status as Status}
+                    key={s}
+                    status={s as Status}
                     size="sm"
                     variant="subtle"
                     className="flex-shrink-0"
@@ -236,7 +236,7 @@ const StatusCell: React.FC<StatusCellProps> = ({ po, onStatusUpdate }) => {
             </Menu.Item>
           );
         })}
-        {po.statuses?.some((s) => s.status === "PO Check") && (
+        {currentStatuses.includes("PO Check") && (
           <>
             <Menu.Divider />
             <Menu.Item disabled icon={<span className="text-amber-600">⚠</span>}>
@@ -370,9 +370,9 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
   const handleStatusUpdate = async (
     poId: string,
     status: string,
-    currentStatuses: { status: string }[]
+    currentStatuses: string[]
   ) => {
-    const statusList = currentStatuses?.map((s) => s.status) || [];
+    const statusList = currentStatuses || [];
     const isCurrentlyActive = statusList.includes(status);
 
     if (!isCurrentlyActive) {
@@ -396,15 +396,14 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
     const toastId = toast.loading("Updating status...");
     try {
       const response = await updatePurchaseOrderStatus(poId, status);
-      const updatedStatuses = response.data?.statuses || response.statuses || [];
+      const updatedStatuses = response.data?.statuses || [];
 
       setPurchaseOrders((prevPOs) =>
         prevPOs.map((p) => {
           if (p.id === poId) {
-            const newStatusArray = updatedStatuses.map((s: string) => ({ status: s }));
             const newCurrentStatus =
               updatedStatuses.length > 0 ? updatedStatuses[updatedStatuses.length - 1] : "Open";
-            return { ...p, statuses: newStatusArray, current_status: newCurrentStatus };
+            return { ...p, statuses: updatedStatuses, currentStatus: newCurrentStatus };
           }
           return p;
         })
@@ -428,27 +427,26 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
         { deliveryDate, docketNumber }
       );
 
-      const updatedStatuses = response.data?.statuses || response.statuses || [];
+      const updatedStatuses = response.data?.statuses || [];
 
       setPurchaseOrders((prevPOs) =>
         prevPOs.map((p) => {
           if (p.id === poToDespatch.id) {
-            const newStatusArray = updatedStatuses.map((s: string) => ({ status: s }));
             const newCurrentStatus =
               updatedStatuses.length > 0 ? updatedStatuses[updatedStatuses.length - 1] : "Open";
             return {
               ...p,
-              statuses: newStatusArray,
-              current_status: newCurrentStatus,
-              delivery_date: deliveryDate,
-              delivery_docket_number: docketNumber,
+              statuses: updatedStatuses,
+              currentStatus: newCurrentStatus,
+              deliveryDate: deliveryDate,
+              deliveryDocketNumber: docketNumber,
             };
           }
           return p;
         })
       );
 
-      toast.success(`PO ${poToDespatch.po_number} despatched successfully!`, { id: toastId });
+      toast.success(`PO ${poToDespatch.poNumber} despatched successfully!`, { id: toastId });
     } catch (error: any) {
       toast.error(error.message || "Failed to update despatch details.", { id: toastId });
     } finally {
@@ -467,7 +465,7 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
   };
 
   const handlePoUpdate = (updatedPo: PurchaseOrder) => {
-    toast.success(`PO ${updatedPo.po_number} updated successfully!`);
+    toast.success(`PO ${updatedPo.poNumber} updated successfully!`);
     setPurchaseOrders((prevPOs) =>
       prevPOs.map((p) => (p.id === updatedPo.id ? updatedPo : p))
     );
@@ -481,12 +479,12 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
   const handleConfirmDelete = async () => {
     if (!poToDelete) return;
 
-    const toastId = toast.loading(`Deleting PO ${poToDelete.po_number}...`);
+    const toastId = toast.loading(`Deleting PO ${poToDelete.poNumber}...`);
     try {
       await deletePo(poToDelete.id);
       setPurchaseOrders((prevPOs) => prevPOs.filter((p) => p.id !== poToDelete.id));
       setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
-      toast.success(`PO ${poToDelete.po_number} deleted successfully.`, { id: toastId });
+      toast.success(`PO ${poToDelete.poNumber} deleted successfully.`, { id: toastId });
     } catch (error: any) {
       toast.error(error.message, { id: toastId });
     } finally {
@@ -642,12 +640,12 @@ return (
               >
                 <Table.Cell>
                   <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                    {po.po_number}
+                    {po.poNumber}
                   </span>
                 </Table.Cell>
                 <Table.Cell>
                   <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                    {po.product?.product_code || "N/A"}
+                    {po.product?.productCode || "N/A"}
                   </span>
                 </Table.Cell>
                 <Table.Cell>
@@ -657,12 +655,12 @@ return (
                 </Table.Cell>
                 <Table.Cell>
                   <span className="font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                    {Number(po.ordered_qty_shippers || 0).toFixed(2)}
+                    {Number(po.orderedQtyShippers || 0).toFixed(2)}
                   </span>
                 </Table.Cell>
                 <Table.Cell>
                   <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                    {calculateProductionTime(po.ordered_qty_shippers, po.hourly_run_rate)}
+                    {calculateProductionTime(po.orderedQtyShippers, po.hourlyRunRate || 0)}
                   </span>
                 </Table.Cell>
                 <Table.Cell onClick={(e) => e.stopPropagation()}>
@@ -751,7 +749,7 @@ return (
       handleOpen={() => handleOpenDeleteConfirm(null)}
       onConfirm={handleConfirmDelete}
       title="Delete Purchase Order?"
-      message={`Are you sure you want to permanently delete PO ${poToDelete?.po_number}?`}
+      message={`Are you sure you want to permanently delete PO ${poToDelete?.poNumber}?`}
     />
 
     <DespatchPoForm

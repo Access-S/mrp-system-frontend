@@ -41,12 +41,12 @@ export function EditPoForm({
   useEffect(() => {
     if (po) {
       setFormData({
-        poNumber: po.po_number || "",
-        customerName: po.customer_name || "",
-        poCreatedDate: new Date(po.po_created_date).toISOString().split("T")[0],
-        poReceivedDate: new Date(po.po_received_date).toISOString().split("T")[0],
-        orderedQtyPieces: po.ordered_qty_pieces || "",
-        customerAmount: po.customer_amount || "",
+        poNumber: po.poNumber || "",
+        customerName: po.customerName || "",
+        poCreatedDate: new Date(po.poCreatedDate).toISOString().split("T")[0],
+        poReceivedDate: new Date(po.poReceivedDate).toISOString().split("T")[0],
+        orderedQtyPieces: po.orderedQtyPieces || "",
+        customerAmount: po.customerAmount || "",
       });
     }
   }, [po]);
@@ -58,8 +58,8 @@ export function EditPoForm({
         return;
     };
 
-    const unitsPerShipper = po.product.units_per_shipper || 0;
-    const pricePerShipper = po.product.price_per_shipper || 0;
+    const unitsPerShipper = po.product.unitsPerShipper || 0;
+    const pricePerShipper = po.product.pricePerShipper || 0;
     const pieces = Number(formData.orderedQtyPieces) || 0;
     const shippers = unitsPerShipper > 0 ? pieces / unitsPerShipper : 0;
     const calculatedSystemAmount = shippers * pricePerShipper;
@@ -72,7 +72,7 @@ export function EditPoForm({
     setAmountDifference(diff);
     setIsAmountMismatch(diff > 5);
   }, [formData.orderedQtyPieces, formData.customerAmount, po]);
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -104,7 +104,7 @@ export function EditPoForm({
   // BLOCK 6: Render Logic
   return (
     <Dialog open={open} handler={handleOpen} size="md">
-      <DialogHeader>Edit PO: {po?.po_number}</DialogHeader>
+      <DialogHeader>Edit PO: {po?.poNumber}</DialogHeader>
       <DialogBody divider className="flex flex-col gap-4">
         {po ? (
           <>
