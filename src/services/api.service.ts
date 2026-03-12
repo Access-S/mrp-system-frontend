@@ -112,6 +112,7 @@ class ApiClient {
   getBaseURL(): string {
     return this.baseURL;
   }
+}
 
 // BLOCK 5: API Client Instance
 const apiClient = new ApiClient(API_BASE_URL);
