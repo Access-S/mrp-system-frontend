@@ -7,7 +7,7 @@ import * as XLSX from "xlsx";
 // ============== BLOCK 2: Types & Interfaces ==============
 export interface SohRecord {
   id: string;
-  product_id: string;
+  part_code: string;
   description: string;
   stock_on_hand: number;
   stock_value: number;
@@ -23,6 +23,7 @@ export interface SohSummary {
   totalStockValue: number;
   zeroStockCount: number;
 }
+
 export interface SohImportResult {
   success: boolean;
   message: string;
@@ -32,7 +33,7 @@ export interface SohImportResult {
     archived: number;
     import_batch_id: string;
     detected_columns: {
-      product_id: string | null;
+      part_code: string | null;
       description: string | null;
       stock_on_hand: string | null;
     };
