@@ -2,6 +2,7 @@
 
 // ============== BLOCK 1: Imports ==============
 import { handleApiError } from "./api.service";
+import { Forecast } from "../types/mrp.types";
 import * as XLSX from "xlsx";
 
 // ============== BLOCK 2: Types & Interfaces ==============
@@ -213,6 +214,37 @@ class ForecastService {
       throw new Error(handleApiError(error));
     }
   }
+
+  /**
+   * Fetch all forecasts formatted for MRP engine consumption
+   * Transforms raw weekly data into typed Forecast objects
+   * @returns Promise<Forecast[]> - Array of forecasts with weeklyForecast maps
+   */
+  async getAllForecasts(): Promise<Forecast[]> {
+    try {
+      const { rows } = await this.getWeeklyForecasts();
+
+      return rows.map((row: any) => {
+        const { product_code, description, ...weeklyData } = row;
+
+        const weeklyForecast: Record<string, number> = {};
+        for (const [key, value] of Object.entries(weeklyData)) {
+          if (typeof value === 'number') {
+            weeklyForecast[key] = value;
+          }
+        }
+
+        return {
+          productCode: product_code || '',
+          description: description || '',
+          weeklyForecast,
+        };
+      });
+    } catch (error) {
+      console.error('❌ Error fetching forecasts for MRP:', error);
+      throw new Error(handleApiError(error));
+    }
+  }
 }
 
 // ============== BLOCK 5: Export Singleton Instance ==============
@@ -225,30 +257,7 @@ export const finalizeForecastReview = (
   approvals: ForecastReviewApproval[]
 ) => forecastService.finalizeForecastReview(importBatchId, approvals);
 export const getWeeklyForecasts = () => forecastService.getWeeklyForecasts();
-
-// Backward compatibility for InventoryPage and other pages
-export const getAllForecasts = async () => {
-  const { rows } = await forecastService.getWeeklyForecasts();
-  
-  // Transform to the old format expected by InventoryPage
-  return rows.map((row: any) => {
-    const { product_code, description, ...weeklyData } = row;
-    
-    // Convert weekly data to the format: { productCode, description, weeklyForecast }
-    const weeklyForecast: Record<string, number> = {};
-    for (const [key, value] of Object.entries(weeklyData)) {
-      if (typeof value === 'number') {
-        weeklyForecast[key] = value;
-      }
-    }
-
-    return {
-      productCode: product_code || '',
-      description: description || '',
-      weeklyForecast,
-    };
-  });
-};
+export const getAllForecasts = () => forecastService.getAllForecasts();
 
 export const getAllForecastsTable = async () => {
   return forecastService.getWeeklyForecasts();

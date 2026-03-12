@@ -14,10 +14,10 @@ import { handleApiError } from "./api.service";
 // ============================================================================
 
 /**
- * Represents monthly projection data for a component
+ * Represents weekly projection data for a component
  */
-export interface MonthlyProjection {
-  month: string;
+export interface WeeklyProjection {
+  week: string;
   totalDemand: number;
   coveragePercentage: number;
   projectedSoh: number;
@@ -33,13 +33,13 @@ export interface InventoryProjection {
   skusUsedIn: string[];
   displayPartType: string;
   displayDescription: string;
-  netFourMonthDemand: number;
-  projections: MonthlyProjection[];
+  netHorizonDemand: number;
+  projections: WeeklyProjection[];
   overallHealth: "Healthy" | "Risk" | "Shortage";
   recommendedAction: string;
   priority: "High" | "Medium" | "Low";
-  totalAnnualDemand: number;
-  averageMonthlyDemand: number;
+  totalForecastDemand: number;
+  averageWeeklyDemand: number;
 }
 
 /**
@@ -58,6 +58,9 @@ export interface MrpSummary {
 // BLOCK 3: MRP Service Class
 // ============================================================================
 
+/** Number of weeks to use for horizon demand calculation (~4 months) */
+const PROJECTION_HORIZON_WEEKS = 17;
+
 class MrpService {
 
   // --------------------------------------------------------------------------
@@ -68,7 +71,7 @@ class MrpService {
    * Calculates inventory projections based on BOMs, forecasts, and current stock
    * @param components - Array of components with current stock levels (SOH data)
    * @param products - Array of products with BOM data
-   * @param forecasts - Array of monthly forecasts per product
+   * @param forecasts - Array of weekly forecasts per product
    * @returns Array of inventory projections with demand calculations
    */
   calculateInventoryProjections(
@@ -82,7 +85,7 @@ class MrpService {
     const componentMasterMap = new Map<
       string,
       {
-        demand: { [month: string]: number };
+        demand: { [week: string]: number };
         skus: Set<string>;
         partTypes: Set<string>;
         descriptions: Set<string>;
@@ -96,10 +99,6 @@ class MrpService {
         (f) => f.productCode === product.productCode
       );
       if (!forecast) return;
-
-      // Validate units per shipper
-      const unitsPerShipper = product.unitsPerShipper || 0;
-      if (unitsPerShipper === 0) return;
 
       // Process each BOM component
       product.components.forEach((bomItem) => {
@@ -122,13 +121,13 @@ class MrpService {
         componentData.partTypes.add(bomItem.partType);
         componentData.descriptions.add(bomItem.partDescription);
 
-        // Calculate monthly demand for this component
-        for (const month in forecast.monthlyForecast) {
-          const forecastQtyInShippers = forecast.monthlyForecast[month];
+        // Calculate weekly demand for this component
+        for (const week in forecast.weeklyForecast) {
+          const forecastQtyInShippers = forecast.weeklyForecast[week];
           const requiredComponents = forecastQtyInShippers * bomItem.perShipper;
 
-          componentData.demand[month] =
-            (componentData.demand[month] || 0) + requiredComponents;
+          componentData.demand[week] =
+            (componentData.demand[week] || 0) + requiredComponents;
         }
       });
     });
@@ -141,61 +140,61 @@ class MrpService {
       if (!componentData) return;
 
       let currentSoh = component.stock;
-      const sortedMonths = Object.keys(componentData.demand).sort();
+      const sortedWeeks = Object.keys(componentData.demand).sort();
 
       // Calculate demand metrics
-      const fourMonthDemand = sortedMonths
-        .slice(0, 4)
-        .reduce((sum, month) => sum + (componentData.demand[month] || 0), 0);
+      const horizonDemand = sortedWeeks
+        .slice(0, PROJECTION_HORIZON_WEEKS)
+        .reduce((sum, week) => sum + (componentData.demand[week] || 0), 0);
       
-      const totalAnnualDemand = Object.values(componentData.demand)
+      const totalForecastDemand = Object.values(componentData.demand)
         .reduce((sum, demand) => sum + demand, 0);
       
-      const averageMonthlyDemand = sortedMonths.length > 0 
-        ? totalAnnualDemand / sortedMonths.length 
+      const averageWeeklyDemand = sortedWeeks.length > 0 
+        ? totalForecastDemand / sortedWeeks.length 
         : 0;
 
-      const netFourMonthDemand = Math.max(0, fourMonthDemand - currentSoh);
+      const netHorizonDemand = Math.max(0, horizonDemand - currentSoh);
 
       // Determine health status and priority
       let overallHealth: "Healthy" | "Risk" | "Shortage";
       let priority: "High" | "Medium" | "Low";
       let recommendedAction: string;
 
-      if (currentSoh >= fourMonthDemand) {
+      if (currentSoh >= horizonDemand) {
         overallHealth = "Healthy";
         priority = "Low";
         recommendedAction = "Monitor stock levels";
-      } else if (currentSoh > averageMonthlyDemand) {
+      } else if (currentSoh > averageWeeklyDemand) {
         overallHealth = "Risk";
         priority = "Medium";
-        recommendedAction = `Order ${Math.ceil(netFourMonthDemand)} units`;
+        recommendedAction = `Order ${Math.ceil(netHorizonDemand)} units`;
       } else {
         overallHealth = "Shortage";
         priority = "High";
-        recommendedAction = `URGENT: Order ${Math.ceil(netFourMonthDemand)} units immediately`;
+        recommendedAction = `URGENT: Order ${Math.ceil(netHorizonDemand)} units immediately`;
       }
 
-      // Calculate monthly projections
-      const projections: MonthlyProjection[] = sortedMonths.map((month) => {
-        const demand = componentData.demand[month];
+      // Calculate weekly projections
+      const projections: WeeklyProjection[] = sortedWeeks.map((week) => {
+        const demand = componentData.demand[week];
         const coveragePercentage = demand > 0 ? Math.min(1, currentSoh / demand) * 100 : 100;
         const projectedSoh = Math.max(0, currentSoh - demand);
         const shortfall = Math.max(0, demand - currentSoh);
         
-        // Calculate days of coverage (assuming 30 days per month)
-        const dailyDemand = demand / 30;
-        const daysOfCoverage = dailyDemand > 0 ? Math.floor(currentSoh / dailyDemand) : 30;
+        // Calculate days of coverage (7 days per week)
+        const dailyDemand = demand / 7;
+        const daysOfCoverage = dailyDemand > 0 ? Math.floor(currentSoh / dailyDemand) : 7;
         
         currentSoh = projectedSoh;
         
         return { 
-          month, 
+          week, 
           totalDemand: Math.round(demand * 100) / 100, 
           coveragePercentage: Math.round(coveragePercentage * 100) / 100, 
           projectedSoh: Math.round(projectedSoh * 100) / 100,
           shortfall: Math.round(shortfall * 100) / 100,
-          daysOfCoverage: Math.min(daysOfCoverage, 30)
+          daysOfCoverage: Math.min(daysOfCoverage, 7)
         };
       });
 
@@ -205,13 +204,13 @@ class MrpService {
         skusUsedIn: Array.from(componentData.skus),
         displayPartType: Array.from(componentData.partTypes)[0] || "N/A",
         displayDescription: Array.from(componentData.descriptions)[0] || "N/A",
-        netFourMonthDemand: Math.round(netFourMonthDemand * 100) / 100,
+        netHorizonDemand: Math.round(netHorizonDemand * 100) / 100,
         projections,
         overallHealth,
         recommendedAction,
         priority,
-        totalAnnualDemand: Math.round(totalAnnualDemand * 100) / 100,
-        averageMonthlyDemand: Math.round(averageMonthlyDemand * 100) / 100
+        totalForecastDemand: Math.round(totalForecastDemand * 100) / 100,
+        averageWeeklyDemand: Math.round(averageWeeklyDemand * 100) / 100
       });
     });
 
@@ -265,11 +264,11 @@ class MrpService {
     const riskCount = projections.filter(p => p.overallHealth === 'Risk').length;
     const shortageCount = projections.filter(p => p.overallHealth === 'Shortage').length;
     
-    const totalDemandValue = projections.reduce((sum, p) => sum + p.totalAnnualDemand, 0);
+    const totalDemandValue = projections.reduce((sum, p) => sum + p.totalForecastDemand, 0);
     
     const criticalComponents = projections
       .filter(p => p.priority === 'High')
-      .sort((a, b) => b.netFourMonthDemand - a.netFourMonthDemand)
+      .sort((a, b) => b.netHorizonDemand - a.netHorizonDemand)
       .slice(0, 10);
 
     return {
@@ -339,12 +338,12 @@ class MrpService {
     estimatedCost?: number;
   }[] {
     return projections
-      .filter(p => p.netFourMonthDemand > 0)
+      .filter(p => p.netHorizonDemand > 0)
       .map(p => ({
         partCode: p.component.partCode,
         description: p.displayDescription,
         currentStock: p.component.stock,
-        recommendedQuantity: Math.ceil(p.netFourMonthDemand),
+        recommendedQuantity: Math.ceil(p.netHorizonDemand),
         priority: p.priority,
         reason: p.recommendedAction,
       }))
@@ -371,14 +370,14 @@ class MrpService {
       'SKUs Used In': p.skusUsedIn.join(', '),
       'Health Status': p.overallHealth,
       'Priority': p.priority,
-      'Net 4-Month Demand': p.netFourMonthDemand,
-      'Total Annual Demand': p.totalAnnualDemand,
-      'Average Monthly Demand': p.averageMonthlyDemand,
+      'Net Horizon Demand': p.netHorizonDemand,
+      'Total Forecast Demand': p.totalForecastDemand,
+      'Average Weekly Demand': p.averageWeeklyDemand,
       'Recommended Action': p.recommendedAction,
       ...p.projections.reduce((acc, proj, index) => {
-        acc[`Month ${index + 1} Demand`] = proj.totalDemand;
-        acc[`Month ${index + 1} Coverage %`] = proj.coveragePercentage;
-        acc[`Month ${index + 1} Projected SOH`] = proj.projectedSoh;
+        acc[`Week ${index + 1} Demand`] = proj.totalDemand;
+        acc[`Week ${index + 1} Coverage %`] = proj.coveragePercentage;
+        acc[`Week ${index + 1} Projected SOH`] = proj.projectedSoh;
         return acc;
       }, {} as any)
     }));
@@ -419,23 +418,23 @@ export const exportMrpData = (projections: InventoryProjection[]) =>
 // ============================================================================
 
 /**
- * Calculates days of coverage based on current stock and monthly demand
+ * Calculates days of coverage based on current stock and weekly demand
  */
-export const calculateDaysOfCoverage = (currentStock: number, monthlyDemand: number): number => {
-  if (monthlyDemand <= 0) return 999;
-  const dailyDemand = monthlyDemand / 30;
+export const calculateDaysOfCoverage = (currentStock: number, weeklyDemand: number): number => {
+  if (weeklyDemand <= 0) return 999;
+  const dailyDemand = weeklyDemand / 7;
   return Math.floor(currentStock / dailyDemand);
 };
 
 /**
- * Calculates reorder point based on average demand and lead time
+ * Calculates reorder point based on average weekly demand and lead time
  */
 export const calculateReorderPoint = (
-  averageDemand: number, 
+  averageWeeklyDemand: number, 
   leadTimeDays: number = 30, 
   safetyStock: number = 0
 ): number => {
-  const dailyDemand = averageDemand / 30;
+  const dailyDemand = averageWeeklyDemand / 7;
   return Math.ceil((dailyDemand * leadTimeDays) + safetyStock);
 };
 
@@ -532,13 +531,6 @@ export const validateMrpInputs = (
   if (!products || products.length === 0) {
     errors.push('No products provided');
   } else {
-    const invalidProducts = products.filter(p => 
-      !p.productCode || !p.unitsPerShipper || p.unitsPerShipper <= 0
-    );
-    if (invalidProducts.length > 0) {
-      warnings.push(`${invalidProducts.length} products missing unitsPerShipper data`);
-    }
-
     const productsWithoutBom = products.filter(p => 
       !p.components || p.components.length === 0
     );
@@ -552,10 +544,10 @@ export const validateMrpInputs = (
     errors.push('No forecasts provided');
   } else {
     const invalidForecasts = forecasts.filter(f => 
-      !f.productCode || !f.monthlyForecast || Object.keys(f.monthlyForecast).length === 0
+      !f.productCode || !f.weeklyForecast || Object.keys(f.weeklyForecast).length === 0
     );
     if (invalidForecasts.length > 0) {
-      warnings.push(`${invalidForecasts.length} forecasts have no monthly data`);
+      warnings.push(`${invalidForecasts.length} forecasts have no weekly data`);
     }
   }
 
@@ -594,7 +586,7 @@ export const generateMrpReport = (projections: InventoryProjection[]): {
   const executiveSummary = `
     MRP Analysis completed for ${summary.totalComponents} components. 
     ${summary.shortageCount} components are in shortage, ${summary.riskCount} are at risk, 
-    and ${summary.healthyCount} are healthy. Total annual demand value: $${summary.totalDemandValue.toLocaleString()}.
+    and ${summary.healthyCount} are healthy. Total forecast demand: ${summary.totalDemandValue.toLocaleString()} units.
   `.trim();
 
   const keyFindings = [
@@ -613,7 +605,7 @@ export const generateMrpReport = (projections: InventoryProjection[]): {
 
   const criticalActions = summary.criticalComponents
     .slice(0, 5)
-    .map(c => `Order ${Math.ceil(c.netFourMonthDemand)} units of ${c.component.partCode} immediately`);
+    .map(c => `Order ${Math.ceil(c.netHorizonDemand)} units of ${c.component.partCode} immediately`);
 
   return {
     executiveSummary,
