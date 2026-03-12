@@ -285,7 +285,6 @@ async deleteProduct(productCode: string): Promise<void> {
       hourlyRunRate: data.hourly_run_rate || 0,
       minsPerShipper: data.mins_per_shipper || 0,
       pricePerShipper: data.price_per_shipper || 0,
-      currentStock: data.current_stock || 0,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
       // BOM components will be loaded separately when needed

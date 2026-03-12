@@ -39,6 +39,8 @@ export interface Product {
   hourlyRunRate?: number;
   minsPerShipper?: number;
   pricePerShipper?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Purchase Order Structure
