@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import {
   Card, Typography, CardBody, Spinner, Input, Button
 } from "@material-tailwind/react";
-import { fetchAllProducts } from "../../services/api.service";
+import { getAllProducts } from "../../services/product.service";
 import { useTheme } from "../../contexts/ThemeContext";
 import { 
   MagnifyingGlassIcon, 
@@ -38,7 +38,7 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
     setLoading(true);
     // Note: We don't set deleteLoading here anymore because we removed that state
     
-    fetchAllProducts()
+    getAllProducts()
       .then(productsArray => {
         setProducts(productsArray || []);
         setLoading(false);

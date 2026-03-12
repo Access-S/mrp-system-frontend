@@ -15,7 +15,8 @@ import {
   ChevronUpDownIcon,
 } from "@heroicons/react/24/outline";
 import { useTheme } from "../../contexts/ThemeContext";
-import { createPo, fetchAllProducts } from "../../services/api.service";
+import { createPo } from "../../services/api.service";
+import { getAllProducts } from "../../services/product.service";
 import { FormAlert } from "../dialogs/FormAlert";
 import toast from "react-hot-toast";
 import { DatePicker } from "../ui/DatePicker";
@@ -291,7 +292,7 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
     const loadProducts = async () => {
       setLoadingProducts(true);
       try {
-        const data = await fetchAllProducts();
+        const data = await getAllProducts();
         const mapped: ProductOption[] = (data || []).map((p: any) => ({
           productCode: p.productCode || p.product_code,
           description: p.description || "",

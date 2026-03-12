@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogHeader, DialogBody, Typography, Spinner, Card } from "@material-tailwind/react";
 import { PurchaseOrder, BomComponent } from "../../types/mrp.types";
-import { fetchBomForProduct } from "../../services/api.service";
+import { getBomForProduct } from "../../services/product.service";
 import { useTheme } from "../../contexts/ThemeContext";
 
 // BLOCK 2: Helper function
@@ -38,10 +38,11 @@ export function PoDetailModal({ open, handleOpen, po }: PoDetailModalProps) {
   const [isLoadingBom, setIsLoadingBom] = useState(false);
 
   useEffect(() => {
-    if (open && po?.product?.id && components.length === 0) {
+    const productCode = po?.product?.product_code || po?.product?.productCode;
+    if (open && productCode && components.length === 0) {
       setIsLoadingBom(true);
-      fetchBomForProduct(po.product.id)
-        .then(data => setComponents(data))
+      getBomForProduct(productCode)
+        .then(data => setComponents(Array.isArray(data) ? data : []))
         .catch(console.error)
         .finally(() => setIsLoadingBom(false));
     } else if (!open) {

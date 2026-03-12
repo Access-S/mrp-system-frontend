@@ -6,7 +6,7 @@ import {
   Dialog, DialogHeader, DialogBody, Typography, Spinner
 } from "@material-tailwind/react";
 import { BomComponent, Product } from "../../types/mrp.types";
-import { fetchBomForProduct } from "../../services/api.service";
+import { getBomForProduct } from "../../services/product.service";
 import { useTheme } from "../../contexts/ThemeContext";
 
 // BLOCK 2: Interface and Component Definition
@@ -24,7 +24,7 @@ export function BomDetailModal({ open, handleOpen, product }: BomDetailModalProp
   useEffect(() => {
     if (open && product?.productCode && components.length === 0) {  // ✅ Changed to productCode
       setIsLoading(true);
-      fetchBomForProduct(product.productCode)  // ✅ Changed to productCode
+      getBomForProduct(product.productCode)
         .then(response => {
           // Handle API response format: { success: true, data: [...] }
           if (response.success && Array.isArray(response.data)) {
