@@ -136,73 +136,73 @@ export function SohPage() {
     const query = searchQuery.toLowerCase().trim();
     return sohRecords.filter(
       (record) =>
-        record.product_id.toLowerCase().includes(query) ||
+        record.part_code.toLowerCase().includes(query) ||
         record.description?.toLowerCase().includes(query)
     );
   }, [sohRecords, searchQuery]);
 
   // ============== BLOCK 8: Event Handlers ==============
-const handleImport = async (file: File): Promise<SohImportResult> => {
-  toast.info("Processing SOH data...");
-
-  try {
-    const result = await importSohData(file);
-
-    toast.success(
-      `${result.data.imported} records imported. ${result.data.archived} previous records archived.`
-    );
-
-    return result;
-  } catch (err: any) {
-    toast.error(err.message || "Failed to import SOH data");
-    throw err;
-  }
-};
-
-const handleImportComplete = () => {
-  setIsImportModalOpen(false);
-  fetchData();
-};
-
-const handleExport = (format: string) => {
-  if (!filteredRecords || filteredRecords.length === 0) {
-    toast.warning("No data available to export");
-    return;
-  }
-
-  try {
-    const columns: ExportColumn[] = [
-      { key: "product_id", header: "Product Code", width: 15 },
-      { key: "description", header: "Description", width: 35 },
-      { key: "stock_on_hand", header: "Stock on Hand", width: 15 },
-      { key: "stock_value", header: "Stock Value", width: 15 },
-    ];
-
-    const exportDataRows = filteredRecords.map((record) => ({
-      product_id: record.product_id,
-      description: record.description || "-",
-      stock_on_hand: record.stock_on_hand,
-      stock_value: formatCurrency(record.stock_value),
-    }));
-
-    const filename = `stock_on_hand_${new Date().toISOString().split("T")[0]}`;
-
-    exportData(format as ExportFormat, {
-      filename,
-      title: "Stock on Hand Report",
-      subtitle: `Total: ${formatStock(summary?.totalStock || 0)} units | Value: ${formatCurrency(summary?.totalStockValue || 0)}`,
-      columns,
-      data: exportDataRows,
-      orientation: "portrait",
-      dateGenerated: true,
-    });
-
-    toast.success(`Stock on Hand exported as ${format.toUpperCase()}`);
-    setIsExportMenuOpen(false);
-  } catch (err: any) {
-    toast.error(err.message || "Failed to export data");
-  }
-};
+  const handleImport = async (file: File): Promise<SohImportResult> => {
+    toast.info("Processing SOH data...");
+  
+    try {
+      const result = await importSohData(file);
+  
+      toast.success(
+        `${result.data.imported} records imported. ${result.data.archived} previous records archived.`
+      );
+  
+      return result;
+    } catch (err: any) {
+      toast.error(err.message || "Failed to import SOH data");
+      throw err;
+    }
+  };
+  
+  const handleImportComplete = () => {
+    setIsImportModalOpen(false);
+    fetchData();
+  };
+  
+  const handleExport = (format: string) => {
+    if (!filteredRecords || filteredRecords.length === 0) {
+      toast.warning("No data available to export");
+      return;
+    }
+  
+    try {
+      const columns: ExportColumn[] = [
+        { key: "part_code", header: "Part Code", width: 15 },
+        { key: "description", header: "Description", width: 35 },
+        { key: "stock_on_hand", header: "Stock on Hand", width: 15 },
+        { key: "stock_value", header: "Stock Value", width: 15 },
+      ];
+  
+      const exportDataRows = filteredRecords.map((record) => ({
+        part_code: record.part_code,
+        description: record.description || "-",
+        stock_on_hand: record.stock_on_hand,
+        stock_value: formatCurrency(record.stock_value),
+      }));
+  
+      const filename = `stock_on_hand_${new Date().toISOString().split("T")[0]}`;
+  
+      exportData(format as ExportFormat, {
+        filename,
+        title: "Stock on Hand Report",
+        subtitle: `Total: ${formatStock(summary?.totalStock || 0)} units | Value: ${formatCurrency(summary?.totalStockValue || 0)}`,
+        columns,
+        data: exportDataRows,
+        orientation: "portrait",
+        dateGenerated: true,
+      });
+  
+      toast.success(`Stock on Hand exported as ${format.toUpperCase()}`);
+      setIsExportMenuOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to export data");
+    }
+  };
 
   // ============== BLOCK 9: Loading State ==============
   if (isLoading) {
@@ -382,7 +382,7 @@ const handleExport = (format: string) => {
                     <Table.Row key={record.id || index}>
                       <Table.Cell className="text-left">
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
-                          {record.product_id}
+                          {record.part_code}
                         </span>
                       </Table.Cell>
                       <Table.Cell className="text-left">
