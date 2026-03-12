@@ -12,8 +12,8 @@ import {
 } from "@material-tailwind/react";
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "../../contexts/ThemeContext";
-import { getAllSoh } from "../../services/inventory.service";
-import { fetchAllProducts } from "../../services/api.service";
+import { getAllSoh } from "../../services/component.service";
+import { getAllProducts } from "../../services/product.service";
 import { getAllForecasts } from "../../services/forecast.service";
 import {
   calculateInventoryProjections,
@@ -36,9 +36,9 @@ const PRIORITY_FILTERS: { value: PriorityFilter; label: string; color: string }[
 ];
 
 // Sort field options
-type SortField = "netFourMonthDemand" | "stock" | "coverage";
+type SortField = "netHorizonDemand" | "stock" | "coverage";
 const SORT_FIELDS: { value: SortField; label: string }[] = [
-  { value: "netFourMonthDemand", label: "Net Demand (4m)" },
+  { value: "netHorizonDemand", label: "Net Demand" },
   { value: "stock", label: "On Hand" },
   { value: "coverage", label: "Coverage %" },
 ];
@@ -50,7 +50,7 @@ export function InventoryPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("All");
-  const [sortField, setSortField] = useState<SortField>("netFourMonthDemand");
+  const [sortField, setSortField] = useState<SortField>("netHorizonDemand");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export function InventoryPage() {
       try {
         const [components, products, forecasts] = await Promise.all([
           getAllSoh(),
-          fetchAllProducts(),
+          getAllProducts(),
           getAllForecasts(),
         ]);
         const calculatedProjections = calculateInventoryProjections(
@@ -103,16 +103,15 @@ export function InventoryPage() {
       let valA: number, valB: number;
 
       switch (sortField) {
-        case "netFourMonthDemand":
-          valA = a.netFourMonthDemand;
-          valB = b.netFourMonthDemand;
+        case "netHorizonDemand":
+          valA = a.netHorizonDemand;
+          valB = b.netHorizonDemand;
           break;
         case "stock":
           valA = a.component.stock;
           valB = b.component.stock;
           break;
         case "coverage":
-          // Use coverage % of first month (or 100 if no projections)
           valA = a.projections[0]?.coveragePercentage ?? 100;
           valB = b.projections[0]?.coveragePercentage ?? 100;
           break;
@@ -130,13 +129,13 @@ export function InventoryPage() {
     return result;
   }, [projections, priorityFilter, searchQuery, sortField, sortDirection]);
 
-  const monthHeaders =
+  const weekHeaders =
     projections[0]?.projections
       .slice(0, timeHorizon)
       .map((p) =>
-        new Date(p.month + "-02").toLocaleDateString("en-US", {
+        new Date(p.week + "T00:00:00").toLocaleDateString("en-US", {
+          day: "2-digit",
           month: "short",
-          year: "2-digit",
         })
       ) || [];
 
@@ -145,8 +144,8 @@ export function InventoryPage() {
     "Part Code",
     "Description",
     "On Hand",
-    "Net Demand (4m)",
-    ...monthHeaders,
+    "Net Demand",
+    ...weekHeaders,
   ];
 
   // Handle sort click
@@ -293,12 +292,12 @@ export function InventoryPage() {
               </tr>
             </thead>
             <tbody>
-              {processedProjections.map(
+            {processedProjections.map(
                 ({
                   component,
                   skusUsedIn,
                   displayDescription,
-                  netFourMonthDemand,
+                  netHorizonDemand,
                   projections,
                 }) => (
                   <React.Fragment key={component.id || component.partCode}>
@@ -340,14 +339,14 @@ export function InventoryPage() {
                       </td>
                       <td className="p-2 align-top">
                         <Chip
-                          value={netFourMonthDemand.toLocaleString()}
-                          color={netFourMonthDemand > 0 ? "red" : "green"}
+                          value={netHorizonDemand.toLocaleString()}
+                          color={netHorizonDemand > 0 ? "red" : "green"}
                           variant="ghost"
                         />
                       </td>
                       {projections.slice(0, timeHorizon).map((p) => (
                         <td
-                          key={`${p.month}-demand`}
+                          key={`${p.week}-demand`}
                           className="p-2 text-center align-top"
                         >
                           <Typography variant="small" className="font-semibold">
@@ -366,7 +365,7 @@ export function InventoryPage() {
                       </td>
                       {projections.slice(0, timeHorizon).map((p) => (
                         <td
-                          key={`${p.month}-coverage`}
+                          key={`${p.week}-coverage`}
                           className="p-2 text-center"
                         >
                           <Typography
@@ -392,7 +391,7 @@ export function InventoryPage() {
                       </td>
                       {projections.slice(0, timeHorizon).map((p) => (
                         <td
-                          key={`${p.month}-soh`}
+                          key={`${p.week}-soh`}
                           className={`p-2 text-center font-semibold rounded ${getHealthColor(
                             p.projectedSoh
                           )}`}
