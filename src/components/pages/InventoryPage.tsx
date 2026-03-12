@@ -1,5 +1,6 @@
 // src/components/pages/InventoryPage.tsx
 
+// ============== BLOCK 1: Imports ==============
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Typography,
@@ -22,11 +23,11 @@ import {
 } from "../../services/mrp.service";
 import toast from "react-hot-toast";
 
+// ============== BLOCK 2: Constants & Types ==============
 const timeHorizon = 6;
 const getHealthColor = (soh: number) =>
   soh >= 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
 
-// Priority filter options
 type PriorityFilter = "All" | "High" | "Medium" | "Low";
 const PRIORITY_FILTERS: { value: PriorityFilter; label: string; color: string }[] = [
   { value: "All", label: "All Components", color: "gray" },
@@ -35,7 +36,6 @@ const PRIORITY_FILTERS: { value: PriorityFilter; label: string; color: string }[
   { value: "Low", label: "Healthy (Low)", color: "green" },
 ];
 
-// Sort field options
 type SortField = "netHorizonDemand" | "stock" | "coverage";
 const SORT_FIELDS: { value: SortField; label: string }[] = [
   { value: "netHorizonDemand", label: "Net Demand" },
@@ -43,9 +43,11 @@ const SORT_FIELDS: { value: SortField; label: string }[] = [
   { value: "coverage", label: "Coverage %" },
 ];
 
-// BLOCK 3: Main InventoryPage Component
+// ============== BLOCK 3: Main Component ==============
 export function InventoryPage() {
   const { theme } = useTheme();
+
+  // ============== BLOCK 4: State Management ==============
   const [projections, setProjections] = useState<InventoryProjection[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,6 +55,7 @@ export function InventoryPage() {
   const [sortField, setSortField] = useState<SortField>("netHorizonDemand");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
+  // ============== BLOCK 5: Data Fetching ==============
   useEffect(() => {
     const fetchDataAndCalculate = async () => {
       setLoading(true);
@@ -78,7 +81,7 @@ export function InventoryPage() {
     fetchDataAndCalculate();
   }, []);
 
-  // Apply filtering and sorting
+  // ============== BLOCK 6: Filtering & Sorting ==============
   const processedProjections = useMemo(() => {
     let result = [...projections];
 
@@ -129,6 +132,7 @@ export function InventoryPage() {
     return result;
   }, [projections, priorityFilter, searchQuery, sortField, sortDirection]);
 
+  // ============== BLOCK 7: Table Headers ==============
   const weekHeaders =
     projections[0]?.projections
       .slice(0, timeHorizon)
@@ -148,7 +152,7 @@ export function InventoryPage() {
     ...weekHeaders,
   ];
 
-  // Handle sort click
+  // ============== BLOCK 8: Event Handlers ==============
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -158,7 +162,6 @@ export function InventoryPage() {
     }
   };
 
-  // Export to CSV
   const handleExport = () => {
     if (projections.length === 0) {
       toast.error("No data to export");
@@ -168,10 +171,8 @@ export function InventoryPage() {
     try {
       const exportData = exportMrpData(projections);
       const csv = [
-        // Header row
         Object.keys(exportData[0]).join(','),
-        // Data rows
-        ...exportData.map(row => 
+        ...exportData.map(row =>
           Object.values(row)
             .map(value => `"${String(value).replace(/"/g, '""')}"`)
             .join(',')
@@ -196,6 +197,7 @@ export function InventoryPage() {
     }
   };
 
+  // ============== BLOCK 9: Render ==============
   return (
     <Card className={`w-full ${theme.cards} shadow-sm`}>
       {/* Page Header */}
@@ -207,7 +209,6 @@ export function InventoryPage() {
 
       {/* Controls: Filters, Search, Export */}
       <div className={`p-4 border-b ${theme.borderColor} flex flex-wrap gap-3 items-center`}>
-        {/* Priority Filters */}
         <div className="flex flex-wrap gap-2">
           {PRIORITY_FILTERS.map(({ value, label, color }) => (
             <Button
@@ -222,10 +223,8 @@ export function InventoryPage() {
           ))}
         </div>
 
-        {/* Spacer */}
         <div className="flex-grow"></div>
 
-        {/* Export Button */}
         <Button
           onClick={handleExport}
           size="sm"
@@ -266,7 +265,7 @@ export function InventoryPage() {
         ))}
       </div>
 
-      {/* Inventory Table */}
+      {/* ============== BLOCK 10: Data Table ============== */}
       <CardBody className="overflow-x-auto p-0">
         {loading ? (
           <div className="flex justify-center items-center h-96">
@@ -292,7 +291,7 @@ export function InventoryPage() {
               </tr>
             </thead>
             <tbody>
-            {processedProjections.map(
+              {processedProjections.map(
                 ({
                   component,
                   skusUsedIn,
@@ -416,3 +415,6 @@ export function InventoryPage() {
     </Card>
   );
 }
+
+// ============== BLOCK 11: Default Export ==============
+export default InventoryPage;
