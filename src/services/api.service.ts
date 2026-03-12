@@ -105,7 +105,13 @@ class ApiClient {
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
-}
+
+  /**
+   * Returns the base URL for cases requiring raw fetch (e.g., FormData uploads)
+   */
+  getBaseURL(): string {
+    return this.baseURL;
+  }
 
 // BLOCK 5: API Client Instance
 const apiClient = new ApiClient(API_BASE_URL);

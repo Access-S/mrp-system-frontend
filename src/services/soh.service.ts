@@ -1,8 +1,7 @@
 // src/services/soh.service.ts
 
 // ============== BLOCK 1: Imports ==============
-import { handleApiError } from "./api.service";
-import * as XLSX from "xlsx";
+import { apiClient, handleApiError } from "./api.service";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 export interface SohRecord {
@@ -45,14 +44,12 @@ export interface SohTableData {
   records: SohRecord[];
 }
 
-// ============== BLOCK 3: API Base URL ==============
-const API_BASE_URL = "https://mrp-1.onrender.com/api";
 
-// ============== BLOCK 4: SOH Service Class ==============
+// ============== BLOCK 3: SOH Service Class ==============
 class SohService {
   /**
    * Import SOH data from Excel file
-   * Client-side parsing, sends file to backend for processing
+   * Sends file to backend for processing
    */
   async importSohData(file: File): Promise<SohImportResult> {
     try {
@@ -64,11 +61,11 @@ class SohService {
         throw new Error("Only Excel files (.xlsx, .xls) or CSV are allowed.");
       }
 
-      // Create FormData and send file to backend
+      // Create FormData and send file to backend via apiClient base URL
       const formData = new FormData();
       formData.append("sohFile", file);
 
-      const response = await fetch(`${API_BASE_URL}/soh/upload`, {
+      const response = await fetch(`${apiClient.getBaseURL()}/soh/upload`, {
         method: "POST",
         body: formData,
       });
@@ -92,36 +89,26 @@ class SohService {
 
   /**
    * Fetch all active SOH records from backend
+   * Used by SohPage for display
    */
   async getSohData(search?: string): Promise<SohTableData> {
     try {
       console.log("📦 Fetching SOH data...", { search });
 
-      const params = new URLSearchParams();
-      if (search && search.trim()) {
-        params.append("search", search.trim());
-      }
+      const params = search && search.trim() ? `?search=${encodeURIComponent(search.trim())}` : '';
+      const response = await apiClient.get<any>(`/soh${params}`);
 
-      const url = `${API_BASE_URL}/soh${params.toString() ? `?${params.toString()}` : ""}`;
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch SOH data");
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        console.log(`✅ Fetched ${result.data.length} SOH records`);
+      if (response.success) {
+        console.log(`✅ Fetched ${response.data.length} SOH records`);
         return {
-          summary: result.summary,
-          records: result.data,
+          summary: response.summary,
+          records: response.data,
         };
       }
 
-      console.warn("Unexpected API response format:", result);
+      console.warn("Unexpected API response format:", response);
       return {
-        summary: { totalRecords: 0, totalStock: 0, zeroStockCount: 0 },
+        summary: { totalRecords: 0, totalStock: 0, totalStockValue: 0, zeroStockCount: 0 },
         records: [],
       };
     } catch (error) {
@@ -131,14 +118,14 @@ class SohService {
   }
 }
 
-// ============== BLOCK 5: Export Singleton Instance ==============
+// ============== BLOCK 4: Export Singleton Instance ==============
 export const sohService = new SohService();
 
-// ============== BLOCK 6: Export Individual Functions ==============
+// ============== BLOCK 5: Export Individual Functions ==============
 export const importSohData = (file: File) => sohService.importSohData(file);
 export const getSohData = (search?: string) => sohService.getSohData(search);
 
-// ============== BLOCK 7: Utility Functions ==============
+// ============== BLOCK 6: Utility Functions ==============
 
 /**
  * Format stock number with thousand separators
@@ -159,6 +146,6 @@ export const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
-// ============== BLOCK 8: Default Export ==============
+// ============== BLOCK 7: Default Export ==============
 export { SohService };
 export default sohService;

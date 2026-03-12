@@ -6,7 +6,7 @@
 import { Product, Forecast, Component } from "../types/mrp.types";
 import { productService } from "./product.service";
 import { forecastService } from "./forecast.service";
-import { inventoryService } from "./inventory.service";
+import { componentService } from "./component.service";
 import { handleApiError } from "./api.service";
 
 // ============================================================================
@@ -232,7 +232,7 @@ class MrpService {
 
       // Fetch all required data in parallel
       const [components, products, forecasts] = await Promise.all([
-        inventoryService.getAllSoh(),
+        componentService.getAllSoh(),
         productService.getAllProducts(),
         forecastService.getAllForecasts()
       ]);
