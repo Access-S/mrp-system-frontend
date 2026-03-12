@@ -233,22 +233,6 @@ export const deletePo = async (poId: string): Promise<ApiResponse<void>> => {
   return apiClient.delete<ApiResponse<void>>(`/purchase-orders/${poId}`);
 };
 
-// BLOCK 7: Products API
-export const fetchAllProducts = async (): Promise<any[]> => {
-  try {
-    const response: ApiResponse<any[]> = await apiClient.get('/products');
-
-    if (response.success && Array.isArray(response.data)) {
-      return response.data; // ✅ Return only the array
-    }
-    
-    throw new Error('Failed to fetch products: invalid response format');
-  } catch (error) {
-    console.error('Error in fetchAllProducts:', error);
-    throw error;
-  }
-};
-
 export const fetchBomForProduct = async (productCode: string): Promise<any[]> => {
   if (!productCode) {
     throw new Error('Product code is required');
@@ -257,7 +241,7 @@ export const fetchBomForProduct = async (productCode: string): Promise<any[]> =>
   return apiClient.get<ApiResponse<any[]>>(`/products/${productCode}/bom`);
 };
 
-// BLOCK 8: Utility Functions
+// BLOCK 7: Utility Functions
 export const handleApiError = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
@@ -273,5 +257,5 @@ export const isPaginatedResponse = <T>(response: any): response is PaginatedApiR
   return isApiResponse(response) && 'pagination' in response;
 };
 
-// BLOCK 9: Export API Client for custom requests
+// BLOCK 8: Export API Client for custom requests
 export { apiClient };

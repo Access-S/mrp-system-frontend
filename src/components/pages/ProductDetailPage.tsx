@@ -39,13 +39,12 @@ export function ProductDetailPage({ productCode, onBack }: ProductDetailPageProp
   const loadProductData = async () => {
     setLoading(true);
     try {
-      const [productsRes, bomRes] = await Promise.all([
-        productService.getAllProducts(),
+      const [productRes, bomRes] = await Promise.all([
+        productService.getProductByCode(productCode),
         productService.getBomForProduct(productCode),
       ]);
-      const foundProduct = productsRes.find((p: any) => p.productCode === productCode);
-      setProduct(foundProduct || null);
-      setComponents(Array.isArray(bomRes?.data) ? bomRes.data : bomRes || []);
+      setProduct(productRes || null);
+      setComponents(Array.isArray(bomRes) ? bomRes : []);
     } catch (err) {
       console.error(err);
     } finally {

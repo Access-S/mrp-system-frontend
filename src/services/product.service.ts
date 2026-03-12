@@ -1,11 +1,10 @@
-//src/services/product.service.ts
+// src/services/product.service.ts
 
-// BLOCK 1: Imports
-import { supabase } from "../supabase.config";
+// ============== BLOCK 1: Imports ==============
 import { apiClient, handleApiError, ApiResponse } from "./api.service";
 import { Product, BomComponent } from "../types/mrp.types";
 
-// BLOCK 1.5: Interfaces
+// ============== BLOCK 2: Interfaces ==============
 export interface CreateProductData {
   productCode: string;
   description: string;
@@ -25,118 +24,72 @@ export interface UpdateProductData {
   pricePerShipper?: number;
 }
 
-// BLOCK 2: Product Service Class
+// ============== BLOCK 3: Product Service Class ==============
 class ProductService {
-  
+
   /**
-   * Fetches all products from the backend API (which uses Supabase)
-   * @returns A promise that resolves to an array of Product objects
+   * Fetches all products with BOM components from the backend API
+   * @returns Promise<Product[]>
    */
   async getAllProducts(): Promise<Product[]> {
-  try {
-    const response: ApiResponse<Product[]> = await apiClient.get('/products');
-    
-    if (response.success && response.data) {
-      console.log(`✅ Fetched ${response.data.length} products from API`);
-      
-      // 🔍 ADD THIS DEBUG LOG
-      console.log('🔍 DEBUG: First product from API:', response.data[0]);
-      console.log('🔍 DEBUG: First product components:', response.data[0]?.components);
-      console.log('🔍 DEBUG: Sample of all products with component counts:', 
-        response.data.slice(0, 3).map(p => ({
-          productCode: p.productCode,
-          description: p.description,
-          componentCount: p.components?.length || 0,
-          components: p.components
-        }))
-      );
-      
-      return response.data;
-    }
-    
-    throw new Error('Failed to fetch products');
-  } catch (error) {
-    console.error('❌ Error fetching products:', error);
-    throw new Error(handleApiError(error));
-  }
-}
-
-  /**
-   * Fetches a single product by ID directly from Supabase
-   * @param productId - The UUID of the product
-   * @returns A promise that resolves to a Product object or null
-   */
-  async getProductById(productId: string): Promise<Product | null> {
     try {
-      if (!productId) {
-        throw new Error('Product ID is required');
+      const response: ApiResponse<Product[]> = await apiClient.get('/products');
+
+      if (response.success && response.data) {
+        return response.data;
       }
 
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', productId)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          console.warn(`⚠️ Product not found: ${productId}`);
-          return null;
-        }
-        throw error;
-      }
-
-      console.log(`✅ Fetched product: ${data.product_code}`);
-      return this.mapSupabaseToProduct(data);
+      throw new Error('Failed to fetch products');
     } catch (error) {
-      console.error('❌ Error fetching product by ID:', error);
+      console.error('❌ Error fetching products:', error);
       throw new Error(handleApiError(error));
     }
   }
 
   /**
-   * Fetches products by product code
-   * @param productCode - The product code to search for
-   * @returns A promise that resolves to an array of matching products
+   * Fetches a single product by product code with BOM components
+   * @param productCode - The product code to fetch
+   * @returns Promise<Product | null>
    */
-  async getProductsByCode(productCode: string): Promise<Product[]> {
+  async getProductByCode(productCode: string): Promise<Product | null> {
     try {
       if (!productCode) {
         throw new Error('Product code is required');
       }
 
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .ilike('product_code', `%${productCode}%`)
-        .order('product_code', { ascending: true });
+      const response: ApiResponse<Product> = await apiClient.get(`/products/${encodeURIComponent(productCode)}`);
 
-      if (error) {
-        throw error;
+      if (response.success && response.data) {
+        return response.data;
       }
 
-      console.log(`✅ Found ${data?.length || 0} products matching code: ${productCode}`);
-      return data?.map(item => this.mapSupabaseToProduct(item)) || [];
+      return null;
     } catch (error) {
-      console.error('❌ Error searching products by code:', error);
+      console.error('❌ Error fetching product by code:', error);
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
       throw new Error(handleApiError(error));
     }
   }
 
   /**
    * Fetches BOM components for a specific product
-   * @param productId - The UUID of the product
-   * @returns A promise that resolves to an array of BOM components
+   * @param productCode - The product code
+   * @returns Promise<BomComponent[]>
    */
-  async getBomForProduct(productId: string): Promise<BomComponent[]> {
+  async getBomForProduct(productCode: string): Promise<BomComponent[]> {
     try {
-      const response: ApiResponse<BomComponent[]> = await apiClient.get(`/products/${productId}/bom`);
-      
+      if (!productCode) {
+        throw new Error('Product code is required');
+      }
+
+      const response: ApiResponse<BomComponent[]> = await apiClient.get(`/products/${encodeURIComponent(productCode)}/bom`);
+
       if (response.success && response.data) {
-        console.log(`✅ Fetched ${response.data.length} BOM components for product ${productId}`);
         return response.data;
       }
-      
+
       return [];
     } catch (error) {
       console.error('❌ Error fetching BOM components:', error);
@@ -145,167 +98,78 @@ class ProductService {
   }
 
   /**
- * Creates a new product via the backend API
- * @param productData - Product data to create
- * @returns A promise that resolves to the created Product
- */
-async createProduct(productData: CreateProductData): Promise<Product> {
-  try {
-    const response: ApiResponse<Product> = await apiClient.post('/products', productData);
-    
-    if (response.success && response.data) {
-      console.log(`✅ Created product: ${response.data.productCode}`);
-      return response.data;
-    }
-    
-    throw new Error('Failed to create product');
-  } catch (error) {
-    console.error('❌ Error creating product:', error);
-    throw new Error(handleApiError(error));
-  }
-}
-
-/**
- * Updates an existing product via the backend API
- * @param productCode - Product code to update
- * @param productData - Partial product data to update
- * @returns A promise that resolves to the updated Product
- */
-async updateProduct(productCode: string, productData: UpdateProductData): Promise<Product> {
-  try {
-    const response: ApiResponse<Product> = await apiClient.patch(`/products/${productCode}`, productData);
-    
-    if (response.success && response.data) {
-      console.log(`✅ Updated product: ${productCode}`);
-      return response.data;
-    }
-    
-    throw new Error('Failed to update product');
-  } catch (error) {
-    console.error('❌ Error updating product:', error);
-    throw new Error(handleApiError(error));
-  }
-}
-
-/**
- * Deletes a product via the backend API
- * @param productCode - Product code to delete
- * @returns A promise that resolves when deletion is complete
- */
-async deleteProduct(productCode: string): Promise<void> {
-  try {
-    const response: ApiResponse<void> = await apiClient.delete(`/products/${productCode}`);
-    
-    if (response.success) {
-      console.log(`✅ Deleted product: ${productCode}`);
-      return;
-    }
-    
-    throw new Error('Failed to delete product');
-  } catch (error) {
-    console.error('❌ Error deleting product:', error);
-    throw new Error(handleApiError(error));
-  }
-}
-
-  /**
-   * Searches products with advanced filtering
-   * @param searchTerm - Term to search in product code and description
-   * @param limit - Maximum number of results (default: 50)
-   * @returns A promise that resolves to an array of matching products
+   * Creates a new product via the backend API
+   * @param productData - Product data to create
+   * @returns Promise<Product>
    */
-  async searchProducts(searchTerm: string, limit: number = 50): Promise<Product[]> {
+  async createProduct(productData: CreateProductData): Promise<Product> {
     try {
-      if (!searchTerm || searchTerm.trim().length < 2) {
-        throw new Error('Search term must be at least 2 characters');
+      const response: ApiResponse<Product> = await apiClient.post('/products', productData);
+
+      if (response.success && response.data) {
+        return response.data;
       }
 
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .or(`product_code.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
-        .order('product_code', { ascending: true })
-        .limit(limit);
-
-      if (error) {
-        throw error;
-      }
-
-      console.log(`✅ Search for "${searchTerm}" returned ${data?.length || 0} products`);
-      return data?.map(item => this.mapSupabaseToProduct(item)) || [];
+      throw new Error('Failed to create product');
     } catch (error) {
-      console.error('❌ Error searching products:', error);
+      console.error('❌ Error creating product:', error);
       throw new Error(handleApiError(error));
     }
   }
 
   /**
-   * Gets products with low inventory (if you have inventory tracking)
-   * @param threshold - Minimum inventory level (default: 10)
-   * @returns A promise that resolves to an array of low-stock products
+   * Updates an existing product via the backend API
+   * @param productCode - Product code to update
+   * @param productData - Partial product data to update
+   * @returns Promise<Product>
    */
-  async getLowStockProducts(threshold: number = 10): Promise<Product[]> {
+  async updateProduct(productCode: string, productData: UpdateProductData): Promise<Product> {
     try {
-      // This assumes you have an inventory or stock field
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .lt('current_stock', threshold)
-        .order('current_stock', { ascending: true });
+      const response: ApiResponse<Product> = await apiClient.patch(`/products/${encodeURIComponent(productCode)}`, productData);
 
-      if (error) {
-        // If current_stock column doesn't exist, return empty array
-        if (error.code === '42703') {
-          console.warn('⚠️ Current stock column not found, skipping low stock check');
-          return [];
-        }
-        throw error;
+      if (response.success && response.data) {
+        return response.data;
       }
 
-      console.log(`✅ Found ${data?.length || 0} products with low stock (< ${threshold})`);
-      return data?.map(item => this.mapSupabaseToProduct(item)) || [];
+      throw new Error('Failed to update product');
     } catch (error) {
-      console.error('❌ Error fetching low stock products:', error);
-      return []; // Return empty array instead of throwing for this optional feature
+      console.error('❌ Error updating product:', error);
+      throw new Error(handleApiError(error));
     }
   }
 
   /**
-   * Maps Supabase data to Product interface
-   * @param data - Raw data from Supabase
-   * @returns Mapped Product object
+   * Deletes a product via the backend API
+   * @param productCode - Product code to delete
+   * @returns Promise<void>
    */
-  private mapSupabaseToProduct(data: any): Product {
-    return {
-      id: data.id,
-      productCode: data.product_code,
-      description: data.description,
-      unitsPerShipper: data.units_per_shipper || 0,
-      dailyRunRate: data.daily_run_rate || 0,
-      hourlyRunRate: data.hourly_run_rate || 0,
-      minsPerShipper: data.mins_per_shipper || 0,
-      pricePerShipper: data.price_per_shipper || 0,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-      // BOM components will be loaded separately when needed
-      components: []
-    };
+  async deleteProduct(productCode: string): Promise<void> {
+    try {
+      const response: ApiResponse<void> = await apiClient.delete(`/products/${encodeURIComponent(productCode)}`);
+
+      if (response.success) {
+        return;
+      }
+
+      throw new Error('Failed to delete product');
+    } catch (error) {
+      console.error('❌ Error deleting product:', error);
+      throw new Error(handleApiError(error));
+    }
   }
 }
 
-// BLOCK 3: Export singleton instance
+// ============== BLOCK 4: Export Singleton Instance ==============
 export const productService = new ProductService();
 
-// BLOCK 4: Export individual functions for backward compatibility
+// ============== BLOCK 5: Export Individual Functions ==============
 export const getAllProducts = () => productService.getAllProducts();
-export const getProductById = (productId: string) => productService.getProductById(productId);
-export const getProductsByCode = (productCode: string) => productService.getProductsByCode(productCode);
-export const getBomForProduct = (productId: string) => productService.getBomForProduct(productId);
-export const searchProducts = (searchTerm: string, limit?: number) => productService.searchProducts(searchTerm, limit);
-export const getLowStockProducts = (threshold?: number) => productService.getLowStockProducts(threshold);
+export const getProductByCode = (productCode: string) => productService.getProductByCode(productCode);
+export const getBomForProduct = (productCode: string) => productService.getBomForProduct(productCode);
 export const createProduct = (productData: CreateProductData) => productService.createProduct(productData);
 export const updateProduct = (productCode: string, productData: UpdateProductData) => productService.updateProduct(productCode, productData);
 export const deleteProduct = (productCode: string) => productService.deleteProduct(productCode);
 
-// BLOCK 5: Export the service class
+// ============== BLOCK 6: Export Service Class ==============
+export { ProductService };
 export default productService;
