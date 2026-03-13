@@ -547,7 +547,7 @@ if (loading) {
                             {comp.partType?.replace("_", " ") || "N/A"}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-right font-semibold">
+                        <td className="px-6 py-3 text-right font-semibold text-slate-700 dark:text-slate-300">
                           {comp.perShipper}
                         </td>
                         <td className="px-6 py-3 text-right text-slate-600 dark:text-slate-300">
