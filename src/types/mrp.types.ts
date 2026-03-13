@@ -6,6 +6,7 @@ export interface BomComponent {
   partDescription: string;
   partType: string;
   perShipper: number;
+  unitCost?: number;
 }
 
 // Component interface (for inventory/stock items)

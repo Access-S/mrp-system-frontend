@@ -68,27 +68,25 @@ export function ProductDashboardPage({ productCode, onBack }: ProductDashboardPa
   const [selectedComponent, setSelectedComponent] = useState<BomComponent | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Load product data with cleanup protection
+  // Load product data
   const loadProductData = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const [productsRes, bomRes] = await Promise.all([
-        productService.getAllProducts(),
+      const [productRes, bomRes] = await Promise.all([
+        productService.getProductByCode(productCode),
         productService.getBomForProduct(productCode),
       ]);
       
-      const foundProduct = productsRes.find((p: Product) => p.productCode === productCode);
-      
-      if (!foundProduct) {
+      if (!productRes) {
         setError(`Product not found: ${productCode}`);
         setProduct(null);
       } else {
-        setProduct(foundProduct);
+        setProduct(productRes);
       }
       
-      setComponents(Array.isArray(bomRes?.data) ? bomRes.data : bomRes || []);
+      setComponents(Array.isArray(bomRes) ? bomRes : []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to load product data";
       console.error("Failed to load product data:", err);
@@ -553,7 +551,7 @@ if (loading) {
                           {comp.perShipper}
                         </td>
                         <td className="px-6 py-3 text-right text-slate-600 dark:text-slate-300">
-                          {formatCurrency(comp.cost)}
+                          {formatCurrency(comp.unitCost)}
                         </td>
                         <td className="px-6 py-3">
                           <div className="flex items-center justify-center gap-2">
