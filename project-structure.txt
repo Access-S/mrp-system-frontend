@@ -3,7 +3,7 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-14 17:17:26                  |
+|          Generated: 2026-03-14 19:02:54                  |
 |                                                          |
 +----------------------------------------------------------+
 
@@ -37,6 +37,8 @@
   │   │   └── summary/
   │   │       ├── [MD]   AUDIT_EXECUTIVE_SUMMARY.md
   │   │       └── [MD]   ENTERPRISE_CODEBASE_AUDIT_CROSSCHECK.md
+  │   ├── diagrams/
+  │   │   └── [MD]   app-flow.md
   │   ├── guides/
   │   │   └──        .gitkeep
   │   ├── product/
@@ -210,5 +212,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 52   | Files: 147  | Total: 199      |
+|  SUMMARY:  Folders: 53   | Files: 148  | Total: 201      |
 +----------------------------------------------------------+
