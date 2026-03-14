@@ -1,15 +1,121 @@
 #!/bin/bash
+# ================================================================
+# update-structure.sh — Fancy Project Structure Generator
+# Usage: bash update-structure.sh
+# ================================================================
 
-echo "🔄 Updating frontend project structure..."
+# Fix Unicode encoding for Git Bash / MINGW
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
-if command -v tree &> /dev/null; then
-    tree -I 'node_modules|dist|build|.git|coverage' -L 4 --dirsfirst > project-structure.txt
-else
-    find . -not -path '*/node_modules/*' -not -path '*/dist/*' -not -path '*/.git/*' -not -path '*/coverage/*' | sed 's|^\./||' | sort > project-structure.txt
-fi
+OUTPUT_FILE="project-structure.txt"
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
-git add project-structure.txt
-git commit -m "docs: Update project structure documentation"
-git push origin HEAD  # This pushes to your current branch
+file_count=0
+dir_count=0
 
-echo "✅ Frontend project structure updated!"
+print_tree() {
+    local dir="$1"
+    local prefix="$2"
+    local dirs=()
+    local files=()
+
+    while IFS= read -r name; do
+        [ -z "$name" ] && continue
+        local path="$dir/$name"
+
+        case "$name" in
+            node_modules|.git|dist|build|coverage|.DS_Store|.vscode|.idea) continue ;;
+        esac
+
+        if [ -d "$path" ]; then
+            dirs+=("$path")
+        else
+            files+=("$path")
+        fi
+    done < <(ls -1A "$dir" 2>/dev/null)
+
+    local items=("${dirs[@]}" "${files[@]}")
+    local total=${#items[@]}
+    local i=0
+
+    for item in "${items[@]}"; do
+        i=$((i + 1))
+        local name=$(basename "$item")
+
+        if [ "$i" -eq "$total" ]; then
+            local branch="└── "
+            local child_prefix="${prefix}    "
+        else
+            local branch="├── "
+            local child_prefix="${prefix}│   "
+        fi
+
+        if [ -d "$item" ]; then
+            dir_count=$((dir_count + 1))
+
+            # Check if directory is empty
+            local child_count
+            child_count=$(ls -1A "$item" 2>/dev/null | wc -l)
+
+            if [ "$child_count" -eq 0 ]; then
+                echo "${prefix}${branch}${name}/  (empty)"
+            else
+                echo "${prefix}${branch}${name}/"
+                print_tree "$item" "$child_prefix"
+            fi
+        else
+            file_count=$((file_count + 1))
+            local icon=""
+            case "$name" in
+                *.ts|*.tsx)        icon="[TS]   " ;;
+                *.js|*.jsx)        icon="[JS]   " ;;
+                *.css)             icon="[CSS]  " ;;
+                *.md)              icon="[MD]   " ;;
+                *.json)            icon="[JSON] " ;;
+                *.html)            icon="[HTML] " ;;
+                *.yaml|*.yml)      icon="[YAML] " ;;
+                .env*|*.env)       icon="[ENV]  " ;;
+                *.sh)              icon="[SH]   " ;;
+                *.svg|*.png|*.jpg) icon="[IMG]  " ;;
+                *.txt)             icon="[TXT]  " ;;
+                *)                 icon="       " ;;
+            esac
+            echo "${prefix}${branch}${icon}${name}"
+        fi
+    done
+}
+
+# ======================== GENERATE OUTPUT ========================
+
+{
+    echo "+----------------------------------------------------------+"
+    echo "|                                                          |"
+    echo "|          FRONTEND PROJECT STRUCTURE                      |"
+    echo "|          mrp-system-frontend                             |"
+    echo "|                                                          |"
+    echo "|          Generated: $TIMESTAMP                  |"
+    echo "|                                                          |"
+    echo "+----------------------------------------------------------+"
+    echo ""
+    echo "  mrp-system-frontend/"
+    echo "  |"
+    print_tree "." "  "
+    echo ""
+    echo "+----------------------------------------------------------+"
+    printf "|  SUMMARY:  Folders: %-4s | Files: %-4s | Total: %-5s  |\n" \
+        "$dir_count" "$file_count" "$((dir_count + file_count))"
+    echo "+----------------------------------------------------------+"
+} > "$OUTPUT_FILE"
+
+# Terminal feedback
+echo ""
+echo "  ✅ Project structure saved to $OUTPUT_FILE"
+echo ""
+echo "  ┌─────────────────────────────────────┐"
+printf "  │  📂 Folders:  %-22s │\n" "$dir_count"
+printf "  │  📄 Files:    %-22s │\n" "$file_count"
+printf "  │  📦 Total:    %-22s │\n" "$((dir_count + file_count))"
+echo "  └─────────────────────────────────────┘"
+echo ""
+
