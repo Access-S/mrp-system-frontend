@@ -103,7 +103,7 @@ print_tree() {
     print_tree "." "  "
     echo ""
     echo "+----------------------------------------------------------+"
-    printf "|  SUMMARY:  Folders: %-4s | Files: %-4s | Total: %-5s  |\n" \
+    printf "|  SUMMARY:  Folders: %-4s | Files: %-4s | Total: %-7s  |\n" \
         "$dir_count" "$file_count" "$((dir_count + file_count))"
     echo "+----------------------------------------------------------+"
 } > "$OUTPUT_FILE"

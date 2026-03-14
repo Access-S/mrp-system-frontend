@@ -19,4 +19,4 @@ cd /workspaces/mrp-system-backend
 
 or Run this command in your terminal 
 
-find . -not -path '*/node_modules/*' -not -path '*/dist/*' -not -path '*/.git/*' -not -path '*/coverage/*' -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g' > project-structure.txt
+    find . -not -path '*/node_modules/*' -not -path '*/dist/*' -not -path '*/.git/*' -not -path '*/coverage/*' -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g' > project-structure.txt

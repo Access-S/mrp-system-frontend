@@ -3,7 +3,7 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-14 17:05:54                  |
+|          Generated: 2026-03-14 17:17:26                  |
 |                                                          |
 +----------------------------------------------------------+
 
@@ -13,7 +13,8 @@
   │   ├── ai-instructions/
   │   │   └── [MD]   AI_CODE_ASSISTANT_RULES.md
   │   ├── architecture/
-  │   │   ├── decisions/  (empty)
+  │   │   ├── decisions/
+  │   │   │   └──        .gitkeep
   │   │   └── [MD]   mrp_simulation.md
   │   ├── audits/
   │   │   ├── detailed/
@@ -36,7 +37,8 @@
   │   │   └── summary/
   │   │       ├── [MD]   AUDIT_EXECUTIVE_SUMMARY.md
   │   │       └── [MD]   ENTERPRISE_CODEBASE_AUDIT_CROSSCHECK.md
-  │   ├── guides/  (empty)
+  │   ├── guides/
+  │   │   └──        .gitkeep
   │   ├── product/
   │   │   └── [MD]   prd.md
   │   ├── specifications/
@@ -208,5 +210,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 52   | Files: 145  | Total: 197    |
+|  SUMMARY:  Folders: 52   | Files: 147  | Total: 199      |
 +----------------------------------------------------------+
