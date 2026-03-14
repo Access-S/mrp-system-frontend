@@ -3,12 +3,14 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-14 19:04:54                  |
+|          Generated: 2026-03-14 21:45:26                  |
 |                                                          |
 +----------------------------------------------------------+
 
   mrp-system-frontend/
   |
+  ├── .github/
+  │   └── [MD]   PULL_REQUEST_TEMPLATE.md
   ├── docs/
   │   ├── ai-instructions/
   │   │   └── [MD]   AI_CODE_ASSISTANT_RULES.md
@@ -213,5 +215,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 53   | Files: 149  | Total: 202      |
+|  SUMMARY:  Folders: 54   | Files: 150  | Total: 204      |
 +----------------------------------------------------------+
