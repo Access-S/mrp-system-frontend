@@ -1,180 +1,189 @@
 .
+|____.env.local
+|____.env.production
+|____.git
+|____.gitignore
+|____docs
+| |____ai-instructions
+| | |____AI_CODE_ASSISTANT_RULES.md
+| |____audits
+| | |____AUDIT_01_TYPESCRIPT.md
+| | |____AUDIT_02_REACT_PATTERNS.md
+| | |____AUDIT_03_SERVICE_LAYER.md
+| | |____AUDIT_04_SECURITY.md
+| | |____AUDIT_05_PERFORMANCE.md
+| | |____AUDIT_06_ACCESSIBILITY.md
+| | |____AUDIT_07_CODE_QUALITY.md
+| | |____AUDIT_08_DEPENDENCIES.md
+| | |____AUDIT_09_ARCHITECTURE.md
+| | |____AUDIT_10_DEPENDENCIES.md
+| | |____AUDIT_EXECUTIVE_SUMMARY.md
+| | |____ENTERPRISE_CODEBASE_AUDIT_CROSSCHECK.md
+| | |____MRP System — Architecture Audit & Remediation Report (Revised).md
+| | |____MRP System — Foundation Integrity Audit & Remediation Report
+| | |____TAILWIND_MATERIAL_AUDIT_REPORT.md
+| |____forecast_comparison_specification.md
+| |____maturity_audit.md
+| |____mrp_simulation.md
+| |____prd.md
+|____eslint.config.js
+|____index.html
+|____package-lock.json
+|____package.json
+|____postcss.config.js
+|____project-structure.txt
 |____public
 | |____vite.svg
 |____README.md
-|____index.html
-|____dist
-|____tsconfig.json
-|____eslint.config.js
-|____update-structure.sh
-|____.env.local
 |____render.yaml
-|____project-structure.txt
-|____node_modules
-|____.git
-|____docs
-| |____mrp_simulation.md
-| |____audits
-| | |____AUDIT_EXECUTIVE_SUMMARY.md
-| | |____TAILWIND_MATERIAL_AUDIT_REPORT.md
-| |____prd.md
-| |____ai-instructions
-| | |____AI_CODE_ASSISTANT_RULES.md
-| |____forecast_comparison_specification.md
-| |____ui-library
-| | |____README.md
-| |____maturity_audit.md
-|____package.json
-|____tsconfig.node.json
-|____.env.production
-|____vite.config.ts
 |____src
-| |____services
-| | |____bom.service.ts
-| | |____api.service.ts
-| | |____export.service.ts
-| | |____inventory.service.ts
-| | |____forecast.service.ts
-| | |____dashboard.api.ts
-| | |____mrp.service.ts
-| | |____purchaseOrder.service.ts
-| | |____product.service.ts
-| | |____import.service.ts
-| | |____dashboard.service.ts
-| |____contexts
-| | |____ThemeContext.tsx
-| |____types
-| | |____mrp.types.ts
-| |____styles
-| | |____themes.ts
 | |____App.tsx
-| |____supabase.config.ts
-| |____vite-env.d.ts
-| |____main.tsx
 | |____components
-| | |____tabs
-| | | |____BomManagementTab.tsx
-| | | |____ProductInfoTab.tsx
+| | |____dashboard
+| | | |____charts
+| | | | |____BarChart.tsx
+| | | | |____index.ts
+| | | | |____LineChart.tsx
+| | | | |____PieChart.tsx
+| | | | |____RadialBarChart.tsx
+| | | |____KPICard.tsx
 | | |____dialogs
 | | | |____ConfirmationDialog.tsx
 | | | |____FormAlert.tsx
+| | |____forms
+| | | |____CreatePoForm.tsx
+| | | |____CreateProductForm.tsx
+| | | |____DespatchPoForm.tsx
+| | | |____EditPoForm.tsx
+| | | |____EditProductForm.tsx
+| | |____modals
+| | | |____AddBomComponentModal.tsx
+| | | |____BomDetailModal.tsx
+| | | |____EditBomComponentModal.tsx
+| | | |____ExcelImportModal.tsx
+| | | |____PoDetailModal.tsx
+| | |____pages
+| | | |____CreatePOPage.tsx
+| | | |____DashboardPage.tsx
+| | | |____ForecastsPage.tsx
+| | | |____ImportPage.tsx
+| | | |____InventoryPage.tsx
+| | | |____ProductDashboardPage.tsx
+| | | |____ProductsPage.tsx
+| | | |____PurchaseOrdersPage.tsx
+| | | |____SohPage.tsx
+| | | |____testing
+| | | | |____index.ts
+| | | | |____UITestPage.tsx
+| | | | |____UITestPage2.tsx
 | | |____PaginationControls.tsx
+| | |____Sidebar.tsx
+| | |____tabs
+| | | |____BomManagementTab.tsx
+| | | |____ProductInfoTab.tsx
 | | |____ui
-| | | |____StatusBadge
-| | | | |____StatusBadge.tsx
+| | | |____Accordion
+| | | | |____Accordion.tsx
+| | | | |____index.ts
+| | | |____Avatar
+| | | | |____Avatar.tsx
+| | | | |____index.ts
+| | | |____Badge
+| | | | |____Badge.tsx
+| | | | |____index.ts
+| | | |____Breadcrumb
+| | | | |____Breadcrumb.tsx
+| | | | |____index.ts
+| | | |____Button
+| | | | |____Button.tsx
 | | | | |____index.ts
 | | | |____Card
 | | | | |____Card.tsx
 | | | | |____index.ts
+| | | |____DatePicker
+| | | | |____DatePicker.tsx
+| | | | |____index.ts
+| | | |____Dialog
+| | | | |____Dialog.tsx
+| | | | |____index.ts
+| | | |____Divider
+| | | | |____Divider.tsx
+| | | | |____index.ts
+| | | |____Drawer
+| | | | |____Drawer.tsx
+| | | | |____index.ts
+| | | |____EmptyState
+| | | | |____EmptyState.tsx
+| | | | |____index.ts
+| | | |____index.ts
+| | | |____Input
+| | | | |____index.ts
+| | | | |____Input.tsx
+| | | |____Menu
+| | | | |____index.ts
+| | | | |____Menu.tsx
+| | | |____Pagination
+| | | | |____index.ts
+| | | | |____Pagination.tsx
+| | | |____ScrollArea
+| | | | |____index.ts
+| | | | |____ScrollArea.tsx
+| | | |____Select
+| | | | |____index.ts
+| | | | |____Select.tsx
 | | | |____Skeleton
 | | | | |____index.ts
 | | | | |____Skeleton.tsx
 | | | |____Spinner
 | | | | |____index.ts
 | | | | |____Spinner.tsx
-| | | |____DatePicker
+| | | |____StatusBadge
 | | | | |____index.ts
-| | | | |____DatePicker.tsx
+| | | | |____StatusBadge.tsx
+| | | |____Table
+| | | | |____index.ts
+| | | | |____Table.tsx
+| | | | |____TableContext.tsx
 | | | |____Tabs
+| | | | |____index.ts
 | | | | |____Tabs.tsx
-| | | | |____index.ts
-| | | |____Menu
-| | | | |____Menu.tsx
-| | | | |____index.ts
-| | | |____index.ts
-| | | |____Button
-| | | | |____index.ts
-| | | | |____Button.tsx
 | | | |____Toast
-| | | | |____ToastContainer.tsx
 | | | | |____index.ts
-| | | | |____useToast.ts
 | | | | |____Toast.tsx
+| | | | |____ToastContainer.tsx
 | | | | |____ToastContext.tsx
-| | | |____Input
-| | | | |____index.ts
-| | | | |____Input.tsx
-| | | |____Select
-| | | | |____Select.tsx
-| | | | |____index.ts
+| | | | |____useToast.ts
 | | | |____Tooltip
 | | | | |____index.ts
 | | | | |____Tooltip.tsx
 | | | |____WidgetCard
 | | | | |____index.ts
 | | | | |____WidgetCard.tsx
-| | | |____ScrollArea
-| | | | |____ScrollArea.tsx
-| | | | |____index.ts
-| | | |____EmptyState
-| | | | |____index.ts
-| | | | |____EmptyState.tsx
-| | | |____Breadcrumb
-| | | | |____index.ts
-| | | | |____Breadcrumb.tsx
-| | | |____Table
-| | | | |____Table.tsx
-| | | | |____index.ts
-| | | | |____TableContext.tsx
-| | | |____Pagination
-| | | | |____index.ts
-| | | | |____Pagination.tsx
-| | | |____Dialog
-| | | | |____Dialog.tsx
-| | | | |____index.ts
-| | | |____Accordion
-| | | | |____index.ts
-| | | | |____Accordion.tsx
-| | | |____Drawer
-| | | | |____index.ts
-| | | | |____Drawer.tsx
-| | | |____Badge
-| | | | |____Badge.tsx
-| | | | |____index.ts
-| | | |____Avatar
-| | | | |____index.ts
-| | | | |____Avatar.tsx
-| | | |____Divider
-| | | | |____Divider.tsx
-| | | | |____index.ts
-| | |____pages
-| | | |____DashboardPage.tsx
-| | | |____ImportPage.tsx
-| | | |____PurchaseOrdersPage.tsx
-| | | |____testing
-| | | | |____UITestPage.tsx
-| | | | |____index.ts
-| | | | |____UITestPage2.tsx
-| | | |____CreatePOPage.tsx
-| | | |____ProductDashboardPage.tsx
-| | | |____ProductDetailPage.tsx
-| | | |____InventoryPage.tsx
-| | | |____SohPage.tsx
-| | | |____ForecastsPage.tsx
-| | | |____ProductsPage.tsx
-| | |____forms
-| | | |____EditPoForm.tsx
-| | | |____CreateProductForm.tsx
-| | | |____EditProductForm.tsx
-| | | |____CreatePoForm.tsx
-| | | |____DespatchPoForm.tsx
-| | |____modals
-| | | |____BomDetailModal.tsx
-| | | |____PoDetailModal.tsx
-| | | |____AddBomComponentModal.tsx
-| | | |____ExcelImportModal.tsx
-| | | |____EditBomComponentModal.tsx
-| | |____dashboard
-| | | |____charts
-| | | | |____RadialBarChart.tsx
-| | | | |____BarChart.tsx
-| | | | |____index.ts
-| | | | |____PieChart.tsx
-| | | | |____LineChart.tsx
-| | | |____KPICard.tsx
-| | |____Sidebar.tsx
+| |____contexts
+| | |____ThemeContext.tsx
 | |____index.css
-|____package-lock.json
-|____.gitignore
-|____postcss.config.js
+| |____main.tsx
+| |____services
+| | |____api.service.ts
+| | |____bom.service.ts
+| | |____component.service.ts
+| | |____dashboard.api.ts
+| | |____dashboard.service.ts
+| | |____export.service.ts
+| | |____forecast.service.ts
+| | |____import.service.ts
+| | |____mrp.service.ts
+| | |____product.service.ts
+| | |____purchaseOrder.service.ts
+| | |____soh.service.ts
+| |____styles
+| | |____themes.ts
+| |____supabase.config.ts
+| |____types
+| | |____mrp.types.ts
+| |____vite-env.d.ts
 |____tailwind.config.js
+|____tsconfig.json
+|____tsconfig.node.json
+|____update-structure.sh
+|____vite.config.ts
