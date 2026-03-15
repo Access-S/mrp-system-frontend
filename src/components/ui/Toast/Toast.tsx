@@ -10,8 +10,10 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
   XMarkIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
-import { ToastVariant } from "./ToastContext";
+
+import type { ToastVariant } from "./ToastContext";
 
 // ============== BLOCK 2: Types ==============
 
@@ -24,11 +26,14 @@ interface ToastProps {
 
 // ============== BLOCK 3: Variant Styles ==============
 
-const variantStyles: Record<ToastVariant, {
-  container: string;
-  icon: string;
-  iconComponent: React.ReactNode;
-}> = {
+const variantStyles: Record<
+  ToastVariant,
+  {
+    container: string;
+    icon: string;
+    iconComponent: React.ReactNode;
+  }
+> = {
   success: {
     container: "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800",
     icon: "text-green-500 dark:text-green-400",
@@ -48,6 +53,11 @@ const variantStyles: Record<ToastVariant, {
     container: "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800",
     icon: "text-blue-500 dark:text-blue-400",
     iconComponent: <InformationCircleIcon className="w-5 h-5" />,
+  },
+  loading: {
+    container: "bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700",
+    icon: "text-gray-500 dark:text-gray-400",
+    iconComponent: <ArrowPathIcon className="w-5 h-5 animate-spin" />,
   },
 };
 
@@ -110,5 +120,3 @@ export const Toast: React.FC<ToastProps> = ({ id, message, variant, onClose }) =
     </div>
   );
 };
-
-export default Toast;

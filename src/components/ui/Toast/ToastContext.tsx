@@ -6,8 +6,14 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 
 // ============== BLOCK 2: Types ==============
 
-export type ToastVariant = "success" | "error" | "warning" | "info";
-export type ToastPosition = "top-right" | "top-left" | "bottom-right" | "bottom-left" | "top-center" | "bottom-center";
+export type ToastVariant = "success" | "error" | "warning" | "info" | "loading";
+export type ToastPosition =
+  | "top-right"
+  | "top-left"
+  | "bottom-right"
+  | "bottom-left"
+  | "top-center"
+  | "bottom-center";
 
 export interface Toast {
   id: string;
@@ -18,7 +24,8 @@ export interface Toast {
 
 interface ToastContextType {
   toasts: Toast[];
-  addToast: (message: string, variant: ToastVariant, duration?: number) => void;
+  addToast: (message: string, variant: ToastVariant, duration?: number) => string;
+  updateToast: (id: string, message: string, variant: ToastVariant, duration?: number) => void;
   removeToast: (id: string) => void;
   position: ToastPosition;
   setPosition: (position: ToastPosition) => void;
@@ -30,35 +37,57 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 // ============== BLOCK 4: Provider ==============
 
-export const ToastProvider: React.FC<{ 
+export const ToastProvider: React.FC<{
   children: React.ReactNode;
   defaultPosition?: ToastPosition;
 }> = ({ children, defaultPosition = "top-right" }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [position, setPosition] = useState<ToastPosition>(defaultPosition);
 
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
   const addToast = useCallback(
-    (message: string, variant: ToastVariant, duration: number = 5000) => {
+    (message: string, variant: ToastVariant, duration: number = 5000): string => {
       const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
+
       setToasts((prev) => [...prev, { id, message, variant, duration }]);
 
-      // Auto-remove after duration
+      // Auto-remove after duration (0 = persistent, used for loading toasts)
+      if (duration > 0) {
+        setTimeout(() => {
+          removeToast(id);
+        }, duration);
+      }
+
+      return id;
+    },
+    [removeToast]
+  );
+
+  const updateToast = useCallback(
+    (id: string, message: string, variant: ToastVariant, duration: number = 5000) => {
+      setToasts((prev) =>
+        prev.map((toast) =>
+          toast.id === id ? { ...toast, message, variant, duration } : toast
+        )
+      );
+
+      // Auto-remove updated toast after duration
       if (duration > 0) {
         setTimeout(() => {
           removeToast(id);
         }, duration);
       }
     },
-    []
+    [removeToast]
   );
 
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
-
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, position, setPosition }}>
+    <ToastContext.Provider
+      value={{ toasts, addToast, updateToast, removeToast, position, setPosition }}
+    >
       {children}
     </ToastContext.Provider>
   );
