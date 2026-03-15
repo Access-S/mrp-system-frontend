@@ -3,6 +3,7 @@
 // ============== BLOCK 1: Imports ==============
 
 import React, { createContext, useState, useContext, useMemo, useEffect } from "react";
+
 import { themes, ThemeName, Theme } from "../styles/themes";
 
 // ============== BLOCK 2: Types ==============
@@ -18,12 +19,16 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 // ============== BLOCK 3: Provider Component ==============
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Changed default from "classic" to "dark"
   const [themeName, setThemeName] = useState<ThemeName>("dark");
 
-  // Sync dark mode with document class for Tailwind dark: prefix
+  // Sync dark mode class + data-theme attribute with document
   useEffect(() => {
     const currentTheme = themes[themeName];
+
+    // Set data-theme for CSS variable switching
+    document.documentElement.setAttribute("data-theme", themeName);
+
+    // Set dark class for Tailwind dark: prefix
     if (currentTheme.isDark) {
       document.documentElement.classList.add("dark");
     } else {
@@ -100,7 +105,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         background: ${currentTheme.scrollbar.thumbHover};
       }
 
-      /* Drawer content (existing) */
+      /* Drawer content */
       .drawer-content::-webkit-scrollbar {
         width: 8px;
       }

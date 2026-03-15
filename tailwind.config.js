@@ -4,6 +4,23 @@ export default {
   darkMode: "class",
   theme: {
     extend: {
+      colors: {
+        themed: {
+          "bg-primary": "rgb(var(--color-bg-primary) / <alpha-value>)",
+          "bg-secondary": "rgb(var(--color-bg-secondary) / <alpha-value>)",
+          card: "rgb(var(--color-card) / <alpha-value>)",
+          "card-hover": "rgb(var(--color-card-hover) / <alpha-value>)",
+          "table-header": "rgb(var(--color-table-header) / <alpha-value>)",
+          border: "rgb(var(--color-border) / <alpha-value>)",
+          "text-primary": "rgb(var(--color-text-primary) / <alpha-value>)",
+          "text-secondary": "rgb(var(--color-text-secondary) / <alpha-value>)",
+          "text-muted": "rgb(var(--color-text-muted) / <alpha-value>)",
+          "sidebar-text": "rgb(var(--color-sidebar-text) / <alpha-value>)",
+          navbar: "rgb(var(--color-navbar) / <alpha-value>)",
+          "navbar-border": "rgb(var(--color-navbar-border) / <alpha-value>)",
+          "active-row": "rgb(var(--color-active-row) / <alpha-value>)",
+        },
+      },
       animation: {
         fadeIn: "fadeIn 0.2s ease-out",
         scaleIn: "scaleIn 0.2s ease-out",

@@ -32,8 +32,68 @@ td {
 /*
   ==========================================================================
    GLOBAL OVERRIDE FOR REACT HOT TOAST
+   (Will be removed when react-hot-toast is uninstalled)
   ==========================================================================
 */
 .go2138849764 {
   z-index: 9999 !important;
+}
+
+/*
+  ==========================================================================
+   THEME CSS VARIABLES
+   Each theme sets custom properties consumed by Tailwind via themed-* classes.
+   ThemeContext.tsx sets data-theme on <html> to switch between them.
+  ==========================================================================
+*/
+
+/* ---------- Classic Blue (Light) ---------- */
+[data-theme="classic"] {
+  --color-bg-primary: 239 246 255;
+  --color-bg-secondary: 224 231 255;
+  --color-card: 255 255 255;
+  --color-card-hover: 239 246 255;
+  --color-table-header: 219 234 254;
+  --color-border: 31 41 55;
+  --color-text-primary: 31 41 55;
+  --color-text-secondary: 107 114 128;
+  --color-text-muted: 156 163 175;
+  --color-sidebar-text: 31 41 55;
+  --color-navbar: 255 255 255;
+  --color-navbar-border: 191 219 254;
+  --color-active-row: 239 246 255;
+}
+
+/* ---------- Sunset Orange (Light) ---------- */
+[data-theme="sunset"] {
+  --color-bg-primary: 255 247 237;
+  --color-bg-secondary: 254 226 226;
+  --color-card: 255 255 255;
+  --color-card-hover: 255 247 237;
+  --color-table-header: 255 237 213;
+  --color-border: 154 52 18;
+  --color-text-primary: 31 41 55;
+  --color-text-secondary: 107 114 128;
+  --color-text-muted: 156 163 175;
+  --color-sidebar-text: 31 41 55;
+  --color-navbar: 255 255 255;
+  --color-navbar-border: 253 186 116;
+  --color-active-row: 255 247 237;
+}
+
+/* ---------- Dark ---------- */
+[data-theme="dark"] {
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-card: 31 41 55;
+  --color-card-hover: 55 65 81;
+  --color-table-header: 55 65 81;
+  --color-border: 75 85 99;
+  --color-text-primary: 229 231 235;
+  --color-text-secondary: 156 163 175;
+  --color-text-muted: 107 114 128;
+  --color-sidebar-text: 255 255 255;
+  --color-navbar: 31 41 55;
+  --color-navbar-border: 55 65 81;
+  --color-active-row: 55 65 81;
 }
