@@ -1,5 +1,8 @@
 // src/components/pages/ImportPage.tsx
 
+// ============================================================================
+// BLOCK 1: Imports (at top of file, before types)
+// ============================================================================
 import React, { useState, useCallback } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Card, Button, Typography, Spinner } from '@material-tailwind/react';
@@ -21,10 +24,10 @@ import {
   ValidationResult,
   ImportResult,
 } from '../../services/import.service';
-import toast from 'react-hot-toast';
+import { useToast } from '../ui/Toast';
 
 // ============================================================================
-// BLOCK 1: Types
+// BLOCK 1.5: Types
 // ============================================================================
 type ImportStep = 'upload' | 'preview' | 'validating' | 'validated' | 'importing' | 'complete';
 
@@ -33,6 +36,7 @@ type ImportStep = 'upload' | 'preview' | 'validating' | 'validated' | 'importing
 // ============================================================================
 export function ImportPage() {
   const { theme } = useTheme();
+  const { toast } = useToast();
   
   // State
   const [step, setStep] = useState<ImportStep>('upload');
@@ -55,7 +59,6 @@ export function ImportPage() {
         const text = e.target?.result as string;
         setRawData(text);
         
-        // Detect format and parse
         const data = text.includes('\t') ? parseTSV(text) : parseCSV(text);
         
         if (data.length === 0) {
@@ -65,9 +68,10 @@ export function ImportPage() {
         setParsedData(data);
         setStep('preview');
         toast.success(`Parsed ${data.length} rows`);
-      } catch (err: any) {
-        setError(err.message);
-        toast.error(err.message);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to parse file";
+        setError(message);
+        toast.error(message);
       }
     };
     
@@ -77,7 +81,7 @@ export function ImportPage() {
     };
     
     reader.readAsText(file);
-  }, []);
+  }, [toast]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -110,12 +114,13 @@ export function ImportPage() {
         setParsedData(data);
         setStep('preview');
         toast.success(`Parsed ${data.length} rows from clipboard`);
-      } catch (err: any) {
-        setError(err.message);
-        toast.error(err.message);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to parse clipboard data";
+        setError(message);
+        toast.error(message);
       }
     }
-  }, []);
+  }, [toast]);
 
   // ============================================================================
   // BLOCK 4: Validation & Import
@@ -134,10 +139,11 @@ export function ImportPage() {
       } else {
         toast.error(`${result.invalidRows} rows have errors`);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Validation failed";
+      setError(message);
       setStep('preview');
-      toast.error(err.message);
+      toast.error(message);
     }
   };
 
@@ -155,10 +161,11 @@ export function ImportPage() {
       } else {
         toast.success(`Imported ${result.success}, failed ${result.failed}`);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Import failed";
+      setError(message);
       setStep('validated');
-      toast.error(err.message);
+      toast.error(message);
     }
   };
 
@@ -170,7 +177,7 @@ export function ImportPage() {
     setImportResult(null);
     setError(null);
   };
-
+  
   // ============================================================================
   // BLOCK 5: Render Upload Step
   // ============================================================================

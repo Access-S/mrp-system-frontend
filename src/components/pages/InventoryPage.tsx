@@ -21,7 +21,7 @@ import {
   InventoryProjection,
   exportMrpData,
 } from "../../services/mrp.service";
-import toast from "react-hot-toast";
+import { useToast } from "../ui/Toast";
 
 // ============== BLOCK 2: Constants & Types ==============
 const timeHorizon = 6;
@@ -46,6 +46,7 @@ const SORT_FIELDS: { value: SortField; label: string }[] = [
 // ============== BLOCK 3: Main Component ==============
 export function InventoryPage() {
   const { theme } = useTheme();
+  const { toast } = useToast();
 
   // ============== BLOCK 4: State Management ==============
   const [projections, setProjections] = useState<InventoryProjection[]>([]);
@@ -85,12 +86,10 @@ export function InventoryPage() {
   const processedProjections = useMemo(() => {
     let result = [...projections];
 
-    // Priority filter
     if (priorityFilter !== "All") {
       result = result.filter(p => p.priority === priorityFilter);
     }
 
-    // Search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -101,7 +100,6 @@ export function InventoryPage() {
       );
     }
 
-    // Sorting
     result.sort((a, b) => {
       let valA: number, valB: number;
 
@@ -200,14 +198,12 @@ export function InventoryPage() {
   // ============== BLOCK 9: Render ==============
   return (
     <Card className={`w-full ${theme.cards} shadow-sm`}>
-      {/* Page Header */}
       <div className={`p-4 border-b ${theme.borderColor}`}>
         <Typography variant="h5" className={theme.text}>
           Inventory Planning Dashboard
         </Typography>
       </div>
 
-      {/* Controls: Filters, Search, Export */}
       <div className={`p-4 border-b ${theme.borderColor} flex flex-wrap gap-3 items-center`}>
         <div className="flex flex-wrap gap-2">
           {PRIORITY_FILTERS.map(({ value, label, color }) => (
@@ -235,7 +231,6 @@ export function InventoryPage() {
         </Button>
       </div>
 
-      {/* Search Bar */}
       <div className={`p-4 border-b ${theme.borderColor}`}>
         <Input
           label="Search by Part Code, Description, or SKU"
@@ -246,7 +241,6 @@ export function InventoryPage() {
         />
       </div>
 
-      {/* Sorting Controls */}
       <div className={`px-4 py-2 ${theme.borderColor} flex flex-wrap gap-4 text-sm`}>
         <span className={`${theme.text} opacity-80`}>Sort by:</span>
         {SORT_FIELDS.map(({ value, label }) => (
@@ -300,7 +294,6 @@ export function InventoryPage() {
                   projections,
                 }) => (
                   <React.Fragment key={component.id || component.partCode}>
-                    {/* Row 1: Forecast Demand */}
                     <tr className={`border-b ${theme.borderColor}`}>
                       <td className="p-2 align-top">
                         <div className="flex flex-col">
@@ -354,7 +347,6 @@ export function InventoryPage() {
                         </td>
                       ))}
                     </tr>
-                    {/* Row 2: Coverage % */}
                     <tr className={`border-b ${theme.borderColor}`}>
                       <td
                         className="p-2 font-semibold text-xs text-gray-500"
@@ -380,7 +372,6 @@ export function InventoryPage() {
                         </td>
                       ))}
                     </tr>
-                    {/* Row 3: Projected SOH */}
                     <tr className={`border-b-4 ${theme.borderColor}`}>
                       <td
                         className="p-2 font-semibold text-xs text-gray-500"
@@ -415,6 +406,3 @@ export function InventoryPage() {
     </Card>
   );
 }
-
-// ============== BLOCK 11: Default Export ==============
-export default InventoryPage;

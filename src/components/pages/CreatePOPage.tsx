@@ -18,7 +18,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { createPo } from "../../services/api.service";
 import { getAllProducts } from "../../services/product.service";
 import { FormAlert } from "../dialogs/FormAlert";
-import toast from "react-hot-toast";
+import { useToast } from "../ui/Toast";
 import { DatePicker } from "../ui/DatePicker";
 
 // BLOCK 2: Interfaces
@@ -269,6 +269,7 @@ function getInputClassName(theme: any): string {
 // BLOCK 8: Main CreatePoPage Component
 export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
   const { theme } = useTheme();
+  const { toast } = useToast();
 
   // Products data
   const [products, setProducts] = useState<ProductOption[]>([]);
@@ -302,7 +303,7 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
           minsPerShipper: p.minsPerShipper || p.mins_per_shipper || 0,
         }));
         setProducts(mapped);
-      } catch (err) {
+      } catch (err: unknown) {
         toast.error("Failed to load products");
       } finally {
         setLoadingProducts(false);
@@ -371,8 +372,9 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
 
       toast.success("Purchase Order created successfully!");
       onPoCreated();
-    } catch (err: any) {
-      setErrorMessage(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
     }

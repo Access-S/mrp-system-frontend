@@ -1,7 +1,8 @@
 // src/components/forms/DespatchPoForm.tsx
 
+// ============== BLOCK 1: Imports ==============
+
 import React, { useState } from "react";
-import toast from "react-hot-toast"; // 👈 Import toast
 import {
   Button,
   Dialog,
@@ -11,29 +12,39 @@ import {
   Input,
 } from "@material-tailwind/react";
 
+import { useToast } from "../ui/Toast";
+
+// ============== BLOCK 2: Types & Interfaces ==============
+
 interface DespatchPoFormProps {
   open: boolean;
   handleOpen: () => void;
   onSubmit: (deliveryDate: string, docketNumber: string) => void;
 }
 
+// ============== BLOCK 3: Component ==============
+
 export function DespatchPoForm({
   open,
   handleOpen,
   onSubmit,
 }: DespatchPoFormProps) {
+  const { toast } = useToast();
   const [deliveryDate, setDeliveryDate] = useState("");
   const [docketNumber, setDocketNumber] = useState("");
 
+  // ============== BLOCK 4: Handlers ==============
+
   const handleSubmit = () => {
     if (!deliveryDate || !docketNumber) {
-      // 👇 Use toast instead of alert
       toast.error("Please fill out both delivery date and docket number.");
       return;
     }
     onSubmit(deliveryDate, docketNumber);
-    handleOpen(); // Close the dialog
+    handleOpen();
   };
+
+  // ============== BLOCK 5: Render ==============
 
   return (
     <Dialog open={open} handler={handleOpen} size="sm">
