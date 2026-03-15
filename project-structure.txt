@@ -3,7 +3,7 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-15 01:18:11                  |
+|          Generated: 2026-03-15 12:01:46                  |
 |                                                          |
 +----------------------------------------------------------+
 
@@ -36,7 +36,8 @@
   │   │   │   └── [MD]   tailwind_material_audit_report.md
   │   │   └── summary/
   │   │       ├── [MD]   AUDIT_EXECUTIVE_SUMMARY.md
-  │   │       └── [MD]   ENTERPRISE_CODEBASE_AUDIT_CROSSCHECK.md
+  │   │       ├── [MD]   ENTERPRISE_CODEBASE_AUDIT_CROSSCHECK.md
+  │   │       └──        Post-Refactoring Audit Status Report
   │   ├── diagrams/
   │   │   ├── [MD]   app-flow.md
   │   │   └── [MD]   architecture.md
@@ -61,10 +62,21 @@
   │   │   │   │   ├── [TS]   LineChart.tsx
   │   │   │   │   ├── [TS]   PieChart.tsx
   │   │   │   │   └── [TS]   RadialBarChart.tsx
-  │   │   │   └── [TS]   KPICard.tsx
+  │   │   │   ├── [TS]   DashboardSkeleton.tsx
+  │   │   │   ├── [TS]   index.ts
+  │   │   │   ├── [TS]   KPICard.tsx
+  │   │   │   ├── [TS]   LowStockAlerts.tsx
+  │   │   │   ├── [TS]   RecentActivityCard.tsx
+  │   │   │   ├── [TS]   TimeRangeFilter.tsx
+  │   │   │   └── [TS]   TopItemsCard.tsx
   │   │   ├── dialogs/
   │   │   │   ├── [TS]   ConfirmationDialog.tsx
   │   │   │   └── [TS]   FormAlert.tsx
+  │   │   ├── forecasts/
+  │   │   │   ├── [TS]   constants.ts
+  │   │   │   ├── [TS]   ForecastSkeleton.tsx
+  │   │   │   ├── [TS]   helpers.ts
+  │   │   │   └── [TS]   index.ts
   │   │   ├── forms/
   │   │   │   ├── [TS]   CreatePoForm.tsx
   │   │   │   ├── [TS]   CreateProductForm.tsx
@@ -91,6 +103,32 @@
   │   │   │   ├── [TS]   ProductsPage.tsx
   │   │   │   ├── [TS]   PurchaseOrdersPage.tsx
   │   │   │   └── [TS]   SohPage.tsx
+  │   │   ├── products/
+  │   │   │   └── [TS]   ProductsSkeleton.tsx
+  │   │   ├── purchase-orders/
+  │   │   │   ├── [TS]   ActionsCell.tsx
+  │   │   │   ├── [TS]   constants.ts
+  │   │   │   ├── [TS]   helpers.ts
+  │   │   │   ├── [TS]   index.ts
+  │   │   │   ├── [TS]   PurchaseOrdersSkeleton.tsx
+  │   │   │   └── [TS]   StatusCell.tsx
+  │   │   ├── shared/
+  │   │   │   ├── ExportDropdown/
+  │   │   │   │   ├── [TS]   ExportDropdown.tsx
+  │   │   │   │   └── [TS]   index.ts
+  │   │   │   ├── FilterToolbar/
+  │   │   │   │   ├── [TS]   FilterToolbar.tsx
+  │   │   │   │   └── [TS]   index.ts
+  │   │   │   ├── PageHeader/
+  │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   └── [TS]   PageHeader.tsx
+  │   │   │   ├── ResultsCount/
+  │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   └── [TS]   ResultsCount.tsx
+  │   │   │   └── [TS]   index.ts
+  │   │   ├── soh/
+  │   │   │   ├── [TS]   index.ts
+  │   │   │   └── [TS]   SohSkeleton.tsx
   │   │   ├── tabs/
   │   │   │   ├── [TS]   BomManagementTab.tsx
   │   │   │   └── [TS]   ProductInfoTab.tsx
@@ -172,10 +210,18 @@
   │   │   │   │   ├── [TS]   index.ts
   │   │   │   │   └── [TS]   WidgetCard.tsx
   │   │   │   └── [TS]   index.ts
-  │   │   ├── [TS]   PaginationControls.tsx
   │   │   └── [TS]   Sidebar.tsx
   │   ├── contexts/
   │   │   └── [TS]   ThemeContext.tsx
+  │   ├── hooks/
+  │   │   ├── [TS]   index.ts
+  │   │   ├── [TS]   useExportMenu.ts
+  │   │   ├── [TS]   useFetch.ts
+  │   │   ├── [TS]   useImport.ts
+  │   │   ├── [TS]   useModal.ts
+  │   │   ├── [TS]   usePagination.ts
+  │   │   ├── [TS]   useSearch.ts
+  │   │   └── [TS]   useSort.ts
   │   ├── services/
   │   │   ├── [TS]   api.service.ts
   │   │   ├── [TS]   bom.service.ts
@@ -216,5 +262,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 54   | Files: 151  | Total: 205      |
+|  SUMMARY:  Folders: 64   | Files: 187  | Total: 251      |
 +----------------------------------------------------------+
