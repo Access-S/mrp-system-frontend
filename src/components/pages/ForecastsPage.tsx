@@ -2,352 +2,185 @@
 
 // ============== BLOCK 1: Imports ==============
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useTheme } from "../../contexts/ThemeContext";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   ArrowUpTrayIcon,
-  MagnifyingGlassIcon,
   ChartBarIcon,
-  DocumentArrowDownIcon,
-  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 
-// Custom UI Components
 import { Card, CardHeader, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { Select, SelectOption } from "../ui/Select";
+import { Select } from "../ui/Select";
 import { Table } from "../ui/Table";
 import { Badge } from "../ui/Badge";
 import { Drawer } from "../ui/Drawer";
-import { Skeleton, SkeletonTableRow } from "../ui/Skeleton";
 import { EmptyState } from "../ui/EmptyState";
 import { useToast } from "../ui/Toast";
 import { ScrollArea } from "../ui/ScrollArea";
 
-// Dashboard Components
 import { KPICard } from "../dashboard/KPICard";
 import { BarChart } from "../dashboard/charts";
+import { ExcelImportModal } from "../modals/ExcelImportModal";
 
-// Services
+import { PageHeader } from "../shared/PageHeader";
+import { FilterToolbar } from "../shared/FilterToolbar";
+import { ResultsCount } from "../shared/ResultsCount";
+import { ExportDropdown } from "../shared/ExportDropdown";
+
+import { ForecastSkeleton, WEEK_OPTIONS, formatNumber } from "../forecasts";
+
+import { useFetch, useSearch, useImport } from "../../hooks";
+
 import {
   importForecastData,
   getForecastsWithProductData,
-  ForecastTableData,
-  ForecastImportResult,
 } from "../../services/forecast.service";
 import { getAllProducts } from "../../services/product.service";
-import { exportForecastData, ExportFormat } from "../../services/export.service";
+import { exportForecastData } from "../../services/export.service";
 
-// Modals
-import { ExcelImportModal } from "../modals/ExcelImportModal";
+import type { ForecastTableData, ForecastImportResult } from "../../services/forecast.service";
+import type { ExportFormat } from "../../services/export.service";
 
-// ============== BLOCK 2: Types & Interfaces ==============
-
-interface WeekOption extends SelectOption {
-  value: string;
-  label: string;
-}
-
-// ============== BLOCK 3: Constants ==============
-
-const WEEK_OPTIONS: WeekOption[] = [
-  { value: "4", label: "4 Weeks" },
-  { value: "6", label: "6 Weeks" },
-  { value: "8", label: "8 Weeks" },
-  { value: "10", label: "10 Weeks" },
-  { value: "12", label: "12 Weeks" },
-];
-
-const EXPORT_OPTIONS = [
-  { key: "csv", label: "Export as CSV", icon: "📄" },
-  { key: "excel", label: "Export as Excel", icon: "📊" },
-  { key: "pdf", label: "Export as PDF", icon: "📑" },
-];
-
-// ============== BLOCK 4: Helper Functions ==============
-
-/**
- * Formats a number with thousand separators
- */
-const formatNumber = (value: number): string => {
-  return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
-};
-
-/**
- * Formats hours with 1 decimal place
- */
-const formatHours = (value: number): string => {
-  return `${value.toLocaleString("en-US", { maximumFractionDigits: 1 })} hrs`;
-};
-
-// ============== BLOCK 5: Loading Skeleton Component ==============
-
-const ForecastSkeleton: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      {/* Header Skeleton */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between w-full">
-            <div className="space-y-2">
-              <Skeleton variant="text" width={200} height={28} />
-              <Skeleton variant="text" width={300} height={16} />
-            </div>
-            <Skeleton variant="rounded" width={140} height={40} />
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Chart Skeleton */}
-      <Skeleton variant="rounded" height={280} className="w-full" />
-
-      {/* Table Skeleton */}
-      <Card>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <Skeleton variant="rounded" width={300} height={40} />
-              <Skeleton variant="rounded" width={120} height={40} />
-              <Skeleton variant="rounded" width={120} height={40} />
-            </div>
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    {[...Array(6)].map((_, i) => (
-                      <th key={i} className="p-3 bg-gray-50 dark:bg-gray-800">
-                        <Skeleton variant="text" height={20} />
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...Array(8)].map((_, i) => (
-                    <SkeletonTableRow key={i} columns={6} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// ============== BLOCK 6: Main Component ==============
+// ============== BLOCK 2: Component ==============
 
 export function ForecastsPage() {
-  const { theme } = useTheme();
   const { toast } = useToast();
 
-  // ============== BLOCK 7: State Management ==============
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
-
-  const [searchQuery, setSearchQuery] = useState("");
+  // Week filter
   const [selectedWeeks, setSelectedWeeks] = useState("4");
 
-  const [forecastData, setForecastData] = useState<ForecastTableData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // Drawer toggle
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-// ============== BLOCK 8: Data Fetching ==============
+  // ============== BLOCK 3: Data Fetching ==============
 
-const fetchData = useCallback(async () => {
-  setIsLoading(true);
-  setError(null);
+  const { data: forecastData, loading, error, refetch } = useFetch<ForecastTableData>(
+    async () => {
+      const products = await getAllProducts();
+      const productData = products.map((p) => ({
+        productCode: p.productCode,
+        description: p.description,
+        minsPerShipper: p.minsPerShipper || 0,
+        unitsPerShipper: p.unitsPerShipper || 0,
+      }));
+      return getForecastsWithProductData(productData, parseInt(selectedWeeks));
+    },
+    [selectedWeeks]
+  );
 
-  try {
-    // Fetch products first to get hours data
-    const products = await getAllProducts();
+  // Search (client-side)
+  const rows = forecastData?.rows ?? [];
+  const { query, setQuery, filtered: filteredRows } = useSearch(rows, [
+    "productCode",
+    "description",
+  ]);
 
-    // Map products to the format needed by getForecastsWithProductData
-    const productData = products.map((p) => ({
-      productCode: p.productCode,
-      description: p.description,
-      minsPerShipper: p.minsPerShipper || 0,
-      unitsPerShipper: p.unitsPerShipper || 0,
-    }));
+  // Import modal
+  const importModal = useImport(refetch);
 
-    // Fetch forecasts with product data
-    const data = await getForecastsWithProductData(
-      productData,
-      parseInt(selectedWeeks)
+  // ============== BLOCK 4: KPI Calculations ==============
+
+  const kpiMetrics = useMemo(() => {
+    if (!forecastData) {
+      return {
+        activeProducts: 0, totalProducts: 0,
+        totalDemandUnits: 0, totalDemandHours: 0,
+        peakWeek: { label: "-", units: 0 }, avgWeeklyDemand: 0,
+      };
+    }
+
+    const totalDemandUnits = forecastData.weeklyDemand.reduce((sum, w) => sum + w.totalUnits, 0);
+    const totalDemandHours = forecastData.weeklyDemand.reduce((sum, w) => sum + w.totalHours, 0);
+    const peakWeek = forecastData.weeklyDemand.reduce(
+      (peak, w) => (w.totalUnits > peak.units ? { label: w.weekLabel, units: w.totalUnits } : peak),
+      { label: "-", units: 0 }
     );
-
-    setForecastData(data);
-  } catch (err: any) {
-    console.error("Failed to fetch forecast data:", err);
-    setError(err.message || "Failed to load forecast data");
-  } finally {
-    setIsLoading(false);
-  }
-}, [selectedWeeks]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-// ============== BLOCK 9: Filtered Data (Add forecastData to deps) ==============
-
-const filteredRows = useMemo(() => {
-  if (!forecastData?.rows) return [];
-
-  if (!searchQuery.trim()) return forecastData.rows;
-
-  const query = searchQuery.toLowerCase().trim();
-  return forecastData.rows.filter(
-    (row) =>
-      row.productCode.toLowerCase().includes(query) ||
-      row.description.toLowerCase().includes(query)
-  );
-}, [forecastData?.rows, searchQuery]);
-
-
-// ============== BLOCK 10: KPI Calculations (Add missing deps) ==============
-
-const kpiMetrics = useMemo(() => {
-  if (!forecastData) {
-    return {
-      activeProducts: 0,
-      totalProducts: 0,
-      totalDemandUnits: 0,
-      totalDemandHours: 0,
-      peakWeek: { label: "-", units: 0 },
-      avgWeeklyDemand: 0,
-    };
-  }
-
-  const totalDemandUnits = forecastData.weeklyDemand.reduce(
-    (sum, week) => sum + week.totalUnits,
-    0
-  );
-
-  const totalDemandHours = forecastData.weeklyDemand.reduce(
-    (sum, week) => sum + week.totalHours,
-    0
-  );
-
-  const peakWeek = forecastData.weeklyDemand.reduce(
-    (peak, week) => (week.totalUnits > peak.units ? { label: week.weekLabel, units: week.totalUnits } : peak),
-    { label: "-", units: 0 }
-  );
-
-  const avgWeeklyDemand =
-    forecastData.weeklyDemand.length > 0
+    const avgWeeklyDemand = forecastData.weeklyDemand.length > 0
       ? totalDemandUnits / forecastData.weeklyDemand.length
       : 0;
 
-  return {
-    activeProducts: forecastData.activeProducts,
-    totalProducts: forecastData.totalProducts,
-    totalDemandUnits,
-    totalDemandHours,
-    peakWeek,
-    avgWeeklyDemand,
-  };
-}, [forecastData]); // ✅ Add forecastData as dependency
+    return {
+      activeProducts: forecastData.activeProducts,
+      totalProducts: forecastData.totalProducts,
+      totalDemandUnits, totalDemandHours, peakWeek, avgWeeklyDemand,
+    };
+  }, [forecastData]);
 
-// ============== BLOCK 11: Chart Data (Proper Memoization) ==============
+  // ============== BLOCK 5: Chart Data ==============
 
-const chartData = useMemo(() => {
-  if (!forecastData?.weeklyDemand) {
-    return { categories: [], units: [], hours: [] };
-  }
-
-  return {
-    categories: forecastData.weeklyDemand.map((w) => w.weekLabel),
-    units: forecastData.weeklyDemand.map((w) => w.totalUnits),
-    hours: forecastData.weeklyDemand.map((w) => w.totalHours),
-  };
-}, [forecastData?.weeklyDemand]);
-
-// Stable formatter to show hours
-const chartFormatValue = useCallback(
-  (val: number) => `${formatNumber(val)} hrs`,
-  []
-);
-
-// ============== BLOCK 12: Event Handlers ==============
-
-const handleImport = async (file: File): Promise<ForecastImportResult> => {
-  toast.info("Processing forecast data...");
-
-  try {
-    const result = await importForecastData(file);
-    
-    if (result.pending_review > 0) {
-      toast.warning(`${result.imported} records imported. ${result.pending_review} items need review.`);
-    } else {
-      toast.success(`${result.imported} forecast records imported successfully!`);
+  const chartData = useMemo(() => {
+    if (!forecastData?.weeklyDemand) {
+      return { categories: [] as string[], units: [] as number[], hours: [] as number[] };
     }
-    
-    return result;
-  } catch (err: any) {
-    toast.error(err.message || "Failed to import forecast data");
-    throw err;
-  }
-};
+    return {
+      categories: forecastData.weeklyDemand.map((w) => w.weekLabel),
+      units: forecastData.weeklyDemand.map((w) => w.totalUnits),
+      hours: forecastData.weeklyDemand.map((w) => w.totalHours),
+    };
+  }, [forecastData?.weeklyDemand]);
 
-const handleImportComplete = () => {
-  setIsImportModalOpen(false);
-  fetchData();
-};
+  const chartFormatValue = useCallback(
+    (val: number) => `${formatNumber(val)} hrs`,
+    []
+  );
 
-const handleExport = (format: string) => {
-  if (!forecastData || filteredRows.length === 0) {
-    toast.warning("No data available to export");
-    return;
-  }
+  // ============== BLOCK 6: Event Handlers ==============
 
-  try {
-    const weekColumns = forecastData.headers
-    .filter((h) => h.key !== "productCode" && h.key !== "description")
-    .map((h) => ({ key: h.key, label: h.label }));
+  const handleImport = async (file: File): Promise<ForecastImportResult> => {
+    toast.info("Processing forecast data...");
+    try {
+      const result = await importForecastData(file);
+      if (result.pending_review > 0) {
+        toast.warning(`${result.imported} records imported. ${result.pending_review} items need review.`);
+      } else {
+        toast.success(`${result.imported} forecast records imported successfully!`);
+      }
+      return result;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to import forecast data";
+      toast.error(message);
+      throw err;
+    }
+  };
 
-    const exportData = filteredRows.map((row) => {
-      const rowData: Record<string, any> = {
-        productCode: row.productCode,
-        description: row.description,
-      };
-      weekColumns.forEach((week) => {
-        rowData[week.key] = row.weeklyData?.[week.key] || 0;
+  const handleExport = (format: ExportFormat) => {
+    if (!forecastData || filteredRows.length === 0) {
+      toast.warning("No data available to export");
+      return;
+    }
+
+    try {
+      const weekColumns = forecastData.headers
+        .filter((h) => h.key !== "productCode" && h.key !== "description")
+        .map((h) => ({ key: h.key, label: h.label }));
+
+      const exportData = filteredRows.map((row) => {
+        const rowData: Record<string, string | number> = {
+          productCode: row.productCode,
+          description: row.description,
+        };
+        weekColumns.forEach((week) => {
+          rowData[week.key] = row.weeklyData?.[week.key] || 0;
+        });
+        return rowData;
       });
-      return rowData;
-    });
 
-    const filename = `forecast_${selectedWeeks}weeks_${new Date().toISOString().split("T")[0]}`;
+      const filename = `forecast_${selectedWeeks}weeks_${new Date().toISOString().split("T")[0]}`;
+      exportForecastData(exportData, weekColumns, filename, format);
+      toast.success(`Forecast exported as ${format.toUpperCase()}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to export data";
+      toast.error(message);
+    }
+  };
 
-    exportForecastData(
-      exportData,
-      weekColumns,
-      filename,
-      format as ExportFormat
-    );
+  // ============== BLOCK 7: Loading State ==============
 
-    toast.success(`Forecast exported as ${format.toUpperCase()}`);
-
-    setIsExportMenuOpen(false);
-  } catch (err: any) {
-    toast.error(err.message || "Failed to export data");
-  }
-};
-
-const handleWeekChange = (value: string) => {
-  setSelectedWeeks(value);
-};
-
-  // ============== BLOCK 13: Loading State ==============
-
-  if (isLoading) {
+  if (loading) {
     return <ForecastSkeleton />;
   }
 
-  // ============== BLOCK 14: Error State ==============
+  // ============== BLOCK 8: Error State ==============
 
   if (error) {
     return (
@@ -358,7 +191,7 @@ const handleWeekChange = (value: string) => {
             title="Failed to Load Forecasts"
             description={error}
             action={
-              <Button variant="primary" onClick={fetchData}>
+              <Button variant="primary" onClick={refetch}>
                 Try Again
               </Button>
             }
@@ -368,143 +201,86 @@ const handleWeekChange = (value: string) => {
     );
   }
 
-// ============== BLOCK 15: Week Columns for Table ==============
+  // ============== BLOCK 9: Week Columns ==============
 
-const weekColumns = forecastData?.headers.filter((h) =>
-  h.key !== "productCode" && h.key !== "description"
-) || [];
+  const weekColumns = forecastData?.headers.filter(
+    (h) => h.key !== "productCode" && h.key !== "description"
+  ) || [];
 
-// ============== BLOCK 16: Render ==============
+  // ============== BLOCK 10: Render ==============
 
-return (
-  <div className="space-y-6">
-    {/* Header Card */}
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              Sales Forecasts
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Manage and view forecasted sales data for all products
-            </p>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <Button
-              variant="ghost"
-              size="md"
-              leftIcon={<ChartBarIcon className="h-4 w-4" />}
-              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-            >
-              {isDrawerOpen ? "Hide Insights" : "Show Insights"}
-            </Button>
+  return (
+    <div className="space-y-6">
+      {/* Header Card */}
+      <Card>
+        <CardHeader>
+          <PageHeader
+            title="Sales Forecasts"
+            description="Manage and view forecasted sales data for all products"
+            actions={
+              <>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  leftIcon={<ChartBarIcon className="h-4 w-4" />}
+                  onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+                >
+                  {isDrawerOpen ? "Hide Insights" : "Show Insights"}
+                </Button>
+                <ExportDropdown
+                  onExport={handleExport}
+                  disabled={!forecastData || filteredRows.length === 0}
+                />
+                <Button
+                  variant="primary"
+                  size="md"
+                  leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
+                  onClick={importModal.open}
+                >
+                  Import Forecast
+                </Button>
+              </>
+            }
+          />
+        </CardHeader>
+      </Card>
 
-            {/* Export Button */}
-            <div className="relative">
-              <Button
-                variant="secondary"
-                size="md"
-                leftIcon={<DocumentArrowDownIcon className="h-4 w-4" />}
-                rightIcon={<ChevronDownIcon className="h-4 w-4" />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsExportMenuOpen(!isExportMenuOpen);
-                }}
-              >
-                Export
-              </Button>
-
-              {/* Export Dropdown */}
-              {isExportMenuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setIsExportMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50">
-                    {EXPORT_OPTIONS.map((option) => (
-                      <button
-                        key={option.key}
-                        onClick={() => {
-                          handleExport(option.key);
-                          setIsExportMenuOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
-                      >
-                        <span>{option.icon}</span>
-                        <span>{option.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            <Button
-              variant="primary"
-              size="md"
-              leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
-              onClick={() => setIsImportModalOpen(true)}
-            >
-              Import Forecast
-            </Button>
-          </div>
+      {/* KPI Drawer */}
+      <Drawer
+        isOpen={isDrawerOpen}
+        onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
+        showHeader={false}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <KPICard
+            title="Active Products" value={kpiMetrics.activeProducts}
+            format="number" color="blue"
+            trend={{ value: kpiMetrics.totalProducts, isPositive: true }}
+            sparklineData={chartData.units.slice(0, 4)}
+            sparklineType="bar" sparklineColor="#3b82f6"
+          />
+          <KPICard
+            title="Total Demand" value={kpiMetrics.totalDemandUnits}
+            format="number" color="green"
+            sparklineData={chartData.units}
+            sparklineType="area" sparklineColor="#10b981"
+          />
+          <KPICard
+            title="Total Hours" value={kpiMetrics.totalDemandHours}
+            format="hours" color="purple"
+            sparklineData={chartData.hours}
+            sparklineType="line" sparklineColor="#8b5cf6"
+          />
+          <KPICard
+            title="Peak Week" value={kpiMetrics.peakWeek.units}
+            format="number" color="yellow"
+            sparklineData={chartData.units}
+            sparklineType="bar" sparklineColor="#f59e0b"
+          />
         </div>
-      </CardHeader>
-    </Card>
+      </Drawer>
 
-    {/* KPI Drawer */}
-    <Drawer
-      isOpen={isDrawerOpen}
-      onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
-      showHeader={false}
-    >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard
-          title="Active Products"
-          value={kpiMetrics.activeProducts}
-          format="number"
-          color="blue"
-          trend={{
-            value: kpiMetrics.totalProducts,
-            isPositive: true,
-          }}
-          sparklineData={chartData.units.slice(0, 4)}
-          sparklineType="bar"
-          sparklineColor="#3b82f6"
-        />
-        <KPICard
-          title="Total Demand"
-          value={kpiMetrics.totalDemandUnits}
-          format="number"
-          color="green"
-          sparklineData={chartData.units}
-          sparklineType="area"
-          sparklineColor="#10b981"
-        />
-        <KPICard
-          title="Total Hours"
-          value={kpiMetrics.totalDemandHours}
-          format="hours"
-          color="purple"
-          sparklineData={chartData.hours}
-          sparklineType="line"
-          sparklineColor="#8b5cf6"
-        />
-        <KPICard
-          title="Peak Week"
-          value={kpiMetrics.peakWeek.units}
-          format="number"
-          color="yellow"
-          sparklineData={chartData.units}
-          sparklineType="bar"
-          sparklineColor="#f59e0b"
-        />
-      </div>
-    </Drawer>
-
-      {/* Demand Chart - Shows weekly demand in hours */}
+      {/* Demand Chart */}
       {forecastData && forecastData.weeklyDemand.length > 0 && (
         <BarChart
           title="Weekly Demand in Hours"
@@ -516,160 +292,124 @@ return (
         />
       )}
 
-    {/* Toolbar & Table Card */}
-    <Card>
-      <CardContent className="space-y-4">
-        {/* Toolbar - Search left, controls right */}
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-          {/* Search Input - Fixed width like PurchaseOrdersPage */}
-          <div className="flex-1 max-w-md">
-            <Input
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
-              size="md"
-            />
-          </div>
-
-          {/* Right Side Controls */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Future buttons can go here */}
-
-            {/* Week Filter - className directly on Select like PurchaseOrdersPage */}
-            <Select
-              options={WEEK_OPTIONS}
-              value={selectedWeeks}
-              onChange={handleWeekChange}
-              placeholder="Weeks"
-              size="md"
-              className="w-36"
-            />
-          </div>
-        </div>
-
-        {/* Results Count */}
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing{" "}
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              {filteredRows.length}
-            </span>{" "}
-            of{" "}
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              {forecastData?.totalProducts || 0}
-            </span>{" "}
-            products
-          </p>
-          <Badge variant="subtle" color="primary" size="sm">
-            {selectedWeeks} Week View
-          </Badge>
-        </div>
-
-        {/* Table */}
-        {filteredRows.length > 0 ? (
-          <ScrollArea
-            orientation="both"
-            maxHeight="calc(100vh - 400px)"
-          >
-            <Table stickyHeader hoverable variant="striped" size="sm">
-              <Table.Header>
-                <Table.Row>
-                  <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
-                  <Table.Head style={{ minWidth: "250px" }}>Description</Table.Head>
-                  {weekColumns.map((week) => (
-                    <Table.Head 
-                      key={week.key} 
-                      style={{ minWidth: "100px" }}
-                      className="text-center"
-                    >
-                      <div className="text-xs font-medium">
-                        {week.label}
-                      </div>
-                    </Table.Head>
-                  ))}
-                  <Table.Head style={{ minWidth: "100px" }} className="text-center">
-                    Total
-                  </Table.Head>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {filteredRows.map((row, rowIndex) => {
-                  const rowValues = weekColumns.map(
-                    (week) => row.weeklyData?.[week.key] || 0
-                  );
-                  const rowTotal = rowValues.reduce((sum, val) => sum + val, 0);
-
-                  return (
-                    <Table.Row key={`${row.productCode}-${rowIndex}`}>
-                      <Table.Cell>
-                        <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                          {row.productCode}
-                        </span>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                          {row.description || "-"}
-                        </span>
-                      </Table.Cell>
-                      {weekColumns.map((week) => {
-                        const value = row.weeklyData?.[week.key] || 0;
-
-                        return (
-                          <Table.Cell
-                            key={week.key}
-                            className="text-center whitespace-nowrap"
-                          >
-                            {value > 0 ? formatNumber(value) : "-"}
-                          </Table.Cell>
-                        );
-                      })}
-                      <Table.Cell className="text-center font-semibold whitespace-nowrap">
-                        {rowTotal > 0 ? formatNumber(rowTotal) : "-"}
-                      </Table.Cell>
-                    </Table.Row>
-                  );
-                })}
-              </Table.Body>
-            </Table>
-          </ScrollArea>
-        ) : (
-          <EmptyState
-            variant={searchQuery ? "search" : "default"}
-            title={searchQuery ? "No matching products" : "No forecast data"}
-            description={
-              searchQuery
-                ? `No products found matching "${searchQuery}"`
-                : "Import a forecast file to get started"
-            }
-            action={
-              !searchQuery && (
-                <Button
-                  variant="primary"
-                  leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
-                  onClick={() => setIsImportModalOpen(true)}
-                >
-                  Import Forecast
-                </Button>
-              )
+      {/* Table Card */}
+      <Card>
+        <CardContent className="space-y-4">
+          <FilterToolbar
+            searchPlaceholder="Search products..."
+            searchValue={query}
+            onSearchChange={setQuery}
+            filters={
+              <Select
+                options={WEEK_OPTIONS}
+                value={selectedWeeks}
+                onChange={setSelectedWeeks}
+                placeholder="Weeks"
+                size="md"
+                className="w-36"
+              />
             }
           />
-        )}
-      </CardContent>
-    </Card>
+
+          <ResultsCount
+            filtered={filteredRows.length}
+            total={forecastData?.totalProducts || 0}
+            label="products"
+            rightContent={
+              <Badge variant="subtle" color="primary" size="sm">
+                {selectedWeeks} Week View
+              </Badge>
+            }
+          />
+
+          {filteredRows.length > 0 ? (
+            <ScrollArea orientation="both" maxHeight="calc(100vh - 400px)">
+              <Table stickyHeader hoverable variant="striped" size="sm">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head style={{ minWidth: "120px" }}>Product Code</Table.Head>
+                    <Table.Head style={{ minWidth: "250px" }}>Description</Table.Head>
+                    {weekColumns.map((week) => (
+                      <Table.Head
+                        key={week.key}
+                        style={{ minWidth: "100px" }}
+                        className="text-center"
+                      >
+                        <div className="text-xs font-medium">{week.label}</div>
+                      </Table.Head>
+                    ))}
+                    <Table.Head style={{ minWidth: "100px" }} className="text-center">
+                      Total
+                    </Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {filteredRows.map((row, rowIndex) => {
+                    const rowValues = weekColumns.map((week) => row.weeklyData?.[week.key] || 0);
+                    const rowTotal = rowValues.reduce((sum, val) => sum + val, 0);
+
+                    return (
+                      <Table.Row key={`${row.productCode}-${rowIndex}`}>
+                        <Table.Cell>
+                          <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                            {row.productCode}
+                          </span>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                            {row.description || "-"}
+                          </span>
+                        </Table.Cell>
+                        {weekColumns.map((week) => {
+                          const value = row.weeklyData?.[week.key] || 0;
+                          return (
+                            <Table.Cell key={week.key} className="text-center whitespace-nowrap">
+                              {value > 0 ? formatNumber(value) : "-"}
+                            </Table.Cell>
+                          );
+                        })}
+                        <Table.Cell className="text-center font-semibold whitespace-nowrap">
+                          {rowTotal > 0 ? formatNumber(rowTotal) : "-"}
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table>
+            </ScrollArea>
+          ) : (
+            <EmptyState
+              variant={query ? "search" : "default"}
+              title={query ? "No matching products" : "No forecast data"}
+              description={
+                query
+                  ? `No products found matching "${query}"`
+                  : "Import a forecast file to get started"
+              }
+              action={
+                !query ? (
+                  <Button
+                    variant="primary"
+                    leftIcon={<ArrowUpTrayIcon className="h-4 w-4" />}
+                    onClick={importModal.open}
+                  >
+                    Import Forecast
+                  </Button>
+                ) : undefined
+              }
+            />
+          )}
+        </CardContent>
+      </Card>
 
       {/* Import Modal */}
       <ExcelImportModal
-        open={isImportModalOpen}
-        handleOpen={() => setIsImportModalOpen(!isImportModalOpen)}
+        open={importModal.isOpen}
+        handleOpen={importModal.close}
         onImport={handleImport}
         title="Import Sales Forecast"
-        onImportComplete={handleImportComplete}
+        onImportComplete={importModal.onComplete}
       />
-  </div>
-);
+    </div>
+  );
 }
-
-// ============== BLOCK 17: Default Export ==============
-
-export default ForecastsPage;
