@@ -31,16 +31,6 @@ td {
 
 /*
   ==========================================================================
-   GLOBAL OVERRIDE FOR REACT HOT TOAST
-   (Will be removed when react-hot-toast is uninstalled)
-  ==========================================================================
-*/
-.go2138849764 {
-  z-index: 9999 !important;
-}
-
-/*
-  ==========================================================================
    THEME CSS VARIABLES
    Each theme sets custom properties consumed by Tailwind via themed-* classes.
    ThemeContext.tsx sets data-theme on <html> to switch between them.

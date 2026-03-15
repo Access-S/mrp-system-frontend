@@ -23,7 +23,6 @@
     "react-apexcharts": "^2.0.1",
     "react-dom": "^19.0.0",
     "react-flatpickr": "^4.0.11",
-    "react-hot-toast": "^2.5.2",
     "react-router-dom": "^7.11.0",
     "use-debounce": "^10.0.5",
     "xlsx": "^0.18.5"
