@@ -12,15 +12,12 @@ import { PurchaseOrdersPage } from "./components/pages/PurchaseOrdersPage";
 import { ProductDashboardPage } from "./components/pages/ProductDashboardPage";
 import { CreatePoPage } from "./components/pages/CreatePOPage";
 import { ForecastsPage } from "./components/pages/ForecastsPage";
-import SohPage from "./components/pages/SohPage";
+import { SohPage } from "./components/pages/SohPage";
 import { InventoryPage } from "./components/pages/InventoryPage";
-import { Toaster } from "react-hot-toast";
-import { createPortal } from "react-dom";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ImportPage } from "./components/pages/ImportPage";
 import { UITestPage, UITestPage2 } from "./components/pages/testing";
-
-// ============== BLOCK 2: Types ==============
+import { createPortal } from "react-dom";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 // ============== BLOCK 2: Types ==============
 
@@ -39,32 +36,7 @@ export type Page =
   | "ui-test"
   | "ui-test-2";
 
-// ============== BLOCK 3: Toaster Portal (Legacy - react-hot-toast) ==============
-
-function ToasterPortal() {
-  const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
-
-  React.useEffect(() => {
-    setMountNode(document.body);
-  }, []);
-
-  const toaster = (
-    <Toaster
-      position="top-right"
-      containerStyle={{
-        zIndex: 9999,
-      }}
-      toastOptions={{
-        success: { style: { background: "#28a745", color: "white" } },
-        error: { style: { background: "#dc3545", color: "white" } },
-      }}
-    />
-  );
-
-  return mountNode ? createPortal(toaster, mountNode) : toaster;
-}
-
-// ============== BLOCK 4: AppLayout Component ==============
+// ============== BLOCK 3: AppLayout Component ==============
 
 function AppLayout() {
   const { theme } = useTheme();
@@ -72,10 +44,7 @@ function AppLayout() {
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [selectedProductDescription, setSelectedProductDescription] = useState<string | null>(null);
 
-  console.log("🔵 AppLayout rendered with activePage:", activePage);
-
   const handlePageChange = (newPage: Page) => {
-    console.log("🟡 Changing page from", activePage, "to", newPage);
     setActivePage(newPage);
   };
 
@@ -107,7 +76,7 @@ function AppLayout() {
     handlePageChange("products");
   };
 
-  // ============== BLOCK 5: Navbar Content Renderer ==============
+  // ============== BLOCK 4: Navbar Content Renderer ==============
 
   const renderNavbarContent = () => {
     if (activePage === "product-detail" && selectedProductCode) {
@@ -168,7 +137,7 @@ function AppLayout() {
     );
   };
 
-  // ============== BLOCK 6: Render ==============
+  // ============== BLOCK 5: Render ==============
 
   return (
     <div className={`flex h-screen ${theme.background} transition-all duration-500`}>
@@ -189,26 +158,14 @@ function AppLayout() {
           )}
           {activePage === "purchase-orders" && (
             <PurchaseOrdersPage
-              onCreatePo={() => {
-                console.log("🟢 PurchaseOrdersPage calling onCreatePo");
-                handlePageChange("create-po");
-              }}
-              onImport={() => {
-                console.log("📥 PurchaseOrdersPage calling onImport");
-                handlePageChange("import");
-              }}
+              onCreatePo={() => handlePageChange("create-po")}
+              onImport={() => handlePageChange("import")}
             />
           )}
           {activePage === "create-po" && (
             <CreatePoPage
-              onBack={() => {
-                console.log("🔴 CreatePoPage calling onBack");
-                setActivePage("purchase-orders");
-              }}
-              onPoCreated={() => {
-                console.log("🟣 CreatePoPage calling onPoCreated");
-                setActivePage("purchase-orders");
-              }}
+              onBack={() => setActivePage("purchase-orders")}
+              onPoCreated={() => setActivePage("purchase-orders")}
             />
           )}
           {activePage === "import" && <ImportPage />}
@@ -226,14 +183,13 @@ function AppLayout() {
   );
 }
 
-// ============== BLOCK 7: App Root ==============
+// ============== BLOCK 6: App Root ==============
 
 function App() {
   return (
     <ThemeProvider>
       <ToastProvider defaultPosition="top-right">
         <AppLayout />
-        <ToasterPortal /> {/* Legacy react-hot-toast - remove when fully migrated */}
       </ToastProvider>
     </ThemeProvider>
   );
