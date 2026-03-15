@@ -3,14 +3,12 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-14 23:03:56                  |
+|          Generated: 2026-03-15 01:18:11                  |
 |                                                          |
 +----------------------------------------------------------+
 
   mrp-system-frontend/
   |
-  ├── .github/
-  │   └── [MD]   PULL_REQUEST_TEMPLATE.md
   ├── docs/
   │   ├── ai-instructions/
   │   │   └── [MD]   AI_CODE_ASSISTANT_RULES.md
@@ -47,8 +45,11 @@
   │   ├── product/
   │   │   └── [MD]   prd.md
   │   ├── specifications/
-  │   │   └── [MD]   forecast_comparison_specification.md
+  │   │   ├── [MD]   forecast_comparison_specification.md
+  │   │   └── [MD]   frontend-refactoring-plan.md
   │   └── [MD]   README.md
+  ├── .github/
+  │   └── [MD]   PULL_REQUEST_TEMPLATE.md
   ├── public/
   │   └── [IMG]  vite.svg
   ├── src/
@@ -79,8 +80,8 @@
   │   │   ├── pages/
   │   │   │   ├── testing/
   │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   ├── [TS]   UITestPage.tsx
-  │   │   │   │   └── [TS]   UITestPage2.tsx
+  │   │   │   │   ├── [TS]   UITestPage2.tsx
+  │   │   │   │   └── [TS]   UITestPage.tsx
   │   │   │   ├── [TS]   CreatePOPage.tsx
   │   │   │   ├── [TS]   DashboardPage.tsx
   │   │   │   ├── [TS]   ForecastsPage.tsx
@@ -153,16 +154,16 @@
   │   │   │   │   └── [TS]   StatusBadge.tsx
   │   │   │   ├── Table/
   │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   ├── [TS]   Table.tsx
-  │   │   │   │   └── [TS]   TableContext.tsx
+  │   │   │   │   ├── [TS]   TableContext.tsx
+  │   │   │   │   └── [TS]   Table.tsx
   │   │   │   ├── Tabs/
   │   │   │   │   ├── [TS]   index.ts
   │   │   │   │   └── [TS]   Tabs.tsx
   │   │   │   ├── Toast/
   │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   ├── [TS]   Toast.tsx
   │   │   │   │   ├── [TS]   ToastContainer.tsx
   │   │   │   │   ├── [TS]   ToastContext.tsx
+  │   │   │   │   ├── [TS]   Toast.tsx
   │   │   │   │   └── [TS]   useToast.ts
   │   │   │   ├── Tooltip/
   │   │   │   │   ├── [TS]   index.ts
@@ -199,8 +200,8 @@
   │   └── [TS]   vite-env.d.ts
   ├── [ENV]  .env.local
   ├── [ENV]  .env.production
-  ├──        .gitignore
   ├── [JS]   eslint.config.js
+  ├──        .gitignore
   ├── [HTML] index.html
   ├── [JSON] package.json
   ├── [JSON] package-lock.json
@@ -215,5 +216,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 54   | Files: 150  | Total: 204      |
+|  SUMMARY:  Folders: 54   | Files: 151  | Total: 205      |
 +----------------------------------------------------------+
