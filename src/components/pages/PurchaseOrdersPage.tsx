@@ -437,10 +437,12 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
 
       <ConfirmationDialog
         open={deleteModal.isOpen}
-        handleOpen={deleteModal.close}
+        onClose={deleteModal.close}
         onConfirm={handleConfirmDelete}
-        title="Delete Purchase Order?"
-        message={`Are you sure you want to permanently delete PO ${deleteModal.data?.poNumber}?`}
+        title="Delete Purchase Order"
+        message={`Are you sure you want to permanently delete PO ${deleteModal.data?.poNumber ?? ""}? This action cannot be undone.`}
+        variant="danger"
+        confirmText="Delete"
       />
 
       <DespatchPoForm
@@ -448,6 +450,3 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
         handleOpen={despatchModal.close}
         onSubmit={handleDespatchSubmit}
       />
-    </div>
-  );
-}

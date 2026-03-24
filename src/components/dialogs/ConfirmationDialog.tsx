@@ -1,77 +1,90 @@
 // src/components/dialogs/ConfirmationDialog.tsx
 
-import {
-  Button,
-  Dialog,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  Typography,
-} from "@material-tailwind/react";
+// ============== BLOCK 1: Imports ==============
+
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
-// BLOCK 2: Interface and Component Definition
+import { Dialog } from "../ui/Dialog";
+import { Button } from "../ui/Button";
+
+// ============== BLOCK 2: Types ==============
+
+type ConfirmVariant = "danger" | "primary";
+
 interface ConfirmationDialogProps {
   open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
   title: string;
   message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
   confirmText?: string;
   cancelText?: string;
-  confirmColor?: string;
+  variant?: ConfirmVariant;
   loading?: boolean;
 }
 
-export function ConfirmationDialog({
+// ============== BLOCK 3: Constants ==============
+
+const iconStyles: Record<ConfirmVariant, string> = {
+  danger: "text-red-500",
+  primary: "text-blue-500",
+};
+
+// ============== BLOCK 4: Component ==============
+
+export const ConfirmationDialog = ({
   open,
+  onClose,
   onConfirm,
-  onCancel,
   title,
   message,
   confirmText = "Confirm",
   cancelText = "Cancel",
-  confirmColor = "red",
+  variant = "danger",
   loading = false,
-}: ConfirmationDialogProps) {
-  // BLOCK 3: Handlers
-  const handleConfirmClick = () => {
+}: ConfirmationDialogProps): React.JSX.Element | null => {
+  const handleConfirm = (): void => {
     onConfirm();
   };
 
-  // BLOCK 4: Render Logic
   return (
-    <Dialog open={open} handler={onCancel} size="sm">
-      <DialogHeader className="gap-2">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      title={title}
+      footer={
+        <>
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            disabled={loading}
+          >
+            {cancelText}
+          </Button>
+          <Button
+            variant={variant}
+            onClick={handleConfirm}
+            loading={loading}
+          >
+            {confirmText}
+          </Button>
+        </>
+      }
+    >
+      <div className="flex items-start gap-3">
         <ExclamationTriangleIcon
-          className={`h-6 w-6 text-${confirmColor}-500`}
+          className={`h-6 w-6 flex-shrink-0 ${iconStyles[variant]}`}
         />
-        {title}
-      </DialogHeader>
-      <DialogBody divider>
-        <Typography color="gray" className="font-normal">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           {message}
-        </Typography>
-      </DialogBody>
-      <DialogFooter>
-        <Button
-          variant="text"
-          color="blue-gray"
-          onClick={onCancel}
-          className="mr-1"
-          disabled={loading}
-        >
-          <span>{cancelText}</span>
-        </Button>
-        <Button
-          variant="gradient"
-          color={confirmColor as any}
-          onClick={handleConfirmClick}
-          loading={loading}
-        >
-          <span>{confirmText}</span>
-        </Button>
-      </DialogFooter>
+        </p>
+      </div>
     </Dialog>
   );
-}
+};
+
+// ============== BLOCK 5: Display Name ==============
+
+ConfirmationDialog.displayName = "ConfirmationDialog";

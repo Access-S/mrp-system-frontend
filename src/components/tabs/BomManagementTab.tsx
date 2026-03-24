@@ -327,13 +327,13 @@ const handleDeleteComponent = async () => {
         title="Delete Component"
         message={`Are you sure you want to delete component "${selectedComponent?.partCode}"? This action cannot be undone.`}
         onConfirm={handleDeleteComponent}
-        onCancel={() => {
+        onClose={() => {
           setIsDeleteDialogOpen(false);
           setSelectedComponent(null);
         }}
         confirmText="Delete"
         cancelText="Cancel"
-        confirmColor="red"
+        variant="danger"
         loading={deleteLoading}
       />
     </div>

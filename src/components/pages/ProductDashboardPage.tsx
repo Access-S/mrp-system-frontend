@@ -668,10 +668,10 @@ if (loading) {
         title="Delete Product"
         message={`Permanently delete "${productCode}" and all BOM components?`}
         onConfirm={handleDeleteProduct}
-        onCancel={closeModal}
+        onClose={closeModal}
         confirmText="Delete Forever"
         cancelText="Cancel"
-        confirmColor="red"
+        variant="danger"
         loading={deleteLoading}
       />
       
@@ -680,10 +680,10 @@ if (loading) {
         title="Delete Component"
         message={`Remove ${selectedComponent?.partCode} from BOM?`}
         onConfirm={handleDeleteComponent}
-        onCancel={closeModal}
+        onClose={closeModal}
         confirmText="Delete"
         cancelText="Cancel"
-        confirmColor="red"
+        variant="danger"
         loading={deleteLoading}
       />
     </div>
