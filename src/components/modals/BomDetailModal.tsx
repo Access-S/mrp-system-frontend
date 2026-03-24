@@ -22,19 +22,16 @@ export function BomDetailModal({ open, handleOpen, product }: BomDetailModalProp
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (open && product?.productCode && components.length === 0) {  // ✅ Changed to productCode
+    if (open && product?.productCode && components.length === 0) {
       setIsLoading(true);
       getBomForProduct(product.productCode)
-        .then(response => {
-          // Handle API response format: { success: true, data: [...] }
-          if (response.success && Array.isArray(response.data)) {
-            setComponents(response.data);
-          } else {
-            console.error('Unexpected API response:', response);
-            setComponents([]);
-          }
+        .then(data => {
+          setComponents(Array.isArray(data) ? data : []);
         })
-        .catch(console.error)
+        .catch(error => {
+          console.error("Failed to load BOM components:", error);
+          setComponents([]);
+        })
         .finally(() => setIsLoading(false));
     } else if (!open) {
       setComponents([]);
