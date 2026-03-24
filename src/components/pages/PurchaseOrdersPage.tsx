@@ -449,4 +449,7 @@ export function PurchaseOrdersPage({ onCreatePo, onImport }: PurchaseOrdersPageP
         open={despatchModal.isOpen}
         handleOpen={despatchModal.close}
         onSubmit={handleDespatchSubmit}
-      />
+      /> 
+    </div>
+  );
+};
