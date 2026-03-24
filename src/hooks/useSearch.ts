@@ -47,6 +47,11 @@ export function useSearch<T extends Record<string, unknown>>(
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
+  // Stabilize searchKeys so callers can pass inline arrays
+  // without triggering useMemo recalculations every render
+  const searchKeysRef = useRef(searchKeys);
+  searchKeysRef.current = searchKeys;
+
   // Debounce the query
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -76,13 +81,13 @@ export function useSearch<T extends Record<string, unknown>>(
     if (!trimmed) return data;
 
     return data.filter((item) =>
-      searchKeys.some((key) => {
+      searchKeysRef.current.some((key) => {
         const value = item[key];
         if (value == null) return false;
         return String(value).toLowerCase().includes(trimmed);
       })
     );
-  }, [data, debouncedQuery, searchKeys]);
+  }, [data, debouncedQuery]);
 
   return { query, setQuery, filtered };
 }
