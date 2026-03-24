@@ -27,8 +27,10 @@ export interface UseFetchResult<T> {
 // ============== BLOCK 3: Hook ==============
 
 /**
- * Generic data fetching hook that replaces the repeated
- * useState + useCallback + useEffect pattern across pages.
+ * Generic data fetching hook with abort-on-unmount and visibility-aware polling.
+ *
+ * - Aborts in-flight requests when the component unmounts or deps change (N1)
+ * - Pauses polling when the browser tab is hidden, resumes on focus (N2)
  *
  * @param fetchFn - Async function that returns data
  * @param deps - Re-fetch when these values change (like useEffect deps)
@@ -46,7 +48,7 @@ export interface UseFetchResult<T> {
  * );
  *
  * @example
- * // Polling every 5 minutes
+ * // Polling every 5 minutes (pauses when tab is hidden)
  * const { data, loading, error } = useFetch(
  *   () => fetchDashboardData(timeRange),
  *   [timeRange],
@@ -69,24 +71,48 @@ export function useFetch<T>(
   const fetchFnRef = useRef(fetchFn);
   fetchFnRef.current = fetchFn;
 
-  const execute = useCallback(async () => {
+  // Track the current AbortController so we can cancel on unmount or re-fetch
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // ============== BLOCK 4: Execute Function ==============
+
+  const execute = useCallback(async (): Promise<void> => {
+    // Abort any in-flight request before starting a new one
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create a new controller for this request
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setError(null);
 
     try {
       const result = await fetchFnRef.current();
+
+      // If this request was aborted (unmount or new request started), bail out
+      if (controller.signal.aborted) return;
+
       setData(result);
     } catch (err: unknown) {
+      // Don't update state if aborted — component may be unmounted
+      if (controller.signal.aborted) return;
+
       const message =
         err instanceof Error ? err.message : "An unexpected error occurred";
       setError(message);
       console.error("useFetch error:", err);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, []);
 
-  // Fetch on mount + re-fetch when deps change
+  // ============== BLOCK 5: Initial Fetch + Dep Changes ==============
+
   useEffect(() => {
     if (!enabled) {
       setLoading(false);
@@ -94,17 +120,62 @@ export function useFetch<T>(
     }
 
     execute();
-    // deps are provided by the caller — this is a standard custom hook pattern
+
+    // Cleanup: abort in-flight request on unmount or when deps change
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+    // deps are spread by the caller — standard custom hook pattern
+    // (same approach used by react-query, useSWR, etc.)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [execute, enabled, ...deps]);
 
-  // Polling interval (independent of deps)
+  // ============== BLOCK 6: Polling with Tab Visibility ==============
+
   useEffect(() => {
     if (!pollingInterval || pollingInterval <= 0 || !enabled) return;
 
-    const interval = setInterval(execute, pollingInterval);
-    return () => clearInterval(interval);
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const startPolling = (): void => {
+      if (intervalId) return;
+      intervalId = setInterval(execute, pollingInterval);
+    };
+
+    const stopPolling = (): void => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+
+    const handleVisibilityChange = (): void => {
+      if (document.hidden) {
+        // Tab hidden — stop wasting bandwidth
+        stopPolling();
+      } else {
+        // Tab visible again — refetch immediately then resume polling
+        execute();
+        startPolling();
+      }
+    };
+
+    // Only start polling if the tab is currently visible
+    if (!document.hidden) {
+      startPolling();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [execute, pollingInterval, enabled]);
+
+  // ============== BLOCK 7: Return ==============
 
   return { data, loading, error, refetch: execute };
 }
