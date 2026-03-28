@@ -113,24 +113,27 @@ export function useFetch<T>(
 
   // ============== BLOCK 5: Initial Fetch + Dep Changes ==============
 
+  // Track previous deps and first run to avoid eslint-disable
+  const prevDepsRef = useRef<React.DependencyList>(deps);
+  const isFirstRunRef = useRef(true);
+
   useEffect(() => {
     if (!enabled) {
       setLoading(false);
       return;
     }
 
-    execute();
+    // Compare deps with previous deps
+    const depsChanged =
+      prevDepsRef.current.length !== deps.length ||
+      prevDepsRef.current.some((dep, i) => dep !== deps[i]);
 
-    // Cleanup: abort in-flight request on unmount or when deps change
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-    // deps are spread by the caller — standard custom hook pattern
-    // (same approach used by react-query, useSWR, etc.)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [execute, enabled, ...deps]);
+    if (isFirstRunRef.current || depsChanged) {
+      isFirstRunRef.current = false;
+      prevDepsRef.current = deps;
+      execute();
+    }
+  }, [execute, enabled]); // No spread of deps, no eslint-disable needed
 
   // ============== BLOCK 6: Polling with Tab Visibility ==============
 
