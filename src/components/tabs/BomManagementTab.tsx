@@ -1,22 +1,18 @@
-//src/components/tabs/BomManagementTab.tsx
+// src/components/tabs/BomManagementTab.tsx
 
-// BLOCK 1: Imports
+// ============== BLOCK 1: Imports ==============
+
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Typography,
-  IconButton,
-  Input,
-  Spinner,
-  Card,
-  CardBody
-} from "@material-tailwind/react";
+import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
+import { Card, CardContent } from "../ui/Card";
+import { Spinner } from "../ui/Spinner";
 import { useTheme } from "../../contexts/ThemeContext";
 import {
   PlusIcon,
   MagnifyingGlassIcon,
   PencilIcon,
-  TrashIcon
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { productService } from "../../services/product.service";
 import { bomService } from "../../services/bom.service";
@@ -24,31 +20,34 @@ import { AddBomComponentModal } from "../modals/AddBomComponentModal";
 import { EditBomComponentModal } from "../modals/EditBomComponentModal";
 import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
 
-// BLOCK 2: Interface
+// ============== BLOCK 2: Types ==============
+
 interface BomManagementTabProps {
   product: any;
   onUpdate: () => void;
 }
 
-// BLOCK 3: Main Component
+// ============== BLOCK 3: Main Component ==============
+
 export function BomManagementTab({ product, onUpdate }: BomManagementTabProps) {
   const { theme } = useTheme();
   const [components, setComponents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  
+
   // Selected component for edit/delete
   const [selectedComponent, setSelectedComponent] = useState<any | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const TABLE_HEAD = ["Part Code", "Description", "Part Type", "Qty/Shipper", "Actions"];
 
-  // BLOCK 4: Fetch BOM Components
+  // ============== BLOCK 4: Fetch BOM Components ==============
+
   useEffect(() => {
     if (product?.productCode) {
       loadBomComponents();
@@ -57,14 +56,15 @@ export function BomManagementTab({ product, onUpdate }: BomManagementTabProps) {
 
   const loadBomComponents = () => {
     setLoading(true);
-    productService.getBomForProduct(product.productCode)
-      .then(data => {
+    productService
+      .getBomForProduct(product.productCode)
+      .then((data) => {
         // Handle both response formats
         const bomData = data?.data || data || [];
         setComponents(Array.isArray(bomData) ? bomData : []);
       })
-      .catch(err => {
-        console.error('Error loading BOM:', err);
+      .catch((err) => {
+        console.error("Error loading BOM:", err);
         setComponents([]);
       })
       .finally(() => {
@@ -72,8 +72,9 @@ export function BomManagementTab({ product, onUpdate }: BomManagementTabProps) {
       });
   };
 
-  // BLOCK 5: Filter Components
-  const filteredComponents = components.filter(comp => {
+  // ============== BLOCK 5: Filter Components ==============
+
+  const filteredComponents = components.filter((comp) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -83,124 +84,113 @@ export function BomManagementTab({ product, onUpdate }: BomManagementTabProps) {
     );
   });
 
-// BLOCK 6: Handle Delete
-const handleDeleteComponent = async () => {
+  // ============== BLOCK 6: Handle Delete ==============
+
+  const handleDeleteComponent = async () => {
     if (!selectedComponent?.partCode) return;
-    
+
     setDeleteLoading(true);
     try {
-      // ✅ Use real API call
       await bomService.deleteComponent(product.productCode, selectedComponent.partCode);
-      
+
       setIsDeleteDialogOpen(false);
       setSelectedComponent(null);
       loadBomComponents();
       onUpdate(); // Refresh parent component
     } catch (error: any) {
-      console.error('Failed to delete component:', error);
-      alert(error.message || 'Failed to delete component');
+      console.error("Failed to delete component:", error);
+      alert(error.message || "Failed to delete component");
     } finally {
       setDeleteLoading(false);
     }
   };
 
-  // BLOCK 7: Calculate Statistics
+  // ============== BLOCK 7: Statistics ==============
+
   const totalComponents = components.length;
   const totalQuantity = components.reduce((sum, comp) => sum + (comp.perShipper || 0), 0);
-  
+
   const componentsByType = components.reduce((acc: any, comp) => {
-    const type = comp.partType || 'Unknown';
+    const type = comp.partType || "Unknown";
     acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {});
 
-  // BLOCK 8: Render
+  // ============== BLOCK 8: Render ==============
+
   return (
     <div className="space-y-6">
       {/* Header with Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className={`${theme.cards} shadow-sm`}>
-          <CardBody className="p-4">
-            <Typography variant="small" className={`${theme.text} opacity-70`}>
-              Total Components
-            </Typography>
-            <Typography variant="h4" className={`${theme.text} font-bold`}>
-              {totalComponents}
-            </Typography>
-          </CardBody>
+        <Card variant="bordered" className={`${theme.cards} shadow-sm`}>
+          <CardContent className="p-4">
+            <span className={`text-sm opacity-70 ${theme.text}`}>Total Components</span>
+            <span className={`text-2xl font-bold block ${theme.text}`}>{totalComponents}</span>
+          </CardContent>
         </Card>
 
-        <Card className={`${theme.cards} shadow-sm`}>
-          <CardBody className="p-4">
-            <Typography variant="small" className={`${theme.text} opacity-70`}>
-              Total Quantity
-            </Typography>
-            <Typography variant="h4" className={`${theme.text} font-bold`}>
-              {totalQuantity.toFixed(2)}
-            </Typography>
-          </CardBody>
+        <Card variant="bordered" className={`${theme.cards} shadow-sm`}>
+          <CardContent className="p-4">
+            <span className={`text-sm opacity-70 ${theme.text}`}>Total Quantity</span>
+            <span className={`text-2xl font-bold block ${theme.text}`}>{totalQuantity.toFixed(2)}</span>
+          </CardContent>
         </Card>
 
-        <Card className={`${theme.cards} shadow-sm`}>
-          <CardBody className="p-4">
-            <Typography variant="small" className={`${theme.text} opacity-70`}>
-              Raw Materials
-            </Typography>
-            <Typography variant="h4" className={`${theme.text} font-bold`}>
-              {componentsByType['RAW_MATERIAL'] || 0}
-            </Typography>
-          </CardBody>
+        <Card variant="bordered" className={`${theme.cards} shadow-sm`}>
+          <CardContent className="p-4">
+            <span className={`text-sm opacity-70 ${theme.text}`}>Raw Materials</span>
+            <span className={`text-2xl font-bold block ${theme.text}`}>
+              {componentsByType["RAW_MATERIAL"] || 0}
+            </span>
+          </CardContent>
         </Card>
 
-        <Card className={`${theme.cards} shadow-sm`}>
-          <CardBody className="p-4">
-            <Typography variant="small" className={`${theme.text} opacity-70`}>
-              Components
-            </Typography>
-            <Typography variant="h4" className={`${theme.text} font-bold`}>
-              {componentsByType['COMPONENT'] || 0}
-            </Typography>
-          </CardBody>
+        <Card variant="bordered" className={`${theme.cards} shadow-sm`}>
+          <CardContent className="p-4">
+            <span className={`text-sm opacity-70 ${theme.text}`}>Components</span>
+            <span className={`text-2xl font-bold block ${theme.text}`}>
+              {componentsByType["COMPONENT"] || 0}
+            </span>
+          </CardContent>
         </Card>
       </div>
 
       {/* Action Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <Input
-          label="Search components..."
-          icon={<MagnifyingGlassIcon className="h-5 w-5" />}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          color={theme.isDark ? "white" : "black"}
-          className="md:w-96"
-        />
+        <div className="md:w-96 w-full">
+          <Input
+            label="Search components..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
+          />
+        </div>
         <Button
-          className="flex items-center gap-2"
-          color="green"
+          variant="primary"
+          leftIcon={<PlusIcon className="h-5 w-5" />}
           onClick={() => setIsAddModalOpen(true)}
         >
-          <PlusIcon className="h-5 w-5" />
           Add Component
         </Button>
       </div>
 
       {/* BOM Table */}
-      <Card className={`${theme.cards} shadow-sm`}>
-        <CardBody className="overflow-x-auto p-0">
+      <Card variant="bordered" className={`${theme.cards} shadow-sm`}>
+        <CardContent className="overflow-x-auto p-0">
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <Spinner className="h-12 w-12" />
+              <Spinner size="lg" />
             </div>
           ) : filteredComponents.length === 0 ? (
             <div className="text-center p-8">
-              <Typography className={`${theme.text} opacity-70`}>
-                {searchQuery 
+              <span className={`opacity-70 ${theme.text}`}>
+                {searchQuery
                   ? `No components found matching "${searchQuery}"`
                   : "No BOM components yet. Click 'Add Component' to get started."}
-              </Typography>
+              </span>
             </div>
           ) : (
-            <div className={`border-2 ${theme.borderColor} rounded-lg m-4`}>
+            <div className={`border-2 ${theme.borderColor} rounded-lg m-4 overflow-hidden`}>
               <table className="w-full min-w-max table-auto text-left">
                 <thead className={`border-b-2 ${theme.borderColor}`}>
                   <tr>
@@ -211,9 +201,7 @@ const handleDeleteComponent = async () => {
                       }
                       return (
                         <th key={head} className={thClasses}>
-                          <Typography variant="small" className={`font-semibold ${theme.text}`}>
-                            {head}
-                          </Typography>
+                          <span className={`text-sm font-semibold ${theme.text}`}>{head}</span>
                         </th>
                       );
                     })}
@@ -223,7 +211,7 @@ const handleDeleteComponent = async () => {
                   {filteredComponents.map((component, index) => {
                     const isLastRow = index === filteredComponents.length - 1;
                     const getCellClasses = (isLast = false) => {
-                      let classes = `p-3 text-center ${isLastRow ? '' : `border-b ${theme.borderColor}`}`;
+                      let classes = `p-3 text-center ${isLastRow ? "" : `border-b ${theme.borderColor}`}`;
                       if (!isLast) {
                         classes += ` border-r ${theme.borderColor}`;
                       }
@@ -233,58 +221,59 @@ const handleDeleteComponent = async () => {
                     return (
                       <tr key={component.partCode} className={theme.hoverBg}>
                         <td className={getCellClasses()}>
-                          <Typography variant="small" className={`font-mono font-bold ${theme.text}`}>
+                          <span className={`text-sm font-mono font-bold ${theme.text}`}>
                             {component.partCode}
-                          </Typography>
+                          </span>
                         </td>
                         <td className={getCellClasses()}>
-                          <Typography variant="small" className={theme.text}>
-                            {component.partDescription}
-                          </Typography>
+                          <span className={`text-sm ${theme.text}`}>{component.partDescription}</span>
                         </td>
                         <td className={getCellClasses()}>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            component.partType === 'RAW_MATERIAL' 
-                              ? 'bg-blue-100 text-blue-800'
-                              : component.partType === 'COMPONENT'
-                              ? 'bg-purple-100 text-purple-800'
-                              : component.partType === 'PACKAGING'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              component.partType === "RAW_MATERIAL"
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                : component.partType === "COMPONENT"
+                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+                                : component.partType === "PACKAGING"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                            }`}
+                          >
                             {component.partType}
                           </span>
                         </td>
                         <td className={getCellClasses()}>
-                          <Typography variant="small" className={`font-semibold ${theme.text}`}>
+                          <span className={`text-sm font-semibold ${theme.text}`}>
                             {component.perShipper}
-                          </Typography>
+                          </span>
                         </td>
                         <td className={getCellClasses(true)}>
                           <div className="flex gap-2 justify-center">
-                            <IconButton
-                              variant="text"
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => {
                                 setSelectedComponent(component);
                                 setIsEditModalOpen(true);
                               }}
                               title="Edit Component"
+                              className="p-1"
                             >
                               <PencilIcon className={`h-4 w-4 ${theme.text}`} />
-                            </IconButton>
-                            <IconButton
-                              variant="text"
+                            </Button>
+                            <Button
+                              variant="ghost"
                               size="sm"
-                              color="red"
                               onClick={() => {
                                 setSelectedComponent(component);
                                 setIsDeleteDialogOpen(true);
                               }}
                               title="Delete Component"
+                              className="p-1 text-red-500 hover:text-red-700"
                             >
                               <TrashIcon className="h-4 w-4" />
-                            </IconButton>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -294,10 +283,10 @@ const handleDeleteComponent = async () => {
               </table>
             </div>
           )}
-        </CardBody>
+        </CardContent>
       </Card>
 
-      {/* BLOCK 9: Modals */}
+      {/* ============== BLOCK 9: Modals ============== */}
       <AddBomComponentModal
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
