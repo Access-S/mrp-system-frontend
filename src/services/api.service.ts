@@ -1,9 +1,7 @@
-//src/services/api.service.ts
-
-// BLOCK 1: Imports
+// ============== BLOCK 1: Imports ==============
 import { PurchaseOrder } from '../types/mrp.types';
 
-// BLOCK 2: Enhanced Interfaces
+// ============== BLOCK 2: Enhanced Interfaces ==============
 export interface ApiResponse<T = any> {
   success: boolean;
   data: T;
@@ -29,19 +27,40 @@ export interface ApiError {
   details?: string;
 }
 
-// BLOCK 3: Configuration - FIXED
+// ============== BLOCK 3: Configuration ==============
 const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`  // ✅ Add /api since environment doesn't have it
+  ? `${import.meta.env.VITE_API_URL}/api`
   : 'http://localhost:5000/api';
 
-console.log('🔗 API Base URL:', API_BASE_URL); // Debug log
+// Only log in development
+if (import.meta.env.DEV) {
+  console.log('🔗 API Base URL:', API_BASE_URL);
+}
 
-// BLOCK 4: Enhanced HTTP Client
+// ============== BLOCK 4: Enhanced HTTP Client ==============
 class ApiClient {
   private baseURL: string;
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
+  }
+
+  private getErrorMessage(status: number, data?: any): string {
+    // User-friendly messages per status
+    switch (status) {
+      case 400:
+        return data?.message || 'Bad request. Please check your input.';
+      case 401:
+        return 'Unauthorized. Please log in again.';
+      case 403:
+        return 'You do not have permission to perform this action.';
+      case 404:
+        return 'The requested resource was not found.';
+      case 500:
+        return 'Server error. Please try again later.';
+      default:
+        return data?.message || `HTTP ${status}: ${response.statusText}`;
+    }
   }
 
   private async request<T>(
@@ -62,16 +81,21 @@ class ApiClient {
       const response = await fetch(url, config);
       
       if (!response.ok) {
+        let errorData: any = null;
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         
         try {
-          const errorData: ApiError = await response.json();
+          errorData = await response.json();
           errorMessage = errorData.message || errorMessage;
         } catch {
           // If error response isn't JSON, use status text
         }
         
-        throw new Error(errorMessage);
+        // Create an error with status code for better handling
+        const error = new Error(errorMessage);
+        (error as any).status = response.status;
+        (error as any).data = errorData;
+        throw error;
       }
 
       const data = await response.json();
@@ -114,10 +138,10 @@ class ApiClient {
   }
 }
 
-// BLOCK 5: API Client Instance
+// ============== BLOCK 5: API Client Instance ==============
 const apiClient = new ApiClient(API_BASE_URL);
 
-// BLOCK 6: Purchase Orders API
+// ============== BLOCK 6: Purchase Orders API ==============
 export const fetchPurchaseOrders = async (options: {
   page?: number;
   limit?: number;
@@ -212,8 +236,7 @@ export const updatePurchaseOrderStatus = async (
     throw new Error('Status is required');
   }
 
-  const body: Record<string, any> = { status };
-  
+  const body: { status: string; deliveryDate?: string; docketNumber?: string } = { status };
   if (despatchDetails) {
     body.deliveryDate = despatchDetails.deliveryDate;
     body.docketNumber = despatchDetails.docketNumber;
@@ -241,7 +264,7 @@ export const fetchBomForProduct = async (productCode: string): Promise<any[]> =>
   return apiClient.get<ApiResponse<any[]>>(`/products/${productCode}/bom`);
 };
 
-// BLOCK 7: Utility Functions
+// ============== BLOCK 7: Utility Functions ==============
 export const handleApiError = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
@@ -257,5 +280,5 @@ export const isPaginatedResponse = <T>(response: any): response is PaginatedApiR
   return isApiResponse(response) && 'pagination' in response;
 };
 
-// BLOCK 8: Export API Client for custom requests
+// ============== BLOCK 8: Export API Client ==============
 export { apiClient };
