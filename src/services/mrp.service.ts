@@ -79,7 +79,6 @@ class MrpService {
     products: Product[],
     forecasts: Forecast[]
   ): InventoryProjection[] {
-    console.log('🔄 Starting MRP calculations...');
 
     // Initialize component master map for demand aggregation
     const componentMasterMap = new Map<
@@ -214,7 +213,6 @@ class MrpService {
       });
     });
 
-    console.log(`✅ MRP calculations completed for ${inventoryProjections.length} components`);
     return inventoryProjections;
   }
 
@@ -228,7 +226,6 @@ class MrpService {
    */
   async runCompleteAnalysis(): Promise<InventoryProjection[]> {
     try {
-      console.log('🔄 Starting complete MRP analysis...');
 
       // Fetch all required data in parallel
       const [components, products, forecasts] = await Promise.all([
@@ -237,15 +234,12 @@ class MrpService {
         forecastService.getAllForecasts()
       ]);
 
-      console.log(`📊 Data fetched: ${components.length} components, ${products.length} products, ${forecasts.length} forecasts`);
 
       // Run the MRP calculation
       const projections = this.calculateInventoryProjections(components, products, forecasts);
 
-      console.log('✅ Complete MRP analysis finished');
       return projections;
     } catch (error) {
-      console.error('❌ Error in complete MRP analysis:', error);
       throw new Error(handleApiError(error));
     }
   }

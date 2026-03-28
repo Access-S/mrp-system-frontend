@@ -41,13 +41,11 @@ class BomService {
       );
       
       if (response.success && response.data) {
-        console.log(`✅ Added BOM component: ${componentData.partCode} to ${productCode}`);
         return response.data;
       }
       
       throw new Error('Failed to add BOM component');
     } catch (error) {
-      console.error('❌ Error adding BOM component:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -71,13 +69,11 @@ class BomService {
       );
       
       if (response.success && response.data) {
-        console.log(`✅ Updated BOM component: ${partCode} in ${productCode}`);
         return response.data;
       }
       
       throw new Error('Failed to update BOM component');
     } catch (error) {
-      console.error('❌ Error updating BOM component:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -95,13 +91,11 @@ class BomService {
       );
       
       if (response.success) {
-        console.log(`✅ Deleted BOM component: ${partCode} from ${productCode}`);
         return;
       }
       
       throw new Error('Failed to delete BOM component');
     } catch (error) {
-      console.error('❌ Error deleting BOM component:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -118,13 +112,11 @@ class BomService {
       );
       
       if (response.success && response.data) {
-        console.log(`✅ Fetched ${response.data.length} BOM components for ${productCode}`);
         return response.data;
       }
       
       return [];
     } catch (error) {
-      console.error('❌ Error fetching BOM components:', error);
       throw new Error(handleApiError(error));
     }
   }

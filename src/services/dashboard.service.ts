@@ -35,13 +35,11 @@ class DashboardService {
    */
   async getDashboardStats(allProducts?: Product[]): Promise<DashboardStats> {
     try {
-      console.log('📊 Fetching dashboard statistics...');
 
       // Fetch products if not provided - USE BACKEND API WITH FULL URL
       if (!allProducts) {
          const response = await fetch(`${API_BASE_URL}/products`);
         if (!response.ok) {
-          console.warn('Could not fetch products for dashboard calculations');
           allProducts = [];
         } else {
           const result = await response.json();
@@ -132,11 +130,9 @@ class DashboardService {
         averageTurnaroundDays,
       };
 
-      console.log('✅ Dashboard stats calculated:', stats);
       return stats;
 
     } catch (error) {
-      console.error('❌ Error fetching dashboard stats:', error);
       // Return zeroed-out data on error
       return {
         openPoCount: 0,
@@ -155,7 +151,6 @@ class DashboardService {
    */
   async getDashboardChartData(): Promise<DashboardChartData> {
     try {
-      console.log('📈 Fetching dashboard chart data...');
 
       // TODO: Replace these with backend API calls when available
       // For now, return empty data to avoid errors
@@ -168,7 +163,6 @@ class DashboardService {
       };
 
     } catch (error) {
-      console.error('❌ Error fetching dashboard chart data:', error);
       return {
         poStatusDistribution: [],
         monthlyPoTrends: [],
@@ -207,11 +201,9 @@ class DashboardService {
         }
       }));
 
-      console.log(`✅ Fetched ${activities.length} recent activities`);
       return activities;
 
     } catch (error) {
-      console.error('❌ Error fetching recent activity:', error);
       return [];
     }
   }
@@ -229,7 +221,6 @@ class DashboardService {
     try {
       // This would require more complex queries and historical data
       // For now, return placeholder metrics
-      console.log('📊 Calculating performance metrics...');
 
       // You can implement these based on your specific business logic
       return {
@@ -240,7 +231,6 @@ class DashboardService {
       };
 
     } catch (error) {
-      console.error('❌ Error calculating performance metrics:', error);
       return {
         avgProcessingTime: 0,
         onTimeDeliveryRate: 0,

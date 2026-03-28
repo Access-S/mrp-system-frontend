@@ -64,7 +64,6 @@ class ForecastService {
    */
   async importForecastData(file: File): Promise<ForecastImportResult> {
     try {
-      console.log('📊 Starting forecast import...', file.name);
 
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data, { cellDates: true });
@@ -113,7 +112,6 @@ class ForecastService {
         return productKey && row[productKey];
       });
 
-      console.log(`📊 Parsed ${jsonData.length} rows from Excel`);
 
       // Send to backend
       const formData = new FormData();
@@ -131,12 +129,10 @@ class ForecastService {
       }
 
       const result: ForecastImportResult = await response.json();
-      console.log(`✅ Import complete: ${result.imported} products, ${result.pending_review} pending review`);
       
       return result;
 
     } catch (error) {
-      console.error('❌ Forecast import failed:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -149,7 +145,6 @@ class ForecastService {
     approvals: ForecastReviewApproval[]
   ): Promise<{ success: boolean; message: string; results: any }> {
     try {
-      console.log('📋 Finalizing forecast review...', { importBatchId, approvalCount: approvals.length });
 
       const response = await fetch(`${API_BASE_URL}/forecasts/review`, {
         method: 'POST',
@@ -168,12 +163,10 @@ class ForecastService {
       }
 
       const result = await response.json();
-      console.log(`✅ Review finalized: ${result.message}`);
       
       return result;
 
     } catch (error) {
-      console.error('❌ Forecast review finalization failed:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -182,38 +175,29 @@ class ForecastService {
    * Fetch all weekly forecasts from backend
    * Returns data already in weekly format
    */
-  async getWeeklyForecasts(): Promise<{
-    headers: { key: string; label: string }[];
-    rows: any[];
-    summary: any;
-  }> {
-    try {
-      console.log('📊 Fetching weekly forecasts...');
-      
-      const response = await fetch(`${API_BASE_URL}/forecasts`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch forecasts');
-      }
-
-      const result = await response.json();
-      
-      if (result.success && result.tableData) {
-        console.log(`✅ Fetched ${result.tableData.rows.length} products with weekly data`);
-        return {
-          headers: result.tableData.headers,
-          rows: result.tableData.rows,
-          summary: result.summary
-        };
-      }
-      
-      console.warn('Unexpected API response format:', result);
-      return { headers: [], rows: [], summary: {} };
-    } catch (error) {
-      console.error('❌ Error fetching forecasts:', error);
-      throw new Error(handleApiError(error));
-    }
+async getWeeklyForecasts(): Promise<{
+  headers: { key: string; label: string }[];
+  rows: any[];
+  summary: any;
+}> {
+  const response = await fetch(`${API_BASE_URL}/forecasts`);
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch forecasts');
   }
+
+  const result = await response.json();
+  
+  if (result.success && result.tableData) {
+    return {
+      headers: result.tableData.headers,
+      rows: result.tableData.rows,
+      summary: result.summary
+    };
+  }
+  
+  return { headers: [], rows: [], summary: {} };
+}
 
   /**
    * Fetch all forecasts formatted for MRP engine consumption
@@ -221,29 +205,24 @@ class ForecastService {
    * @returns Promise<Forecast[]> - Array of forecasts with weeklyForecast maps
    */
   async getAllForecasts(): Promise<Forecast[]> {
-    try {
-      const { rows } = await this.getWeeklyForecasts();
+    const { rows } = await this.getWeeklyForecasts();
 
-      return rows.map((row: any) => {
-        const { product_code, description, ...weeklyData } = row;
+    return rows.map((row: any) => {
+      const { product_code, description, ...weeklyData } = row;
 
-        const weeklyForecast: Record<string, number> = {};
-        for (const [key, value] of Object.entries(weeklyData)) {
-          if (typeof value === 'number') {
-            weeklyForecast[key] = value;
-          }
+      const weeklyForecast: Record<string, number> = {};
+      for (const [key, value] of Object.entries(weeklyData)) {
+        if (typeof value === 'number') {
+          weeklyForecast[key] = value;
         }
+      }
 
-        return {
-          productCode: product_code || '',
-          description: description || '',
-          weeklyForecast,
-        };
-      });
-    } catch (error) {
-      console.error('❌ Error fetching forecasts for MRP:', error);
-      throw new Error(handleApiError(error));
-    }
+      return {
+        productCode: product_code || '',
+        description: description || '',
+        weeklyForecast,
+      };
+    });
   }
 }
 
@@ -306,92 +285,87 @@ export const getForecastsWithProductData = async (
   }>,
   weeksToShow: number = 4
 ): Promise<ForecastTableData> => {
-  try {
-    const { headers, rows, summary } = await getWeeklyForecasts();
+  const { headers, rows } = await getWeeklyForecasts(); // remove unused summary
 
-    // Create product lookup map
-    const productMap = new Map(
-      products.map((p) => [p.productCode.toUpperCase(), p])
-    );
+  // Create product lookup map
+  const productMap = new Map(
+    products.map((p) => [p.productCode.toUpperCase(), p])
+  );
 
-    // Get date columns (all columns except product_code and description)
-    const dateHeaders = headers.filter(h => 
-      h.key !== 'product_code' && h.key !== 'description'
-    );
+  // Get date columns (all columns except product_code and description)
+  const dateHeaders = headers.filter(h => 
+    h.key !== 'product_code' && h.key !== 'description'
+  );
 
-    // Limit to requested number of weeks
-    const limitedDateHeaders = dateHeaders.slice(0, weeksToShow);
+  // Limit to requested number of weeks
+  const limitedDateHeaders = dateHeaders.slice(0, weeksToShow);
 
-    // Transform rows to include product data
-    const transformedRows: WeeklyForecastRow[] = rows.map((row: any) => {
-      const product = productMap.get(row.product_code?.toUpperCase());
-      
-      // Extract weekly data
-      const weeklyData: Record<string, number> = {};
-      for (const dateHeader of limitedDateHeaders) {
-        weeklyData[dateHeader.key] = row[dateHeader.key] || 0;
-      }
-
-      return {
-        productCode: row.product_code,
-        description: row.description || product?.description || '',
-        minsPerShipper: product?.minsPerShipper || 0,
-        unitsPerShipper: product?.unitsPerShipper || 0,
-        weeklyData
-      };
-    });
-
-        // Calculate weekly demand summaries
-        const weeklyDemand: WeeklyDemandSummary[] = limitedDateHeaders.map((dateHeader) => {
-          let totalUnits = 0;
-          let totalHours = 0;
-
-          transformedRows.forEach((row) => {
-            const units = row.weeklyData[dateHeader.key] || 0;
-            totalUnits += units;
-            
-            // Get minsPerShipper from the product map
-            const product = productMap.get(row.productCode.toUpperCase());
-            if (product && product.minsPerShipper) {
-              totalHours += calculateDemandHours(units, product.minsPerShipper);
-            }
-          });
-
-          return {
-            weekDate: dateHeader.key,
-            weekLabel: dateHeader.label,
-            totalUnits,
-            totalHours: Math.round(totalHours * 100) / 100,
-          };
-        });
-
-    // Count active products (products with any forecast > 0)
-    const activeProducts = transformedRows.filter((row) => {
-      const total = Object.values(row.weeklyData).reduce((sum, val) => sum + val, 0);
-      return total > 0;
-    }).length;
-
-    // Build final headers
-    const finalHeaders = [
-      { key: "productCode", label: "Product Code" },
-      { key: "description", label: "Description" },
-      ...limitedDateHeaders.map((h) => ({
-        key: h.key,
-        label: h.label,
-      })),
-    ];
+  // Transform rows to include product data
+  const transformedRows: WeeklyForecastRow[] = rows.map((row: any) => {
+    const product = productMap.get(row.product_code?.toUpperCase());
+    
+    // Extract weekly data
+    const weeklyData: Record<string, number> = {};
+    for (const dateHeader of limitedDateHeaders) {
+      weeklyData[dateHeader.key] = row[dateHeader.key] || 0;
+    }
 
     return {
-      headers: finalHeaders,
-      rows: transformedRows,
-      weeklyDemand,
-      totalProducts: transformedRows.length,
-      activeProducts,
+      productCode: row.product_code,
+      description: row.description || product?.description || '',
+      minsPerShipper: product?.minsPerShipper || 0,
+      unitsPerShipper: product?.unitsPerShipper || 0,
+      weeklyData
     };
-  } catch (error) {
-    console.error("❌ Error fetching forecasts with product data:", error);
-    throw error;
-  }
+  });
+
+  // Calculate weekly demand summaries
+  const weeklyDemand: WeeklyDemandSummary[] = limitedDateHeaders.map((dateHeader) => {
+    let totalUnits = 0;
+    let totalHours = 0;
+
+    transformedRows.forEach((row) => {
+      const units = row.weeklyData[dateHeader.key] || 0;
+      totalUnits += units;
+      
+      // Get minsPerShipper from the product map
+      const product = productMap.get(row.productCode.toUpperCase());
+      if (product && product.minsPerShipper) {
+        totalHours += calculateDemandHours(units, product.minsPerShipper);
+      }
+    });
+
+    return {
+      weekDate: dateHeader.key,
+      weekLabel: dateHeader.label,
+      totalUnits,
+      totalHours: Math.round(totalHours * 100) / 100,
+    };
+  });
+
+  // Count active products (products with any forecast > 0)
+  const activeProducts = transformedRows.filter((row) => {
+    const total = Object.values(row.weeklyData).reduce((sum, val) => sum + val, 0);
+    return total > 0;
+  }).length;
+
+  // Build final headers
+  const finalHeaders = [
+    { key: "productCode", label: "Product Code" },
+    { key: "description", label: "Description" },
+    ...limitedDateHeaders.map((h) => ({
+      key: h.key,
+      label: h.label,
+    })),
+  ];
+
+  return {
+    headers: finalHeaders,
+    rows: transformedRows,
+    weeklyDemand,
+    totalProducts: transformedRows.length,
+    activeProducts,
+  };
 };
 
 // ============== BLOCK 8: Exports ==============

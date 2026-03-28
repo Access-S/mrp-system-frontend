@@ -53,7 +53,6 @@ class SohService {
    */
   async importSohData(file: File): Promise<SohImportResult> {
     try {
-      console.log("📦 Starting SOH import...", file.name);
 
       // Validate file on client side
       const fileExt = file.name.split(".").pop()?.toLowerCase();
@@ -76,13 +75,9 @@ class SohService {
       }
 
       const result: SohImportResult = await response.json();
-      console.log(
-        `✅ SOH Import complete: ${result.data.imported} records imported, ${result.data.archived} archived`
-      );
-
       return result;
+      
     } catch (error) {
-      console.error("❌ SOH import failed:", error);
       throw new Error(handleApiError(error));
     }
   }
@@ -93,26 +88,22 @@ class SohService {
    */
   async getSohData(search?: string): Promise<SohTableData> {
     try {
-      console.log("📦 Fetching SOH data...", { search });
 
       const params = search && search.trim() ? `?search=${encodeURIComponent(search.trim())}` : '';
       const response = await apiClient.get<any>(`/soh${params}`);
 
       if (response.success) {
-        console.log(`✅ Fetched ${response.data.length} SOH records`);
         return {
           summary: response.summary,
           records: response.data,
         };
       }
 
-      console.warn("Unexpected API response format:", response);
       return {
         summary: { totalRecords: 0, totalStock: 0, totalStockValue: 0, zeroStockCount: 0 },
         records: [],
       };
     } catch (error) {
-      console.error("❌ Error fetching SOH data:", error);
       throw new Error(handleApiError(error));
     }
   }

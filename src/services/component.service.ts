@@ -28,13 +28,11 @@ class ComponentService {
           leadTime: item.lead_time_days || undefined,
         }));
 
-        console.log(`✅ Fetched ${components.length} components from SOH`);
         return components;
       }
 
       throw new Error('Failed to fetch SOH records');
     } catch (error) {
-      console.error('❌ Error fetching components:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -51,13 +49,11 @@ class ComponentService {
       const response: ApiResponse<any> = await apiClient.get('/soh/summary');
 
       if (response.success && response.data) {
-        console.log('✅ Fetched SOH summary');
         return response.data;
       }
 
       throw new Error('Failed to fetch SOH summary');
     } catch (error) {
-      console.error('❌ Error fetching SOH summary:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -91,13 +87,11 @@ class ComponentService {
           leadTime: item.lead_time_days || undefined,
         }));
 
-        console.log(`✅ Search for "${searchTerm}" returned ${components.length} components`);
         return components;
       }
 
       return [];
     } catch (error) {
-      console.error('❌ Error searching components:', error);
       return [];
     }
   }
@@ -119,7 +113,6 @@ class ComponentService {
 
       if (response.success && Array.isArray(response.data) && response.data.length > 0) {
         const item = response.data[0];
-        console.log(`✅ Found component for part code: ${partCode}`);
         return {
           id: item.id,
           partCode: String(item.part_code || '').trim(),
@@ -135,7 +128,6 @@ class ComponentService {
 
       return null;
     } catch (error) {
-      console.error('❌ Error fetching component by part code:', error);
       return null;
     }
   }
@@ -159,7 +151,6 @@ class ComponentService {
         averageStock: 0
       };
     } catch (error) {
-      console.error('❌ Error getting inventory summary:', error);
       return {
         totalItems: 0,
         totalStock: 0,

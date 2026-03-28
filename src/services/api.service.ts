@@ -1,7 +1,8 @@
+//src/services/api.service.ts
+
 // ============== BLOCK 1: Imports ==============
 import { PurchaseOrder } from '../types/mrp.types';
 
-// ============== BLOCK 2: Enhanced Interfaces ==============
 // ============== BLOCK 2: Enhanced Interfaces ==============
 
 export interface ApiResponse<T> {
@@ -30,13 +31,13 @@ export interface ApiError {
 }
 
 // ============== BLOCK 3: Configuration ==============
-const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+  ? `${import.meta.env.VITE_API_BASE_URL}`
   : 'http://localhost:5000/api';
 
 // Only log in development
 if (import.meta.env.DEV) {
-  console.log('🔗 API Base URL:', API_BASE_URL);
+  // console.log('🔗 API Base URL:', API_BASE_URL);
 }
 
 // ============== BLOCK 4: Enhanced HTTP Client ==============

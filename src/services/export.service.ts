@@ -72,9 +72,7 @@ export const exportToCSV = (options: ExportOptions): void => {
     const finalFilename = filename.endsWith(".csv") ? filename : `${filename}.csv`;
     saveAs(blob, finalFilename);
 
-    console.log(`✅ CSV exported: ${finalFilename}`);
   } catch (error) {
-    console.error("❌ CSV export failed:", error);
     throw new Error("Failed to export CSV file");
   }
 };
@@ -152,9 +150,7 @@ export const exportToExcel = (options: ExportOptions): void => {
       : `${filename}.xlsx`;
     saveAs(blob, finalFilename);
 
-    console.log(`✅ Excel exported: ${finalFilename}`);
   } catch (error) {
-    console.error("❌ Excel export failed:", error);
     throw new Error("Failed to export Excel file");
   }
 };
@@ -289,9 +285,7 @@ export const exportToPDF = (options: ExportOptions): void => {
       : `${filename}.pdf`;
     doc.save(finalFilename);
 
-    console.log(`✅ PDF exported: ${finalFilename}`);
   } catch (error) {
-    console.error("❌ PDF export failed:", error);
     throw new Error("Failed to export PDF file");
   }
 };
