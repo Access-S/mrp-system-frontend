@@ -3,15 +3,9 @@
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  Input,
-} from "@material-tailwind/react";
-
+import { Dialog } from "../ui/Dialog";
+import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
 import { useToast } from "../ui/Toast";
 
 // ============== BLOCK 2: Types & Interfaces ==============
@@ -47,9 +41,23 @@ export function DespatchPoForm({
   // ============== BLOCK 5: Render ==============
 
   return (
-    <Dialog open={open} handler={handleOpen} size="sm">
-      <DialogHeader>Confirm Despatch Details</DialogHeader>
-      <DialogBody divider className="flex flex-col gap-6">
+    <Dialog
+      open={open}
+      onClose={handleOpen}
+      size="sm"
+      title="Confirm Despatch Details"
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={handleOpen}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSubmit}>
+            Confirm Despatch
+          </Button>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-4">
         <Input
           type="date"
           label="Delivery Date"
@@ -63,20 +71,7 @@ export function DespatchPoForm({
           onChange={(e) => setDocketNumber(e.target.value)}
           required
         />
-      </DialogBody>
-      <DialogFooter>
-        <Button
-          variant="text"
-          color="red"
-          onClick={handleOpen}
-          className="mr-1"
-        >
-          Cancel
-        </Button>
-        <Button variant="gradient" color="green" onClick={handleSubmit}>
-          Confirm Despatch
-        </Button>
-      </DialogFooter>
+      </div>
     </Dialog>
   );
 }
