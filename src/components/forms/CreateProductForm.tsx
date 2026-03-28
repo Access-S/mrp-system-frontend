@@ -6,7 +6,6 @@ import React, { useState } from "react";
 import { Dialog } from "../ui/Dialog";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
-import { useTheme } from "../../contexts/ThemeContext";
 import { productService } from "../../services/product.service";
 
 // ============== BLOCK 2: Types ==============
@@ -24,7 +23,6 @@ export function CreateProductForm({
   handleOpen,
   onProductCreated,
 }: CreateProductFormProps) {
-  const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
