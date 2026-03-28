@@ -1,6 +1,7 @@
 // BLOCK 1: Imports
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // BLOCK 2: Vite Configuration
 export default defineConfig({
@@ -27,21 +28,25 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Core React and React DOM
           'vendor-react': ['react', 'react-dom'],
-          // UI libraries and utilities
           'vendor-ui': [
             '@floating-ui/react',
             '@heroicons/react',
             'clsx',
             'use-debounce',
           ],
-          // Charting libraries
           'vendor-charts': ['apexcharts', 'react-apexcharts'],
-          // Supabase
           'vendor-supabase': ['@supabase/supabase-js'],
         },
       },
+      plugins: [
+        visualizer({
+          open: true,
+          filename: 'dist/stats.html',
+          gzipSize: true,
+          brotliSize: true, 
+        }),
+      ],
     },
     chunkSizeWarningLimit: 1000,
   },
