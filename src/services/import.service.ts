@@ -1,12 +1,8 @@
 // src/services/import.service.ts
 
-const API_BASE_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
-// ============================================================================
-// BLOCK 1: Interfaces
-// ============================================================================
+// ============== BLOCK 1: Interfaces ==============
 export interface ImportRow {
   po_number: string;
   product_code: string;
@@ -43,9 +39,9 @@ export interface ImportTemplate {
   notes: string[];
 }
 
-// ============================================================================
-// BLOCK 2: API Functions
-// ============================================================================
+
+// ============== BLOCK 2: API Functions ==============
+
 
 export const getImportTemplate = async (): Promise<ImportTemplate> => {
   const response = await fetch(`${API_BASE_URL}/import/template`);
@@ -91,9 +87,9 @@ export const importPurchaseOrders = async (
   return result.data;
 };
 
-// ============================================================================
-// BLOCK 3: CSV Parser
-// ============================================================================
+
+// ============== BLOCK 3: CSV Parser ==============
+
 
 export const parseCSV = (csvText: string): ImportRow[] => {
   const lines = csvText.trim().split('\n');
@@ -200,9 +196,9 @@ const parseCSVLine = (line: string): string[] => {
   return result;
 };
 
-// ============================================================================
-// BLOCK 4: TSV Parser (Tab-separated - from Excel copy/paste)
-// ============================================================================
+
+// ============== BLOCK 4: TSV Parser (Tab-separated - from Excel copy/paste) ==============
+
 
 export const parseTSV = (tsvText: string): ImportRow[] => {
   // Convert TSV to CSV format and use CSV parser

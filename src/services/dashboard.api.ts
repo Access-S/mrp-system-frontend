@@ -1,6 +1,6 @@
 // src/services/dashboard.api.ts
 
-// BLOCK 1: Interfaces
+// ============== BLOCK 1: Interfaces ==============
 export interface DashboardKPIs {
   totalOpenOrders: number;
   totalOpenValue: number;
@@ -95,12 +95,11 @@ export interface DashboardResponse {
   };
 }
 
-// BLOCK 2: API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : 'http://localhost:5000/api';
+// ============== BLOCK 2: API Configuration ==============
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
-// BLOCK 3: Fetch Dashboard Data
+// ============== BLOCK 3: Fetch Dashboard Data ==============
+
 // UPDATED: Added timeRange parameter with a default value
 export const fetchDashboardData = async (timeRange: string = 'last_6_months'): Promise<DashboardData> => {
   try {
@@ -124,7 +123,7 @@ export const fetchDashboardData = async (timeRange: string = 'last_6_months'): P
   }
 };
 
-// BLOCK 4: Fetch Quick Stats (Lightweight)
+// ============== BLOCK 4: Fetch Quick Stats (Lightweight) ==============
 export const fetchQuickStats = async (): Promise<DashboardKPIs> => {
   try {
     const response = await fetch(`${API_BASE_URL}/dashboard/quick-stats`);
