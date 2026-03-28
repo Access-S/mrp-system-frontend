@@ -1,18 +1,15 @@
 // src/components/pages/InventoryPage.tsx
 
 // ============== BLOCK 1: Imports ==============
+
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  Typography,
-  Card,
-  Spinner,
-  CardBody,
-  Input,
-  Chip,
-  Button,
-} from "@material-tailwind/react";
-import { MagnifyingGlassIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { Card, CardContent } from "../ui/Card";
+import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
+import { Spinner } from "../ui/Spinner";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useToast } from "../ui/Toast";
+import { MagnifyingGlassIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { getAllSoh } from "../../services/component.service";
 import { getAllProducts } from "../../services/product.service";
 import { getAllForecasts } from "../../services/forecast.service";
@@ -21,14 +18,16 @@ import {
   InventoryProjection,
   exportMrpData,
 } from "../../services/mrp.service";
-import { useToast } from "../ui/Toast";
 
 // ============== BLOCK 2: Constants & Types ==============
+
 const timeHorizon = 6;
-const getHealthColor = (soh: number) =>
-  soh >= 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
+
+const getHealthColor = (soh: number): string =>
+  soh >= 0 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
 
 type PriorityFilter = "All" | "High" | "Medium" | "Low";
+
 const PRIORITY_FILTERS: { value: PriorityFilter; label: string; color: string }[] = [
   { value: "All", label: "All Components", color: "gray" },
   { value: "High", label: "Shortage (High)", color: "red" },
@@ -37,6 +36,7 @@ const PRIORITY_FILTERS: { value: PriorityFilter; label: string; color: string }[
 ];
 
 type SortField = "netHorizonDemand" | "stock" | "coverage";
+
 const SORT_FIELDS: { value: SortField; label: string }[] = [
   { value: "netHorizonDemand", label: "Net Demand" },
   { value: "stock", label: "On Hand" },
@@ -44,6 +44,7 @@ const SORT_FIELDS: { value: SortField; label: string }[] = [
 ];
 
 // ============== BLOCK 3: Main Component ==============
+
 export function InventoryPage() {
   const { theme } = useTheme();
   const { toast } = useToast();
@@ -197,11 +198,11 @@ export function InventoryPage() {
 
   // ============== BLOCK 9: Render ==============
   return (
-    <Card className={`w-full ${theme.cards} shadow-sm`}>
+    <Card variant="bordered" className={`w-full ${theme.cards} shadow-sm`}>
       <div className={`p-4 border-b ${theme.borderColor}`}>
-        <Typography variant="h5" className={theme.text}>
+        <span className={`text-lg font-semibold ${theme.text}`}>
           Inventory Planning Dashboard
-        </Typography>
+        </span>
       </div>
 
       <div className={`p-4 border-b ${theme.borderColor} flex flex-wrap gap-3 items-center`}>
@@ -209,10 +210,10 @@ export function InventoryPage() {
           {PRIORITY_FILTERS.map(({ value, label, color }) => (
             <Button
               key={value}
-              variant={priorityFilter === value ? "filled" : "outlined"}
-              color={priorityFilter === value ? color : "gray"}
+              variant={priorityFilter === value ? "primary" : "ghost"}
               size="sm"
               onClick={() => setPriorityFilter(value)}
+              className={priorityFilter === value ? "" : "text-gray-700 dark:text-gray-300"}
             >
               {label}
             </Button>
@@ -224,9 +225,9 @@ export function InventoryPage() {
         <Button
           onClick={handleExport}
           size="sm"
-          className="flex items-center gap-2"
+          variant="primary"
+          leftIcon={<ArrowDownTrayIcon className="h-4 w-4" />}
         >
-          <ArrowDownTrayIcon className="h-4 w-4" />
           Export Recommendations
         </Button>
       </div>
@@ -234,10 +235,9 @@ export function InventoryPage() {
       <div className={`p-4 border-b ${theme.borderColor}`}>
         <Input
           label="Search by Part Code, Description, or SKU"
-          icon={<MagnifyingGlassIcon className="h-5 w-5" />}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          color={theme.isDark ? "white" : "black"}
+          leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
         />
       </div>
 
@@ -260,10 +260,10 @@ export function InventoryPage() {
       </div>
 
       {/* ============== BLOCK 10: Data Table ============== */}
-      <CardBody className="overflow-x-auto p-0">
+      <CardContent className="overflow-x-auto p-0">
         {loading ? (
           <div className="flex justify-center items-center h-96">
-            <Spinner className="h-12 w-12" />
+            <Spinner size="lg" />
           </div>
         ) : processedProjections.length > 0 ? (
           <table className="w-full min-w-max table-auto text-left">
@@ -274,12 +274,9 @@ export function InventoryPage() {
                     key={head}
                     className={`p-2 border-b-2 ${theme.borderColor} ${theme.tableHeaderBg}`}
                   >
-                    <Typography
-                      variant="small"
-                      className={`font-semibold ${theme.text}`}
-                    >
+                    <span className={`text-sm font-semibold ${theme.text}`}>
                       {head}
-                    </Typography>
+                    </span>
                   </th>
                 ))}
               </tr>
@@ -298,85 +295,64 @@ export function InventoryPage() {
                       <td className="p-2 align-top">
                         <div className="flex flex-col">
                           {skusUsedIn.map((sku) => (
-                            <Typography
-                              key={sku}
-                              variant="small"
-                              className={`${theme.text} opacity-80`}
-                            >
+                            <span key={sku} className={`text-sm ${theme.text} opacity-80`}>
                               {sku}
-                            </Typography>
+                            </span>
                           ))}
                         </div>
                       </td>
                       <td className="p-2 align-top">
-                        <Typography
-                          variant="small"
-                          className={`font-bold ${theme.text}`}
-                        >
+                        <span className={`text-sm font-bold ${theme.text}`}>
                           {component.partCode}
-                        </Typography>
+                        </span>
                       </td>
                       <td className="p-2 align-top">
-                        <Typography variant="small" className={theme.text}>
+                        <span className={`text-sm ${theme.text}`}>
                           {displayDescription}
-                        </Typography>
+                        </span>
                       </td>
                       <td className="p-2 align-top">
-                        <Typography
-                          variant="small"
-                          className={`font-semibold ${theme.text}`}
-                        >
+                        <span className={`text-sm font-semibold ${theme.text}`}>
                           {component.stock.toLocaleString()}
-                        </Typography>
+                        </span>
                       </td>
                       <td className="p-2 align-top">
-                        <Chip
-                          value={netHorizonDemand.toLocaleString()}
-                          color={netHorizonDemand > 0 ? "red" : "green"}
-                          variant="ghost"
-                        />
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            netHorizonDemand > 0
+                              ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                              : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                          }`}
+                        >
+                          {netHorizonDemand.toLocaleString()}
+                        </span>
                       </td>
                       {projections.slice(0, timeHorizon).map((p) => (
-                        <td
-                          key={`${p.week}-demand`}
-                          className="p-2 text-center align-top"
-                        >
-                          <Typography variant="small" className="font-semibold">
-                            {p.totalDemand.toLocaleString()}
-                          </Typography>
+                        <td key={`${p.week}-demand`} className="p-2 text-center align-top">
+                          <span className="text-sm font-semibold">{p.totalDemand.toLocaleString()}</span>
                         </td>
                       ))}
                     </tr>
                     <tr className={`border-b ${theme.borderColor}`}>
-                      <td
-                        className="p-2 font-semibold text-xs text-gray-500"
-                        colSpan={5}
-                      >
+                      <td className="p-2 font-semibold text-xs text-gray-500" colSpan={5}>
                         Coverage %
                       </td>
                       {projections.slice(0, timeHorizon).map((p) => (
-                        <td
-                          key={`${p.week}-coverage`}
-                          className="p-2 text-center"
-                        >
-                          <Typography
-                            variant="small"
-                            className={
+                        <td key={`${p.week}-coverage`} className="p-2 text-center">
+                          <span
+                            className={`text-sm ${
                               p.coveragePercentage < 100
                                 ? "text-red-500 font-semibold"
                                 : "text-green-500"
-                            }
+                            }`}
                           >
                             {p.coveragePercentage.toFixed(0)}%
-                          </Typography>
+                          </span>
                         </td>
                       ))}
                     </tr>
                     <tr className={`border-b-4 ${theme.borderColor}`}>
-                      <td
-                        className="p-2 font-semibold text-xs text-gray-500"
-                        colSpan={5}
-                      >
+                      <td className="p-2 font-semibold text-xs text-gray-500" colSpan={5}>
                         Projected SOH
                       </td>
                       {projections.slice(0, timeHorizon).map((p) => (
@@ -397,12 +373,12 @@ export function InventoryPage() {
           </table>
         ) : (
           <div className="p-8 text-center">
-            <Typography color="gray" className={theme.text}>
+            <span className={`${theme.text} opacity-70`}>
               No inventory projections match your filters.
-            </Typography>
+            </span>
           </div>
         )}
-      </CardBody>
+      </CardContent>
     </Card>
   );
 }
