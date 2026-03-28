@@ -1,0 +1,96 @@
+MRP Frontend – Refactoring & Cleanup Status Report
+Date: 2026-03-28
+Branch: refactor/data-layer-cleanup
+Status: Many critical improvements completed; remaining tasks documented below.
+
+✅ Completed Fixes
+1. Material Tailwind Removal
+Replaced @material-tailwind/react in all components except Sidebar.tsx:
+
+Dialogs: ConfirmationDialog, FormAlert
+
+Forms: CreateProductForm, EditProductForm, CreatePoForm, EditPoForm, DespatchPoForm
+
+Modals: AddBomComponentModal, EditBomComponentModal, BomDetailModal, PoDetailModal
+
+Tabs: BomManagementTab
+
+Pages: InventoryPage, ImportPage, CreatePOPage
+
+All replacements use custom UI components (Button, Dialog, Card, Input, Select, Accordion, etc.) from src/components/ui/.
+
+2. Environment Variable Unification
+Created .env.local with VITE_API_BASE_URL.
+
+Updated all service files to use import.meta.env.VITE_API_BASE_URL:
+
+api.service.ts
+
+dashboard.api.ts
+
+dashboard.service.ts
+
+forecast.service.ts
+
+import.service.ts
+
+Removed hardcoded production and localhost URLs.
+
+3. Console Log Cleanup
+Removed all console.log statements from src/services/*.ts (development logs).
+
+Some console.error and console.warn remain for error reporting.
+
+4. ESLint Error & Warning Fixes
+Fixed empty block in api.service.ts (removed empty if).
+
+Removed unnecessary try/catch wrappers in dashboard.api.ts and forecast.service.ts.
+
+Fixed missing class closing brace in forecast.service.ts.
+
+Memoized pageTitles in App.tsx to prevent unnecessary useEffect re‑runs.
+
+Suppressed exhaustive-deps warning in useFetch with comment (intentional).
+
+Removed unused toast import from DashboardPage.tsx.
+
+Removed unused theme variable from CreateProductForm.tsx and EditProductForm.tsx.
+
+5. Unused Dependencies
+Uninstalled ts-node and rollup-plugin-visualizer.
+
+Removed visualizer import and plugin from vite.config.ts.
+
+🟢 Quick Wins Still Available (1–2 hours)
+Task	Files	Notes
+Add aria-label to icon‑only buttons	src/components/pages/ImportPage.tsx, others	Focus on non‑test files; test page icons will be removed later.
+Add visible focus indicators	All interactive elements	Ensure focus:ring classes are present on all buttons, inputs, etc.
+Run npm run lint -- --fix again	Entire project	Auto‑removes many unused imports/variables.
+Add missing toast dependency in CreatePOPage	src/components/pages/CreatePOPage.tsx	Line ~312 – add toast to useEffect deps.
+Fix ToastContext ref warning	src/components/ui/Toast/ToastContext.tsx	Copy timeoutIdsRef.current to a local variable in the cleanup function.
+Remove unused createPortal from App.tsx	src/App.tsx	Import is unused; delete it.
+🟡 Medium Effort (1–3 hours each)
+Task	Notes
+Replace any types in services	Many services (e.g., api.service.ts, component.service.ts) still have any; define proper types.
+Remove dual export pattern	Unify default vs named exports across all services (pick one convention).
+Add React Query (TanStack Query)	Replace manual useFetch with caching, automatic refetch, and background sync.
+Add code splitting / lazy loading	Use React.lazy() for page components to reduce initial bundle size.
+Fix remaining exhaustive-deps warnings	BarChart.tsx, useFetch (already commented), others.
+Remove console.log in components	ExcelImportModal.tsx, BomDetailModal.tsx, etc. still have development logs.
+🔴 Larger Tasks (Half‑day to days)
+Task	Notes
+Enable TypeScript strict mode	Set "strict": true in tsconfig.json and fix all resulting type errors.
+Complete Material Tailwind removal	Refactor src/components/Sidebar.tsx to use custom UI components, then uninstall @material-tailwind/react.
+Set up testing infrastructure	Vitest + React Testing Library; write unit tests for hooks, services, and components.
+Add CI/CD pipeline	GitHub Actions to run lint, test, build on push/PR.
+Fix WCAG accessibility violations	74 findings – add focus traps, proper form labels, ARIA attributes, etc.
+Replace xlsx dependency	Remove vulnerable package; use a maintained alternative like sheetjs or exceljs.
+Add request cancellation for MRP	Cancel in‑flight MRP calculations when component unmounts.
+Add client‑side data cache	If not using React Query, implement manual caching in services.
+⏸️ Skipped (Per Your Request)
+Authentication & route protection
+
+Removing UITestPage files (kept for now)
+
+📁 Files Still Using Material Tailwind
+src/components/Sidebar.tsx – only remaining file.

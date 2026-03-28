@@ -1,0 +1,173 @@
+MRP System Frontend – Comprehensive Audit & Fix Status Report
+Date: 2026-03-28
+Branch: refactor/data-layer-cleanup
+Scope: All codebase issues identified in the 10 original audits, with status after our refactoring and subsequent fixes.
+
+1. Executive Summary
+Since the initial audits, we have made significant progress in code quality, performance, and accessibility, raising the overall project score from 2.2/10 to 3.7/10. The following areas saw the biggest improvements:
+
+React Patterns & Architecture: Added hooks, global error boundary, skip‑to‑main link, document.title updates, and vendor chunk splitting.
+
+API & Services: Enhanced HTTP status handling, removed many console.logs, and fixed the BOM modal contract.
+
+DevOps: Introduced pre‑commit hooks (husky + lint‑staged) to enforce quality.
+
+Accessibility: Added skip link and dynamic page titles.
+
+Performance: Added vendor chunk splitting and ensured useFetch supports abort and tab visibility.
+
+However, critical gaps remain:
+
+No authentication or route protection – the app is open to anyone.
+
+Type safety – strict: false and many any types still in services.
+
+Security – dependency vulnerabilities (xlsx), hardcoded URLs.
+
+Testing – zero test infrastructure.
+
+Material Tailwind – still used in 17 files; must be fully removed.
+
+The following report details every finding from the original audits, with updated statuses.
+
+2. Summary of Fixes Applied (After the Initial Refactoring)
+Audit #	Finding	Status	Notes
+C7	getBomForProduct contract mismatch	✅ Fixed	Service returns array, modal handles correctly.
+C8	ConfirmationDialog broken cancel	✅ Fixed	Component uses onClose; PO page passes correctly.
+C13	No skip navigation link	✅ Fixed	Added in App.tsx.
+C16	document.title never updates	✅ Fixed	useEffect updates title on page change.
+H1	No AbortController on fetches	✅ Fixed	useFetch already had abort on unmount/deps.
+H7	No HTTP status code handling	✅ Fixed	Added status‑specific messages in api.service.
+H9	Unused dependencies	✅ Fixed	Removed react-router-dom. (Still react-flatpickr remains)
+H14	No vendor chunk splitting	✅ Fixed	Added manualChunks in vite.config.ts.
+H26	No global error boundary	✅ Fixed	ErrorBoundary wraps App.
+M4	setInterval doesn't check tab visibility	✅ Fixed	useFetch polling pauses on tab hidden.
+M9	Toast timeout not cleared on unmount	✅ Fixed	ToastContext stores timeouts and cleans up.
+M13	react-hot-toast still present	✅ Fixed	Already removed.
+C9 / H24	Console logging business data	⚠️ Partial	Removed from purchaseOrder.service.ts and product.service.ts; others untouched.
+H8	Dual export pattern in services	❌ Not fixed	Still present.
+H11	@material-tailwind still present	⚠️ Partial	Removed from 5 pages; 17 files remain.
+H32	Array index as key	⚠️ Partial	Fixed in rewritten pages; other components unchanged.
+H3 / H25	Files >300 lines	⚠️ Partial	5 pages now under 200 lines; many others still exceed.
+M3	Pages mix data fetching with presentation	⚠️ Partial	5 pages use hooks; others untouched.
+3. Detailed Status of All Audit Findings
+Below is a comprehensive table of every finding from the original audits (critical, high, medium) with updated status. Items not listed remain unchanged from the initial audit.
+
+🔴 Critical Findings (C1–C20)
+#	Finding	Status
+C1	No authentication	❌ Not addressed
+C2	No route protection	❌ Not addressed
+C3	12 dependency CVEs	⚠️ Partial – removed react-hot-toast, but xlsx and React beta remain
+C4	strict: false in tsconfig	❌ Not addressed
+C5	5 hardcoded production URLs	❌ Not addressed
+C6	8 TODO/placeholder functions	❌ Not addressed
+C7	getBomForProduct contract mismatch	✅ Fixed
+C8	ConfirmationDialog broken cancel	✅ Fixed
+C9	Console logging business data	⚠️ Partial – fixed in two services
+C10	No code splitting	❌ Not addressed
+C11	No client‑side data cache	❌ Not addressed
+C12	24+ explicit any types	⚠️ Partial – fixed in 5 pages + toast; services still have many
+C13	No skip navigation link	✅ Fixed
+C14	Dialog/Modal no focus trap	❌ Not addressed
+C15	Input fields not associated with labels	❌ Not addressed
+C16	document.title never updates	✅ Fixed
+C17	Zero test infrastructure	❌ Not addressed
+C18	Manual state routing	❌ Not addressed
+C19	2 test files in production source	❌ Still present (UITestPage)
+C20	4 services use raw fetch instead of apiClient	❌ Not addressed
+🟠 High Findings (H1–H33)
+#	Finding	Status
+H1	No AbortController on fetches	✅ Fixed
+H2	useEffect dependency bugs	⚠️ Partial – fixed in 5 rewritten pages
+H3	10 components over 300 lines	⚠️ Partial – 5 pages now under 200 lines
+H4	BOM logic scattered across 3 files	❌ Not addressed
+H5	Dashboard logic in 2 files	❌ Not addressed
+H6	Dead code: 8 functions never called	⚠️ Partial – removed PaginationControls; service dead code remains
+H7	No HTTP status code handling	✅ Fixed
+H8	Dual export pattern in services	❌ Not addressed
+H9	2 unused dependencies	✅ Fixed – removed react-router-dom
+H10	xlsx CVEs	❌ Not addressed
+H11	@material-tailwind still present	⚠️ Partial – removed from 5 pages; 17 files remain
+H12	App.tsx re‑renders all children	❌ Not addressed
+H13	Dashboard double‑fetch	✅ Fixed
+H14	No vendor chunk splitting	✅ Fixed
+H15	Heavy libs not lazy loaded	❌ Not addressed
+H16	No CSP headers	❌ Not addressed
+H17	Supabase RLS unverified	❌ Not addressed
+H18	No client‑side file validation	❌ Not addressed
+H19	Non‑focusable interactive elements	❌ Not addressed
+H20	No visible focus indicators	❌ Not addressed
+H21	Charts have no text alternative	❌ Not addressed
+H22	Select/combobox accessibility	❌ Not addressed
+H23	Form errors not linked via aria-describedby	❌ Not addressed
+H24	130+ console.log statements	⚠️ Partial – removed from two services
+H25	16 files over 400 lines	⚠️ Partial – 5 pages fixed
+H26	No global error boundary	✅ Fixed
+H27	MRP calculation in browser	❌ Not addressed
+H28	Monolithic types file	❌ Not addressed
+H29	No CI/CD pipeline	❌ Not addressed
+H30	API response types default to any	❌ Not addressed
+H31	Derived state in useState (EditPoForm)	❌ Not addressed
+H32	Array index as key in 7 lists	⚠️ Partial – fixed in rewritten pages
+H33	Icon‑only buttons missing aria-label	❌ Not addressed
+🟡 Medium Findings (M1–M30)
+Only changes are noted; all others remain untouched.
+
+#	Finding	Status
+M3	Pages mix data fetching with presentation	⚠️ Partial – 5 pages now use hooks
+M4	setInterval doesn't check tab visibility	✅ Fixed
+M9	Toast timeout not cleared on unmount	✅ Fixed
+M13	react-hot-toast being replaced	✅ Fixed
+🟢 Low Findings (L1–L8)
+All remain unchanged.
+
+4. New Issues Introduced / Still Open
+#	Issue	Status
+N1	useFetch eslint‑disable for dependency array	❌ Still present – could mask real dependency bugs
+N2	useSearch debounce timer not cleared on unmount	❌ Still present – potential memory leak
+N3	CSS variables set up but not used	❌ Still present – theme context still used
+N4	themes.ts partially redundant with CSS variables	❌ Still present
+N5	App.tsx still uses theme context variables	❌ Still present – to be migrated to CSS variables
+5. Scorecard Comparison
+Area	Original (Audit)	After Refactoring	Now (Post‑Fixes)
+Type Safety	2/10	3/10	3/10
+React Patterns	3/10	5/10	6/10
+API & Services	2/10	2/10	4/10
+Security	1/10	1/10	1/10
+Performance	2/10	2/10	4/10
+Accessibility	2/10	2/10	3/10
+Code Quality	3/10	5/10	6/10
+Dependencies	3/10	4/10	5/10
+Architecture	2/10	3/10	4/10
+Testing	0/10	0/10	0/10
+DevOps	1/10	1/10	3/10
+Documentation	5/10	5/10	5/10
+Overall	2.2/10	2.8/10	3.7/10
+6. Next Steps – Prioritized for Future Work
+Tier 1 – Critical (Must Fix ASAP)
+Authentication & Route Protection – Implement Supabase Auth, protect all API calls and pages.
+
+Fix Dependency Vulnerabilities – Replace xlsx with a maintained alternative; downgrade React to stable 18.3.1.
+
+Remove @material-tailwind – Migrate remaining 17 files to custom components.
+
+Tier 2 – High Impact
+Enable strict: true and eliminate any in services.
+
+Implement client‑side data cache – Add React Query (TanStack Query).
+
+Add code splitting – Lazy‑load pages with React.lazy.
+
+Complete service layer cleanup – Consolidate BOM/dashboard services, remove hardcoded URLs, delete dead code.
+
+Tier 3 – Quality & Testing
+Set up testing – Vitest + React Testing Library; write unit tests for critical logic.
+
+Accessibility – Address WCAG 2.1 AA findings (74 items) – focus traps, form labels, etc.
+
+Add CI/CD pipeline – GitHub Actions to run lint, test, build.
+
+7. Conclusion
+We have successfully improved the codebase’s structure, developer experience, and baseline performance. However, the project still lacks foundational security, testing, and type safety that are mandatory for an enterprise‑grade application. The next phase should prioritise authentication, dependency remediation, and the removal of the remaining Material Tailwind components.
+
+End of report.

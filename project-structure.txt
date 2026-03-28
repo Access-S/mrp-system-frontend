@@ -3,7 +3,7 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-15 12:01:46                  |
+|          Generated: 2026-03-28 12:34:10                  |
 |                                                          |
 +----------------------------------------------------------+
 
@@ -37,7 +37,9 @@
   │   │   └── summary/
   │   │       ├── [MD]   AUDIT_EXECUTIVE_SUMMARY.md
   │   │       ├── [MD]   ENTERPRISE_CODEBASE_AUDIT_CROSSCHECK.md
-  │   │       └──        Post-Refactoring Audit Status Report
+  │   │       ├──        Post-Refactoring Audit Status Report_Version1
+  │   │       ├──        Post-Refactoring Audit Status Report_Version2
+  │   │       └──        Post-Refactoring Audit Status Report_Version3
   │   ├── diagrams/
   │   │   ├── [MD]   app-flow.md
   │   │   └── [MD]   architecture.md
@@ -51,6 +53,26 @@
   │   └── [MD]   README.md
   ├── .github/
   │   └── [MD]   PULL_REQUEST_TEMPLATE.md
+  ├── .husky/
+  │   ├── _/
+  │   │   ├──        applypatch-msg
+  │   │   ├──        commit-msg
+  │   │   ├──        .gitignore
+  │   │   ├──        h
+  │   │   ├── [SH]   husky.sh
+  │   │   ├──        post-applypatch
+  │   │   ├──        post-checkout
+  │   │   ├──        post-commit
+  │   │   ├──        post-merge
+  │   │   ├──        post-rewrite
+  │   │   ├──        pre-applypatch
+  │   │   ├──        pre-auto-gc
+  │   │   ├──        pre-commit
+  │   │   ├──        pre-merge-commit
+  │   │   ├──        prepare-commit-msg
+  │   │   ├──        pre-push
+  │   │   └──        pre-rebase
+  │   └──        pre-commit
   ├── public/
   │   └── [IMG]  vite.svg
   ├── src/
@@ -210,6 +232,7 @@
   │   │   │   │   ├── [TS]   index.ts
   │   │   │   │   └── [TS]   WidgetCard.tsx
   │   │   │   └── [TS]   index.ts
+  │   │   ├── [TS]   ErrorBoundary.tsx
   │   │   └── [TS]   Sidebar.tsx
   │   ├── contexts/
   │   │   └── [TS]   ThemeContext.tsx
@@ -262,5 +285,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 64   | Files: 187  | Total: 251      |
+|  SUMMARY:  Folders: 66   | Files: 208  | Total: 274      |
 +----------------------------------------------------------+
