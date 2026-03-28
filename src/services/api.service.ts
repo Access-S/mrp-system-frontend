@@ -2,13 +2,13 @@
 import { PurchaseOrder } from '../types/mrp.types';
 
 // ============== BLOCK 2: Enhanced Interfaces ==============
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T> { ... }
   success: boolean;
   data: T;
   message?: string;
 }
 
-export interface PaginatedApiResponse<T = any> {
+export interface PaginatedApiResponse<T> { ... }
   success: boolean;
   data: T[];
   pagination: {
@@ -63,50 +63,76 @@ class ApiClient {
     }
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    
-    const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      ...options,
-    };
+private async request<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const url = `${this.baseURL}${endpoint}`;
 
-    try {
-      const response = await fetch(url, config);
-      
-      if (!response.ok) {
-        let errorData: any = null;
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        
-        try {
-          errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          // If error response isn't JSON, use status text
-        }
-        
-        // Create an error with status code for better handling
-        const error = new Error(errorMessage);
-        (error as any).status = response.status;
-        (error as any).data = errorData;
-        throw error;
+  const config: RequestInit = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  try {
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      let errorMessage: string;
+      let errorDetails: string | undefined;
+
+      // Try to get error message from response body
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || `HTTP ${response.status}: ${response.statusText}`;
+        errorDetails = errorData.details;
+      } catch {
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
       }
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
+      // Map status codes to user-friendly messages
+      let userMessage: string;
+      switch (response.status) {
+        case 400:
+          userMessage = 'Bad request. Please check your input.';
+          break;
+        case 401:
+          userMessage = 'You are not authenticated. Please log in.';
+          // Optionally trigger redirect to login page
+          // window.location.href = '/login';
+          break;
+        case 403:
+          userMessage = 'You do not have permission to perform this action.';
+          break;
+        case 404:
+          userMessage = 'The requested resource was not found.';
+          break;
+        case 500:
+          userMessage = 'A server error occurred. Please try again later.';
+          break;
+        default:
+          userMessage = errorMessage;
       }
-      throw new Error('Network error occurred');
+
+      // Throw an enhanced error with status and original message
+      const error = new Error(userMessage) as Error & { status: number; originalMessage?: string };
+      (error as any).status = response.status;
+      (error as any).originalMessage = errorMessage;
+      throw error;
     }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Network error occurred');
   }
+}
 
   async get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'GET' });
