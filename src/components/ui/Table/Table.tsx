@@ -19,9 +19,7 @@ interface TableProps extends HTMLAttributes<HTMLTableElement> {
   stickyHeader?: boolean;
 }
 
-interface TableHeaderProps extends HTMLAttributes<HTMLTableSectionElement> {}
-
-interface TableBodyProps extends HTMLAttributes<HTMLTableSectionElement> {}
+// Removed TableHeaderProps and TableBodyProps (use HTMLAttributes<HTMLTableSectionElement> directly)
 
 interface TableRowProps extends HTMLAttributes<HTMLTableRowElement> {
   isSelected?: boolean;
@@ -33,7 +31,7 @@ interface TableHeadProps extends ThHTMLAttributes<HTMLTableCellElement> {
   onSort?: () => void;
 }
 
-interface TableCellProps extends TdHTMLAttributes<HTMLTableCellElement> {}
+// Removed TableCellProps (use TdHTMLAttributes<HTMLTableCellElement> directly)
 
 // ============== BLOCK 3: Size Styles ==============
 
@@ -83,7 +81,7 @@ const TableRoot: React.FC<TableProps> = ({
 
 // ============== BLOCK 5: Table Header Component ==============
 
-const TableHeader: React.FC<TableHeaderProps> = ({
+const TableHeader: React.FC<HTMLAttributes<HTMLTableSectionElement>> = ({
   children,
   className,
   ...props
@@ -107,7 +105,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
 
 // ============== BLOCK 6: Table Body Component ==============
 
-const TableBody: React.FC<TableBodyProps> = ({
+const TableBody: React.FC<HTMLAttributes<HTMLTableSectionElement>> = ({
   children,
   className,
   ...props
@@ -202,7 +200,7 @@ const TableHead: React.FC<TableHeadProps> = ({
 
 // ============== BLOCK 9: Table Cell Component ==============
 
-const TableCell: React.FC<TableCellProps> = ({
+const TableCell: React.FC<TdHTMLAttributes<HTMLTableCellElement>> = ({
   children,
   className,
   ...props
