@@ -309,7 +309,7 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
       }
     };
     loadProducts();
-  }, []);
+}, [toast]);
 
   // BLOCK 10: Live Calculations
   const calculations = useMemo(() => {

@@ -81,7 +81,7 @@ export function InventoryPage() {
       }
     };
     fetchDataAndCalculate();
-  }, []);
+  }, [toast]);
 
   // ============== BLOCK 6: Filtering & Sorting ==============
   const processedProjections = useMemo(() => {
