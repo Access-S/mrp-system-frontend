@@ -11,9 +11,7 @@ import {
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { EmptyState } from "../ui/EmptyState";
-import { useToast } from "../ui/Toast";
 import { Skeleton } from "../ui/Skeleton";
-
 import {
   KPICard,
   DashboardSkeleton,
@@ -42,7 +40,6 @@ const POLLING_INTERVAL = 5 * 60 * 1000; // 5 minutes
 // ============== BLOCK 3: Component ==============
 
 export function DashboardPage() {
-  const { toast } = useToast();
   const [selectedTimeRange, setSelectedTimeRange] = useState("this_month");
 
   // KPI data — re-fetches when time range changes + polls every 5 min
