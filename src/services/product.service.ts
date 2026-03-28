@@ -1,5 +1,3 @@
-// src/services/product.service.ts
-
 // ============== BLOCK 1: Imports ==============
 import { apiClient, handleApiError, ApiResponse } from "./api.service";
 import { Product, BomComponent } from "../types/mrp.types";
@@ -41,7 +39,6 @@ class ProductService {
 
       throw new Error('Failed to fetch products');
     } catch (error) {
-      console.error('❌ Error fetching products:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -65,7 +62,6 @@ class ProductService {
 
       return null;
     } catch (error) {
-      console.error('❌ Error fetching product by code:', error);
       if (error instanceof Error && error.message.includes('404')) {
         return null;
       }
@@ -92,7 +88,6 @@ class ProductService {
 
       return [];
     } catch (error) {
-      console.error('❌ Error fetching BOM components:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -112,7 +107,6 @@ class ProductService {
 
       throw new Error('Failed to create product');
     } catch (error) {
-      console.error('❌ Error creating product:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -133,7 +127,6 @@ class ProductService {
 
       throw new Error('Failed to update product');
     } catch (error) {
-      console.error('❌ Error updating product:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -153,7 +146,6 @@ class ProductService {
 
       throw new Error('Failed to delete product');
     } catch (error) {
-      console.error('❌ Error deleting product:', error);
       throw new Error(handleApiError(error));
     }
   }
