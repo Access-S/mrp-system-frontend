@@ -16,8 +16,8 @@ import { SohPage } from "./components/pages/SohPage";
 import { InventoryPage } from "./components/pages/InventoryPage";
 import { ImportPage } from "./components/pages/ImportPage";
 import { UITestPage, UITestPage2 } from "./components/pages/testing";
-import { createPortal } from "react-dom";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { useMemo } from 'react';
 
 // ============== BLOCK 2: Types ==============
 
@@ -48,7 +48,7 @@ function AppLayout() {
     setActivePage(newPage);
   };
 
-  const pageTitles: Record<Page, string> = {
+  const pageTitles = useMemo<Record<Page, string>>(() => ({
     dashboard: "Dashboard",
     products: "Products (BOM)",
     "product-detail": "",
@@ -62,7 +62,7 @@ function AppLayout() {
     reporting: "Reporting",
     "ui-test": "UI Components Test",
     "ui-test-2": "UI Components Test - Page 2",
-  };
+  }), []);
 
   const handleViewProduct = (productCode: string, description?: string) => {
     setSelectedProductCode(productCode);
