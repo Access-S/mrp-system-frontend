@@ -2,9 +2,8 @@
 
 // BLOCK 1: Imports
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import {
-  Card, Typography, Input, Button,
-} from "@material-tailwind/react";
+import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
 import {
   MagnifyingGlassIcon,
   CalculatorIcon,
@@ -402,7 +401,7 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
         <div className="lg:col-span-2 space-y-6">
 
           {/* Section 1: Order Information */}
-          <Card className={`${theme.cards} shadow-sm p-6`}>
+          <Card variant="bordered" className={`${theme.cards} shadow-sm p-6`}>
             <SectionHeader
               icon={<DocumentTextIcon className="h-5 w-5" />}
               title="Order Information"
@@ -449,7 +448,7 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
           </Card>
 
           {/* Section 2: Product Selection */}
-          <Card className={`${theme.cards} shadow-sm p-6`}>
+          <Card variant="bordered" className={`${theme.cards} shadow-sm p-6`}>
             <SectionHeader
               icon={<MagnifyingGlassIcon className="h-5 w-5" />}
               title="Product Selection"
@@ -488,7 +487,7 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
           </Card>
 
           {/* Section 3: Quantities & Amount */}
-          <Card className={`${theme.cards} shadow-sm p-6`}>
+          <Card variant="bordered" className={`${theme.cards} shadow-sm p-6`}>
             <SectionHeader
               icon={<CalculatorIcon className="h-5 w-5" />}
               title="Quantities & Amount"
@@ -531,19 +530,18 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-4 pt-2">
             <Button
-              variant="text"
-              color="red"
+              variant="ghost"
               onClick={onBack}
               disabled={isSubmitting}
-              className="px-8"
+              className="px-8 text-red-500 hover:text-red-600"
             >
               Cancel
             </Button>
             <Button
-              color="green"
+              variant="primary"
               onClick={handleSubmit}
               loading={isSubmitting}
-              className="px-8"
+              className="px-8 bg-green-600 hover:bg-green-700 text-white"
             >
               Submit Purchase Order
             </Button>
@@ -553,7 +551,7 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
         {/* RIGHT COLUMN — Live Calculations (1/3 width) */}
         <div className="lg:col-span-1">
           <div className="sticky top-6">
-            <Card className={`${theme.cards} shadow-sm p-6`}>
+            <Card variant="bordered" className={`${theme.cards} shadow-sm p-6`}>
               <SectionHeader
                 icon={<CalculatorIcon className="h-5 w-5" />}
                 title="Live Calculations"
@@ -630,7 +628,7 @@ export function CreatePoPage({ onBack, onPoCreated }: CreatePoPageProps) {
 
             {/* Product Info Card */}
             {selectedProduct && (
-              <Card className={`${theme.cards} shadow-sm p-6 mt-6`}>
+              <Card variant="bordered" className={`${theme.cards} shadow-sm p-6 mt-6`}>
                 <h4 className={`text-sm font-bold mb-3 ${theme.isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                   Selected Product
                 </h4>
