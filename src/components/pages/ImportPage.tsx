@@ -1,11 +1,13 @@
 // src/components/pages/ImportPage.tsx
 
 // ============================================================================
-// BLOCK 1: Imports (at top of file, before types)
+// BLOCK 1: Imports
 // ============================================================================
 import React, { useState, useCallback } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Card, Button, Typography, Spinner } from '@material-tailwind/react';
+import { Card, CardContent } from '../ui/Card';
+import { Button } from '../ui/Button';
+import { Spinner } from '../ui/Spinner';
 import {
   CloudArrowUpIcon,
   DocumentTextIcon,
@@ -27,12 +29,12 @@ import {
 import { useToast } from '../ui/Toast';
 
 // ============================================================================
-// BLOCK 1.5: Types
+// BLOCK 2: Types
 // ============================================================================
 type ImportStep = 'upload' | 'preview' | 'validating' | 'validated' | 'importing' | 'complete';
 
 // ============================================================================
-// BLOCK 2: Main Component
+// BLOCK 3: Main Component
 // ============================================================================
 export function ImportPage() {
   const { theme } = useTheme();
@@ -48,7 +50,7 @@ export function ImportPage() {
   const [dragActive, setDragActive] = useState(false);
 
   // ============================================================================
-  // BLOCK 3: File Handling
+  // BLOCK 4: File Handling
   // ============================================================================
   const handleFile = useCallback((file: File) => {
     setError(null);
@@ -123,7 +125,7 @@ export function ImportPage() {
   }, [toast]);
 
   // ============================================================================
-  // BLOCK 4: Validation & Import
+  // BLOCK 5: Validation & Import
   // ============================================================================
   const handleValidate = async () => {
     setStep('validating');
@@ -179,7 +181,7 @@ export function ImportPage() {
   };
   
   // ============================================================================
-  // BLOCK 5: Render Upload Step
+  // BLOCK 6: Render Upload Step
   // ============================================================================
   const renderUploadStep = () => (
     <div className="space-y-6">
@@ -230,7 +232,7 @@ export function ImportPage() {
       </div>
 
       {/* Template Info */}
-      <Card className={`${theme.cards} p-6`}>
+      <Card variant="bordered" className={`${theme.cards} p-6`}>
         <div className="flex items-start gap-4">
           <DocumentTextIcon className={`h-8 w-8 flex-shrink-0 ${theme.isDark ? 'text-blue-400' : 'text-blue-600'}`} />
           <div>
@@ -264,12 +266,12 @@ export function ImportPage() {
   );
 
   // ============================================================================
-  // BLOCK 6: Render Preview Step
+  // BLOCK 7: Render Preview Step
   // ============================================================================
   const renderPreviewStep = () => (
     <div className="space-y-6">
       {/* Summary */}
-      <Card className={`${theme.cards} p-6`}>
+      <Card variant="bordered" className={`${theme.cards} p-6`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <DocumentTextIcon className={`h-8 w-8 ${theme.isDark ? 'text-blue-400' : 'text-blue-600'}`} />
@@ -283,10 +285,10 @@ export function ImportPage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button variant="outlined" color="gray" onClick={handleReset}>
+            <Button variant="ghost" onClick={handleReset}>
               Cancel
             </Button>
-            <Button color="blue" onClick={handleValidate}>
+            <Button variant="primary" onClick={handleValidate} className="bg-blue-600 hover:bg-blue-700 text-white">
               Validate Data
             </Button>
           </div>
@@ -294,7 +296,7 @@ export function ImportPage() {
       </Card>
 
       {/* Data Table Preview */}
-      <Card className={`${theme.cards} overflow-hidden`}>
+      <Card variant="bordered" className={`${theme.cards} overflow-hidden`}>
         <div className="overflow-x-auto max-h-96">
           <table className="w-full text-sm">
             <thead className={`sticky top-0 ${theme.isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
@@ -336,13 +338,13 @@ export function ImportPage() {
   );
 
   // ============================================================================
-  // BLOCK 7: Render Validation Step
+  // BLOCK 8: Render Validation Step
   // ============================================================================
   const renderValidatedStep = () => (
     <div className="space-y-6">
       {/* Validation Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className={`${theme.cards} p-6`}>
+        <Card variant="bordered" className={`${theme.cards} p-6`}>
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
               <DocumentTextIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -356,7 +358,7 @@ export function ImportPage() {
           </div>
         </Card>
 
-        <Card className={`${theme.cards} p-6`}>
+        <Card variant="bordered" className={`${theme.cards} p-6`}>
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/30">
               <CheckCircleIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -370,7 +372,7 @@ export function ImportPage() {
           </div>
         </Card>
 
-        <Card className={`${theme.cards} p-6`}>
+        <Card variant="bordered" className={`${theme.cards} p-6`}>
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-lg bg-red-100 dark:bg-red-900/30">
               <XCircleIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -387,7 +389,7 @@ export function ImportPage() {
 
       {/* Missing Products Warning */}
       {validation?.missingProducts && validation.missingProducts.length > 0 && (
-        <Card className={`p-6 border-l-4 border-yellow-500 ${theme.isDark ? 'bg-yellow-900/20' : 'bg-yellow-50'}`}>
+        <Card variant="bordered" className={`p-6 border-l-4 border-yellow-500 ${theme.isDark ? 'bg-yellow-900/20' : 'bg-yellow-50'}`}>
           <div className="flex items-start gap-3">
             <ExclamationTriangleIcon className="h-6 w-6 text-yellow-500 flex-shrink-0" />
             <div>
@@ -411,7 +413,7 @@ export function ImportPage() {
 
       {/* Error Details */}
       {validation?.errors && validation.errors.length > 0 && (
-        <Card className={`${theme.cards} overflow-hidden`}>
+        <Card variant="bordered" className={`${theme.cards} overflow-hidden`}>
           <div className={`px-6 py-4 border-b ${theme.isDark ? 'border-slate-700' : 'border-slate-200'}`}>
             <h4 className={`font-semibold ${theme.isDark ? 'text-slate-200' : 'text-slate-700'}`}>
               Error Details
@@ -442,13 +444,14 @@ export function ImportPage() {
 
       {/* Actions */}
       <div className="flex justify-end gap-3">
-        <Button variant="outlined" color="gray" onClick={handleReset}>
+        <Button variant="ghost" onClick={handleReset}>
           Cancel
         </Button>
         <Button 
-          color="green" 
+          variant="primary"
           onClick={handleImport}
           disabled={validation?.validRows === 0}
+          className={`bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           Import {validation?.validRows || 0} Valid Rows
         </Button>
@@ -457,11 +460,11 @@ export function ImportPage() {
   );
 
   // ============================================================================
-  // BLOCK 8: Render Complete Step
+  // BLOCK 9: Render Complete Step
   // ============================================================================
   const renderCompleteStep = () => (
     <div className="space-y-6">
-      <Card className={`${theme.cards} p-8 text-center`}>
+      <Card variant="bordered" className={`${theme.cards} p-8 text-center`}>
         <CheckCircleIcon className="h-16 w-16 mx-auto mb-4 text-green-500" />
         <h2 className={`text-2xl font-bold mb-2 ${theme.isDark ? 'text-slate-200' : 'text-slate-800'}`}>
           Import Complete!
@@ -486,11 +489,10 @@ export function ImportPage() {
         </div>
 
         <div className="flex justify-center gap-3">
-          <Button variant="outlined" color="blue" onClick={handleReset}>
-            <ArrowPathIcon className="h-4 w-4 mr-2" />
+          <Button variant="ghost" onClick={handleReset} leftIcon={<ArrowPathIcon className="h-4 w-4" />}>
             Import More
           </Button>
-          <Button color="green" onClick={() => window.location.href = '/purchase-orders'}>
+          <Button variant="primary" onClick={() => window.location.href = '/purchase-orders'} className="bg-green-600 hover:bg-green-700 text-white">
             View Purchase Orders
           </Button>
         </div>
@@ -498,7 +500,7 @@ export function ImportPage() {
 
       {/* Failed Rows */}
       {importResult?.errors && importResult.errors.length > 0 && (
-        <Card className={`${theme.cards} overflow-hidden`}>
+        <Card variant="bordered" className={`${theme.cards} overflow-hidden`}>
           <div className={`px-6 py-4 border-b ${theme.isDark ? 'border-slate-700' : 'border-slate-200'}`}>
             <h4 className={`font-semibold text-red-500`}>
               Failed Rows ({importResult.errors.length})
@@ -530,17 +532,17 @@ export function ImportPage() {
   );
 
   // ============================================================================
-  // BLOCK 9: Render Loading States
+  // BLOCK 10: Render Loading States
   // ============================================================================
   const renderLoadingState = (message: string) => (
-    <Card className={`${theme.cards} p-12 text-center`}>
-      <Spinner className="h-12 w-12 mx-auto mb-4" />
+    <Card variant="bordered" className={`${theme.cards} p-12 text-center`}>
+      <Spinner size="lg" className="mx-auto mb-4" />
       <p className={`text-lg ${theme.isDark ? 'text-slate-300' : 'text-slate-600'}`}>{message}</p>
     </Card>
   );
 
   // ============================================================================
-  // BLOCK 10: Main Render
+  // BLOCK 11: Main Render
   // ============================================================================
   return (
     <div className="max-w-5xl mx-auto">
@@ -592,7 +594,7 @@ export function ImportPage() {
 
       {/* Error Display */}
       {error && (
-        <Card className={`mb-6 p-4 border-l-4 border-red-500 ${theme.isDark ? 'bg-red-900/20' : 'bg-red-50'}`}>
+        <Card variant="bordered" className={`mb-6 p-4 border-l-4 border-red-500 ${theme.isDark ? 'bg-red-900/20' : 'bg-red-50'}`}>
           <div className="flex items-center gap-3">
             <XCircleIcon className="h-6 w-6 text-red-500" />
             <p className="text-red-500">{error}</p>
