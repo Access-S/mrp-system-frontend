@@ -76,7 +76,7 @@ function AppLayout() {
     handlePageChange("products");
   };
 
-    // ============== BLOCK 3.5: Update document title ==============
+  // ============== BLOCK 3.5: Update document title ==============
 
   useEffect(() => {
     let title: string;
@@ -157,6 +157,14 @@ function AppLayout() {
 
   return (
     <div className={`flex h-screen ${theme.background} transition-all duration-500`}>
+      {/* Skip to main content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Skip to main content
+      </a>
+
       <Sidebar activePage={activePage} setActivePage={handlePageChange} />
 
       <div className="flex-1 flex flex-col min-w-0">
@@ -166,7 +174,7 @@ function AppLayout() {
           {renderNavbarContent()}
         </div>
 
-        <main className="flex-1 p-4 md:p-8 overflow-auto">
+        <main id="main-content" className="flex-1 p-4 md:p-8 overflow-auto" tabIndex={-1}>
           {activePage === "dashboard" && <DashboardPage />}
           {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
           {activePage === "product-detail" && selectedProductCode && (
