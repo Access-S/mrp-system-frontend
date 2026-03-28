@@ -1,5 +1,3 @@
-//src/services/purchaseOrder.service.ts
-
 // BLOCK 1: Imports
 import {
   apiClient,
@@ -31,11 +29,10 @@ class PurchaseOrderService {
 
       // TODO: Implement this with backend API
       // For now, return false to allow creation
-      console.log(`Checking PO number ${poNumber} - temporarily returning false`);
       return false;
     } catch (error) {
-      console.error('Error checking PO number:', error);
-      return true; // Return true to be safe
+      // Return true to be safe
+      return true;
     }
   }
 
@@ -63,13 +60,11 @@ class PurchaseOrderService {
       const response: ApiResponse<PurchaseOrder> = await apiCreatePo(poData);
       
       if (response.success && response.data) {
-        console.log(`✅ PO created with ID: ${response.data.id}`);
         return response.data.id;
       }
       
       throw new Error('Failed to create purchase order');
     } catch (error) {
-      console.error('❌ Error creating PO:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -90,13 +85,11 @@ class PurchaseOrderService {
       const response = await apiFetchPurchaseOrders(options);
       
       if (response.success) {
-        console.log(`✅ Fetched ${response.data.length} purchase orders`);
         return response;
       }
       
       throw new Error('Failed to fetch purchase orders');
     } catch (error) {
-      console.error('❌ Error fetching purchase orders:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -111,13 +104,11 @@ class PurchaseOrderService {
       const response: ApiResponse<PurchaseOrder> = await apiFetchPoById(poId);
       
       if (response.success && response.data) {
-        console.log(`✅ Fetched PO: ${response.data.poNumber}`);
         return response.data;
       }
       
       return null;
     } catch (error) {
-      console.error('❌ Error fetching PO by ID:', error);
       if (error instanceof Error && error.message.includes('not found')) {
         return null;
       }
@@ -136,13 +127,11 @@ class PurchaseOrderService {
       const response: ApiResponse<{ statuses: string[] }> = await apiUpdateStatus(poId, newStatus);
       
       if (response.success && response.data) {
-        console.log(`✅ Updated PO status: ${response.data.statuses.join(', ')}`);
         return response.data.statuses;
       }
       
       throw new Error('Failed to update PO status');
     } catch (error) {
-      console.error('❌ Error updating PO status:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -173,9 +162,7 @@ class PurchaseOrderService {
 
       // Update status to Open using the backend API
       await this.updatePoStatus(po.id, 'Open');
-      console.log(`✅ PO Check resolved for PO: ${po.poNumber}`);
     } catch (error) {
-      console.error('❌ Error resolving PO check:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -191,13 +178,9 @@ class PurchaseOrderService {
     try {
       // TODO: Implement this with backend API
       // For now, just update status to Completed
-      console.log(`Dispatching PO ${poId} - temporarily skipping delivery details`);
-      
       // Update status to Completed
       await this.updatePoStatus(poId, 'Completed');
-      console.log(`✅ PO dispatched: ${poId}`);
     } catch (error) {
-      console.error('❌ Error dispatching PO:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -238,20 +221,18 @@ class PurchaseOrderService {
 
         // If there's a significant difference, the status should be "PO Check"
         if (amountDifference > 5) {
-          console.warn(`Amount mismatch detected: $${amountDifference.toFixed(2)}`);
+          // Logging removed; we can later add a proper logging service if needed.
         }
       }
 
       const response: ApiResponse<PurchaseOrder> = await apiUpdatePo(poId, newData);
       
       if (response.success && response.data) {
-        console.log(`✅ PO updated: ${response.data.poNumber}`);
         return response.data;
       }
       
       throw new Error('Failed to update purchase order');
     } catch (error) {
-      console.error('❌ Error updating PO:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -265,13 +246,8 @@ class PurchaseOrderService {
     try {
       // TODO: Implement this with backend API
       // For now, just update status to Open
-      console.log(`Reopening PO ${poId} - temporarily skipping delivery details`);
-      
-      // Update status to Open
       await this.updatePoStatus(poId, 'Open');
-      console.log(`✅ PO reopened: ${poId}`);
     } catch (error) {
-      console.error('❌ Error reopening PO:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -286,13 +262,11 @@ class PurchaseOrderService {
       const response: ApiResponse<void> = await apiDeletePo(poId);
       
       if (response.success) {
-        console.log(`✅ PO deleted: ${poId}`);
         return;
       }
       
       throw new Error('Failed to delete purchase order');
     } catch (error) {
-      console.error('❌ Error deleting PO:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -306,10 +280,8 @@ class PurchaseOrderService {
     try {
       // TODO: Implement this with backend API
       // For now, return 0
-      console.log('Getting total PO count - temporarily returning 0');
       return 0;
     } catch (error) {
-      console.error('❌ Error getting PO count:', error);
       return 0;
     }
   }
@@ -331,10 +303,8 @@ class PurchaseOrderService {
     try {
       // TODO: Implement this with backend API
       // For now, return empty array
-      console.log('Getting filtered POs - temporarily returning empty array');
       return [];
     } catch (error) {
-      console.error('❌ Error filtering POs:', error);
       throw new Error(handleApiError(error));
     }
   }
@@ -459,7 +429,6 @@ export const getPurchaseOrdersPaginated = async (
 
     throw new Error('Failed to fetch paginated purchase orders');
   } catch (error) {
-    console.error('❌ Error in getPurchaseOrdersPaginated:', error);
     return {
       purchaseOrders: [],
       pagination: {
