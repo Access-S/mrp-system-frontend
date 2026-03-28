@@ -133,7 +133,7 @@ export function useFetch<T>(
       prevDepsRef.current = deps;
       execute();
     }
-  }, [execute, enabled]); // No spread of deps, no eslint-disable needed
+  }, [execute, enabled]); 
 
   // ============== BLOCK 6: Polling with Tab Visibility ==============
 
