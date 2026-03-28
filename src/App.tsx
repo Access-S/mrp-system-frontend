@@ -2,7 +2,7 @@
 
 // ============== BLOCK 1: Imports ==============
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { ToastProvider, ToastContainer } from "./components/ui/Toast";
 import { Sidebar } from "./components/Sidebar";
@@ -75,6 +75,22 @@ function AppLayout() {
     setSelectedProductDescription(null);
     handlePageChange("products");
   };
+
+    // ============== BLOCK 3.5: Update document title ==============
+
+  useEffect(() => {
+    let title: string;
+
+    if (activePage === "product-detail" && selectedProductCode) {
+      title = `Product: ${selectedProductDescription || selectedProductCode}`;
+    } else if (activePage === "create-po") {
+      title = "Create New Purchase Order";
+    } else {
+      title = pageTitles[activePage] || "MRP System";
+    }
+
+    document.title = `${title} | MRP System`;
+  }, [activePage, selectedProductCode, selectedProductDescription, pageTitles]);
 
   // ============== BLOCK 4: Navbar Content Renderer ==============
 
