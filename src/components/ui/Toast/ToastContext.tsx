@@ -1,8 +1,6 @@
-// src/components/ui/Toast/ToastContext.tsx
-
 // ============== BLOCK 1: Imports ==============
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
 
 // ============== BLOCK 2: Types ==============
 
@@ -43,8 +41,17 @@ export const ToastProvider: React.FC<{
 }> = ({ children, defaultPosition = "top-right" }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [position, setPosition] = useState<ToastPosition>(defaultPosition);
+  
+  // Store timeout IDs for each toast to clear on removal
+  const timeoutIdsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const removeToast = useCallback((id: string) => {
+    // Clear the timeout for this toast if it exists
+    const timeoutId = timeoutIdsRef.current.get(id);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutIdsRef.current.delete(id);
+    }
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
@@ -54,11 +61,12 @@ export const ToastProvider: React.FC<{
 
       setToasts((prev) => [...prev, { id, message, variant, duration }]);
 
-      // Auto-remove after duration (0 = persistent, used for loading toasts)
+      // Auto-remove after duration (0 = persistent)
       if (duration > 0) {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
           removeToast(id);
         }, duration);
+        timeoutIdsRef.current.set(id, timeoutId);
       }
 
       return id;
@@ -68,21 +76,38 @@ export const ToastProvider: React.FC<{
 
   const updateToast = useCallback(
     (id: string, message: string, variant: ToastVariant, duration: number = 5000) => {
+      // Clear previous timeout if exists
+      const prevTimeoutId = timeoutIdsRef.current.get(id);
+      if (prevTimeoutId) {
+        clearTimeout(prevTimeoutId);
+        timeoutIdsRef.current.delete(id);
+      }
+
       setToasts((prev) =>
         prev.map((toast) =>
           toast.id === id ? { ...toast, message, variant, duration } : toast
         )
       );
 
-      // Auto-remove updated toast after duration
+      // Set new timeout for the updated toast
       if (duration > 0) {
-        setTimeout(() => {
+        const newTimeoutId = setTimeout(() => {
           removeToast(id);
         }, duration);
+        timeoutIdsRef.current.set(id, newTimeoutId);
       }
     },
     [removeToast]
   );
+
+  // Cleanup all timeouts when provider unmounts
+  useEffect(() => {
+    return () => {
+      for (const timeoutId of timeoutIdsRef.current.values()) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []);
 
   return (
     <ToastContext.Provider
