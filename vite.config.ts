@@ -22,4 +22,27 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core React and React DOM
+          'vendor-react': ['react', 'react-dom'],
+          // UI libraries and utilities
+          'vendor-ui': [
+            '@floating-ui/react',
+            '@heroicons/react',
+            'clsx',
+            'use-debounce',
+          ],
+          // Charting libraries
+          'vendor-charts': ['apexcharts', 'react-apexcharts'],
+          // Supabase
+          'vendor-supabase': ['@supabase/supabase-js'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
 })
