@@ -22,8 +22,6 @@
     "react": "^19.0.0",
     "react-apexcharts": "^2.0.1",
     "react-dom": "^19.0.0",
-    "react-flatpickr": "^4.0.11",
-    "react-router-dom": "^7.11.0",
     "use-debounce": "^10.0.5",
     "xlsx": "^0.18.5"
   },
@@ -31,7 +29,6 @@
     "@types/file-saver": "^2.0.7",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "@types/react-flatpickr": "^3.8.11",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
     "@vitejs/plugin-react": "^4.3.4",
