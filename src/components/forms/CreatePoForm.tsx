@@ -1,27 +1,30 @@
-//src/components/forms/CreatePoForm.tsx
+// src/components/forms/CreatePoForm.tsx
 
-// BLOCK 1: Imports
+// ============== BLOCK 1: Imports ==============
+
 import React, { useState } from "react";
-import {
-  Button, Dialog, DialogHeader, DialogBody, DialogFooter,
-  Input, Typography,
-} from "@material-tailwind/react";
+import { Dialog } from "../ui/Dialog";
+import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
+import { FormAlert } from "../dialogs/FormAlert";
 import { createPo } from "../../services/api.service";
-import { FormAlert } from "../dialogs/FormAlert"; // <-- Import our new component
 
-// BLOCK 2: Interface and Component Definition
+// ============== BLOCK 2: Types ==============
+
 interface CreatePoFormProps {
   open: boolean;
   handleOpen: () => void;
   onPoCreated: () => void;
 }
 
+// ============== BLOCK 3: Component ==============
+
 export function CreatePoForm({
   open,
   handleOpen,
   onPoCreated,
 }: CreatePoFormProps) {
-  // BLOCK 3: State Management
+  // ============== BLOCK 4: State Management ==============
   const [poNumber, setPoNumber] = useState("");
   const [productCode, setProductCode] = useState("");
   const [customerName, setCustomerName] = useState("");
@@ -30,9 +33,9 @@ export function CreatePoForm({
   const [orderedQtyPieces, setOrderedQtyPieces] = useState<number | string>("");
   const [customerAmount, setCustomerAmount] = useState<number | string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); // <-- New state for the alert
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // BLOCK 4: Handlers
+  // ============== BLOCK 5: Handlers ==============
   const resetForm = () => {
     setPoNumber("");
     setProductCode("");
@@ -42,7 +45,7 @@ export function CreatePoForm({
     setOrderedQtyPieces("");
     setCustomerAmount("");
     setIsSubmitting(false);
-    setErrorMessage(""); // Reset error on close
+    setErrorMessage("");
   };
 
   const handleClose = () => {
@@ -51,9 +54,17 @@ export function CreatePoForm({
   };
 
   const handleSubmit = async () => {
-    setErrorMessage(""); // Clear previous errors on new submission
-    
-    if (!poNumber || !productCode || !customerName || !poCreatedDate || !poReceivedDate || !orderedQtyPieces || !customerAmount) {
+    setErrorMessage("");
+
+    if (
+      !poNumber ||
+      !productCode ||
+      !customerName ||
+      !poCreatedDate ||
+      !poReceivedDate ||
+      !orderedQtyPieces ||
+      !customerAmount
+    ) {
       setErrorMessage("Please fill out all required fields.");
       return;
     }
@@ -71,40 +82,91 @@ export function CreatePoForm({
     };
 
     try {
-      const newPo = await createPo(poData);
-      // We will show a success toast on the main page after the modal closes
+      await createPo(poData);
       onPoCreated();
       handleClose();
-
-    } catch (err: any) {
-      setErrorMessage(err.message || "An unexpected error occurred. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      setErrorMessage(message);
       setIsSubmitting(false);
     }
   };
 
-  // BLOCK 5: Render Logic
+  // ============== BLOCK 6: Render ==============
   return (
-    <Dialog open={open} handler={handleClose} size="md">
-      <DialogHeader>Create New Purchase Order</DialogHeader>
-      <DialogBody divider className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="PO Number" value={poNumber} onChange={(e) => setPoNumber(e.target.value)} required />
-          <Input label="Finish Code / Product Code" value={productCode} onChange={(e) => setProductCode(e.target.value)} required />
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      size="md"
+      title="Create New Purchase Order"
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={handleClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSubmit} loading={isSubmitting}>
+            Submit PO
+          </Button>
         </div>
-        <Input label="Customer Name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required />
+      }
+    >
+      <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input type="date" label="PO Created Date" value={poCreatedDate} onChange={(e) => setPoCreatedDate(e.target.value)} required />
-          <Input type="date" label="PO Received Date" value={poReceivedDate} onChange={(e) => setPoReceivedDate(e.target.value)} required />
+          <Input
+            label="PO Number"
+            value={poNumber}
+            onChange={(e) => setPoNumber(e.target.value)}
+            required
+          />
+          <Input
+            label="Finish Code / Product Code"
+            value={productCode}
+            onChange={(e) => setProductCode(e.target.value)}
+            required
+          />
+        </div>
+        <Input
+          label="Customer Name"
+          value={customerName}
+          onChange={(e) => setCustomerName(e.target.value)}
+          required
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
+            type="date"
+            label="PO Created Date"
+            value={poCreatedDate}
+            onChange={(e) => setPoCreatedDate(e.target.value)}
+            required
+          />
+          <Input
+            type="date"
+            label="PO Received Date"
+            value={poReceivedDate}
+            onChange={(e) => setPoReceivedDate(e.target.value)}
+            required
+          />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input type="number" label="Ordered Quantity (Pieces)" value={orderedQtyPieces} onChange={(e) => setOrderedQtyPieces(e.target.value)} required />
-          <Input type="number" label="Amount" value={customerAmount} onChange={(e) => setCustomerAmount(e.target.value)} required />
+          <Input
+            type="number"
+            label="Ordered Quantity (Pieces)"
+            value={orderedQtyPieces}
+            onChange={(e) => setOrderedQtyPieces(e.target.value)}
+            required
+          />
+          <Input
+            type="number"
+            label="Amount"
+            value={customerAmount}
+            onChange={(e) => setCustomerAmount(e.target.value)}
+            required
+          />
         </div>
-        <Typography variant="small" color="gray" className="mt-2">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
           System calculations and status will be determined upon submission.
-        </Typography>
+        </p>
 
-        {/* --- RENDER THE ALERT WHEN THERE'S AN ERROR --- */}
         {errorMessage && (
           <FormAlert
             type="error"
@@ -112,15 +174,7 @@ export function CreatePoForm({
             onDismiss={() => setErrorMessage("")}
           />
         )}
-      </DialogBody>
-      <DialogFooter>
-        <Button variant="text" color="red" onClick={handleClose} disabled={isSubmitting}>
-          Cancel
-        </Button>
-        <Button variant="gradient" color="green" onClick={handleSubmit} loading={isSubmitting}>
-          Submit PO
-        </Button>
-      </DialogFooter>
+      </div>
     </Dialog>
   );
 }
