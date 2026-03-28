@@ -101,13 +101,13 @@ export const ToastProvider: React.FC<{
   );
 
   // Cleanup all timeouts when provider unmounts
-  useEffect(() => {
-    return () => {
-      for (const timeoutId of timeoutIdsRef.current.values()) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, []);
+useEffect(() => {
+  // Capture the current ref value before cleanup
+  const currentTimeoutIds = timeoutIdsRef.current;
+  return () => {
+    currentTimeoutIds.forEach(clearTimeout);
+  };
+}, [/* deps */]);
 
   return (
     <ToastContext.Provider
