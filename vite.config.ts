@@ -1,7 +1,7 @@
 // BLOCK 1: Imports
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { visualizer } from 'rollup-plugin-visualizer'
+// import { visualizer } from 'rollup-plugin-visualizer'  // REMOVED
 
 // BLOCK 2: Vite Configuration
 export default defineConfig({
@@ -39,14 +39,7 @@ export default defineConfig({
           'vendor-supabase': ['@supabase/supabase-js'],
         },
       },
-      plugins: [
-        visualizer({
-          open: true,
-          filename: 'dist/stats.html',
-          gzipSize: true,
-          brotliSize: true, 
-        }),
-      ],
+      // REMOVED plugins array that contained visualizer
     },
     chunkSizeWarningLimit: 1000,
   },
