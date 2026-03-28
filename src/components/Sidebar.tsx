@@ -75,10 +75,13 @@ export function Sidebar({
             shadow={false}
             className={`h-full w-full p-4 ${theme.cards} flex flex-col overflow-y-auto rounded-none drawer-content`}
           >
-            <div className="mb-6 flex items-center gap-4 p-4">
-              <img src="https://docs.material-tailwind.com/img/logo-ct-dark.png" alt="brand" className="h-8 w-8" />
-              <Typography variant="h5" className={theme.sidebarText}>Dashboard</Typography>
-            </div>
+          <div className="px-4 py-4 mb-6">
+            <h1 className="font-sora font-semibold tracking-widest text-[#E6EAF2] text-xl uppercase">
+              EON
+              <span className="text-[#00C2FF] drop-shadow-[0_0_2px_rgba(0,194,255,0.5)]">Ξ</span>
+              XIS
+            </h1>
+          </div>
 
             <div className="flex-1">
               <List className={theme.sidebarText}>
@@ -311,11 +314,13 @@ export function Sidebar({
       </Drawer>
 
       <aside className={`hidden lg:flex flex-col w-64 ${theme.cards} border-r ${theme.isDark ? 'border-slate-700' : 'border-slate-200'} h-screen sticky top-0 overflow-y-auto drawer-content`}>
-        <div className="mb-6 flex items-center gap-4 p-4">
-          <img src="https://docs.material-tailwind.com/img/logo-ct-dark.png" alt="brand" className="h-8 w-8" />
-          <Typography variant="h5" className={theme.sidebarText}>Dashboard</Typography>
-        </div>
-
+      <div className="px-4 py-4 mb-6">
+        <h1 className="font-sora font-semibold tracking-widest text-[#E6EAF2] text-xl uppercase">
+          EON
+          <span className="text-[#00C2FF] drop-shadow-[0_0_2px_rgba(0,194,255,0.5)]">Ξ</span>
+          XIS
+        </h1>
+      </div>
         <div className="flex-1">
           <List className={theme.sidebarText}>
             {/* Dashboard */}
