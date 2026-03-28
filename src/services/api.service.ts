@@ -2,13 +2,15 @@
 import { PurchaseOrder } from '../types/mrp.types';
 
 // ============== BLOCK 2: Enhanced Interfaces ==============
-export interface ApiResponse<T> { ... }
+// ============== BLOCK 2: Enhanced Interfaces ==============
+
+export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
 }
 
-export interface PaginatedApiResponse<T> { ... }
+export interface PaginatedApiResponse<T> {
   success: boolean;
   data: T[];
   pagination: {
