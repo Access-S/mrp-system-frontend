@@ -1,4 +1,4 @@
-//src/components/pages/CreatePOPage.tsx
+// src/components/pages/CreatePOPage.tsx
 
 // BLOCK 1: Imports
 import React, { useState, useEffect, useMemo, useRef } from "react";
@@ -13,13 +13,12 @@ import {
   XMarkIcon,
   ChevronUpDownIcon,
 } from "@heroicons/react/24/outline";
-import { useTheme } from "../../contexts/ThemeContext";
-import { createPo } from "../../services/api.service";
-import { getAllProducts } from "../../services/product.service";
-import { FormAlert } from "../dialogs/FormAlert";
-import { useToast } from "../ui/Toast";
-import { DatePicker } from "../ui/DatePicker";
-
+import { useTheme } from "@/contexts/ThemeContext";
+import { createPo } from "@/services/api.service";
+import { getAllProducts } from "@/features/products";
+import { FormAlert } from "@/components/dialogs/FormAlert";
+import { useToast } from "@/components/ui/Toast";
+import { DatePicker } from "@/components/ui/DatePicker";
 // BLOCK 2: Interfaces
 interface CreatePoPageProps {
   onBack: () => void;
