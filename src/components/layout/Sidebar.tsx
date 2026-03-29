@@ -1,4 +1,4 @@
-// src/components/Sidebar.tsx
+// src/components/layout/Sidebar.tsx
 import React, { useState } from "react";
 import {
   IconButton,
@@ -34,9 +34,9 @@ import {
   DocumentTextIcon,
   BeakerIcon,
 } from "@heroicons/react/24/outline";
-import { useTheme } from "../contexts/ThemeContext";
-import { themes } from "../styles/themes";
-import { Page } from "../app/App";
+import { useTheme } from "@/contexts/ThemeContext";
+import { themes } from "@/styles/themes";
+import { Page } from "@/app/App";
 
 export function Sidebar({
   activePage,
