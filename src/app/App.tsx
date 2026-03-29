@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import { ToastProvider, ToastContainer } from "@/components/ui/Toast";
 import { Sidebar } from "@/components/layout";
-import { DashboardPage } from "@/components/pages/DashboardPage";
+import { DashboardPage } from "@/features/dashboard";
 import { ProductsPage } from "@/components/pages/ProductsPage";
 import { PurchaseOrdersPage } from "@/components/pages/PurchaseOrdersPage";
 import { ProductDashboardPage } from "@/components/pages/ProductDashboardPage";

@@ -1,30 +1,23 @@
-//src/services/dashboard.service.ts
+// src/features/dashboard/services/dashboard.service.ts
 
 // BLOCK 1: Imports
-import { supabase } from "../supabase.config";
-import { handleApiError } from "./api.service";
-import { PurchaseOrder, Component, Product } from "../types/mrp.types";
+import { supabase } from "@/supabase.config";
+import { handleApiError } from "@/services/api.service";
+import { PurchaseOrder, Component, Product } from "@/types/mrp.types";
 
 // ============== BLOCK 1.5: API Configuration ==============
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
-// BLOCK 2: Interface for Dashboard Data
-export interface DashboardStats {
-  openPoCount: number;
-  totalOpenValue: number;
-  componentsAtRiskCount: number;
-  attentionPoCount: number;
-  totalOpenWorkHours: number;
-  averageTurnaroundDays: number;
-}
+// BLOCK 2: Type Imports & Re-exports
+export type {
+  DashboardStats,
+  DashboardChartData,
+} from '../types/dashboard.types';
 
-export interface DashboardChartData {
-  poStatusDistribution: { status: string; count: number; value: number }[];
-  monthlyPoTrends: { month: string; count: number; value: number }[];
-  topCustomers: { customer: string; count: number; value: number }[];
-  inventoryAlerts: { partCode: string; currentStock: number; safetyStock: number }[];
-}
-
+import type {
+  DashboardStats,
+  DashboardChartData,
+} from '../types/dashboard.types';
 // BLOCK 3: Dashboard Service Class
 class DashboardService {
 
