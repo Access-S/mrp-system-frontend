@@ -11,7 +11,7 @@ import { ProductsPage } from "@/components/pages/ProductsPage";
 import { PurchaseOrdersPage } from "@/components/pages/PurchaseOrdersPage";
 import { ProductDashboardPage } from "@/components/pages/ProductDashboardPage";
 import { CreatePoPage } from "@/components/pages/CreatePOPage";
-import { ForecastsPage } from "@/components/pages/ForecastsPage";
+import { ForecastsPage } from "@/features/forecasts/ForecastsPage";
 import { SohPage } from "@/features/soh";
 import { InventoryPage } from "@/components/pages/InventoryPage";
 import { ImportPage } from "@/components/pages/ImportPage";

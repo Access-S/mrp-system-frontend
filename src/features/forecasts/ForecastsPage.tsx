@@ -1,4 +1,4 @@
-// src/components/pages/ForecastsPage.tsx
+// src/features/forecasts/ForecastsPage.tsx
 
 // ============== BLOCK 1: Imports ==============
 
@@ -8,38 +8,38 @@ import {
   ChartBarIcon,
 } from "@heroicons/react/24/outline";
 
-import { Card, CardHeader, CardContent } from "../ui/Card";
-import { Button } from "../ui/Button";
-import { Select } from "../ui/Select";
-import { Table } from "../ui/Table";
-import { Badge } from "../ui/Badge";
-import { Drawer } from "../ui/Drawer";
-import { EmptyState } from "../ui/EmptyState";
-import { useToast } from "../ui/Toast";
-import { ScrollArea } from "../ui/ScrollArea";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
+import { Table } from "@/components/ui/Table";
+import { Badge } from "@/components/ui/Badge";
+import { Drawer } from "@/components/ui/Drawer";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useToast } from "@/components/ui/Toast";
+import { ScrollArea } from "@/components/ui/ScrollArea";
 
-import { KPICard } from "../dashboard/KPICard";
-import { BarChart } from "../dashboard/charts";
-import { ExcelImportModal } from "../modals/ExcelImportModal";
+import { KPICard } from "@/components/dashboard/KPICard";
+import { BarChart } from "@/components/dashboard/charts";
+import { ExcelImportModal } from "@/components/modals/ExcelImportModal";
 
-import { PageHeader } from "../shared/PageHeader";
-import { FilterToolbar } from "../shared/FilterToolbar";
-import { ResultsCount } from "../shared/ResultsCount";
-import { ExportDropdown } from "../shared/ExportDropdown";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { FilterToolbar } from "@/components/shared/FilterToolbar";
+import { ResultsCount } from "@/components/shared/ResultsCount";
+import { ExportDropdown } from "@/components/shared/ExportDropdown";
 
-import { ForecastSkeleton, WEEK_OPTIONS, formatNumber } from "../forecasts";
+import { ForecastSkeleton, WEEK_OPTIONS, formatNumber } from "./components";
 
-import { useFetch, useSearch, useImport } from "../../hooks";
+import { useFetch, useSearch, useImport } from "@/hooks";
 
 import {
   importForecastData,
   getForecastsWithProductData,
-} from "../../services/forecast.service";
-import { getAllProducts } from "../../services/product.service";
-import { exportForecastData } from "../../services/export.service";
+} from "./services/forecast.service";
+import { getAllProducts } from "@/services/product.service";
+import { exportForecastData } from "@/services/export.service";
 
-import type { ForecastTableData, ForecastImportResult } from "../../services/forecast.service";
-import type { ExportFormat } from "../../services/export.service";
+import type { ForecastTableData, ForecastImportResult } from "./services/forecast.service";
+import type { ExportFormat } from "@/services/export.service";
 
 // ============== BLOCK 2: Component ==============
 
