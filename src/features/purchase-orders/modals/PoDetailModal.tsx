@@ -1,13 +1,14 @@
-// src/components/modals/PoDetailModal.tsx
+// src/features/purchase-orders/modals/PoDetailModal.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState, useEffect } from "react";
-import { Dialog } from "../ui/Dialog";
-import { Card } from "../ui/Card";
-import { Spinner } from "../ui/Spinner";
+import { Dialog } from "@/components/ui/Dialog";
+import { Card } from "@/components/ui/Card";
+import { Spinner } from "@/components/ui/Spinner";
 import { getBomForProduct } from "@/features/products";
 import { useTheme } from "@/contexts/ThemeContext";
+
 
 // ============== BLOCK 2: Helper function ==============
 

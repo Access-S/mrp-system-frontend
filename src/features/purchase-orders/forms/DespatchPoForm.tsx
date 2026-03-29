@@ -1,12 +1,12 @@
-// src/components/forms/DespatchPoForm.tsx
+// src/features/purchase-orders/forms/DespatchPoForm.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState } from "react";
-import { Dialog } from "../ui/Dialog";
-import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
-import { useToast } from "../ui/Toast";
+import { Dialog } from "@/components/ui/Dialog";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 

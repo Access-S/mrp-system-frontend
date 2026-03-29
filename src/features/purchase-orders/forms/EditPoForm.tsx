@@ -1,13 +1,13 @@
-// src/components/forms/EditPoForm.tsx
+// src/features/purchase-orders/forms/EditPoForm.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState, useEffect } from "react";
-import { Dialog } from "../ui/Dialog";
-import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
-import { Spinner } from "../ui/Spinner";
-import { FormAlert } from "../dialogs/FormAlert";
+import { Dialog } from "@/components/ui/Dialog";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
+import { FormAlert } from "@/components/dialogs/FormAlert";
 import { updatePo } from "@/services/api.service";
 
 // ============== BLOCK 2: Types ==============
