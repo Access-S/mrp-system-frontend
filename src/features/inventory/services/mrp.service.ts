@@ -9,46 +9,18 @@ import { handleApiError } from "@/services/api.service";
 
 // ============== BLOCK 2: Interface Definitions for MRP Engine Output ==============
 
-/**
- * Represents weekly projection data for a component
- */
-export interface WeeklyProjection {
-  week: string;
-  totalDemand: number;
-  coveragePercentage: number;
-  projectedSoh: number;
-  shortfall: number;
-  daysOfCoverage: number;
-}
+// Types moved to ../types/inventory.types.ts
+export type {
+  WeeklyProjection,
+  InventoryProjection,
+  MrpSummary,
+} from '../types/inventory.types';
 
-/**
- * Represents complete inventory projection for a component
- */
-export interface InventoryProjection {
-  component: Component;
-  skusUsedIn: string[];
-  displayPartType: string;
-  displayDescription: string;
-  netHorizonDemand: number;
-  projections: WeeklyProjection[];
-  overallHealth: "Healthy" | "Risk" | "Shortage";
-  recommendedAction: string;
-  priority: "High" | "Medium" | "Low";
-  totalForecastDemand: number;
-  averageWeeklyDemand: number;
-}
-
-/**
- * Summary statistics for MRP analysis
- */
-export interface MrpSummary {
-  totalComponents: number;
-  healthyCount: number;
-  riskCount: number;
-  shortageCount: number;
-  totalDemandValue: number;
-  criticalComponents: InventoryProjection[];
-}
+import type {
+  WeeklyProjection,
+  InventoryProjection,
+  MrpSummary,
+} from '../types/inventory.types';
 
 // ============== BLOCK 3: MRP Service Class ==============
 

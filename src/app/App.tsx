@@ -13,7 +13,7 @@ import { ProductDashboardPage } from "@/components/pages/ProductDashboardPage";
 import { CreatePoPage } from "@/components/pages/CreatePOPage";
 import { ForecastsPage } from "@/features/forecasts";
 import { SohPage } from "@/features/soh";
-import { InventoryPage } from "@/components/pages/InventoryPage";
+import { InventoryPage } from "@/features/inventory";
 import { ImportPage } from "@/features/import";
 import { UITestPage, UITestPage2 } from "@/components/pages/testing";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
