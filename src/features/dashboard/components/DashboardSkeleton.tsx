@@ -1,10 +1,10 @@
-// src/components/dashboard/DashboardSkeleton.tsx
+// src/features/dashboard/components/DashboardSkeleton.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React from "react";
 
-import { Skeleton } from "../ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 // ============== BLOCK 2: Component ==============
 
