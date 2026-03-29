@@ -14,7 +14,7 @@ import { CreatePoPage } from "@/components/pages/CreatePOPage";
 import { ForecastsPage } from "@/features/forecasts";
 import { SohPage } from "@/features/soh";
 import { InventoryPage } from "@/components/pages/InventoryPage";
-import { ImportPage } from "@/components/pages/ImportPage";
+import { ImportPage } from "@/features/import/ImportPage";
 import { UITestPage, UITestPage2 } from "@/components/pages/testing";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { useMemo } from 'react';

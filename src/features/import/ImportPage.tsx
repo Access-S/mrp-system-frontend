@@ -1,13 +1,12 @@
-// src/components/pages/ImportPage.tsx
+// src/features/import/ImportPage.tsx
 
-// ============================================================================
-// BLOCK 1: Imports
-// ============================================================================
+// ============== BLOCK 1: Imports ==============
+
 import React, { useState, useCallback } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { Card, CardContent } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { Spinner } from '../ui/Spinner';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui/Spinner';
 import {
   CloudArrowUpIcon,
   DocumentTextIcon,
@@ -25,17 +24,13 @@ import {
   ImportRow,
   ValidationResult,
   ImportResult,
-} from '../../services/import.service';
-import { useToast } from '../ui/Toast';
+} from './services/import.service';
+import { useToast } from '@/components/ui/Toast';
 
-// ============================================================================
-// BLOCK 2: Types
-// ============================================================================
+// ============== BLOCK 2: Types ==============
 type ImportStep = 'upload' | 'preview' | 'validating' | 'validated' | 'importing' | 'complete';
 
-// ============================================================================
-// BLOCK 3: Main Component
-// ============================================================================
+// ============== BLOCK 3: Main Component ==============
 export function ImportPage() {
   const { theme } = useTheme();
   const { toast } = useToast();
@@ -49,9 +44,7 @@ export function ImportPage() {
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
-  // ============================================================================
-  // BLOCK 4: File Handling
-  // ============================================================================
+// ============== BLOCK 4: File Handling ==============
   const handleFile = useCallback((file: File) => {
     setError(null);
     
@@ -124,9 +117,7 @@ export function ImportPage() {
     }
   }, [toast]);
 
-  // ============================================================================
-  // BLOCK 5: Validation & Import
-  // ============================================================================
+// ============== BLOCK 5: Validation & Import ==============
   const handleValidate = async () => {
     setStep('validating');
     setError(null);
@@ -180,9 +171,7 @@ export function ImportPage() {
     setError(null);
   };
   
-  // ============================================================================
-  // BLOCK 6: Render Upload Step
-  // ============================================================================
+// ============== BLOCK 6: Render Upload Step ==============
   const renderUploadStep = () => (
     <div className="space-y-6">
       {/* Drag & Drop Zone */}
@@ -265,9 +254,7 @@ export function ImportPage() {
     </div>
   );
 
-  // ============================================================================
-  // BLOCK 7: Render Preview Step
-  // ============================================================================
+// ============== BLOCK 7: Render Preview Step ==============
   const renderPreviewStep = () => (
     <div className="space-y-6">
       {/* Summary */}
@@ -337,9 +324,7 @@ export function ImportPage() {
     </div>
   );
 
-  // ============================================================================
-  // BLOCK 8: Render Validation Step
-  // ============================================================================
+// ============== BLOCK 8: Render Validation Step ==============
   const renderValidatedStep = () => (
     <div className="space-y-6">
       {/* Validation Summary */}
@@ -459,9 +444,7 @@ export function ImportPage() {
     </div>
   );
 
-  // ============================================================================
-  // BLOCK 9: Render Complete Step
-  // ============================================================================
+// ============== BLOCK 9: Render Complete Step ==============
   const renderCompleteStep = () => (
     <div className="space-y-6">
       <Card variant="bordered" className={`${theme.cards} p-8 text-center`}>
@@ -531,9 +514,7 @@ export function ImportPage() {
     </div>
   );
 
-  // ============================================================================
-  // BLOCK 10: Render Loading States
-  // ============================================================================
+// ============== BLOCK 10: Render Loading States ==============
   const renderLoadingState = (message: string) => (
     <Card variant="bordered" className={`${theme.cards} p-12 text-center`}>
       <Spinner size="lg" className="mx-auto mb-4" />
@@ -541,9 +522,7 @@ export function ImportPage() {
     </Card>
   );
 
-  // ============================================================================
-  // BLOCK 11: Main Render
-  // ============================================================================
+// ============== BLOCK 11: Main Render ==============
   return (
     <div className="max-w-5xl mx-auto">
       {/* Header */}
