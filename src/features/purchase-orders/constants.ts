@@ -1,4 +1,4 @@
-// src/features/purchase-orders/components/constants.ts
+// src/features/purchase-orders/constants.ts
 
 // ============== BLOCK 1: Imports ==============
 

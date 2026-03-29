@@ -43,7 +43,7 @@ import {
   deletePo,
 } from "@/services/api.service";
 
-import type { PurchaseOrder } from "@/types/mrp.types";
+import type { PurchaseOrder } from "@/features/purchase-orders/types";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 

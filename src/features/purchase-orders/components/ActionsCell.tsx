@@ -12,7 +12,7 @@ import {
 import { Menu } from "@/components/ui/Menu";
 import { Tooltip } from "@/components/ui/Tooltip";
 
-import type { PurchaseOrder } from "@/types/mrp.types";
+import type { PurchaseOrder } from "@/features/purchase-orders/types";
 
 // ============== BLOCK 2: Types ==============
 
