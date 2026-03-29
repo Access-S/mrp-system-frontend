@@ -1,8 +1,8 @@
-// src/components/dashboard/charts/LineChart.tsx
+// src/features/dashboard/components/charts/LineChart.tsx
 
 import React, { useEffect, useRef } from 'react';
 import ApexCharts from 'apexcharts';
-import { useTheme } from '../../../contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface LineChartProps {
   title: string;

@@ -1,8 +1,8 @@
-// src/components/dashboard/charts/RadialBarChart.tsx
+// src/features/dashboard/components/charts/RadialBarChart.tsx
 
 import React, { useEffect, useRef } from 'react';
 import ApexCharts from 'apexcharts';
-import { useTheme } from '../../../contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface RadialBarChartProps {
   title: string;

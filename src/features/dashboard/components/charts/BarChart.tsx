@@ -1,10 +1,10 @@
-// src/components/dashboard/charts/BarChart.tsx
+// src/features/dashboard/components/charts/BarChart.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import ApexCharts from 'apexcharts';
-import { useTheme } from '../../../contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ============== BLOCK 2: Types & Interfaces ==============
 

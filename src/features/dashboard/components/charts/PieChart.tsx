@@ -1,8 +1,8 @@
-// src/components/dashboard/charts/PieChart.tsx
+// src/features/dashboard/components/charts/PieChart.tsx
 
 import React, { useEffect, useRef } from 'react';
 import ApexCharts from 'apexcharts';
-import { useTheme } from '../../../contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface PieChartProps {
   title: string;
