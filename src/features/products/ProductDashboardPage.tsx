@@ -24,7 +24,7 @@ import { productService } from "./services/product.service";
 import { bomService } from "./services/bom.service";
 import { AddBomComponentModal } from "./modals/AddBomComponentModal";
 import { EditBomComponentModal } from "./modals/EditBomComponentModal";
-import { ConfirmationDialog } from "@/components/shared/ConfirmationDialog";
+import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
 import { WidgetCard, WidgetHeader, WidgetBody, MiniActionButton } from "@/components/ui/WidgetCard";
 
 // === Types ===

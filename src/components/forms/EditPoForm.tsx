@@ -8,7 +8,7 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
 import { FormAlert } from "../dialogs/FormAlert";
-import { updatePo } from "../../services/api.service";
+import { updatePo } from "@/services/api.service";
 
 // ============== BLOCK 2: Types ==============
 

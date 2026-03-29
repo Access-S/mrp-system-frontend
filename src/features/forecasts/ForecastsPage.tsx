@@ -36,7 +36,7 @@ import {
   importForecastData,
   getForecastsWithProductData,
 } from "./services/forecast.service";
-import { getAllProducts } from "@/services/product.service";
+import { getAllProducts } from "@/features/products";
 import { exportForecastData } from "@/services/export.service";
 
 import type { ForecastTableData, ForecastImportResult } from "./services/forecast.service";

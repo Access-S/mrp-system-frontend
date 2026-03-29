@@ -41,7 +41,7 @@ import {
   fetchPurchaseOrders,
   updatePurchaseOrderStatus,
   deletePo,
-} from "../../services/api.service";
+} from "@/services/api.service";
 
 import type { PurchaseOrder } from "../../types/mrp.types";
 

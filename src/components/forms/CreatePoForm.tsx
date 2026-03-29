@@ -7,7 +7,7 @@ import { Dialog } from "../ui/Dialog";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { FormAlert } from "../dialogs/FormAlert";
-import { createPo } from "../../services/api.service";
+import { createPo } from "@/services/api.service";
 
 // ============== BLOCK 2: Types ==============
 

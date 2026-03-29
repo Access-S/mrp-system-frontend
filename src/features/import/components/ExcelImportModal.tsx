@@ -26,7 +26,7 @@ import {
   ForecastReviewApproval,
   finalizeForecastReview 
 } from "@/features/forecasts/services/forecast.service";
-import { getAllProducts } from "@/services/product.service";
+import { getAllProducts } from "@/features/products";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 interface ExcelImportModalProps {

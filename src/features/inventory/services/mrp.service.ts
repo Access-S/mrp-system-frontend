@@ -2,7 +2,7 @@
 
 // ============== BLOCK 1: Imports ==============
 import { Product, Forecast, Component } from "@/types/mrp.types";
-import { productService } from "@/services/product.service";
+import { productService } from "@/features/products";
 import { forecastService } from "@/features/forecasts/services/forecast.service";
 import { componentService } from "@/services/component.service";
 import { handleApiError } from "@/services/api.service";
