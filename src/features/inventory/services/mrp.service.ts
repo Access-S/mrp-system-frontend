@@ -1,17 +1,13 @@
-//src/services/mrp.service.ts
+// src/features/inventory/services/mrp.service.ts
 
-// ============================================================================
-// BLOCK 1: Imports
-// ============================================================================
-import { Product, Forecast, Component } from "../types/mrp.types";
-import { productService } from "./product.service";
-import { forecastService } from "../features/forecasts/services/forecast.service";
-import { componentService } from "./component.service";
-import { handleApiError } from "./api.service";
+// ============== BLOCK 1: Imports ==============
+import { Product, Forecast, Component } from "@/types/mrp.types";
+import { productService } from "@/services/product.service";
+import { forecastService } from "@/features/forecasts/services/forecast.service";
+import { componentService } from "@/services/component.service";
+import { handleApiError } from "@/services/api.service";
 
-// ============================================================================
-// BLOCK 2: Interface Definitions for MRP Engine Output
-// ============================================================================
+// ============== BLOCK 2: Interface Definitions for MRP Engine Output ==============
 
 /**
  * Represents weekly projection data for a component
@@ -54,19 +50,14 @@ export interface MrpSummary {
   criticalComponents: InventoryProjection[];
 }
 
-// ============================================================================
-// BLOCK 3: MRP Service Class
-// ============================================================================
+// ============== BLOCK 3: MRP Service Class ==============
 
 /** Number of weeks to use for horizon demand calculation (~4 months) */
 const PROJECTION_HORIZON_WEEKS = 17;
 
 class MrpService {
 
-  // --------------------------------------------------------------------------
-  // Main MRP Calculation Engine
-  // --------------------------------------------------------------------------
-
+// ============== Main MRP Calculation Engine ==============
   /**
    * Calculates inventory projections based on BOMs, forecasts, and current stock
    * @param components - Array of components with current stock levels (SOH data)
@@ -215,10 +206,7 @@ class MrpService {
 
     return inventoryProjections;
   }
-
-  // --------------------------------------------------------------------------
-  // Complete MRP Analysis
-  // --------------------------------------------------------------------------
+// ============== Complete MRP Analysis ==============
 
   /**
    * Runs a complete MRP analysis by fetching all required data
@@ -244,9 +232,7 @@ class MrpService {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // Summary and Statistics
-  // --------------------------------------------------------------------------
+// ============== Summary and Statistics ==============
 
   /**
    * Generates summary statistics from MRP projections
@@ -275,9 +261,7 @@ class MrpService {
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Filtering and Search
-  // --------------------------------------------------------------------------
+// ============== Filtering and Search ==============
 
   /**
    * Filters projections by health status
@@ -315,9 +299,7 @@ class MrpService {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // Purchase Recommendations
-  // --------------------------------------------------------------------------
+  // ============== Purchase Recommendations ==============
 
   /**
    * Generates purchase recommendations based on MRP analysis
@@ -347,9 +329,7 @@ class MrpService {
       });
   }
 
-  // --------------------------------------------------------------------------
-  // Data Export
-  // --------------------------------------------------------------------------
+// ============== Data Export ==============
 
   /**
    * Exports MRP data in a format suitable for Excel/CSV
@@ -378,15 +358,11 @@ class MrpService {
   }
 }
 
-// ============================================================================
-// BLOCK 4: Export Singleton Instance
-// ============================================================================
+// ============== BLOCK 4: Export Singleton Instance ==============
 
 export const mrpService = new MrpService();
 
-// ============================================================================
-// BLOCK 5: Export Individual Functions (Backward Compatibility)
-// ============================================================================
+// ============== BLOCK 5: Export Individual Functions (Backward Compatibility) ==============
 
 export const calculateInventoryProjections = (
   components: Component[],
@@ -407,9 +383,7 @@ export const generatePurchaseRecommendations = (projections: InventoryProjection
 export const exportMrpData = (projections: InventoryProjection[]) => 
   mrpService.exportMrpData(projections);
 
-// ============================================================================
-// BLOCK 6: Utility Functions for MRP Calculations
-// ============================================================================
+// ============== BLOCK 6: Utility Functions for MRP Calculations ==============
 
 /**
  * Calculates days of coverage based on current stock and weekly demand
@@ -490,9 +464,7 @@ export const formatDemand = (demand: number): string => {
   return Math.round(demand).toString();
 };
 
-// ============================================================================
-// BLOCK 7: Validation Functions
-// ============================================================================
+// ============== BLOCK 7: Validation Functions ==============
 
 /**
  * Validates MRP input data for completeness and correctness
@@ -562,9 +534,7 @@ export const validateMrpInputs = (
   };
 };
 
-// ============================================================================
-// BLOCK 8: Report Generation
-// ============================================================================
+// ============== BLOCK 8: Report Generation ==============
 
 /**
  * Generates executive MRP report with key findings and recommendations
@@ -609,9 +579,7 @@ export const generateMrpReport = (projections: InventoryProjection[]): {
   };
 };
 
-// ============================================================================
-// BLOCK 9: Service and Type Exports
-// ============================================================================
+// ============== BLOCK 9: Service and Type Exports ==============
 
 export { MrpService };
 export default mrpService;
@@ -620,5 +588,4 @@ export type {
   Product,
   Forecast,
   Component
-} from '../types/mrp.types';
-
+} from '@/types/mrp.types';

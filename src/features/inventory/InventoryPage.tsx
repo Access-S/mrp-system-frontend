@@ -1,23 +1,23 @@
-// src/features/inventory/InventoryPage.tsx
+// src/components/pages/InventoryPage.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useToast } from "@/components/ui/Toast";
+import { Card, CardContent } from "../ui/Card";
+import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
+import { Spinner } from "../ui/Spinner";
+import { useTheme } from "../../contexts/ThemeContext";
+import { useToast } from "../ui/Toast";
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
-import { getAllSoh } from "@/services/component.service";
-import { getAllProducts } from "@/services/product.service";
-import { getAllForecasts } from "@/features/forecasts/services/forecast.service";
+import { getAllSoh } from "../../services/component.service";
+import { getAllProducts } from "../../services/product.service";
+import { getAllForecasts } from "../../features/forecasts/services/forecast.service";
 import {
   calculateInventoryProjections,
   InventoryProjection,
   exportMrpData,
-} from "./services/mrp.service";
+} from "../../services/mrp.service";
 
 // ============== BLOCK 2: Constants & Types ==============
 
