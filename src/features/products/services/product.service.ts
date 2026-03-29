@@ -1,6 +1,8 @@
+// src/features/products/services/product.service.ts
+
 // ============== BLOCK 1: Imports ==============
-import { apiClient, handleApiError, ApiResponse } from "./api.service";
-import { Product, BomComponent } from "../types/mrp.types";
+import { apiClient, handleApiError, ApiResponse } from "@/services/api.service";
+import { Product, BomComponent } from "@/types/mrp.types";
 
 // ============== BLOCK 2: Interfaces ==============
 export interface CreateProductData {

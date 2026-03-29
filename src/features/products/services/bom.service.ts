@@ -1,7 +1,7 @@
-//src/services/bom.service.ts
+// src/features/products/services/bom.service.ts
 
 // BLOCK 1: Imports
-import { apiClient, handleApiError, ApiResponse } from "./api.service";
+import { apiClient, handleApiError, ApiResponse } from "@/services/api.service";
 
 // BLOCK 2: Interfaces
 export interface BomComponent {
