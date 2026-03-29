@@ -20,7 +20,7 @@ import { ScrollArea } from "@/components/ui/ScrollArea";
 
 import { KPICard } from "@/components/dashboard/KPICard";
 import { BarChart } from "@/components/dashboard/charts";
-import { ExcelImportModal } from "@/features/import/components/ExcelImportModal";
+import { ExcelImportModal } from "@/features/import";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterToolbar } from "@/components/shared/FilterToolbar";
