@@ -31,7 +31,7 @@ import {
   getBlockedStatuses,
   calculateProductionTime,
 } from "./components";
-import { PoDetailModal } from "./modals/PoDetailModal";
+import { PoDetailModal } from '@/features/purchase-orders/modals';
 import { EditPoForm } from "./forms/EditPoForm";
 import { DespatchPoForm } from "./forms/DespatchPoForm";
 import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
