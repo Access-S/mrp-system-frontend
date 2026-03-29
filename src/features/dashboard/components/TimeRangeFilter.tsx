@@ -1,12 +1,12 @@
-// src/components/dashboard/TimeRangeFilter.tsx
+// src/features/dashboard/components/TimeRangeFilter.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
-import { Button } from "../ui/Button";
-import { Menu } from "../ui/Menu";
+import { Button } from "@/components/ui/Button";
+import { Menu } from "@/components/ui/Menu";
 
 // ============== BLOCK 2: Constants ==============
 

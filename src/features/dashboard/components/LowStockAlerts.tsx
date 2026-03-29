@@ -1,13 +1,13 @@
-// src/components/dashboard/LowStockAlerts.tsx
+// src/features/dashboard/components/LowStockAlerts.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React from "react";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 
-import { Card, CardContent } from "../ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 
-import type { LowStockAlert } from "../../services/dashboard.api";
+import type { LowStockAlert } from "../services/dashboard.api";
 
 // ============== BLOCK 2: Types ==============
 

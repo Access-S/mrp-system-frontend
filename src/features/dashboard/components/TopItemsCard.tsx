@@ -1,12 +1,12 @@
-// src/components/dashboard/TopItemsCard.tsx
+// src/features/dashboard/components/TopItemsCard.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React from "react";
 
-import { Card, CardContent } from "../ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 
-import type { TopCustomer, TopProduct } from "../../services/dashboard.api";
+import type { TopCustomer, TopProduct } from "../services/dashboard.api";
 
 // ============== BLOCK 2: Types ==============
 
