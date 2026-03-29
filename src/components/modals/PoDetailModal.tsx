@@ -6,8 +6,8 @@ import React, { useState, useEffect } from "react";
 import { Dialog } from "../ui/Dialog";
 import { Card } from "../ui/Card";
 import { Spinner } from "../ui/Spinner";
-import { getBomForProduct } from "../../services/product.service";
-import { useTheme } from "../../contexts/ThemeContext";
+import { getBomForProduct } from "@/features/products";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // ============== BLOCK 2: Helper function ==============
 
