@@ -1,12 +1,12 @@
-// src/components/modals/BomDetailModal.tsx
+// src/features/products/modals/BomDetailModal.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState, useEffect } from "react";
-import { Dialog } from "../ui/Dialog";
-import { Spinner } from "../ui/Spinner";
-import { getBomForProduct } from "../../services/product.service";
-import { useTheme } from "../../contexts/ThemeContext";
+import { Dialog } from "@/components/ui/Dialog";
+import { Spinner } from "@/components/ui/Spinner";
+import { getBomForProduct } from "../services/product.service";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // ============== BLOCK 2: Types ==============
 

@@ -1,14 +1,14 @@
-// src/components/modals/EditBomComponentModal.tsx
+// src/features/products/modals/EditBomComponentModal.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState, useEffect } from "react";
-import { Dialog } from "../ui/Dialog";
-import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
-import { Select } from "../ui/Select";
-import { useTheme } from "../../contexts/ThemeContext";
-import { bomService } from "../../services/bom.service";
+import { Dialog } from "@/components/ui/Dialog";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
+import { useTheme } from "@/contexts/ThemeContext";
+import { bomService } from "../services/bom.service";
 
 // ============== BLOCK 2: Types ==============
 
