@@ -1,4 +1,4 @@
-// src/components/pages/DashboardPage.tsx
+// src/features/dashboard/DashboardPage.tsx
 
 // ============== BLOCK 1: Imports ==============
 
@@ -8,10 +8,10 @@ import {
   ChartBarIcon,
 } from "@heroicons/react/24/outline";
 
-import { Card, CardContent } from "../ui/Card";
-import { Button } from "../ui/Button";
-import { EmptyState } from "../ui/EmptyState";
-import { Skeleton } from "../ui/Skeleton";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/Skeleton";
 import {
   KPICard,
   DashboardSkeleton,
@@ -20,18 +20,18 @@ import {
   TopItemsCard,
   TimeRangeFilter,
   TIME_RANGE_LABELS,
-} from "../dashboard";
+} from "./components";
 import {
   LineChart,
   MultipleBarChart,
   RadialBarChart,
-} from "../dashboard/charts";
+} from "./components/charts";
 
-import { useFetch } from "../../hooks";
+import { useFetch } from "@/hooks";
 
-import { fetchDashboardData } from "../../services/dashboard.api";
+import { fetchDashboardData } from "./services/dashboard.api";
 
-import type { DashboardData } from "../../services/dashboard.api";
+import type { DashboardData } from "./services/dashboard.api";
 
 // ============== BLOCK 2: Constants ==============
 
