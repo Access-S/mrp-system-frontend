@@ -1,4 +1,4 @@
-// src/components/pages/ProductDashboardPage.tsx
+// src/features/products/ProductDashboardPage.tsx
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -19,13 +19,13 @@ import {
   PlayCircleIcon,
   PowerIcon,
 } from "@heroicons/react/24/outline";
-import { useTheme } from "../../contexts/ThemeContext";
-import { productService } from "../../services/product.service";
-import { bomService } from "../../services/bom.service";
-import { AddBomComponentModal } from "../modals/AddBomComponentModal";
-import { EditBomComponentModal } from "../modals/EditBomComponentModal";
-import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
-import { WidgetCard, WidgetHeader, WidgetBody, MiniActionButton } from "../ui/WidgetCard";
+import { useTheme } from "@/contexts/ThemeContext";
+import { productService } from "./services/product.service";
+import { bomService } from "./services/bom.service";
+import { AddBomComponentModal } from "./modals/AddBomComponentModal";
+import { EditBomComponentModal } from "./modals/EditBomComponentModal";
+import { ConfirmationDialog } from "@/components/shared/ConfirmationDialog";
+import { WidgetCard, WidgetHeader, WidgetBody, MiniActionButton } from "@/components/ui/WidgetCard";
 
 // === Types ===
 interface Product {

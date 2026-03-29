@@ -1,27 +1,27 @@
-// src/components/pages/ProductsPage.tsx
+// src/features/products/ProductsPage.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useMemo } from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 
-import { Card, CardContent } from "../ui/Card";
-import { Table } from "../ui/Table";
-import { Button } from "../ui/Button";
-import { ScrollArea } from "../ui/ScrollArea";
-import { EmptyState } from "../ui/EmptyState";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Table } from "@/components/ui/Table";
+import { Button } from "@/components/ui/Button";
+import { ScrollArea } from "@/components/ui/ScrollArea";
+import { EmptyState } from "@/components/ui/EmptyState";
 
-import { useFetch, useSearch, useModal } from "../../hooks";
+import { useFetch, useSearch, useModal } from "@/hooks";
 
-import { productService } from "../../services/product.service";
+import { productService } from "./services/product.service";
 
-import { PageHeader } from "../shared/PageHeader";
-import { FilterToolbar } from "../shared/FilterToolbar";
-import { ResultsCount } from "../shared/ResultsCount";
-import { ProductsSkeleton } from "../products/ProductsSkeleton";
-import { CreateProductForm } from "../forms/CreateProductForm";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { FilterToolbar } from "@/components/shared/FilterToolbar";
+import { ResultsCount } from "@/components/shared/ResultsCount";
+import { ProductsSkeleton } from "./components/ProductsSkeleton";
+import { CreateProductForm } from "./forms/CreateProductForm";
 
-import type { Product } from "../../types/mrp.types";
+import type { Product } from "@/types/mrp.types";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 
