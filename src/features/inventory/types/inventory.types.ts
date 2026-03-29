@@ -1,5 +1,19 @@
 // src/features/inventory/types/inventory.types.ts
 
+// ============== BLOCK 0: Base Component Interface ==============
+
+export interface Component {
+  id: string;
+  partCode: string;
+  partDescription: string;
+  stock: number;
+  safetyStock: number;
+  reorderPoint: number;
+  unitCost: number;
+  supplier?: string;
+  leadTime?: number;
+}
+
 // ============== BLOCK 1: Inventory Types ==============
 
 /**
@@ -18,7 +32,7 @@ export interface WeeklyProjection {
  * Represents complete inventory projection for a component
  */
 export interface InventoryProjection {
-  component: any; // Will use Component from mrp.types
+  component: Component;
   skusUsedIn: string[];
   displayPartType: string;
   displayDescription: string;

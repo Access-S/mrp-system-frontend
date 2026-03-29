@@ -2,16 +2,16 @@
 
 // ============== BLOCK 1: Imports ==============
 import { handleApiError } from "@/services/api.service";
-import { Forecast } from "@/types/mrp.types";
 import * as XLSX from "xlsx";
 import type {
+  Forecast,
   ForecastReviewItem,
   ForecastImportResult,
   ForecastReviewApproval,
   WeeklyForecastRow,
   WeeklyDemandSummary,
   ForecastTableData,
-} from "../types/forecast.types";
+} from "@/features/forecasts/types";
 
 
 // ============== BLOCK 2: API Base URL ==============

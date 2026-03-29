@@ -2,7 +2,7 @@
 
 // ============== BLOCK 1: Imports ==============
 import { apiClient, handleApiError, ApiResponse } from "@/services/api.service";
-import { Product, BomComponent } from "@/types/mrp.types";
+import type { Product, BomComponent } from "@/features/products/types";
 
 // ============== BLOCK 2: Interfaces ==============
 export interface CreateProductData {

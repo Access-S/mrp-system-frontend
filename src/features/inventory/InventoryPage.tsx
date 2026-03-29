@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useToast } from "@/components/ui/Toast";
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
-import { getAllSoh } from "@/services/component.service";
+import { getAllSoh } from "@/features/products/services/component.service";
 import { getAllProducts } from "@/features/products";
 import { getAllForecasts } from "@/features/forecasts/services/forecast.service";
 import {

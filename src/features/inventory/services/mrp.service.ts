@@ -1,10 +1,12 @@
 // src/features/inventory/services/mrp.service.ts
 
 // ============== BLOCK 1: Imports ==============
-import { Product, Forecast, Component } from "@/types/mrp.types";
+import type { Product } from "@/features/products/types";
+import type { Forecast } from "@/features/forecasts/types";
+import type { Component } from "@/features/inventory/types";
 import { productService } from "@/features/products";
 import { forecastService } from "@/features/forecasts/services/forecast.service";
-import { componentService } from "@/services/component.service";
+import { componentService } from "@/features/products/services/component.service";
 import { handleApiError } from "@/services/api.service";
 
 // ============== BLOCK 2: Interface Definitions for MRP Engine Output ==============

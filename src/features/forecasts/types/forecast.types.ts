@@ -1,5 +1,13 @@
 // src/features/forecasts/types/forecast.types.ts
 
+// ============== BLOCK 0: Base Forecast Interface ==============
+
+export interface Forecast {
+  productCode: string;
+  description: string;
+  weeklyForecast: { [week: string]: number };
+}
+
 // ============== BLOCK 1: Forecast Types ==============
 
 export interface ForecastReviewItem {
@@ -30,12 +38,12 @@ export interface ForecastReviewApproval {
 export interface WeeklyForecastRow {
   productCode: string;
   description: string;
-  weeklyData: Record<string, number>; // Key: YYYY-MM-DD, Value: quantity
+  weeklyData: Record<string, number>;
 }
 
 export interface WeeklyDemandSummary {
-  weekDate: string; // YYYY-MM-DD
-  weekLabel: string; // "02 Mar 2026"
+  weekDate: string;
+  weekLabel: string;
   totalUnits: number;
   totalHours: number;
 }

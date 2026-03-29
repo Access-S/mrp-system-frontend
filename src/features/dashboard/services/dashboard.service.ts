@@ -3,7 +3,9 @@
 // BLOCK 1: Imports
 import { supabase } from "@/supabase.config";
 import { handleApiError } from "@/services/api.service";
-import { PurchaseOrder, Component, Product } from "@/types/mrp.types";
+import type { PurchaseOrder } from "@/features/purchase-orders/types";
+import type { Component } from "@/features/inventory/types";
+import type { Product } from "@/features/products/types";
 
 // ============== BLOCK 1.5: API Configuration ==============
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';

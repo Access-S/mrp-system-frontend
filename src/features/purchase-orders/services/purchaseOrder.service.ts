@@ -14,7 +14,7 @@ import {
   fetchPoById as apiFetchPoById
 } from "@/services/api.service";
 import type { PurchaseOrder, PoStatus } from "@/features/purchase-orders/types";
-import type { Product } from "@/types/mrp.types";
+import type { Product } from "@/features/products/types";
 
 // BLOCK 2: Purchase Order Service Class
 class PurchaseOrderService {

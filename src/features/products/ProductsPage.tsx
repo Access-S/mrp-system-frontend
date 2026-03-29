@@ -21,7 +21,7 @@ import { ResultsCount } from "@/components/shared/ResultsCount";
 import { ProductsSkeleton } from "./components/ProductsSkeleton";
 import { CreateProductForm } from "./forms/CreateProductForm";
 
-import type { Product } from "@/types/mrp.types";
+import type { Product } from "@/features/products/types";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 
