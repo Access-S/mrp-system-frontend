@@ -3,10 +3,10 @@
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState } from "react";
-import { Dialog } from "../ui/Dialog";
-import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
-import { FormAlert } from "../dialogs/FormAlert";
+import { Dialog } from "../../../components/ui/Dialog";
+import { Input } from "../../../components/ui/Input";
+import { Button } from "../../../components/ui/Button";
+import { FormAlert } from "../../../components/dialogs/FormAlert";
 import { createPo } from "@/services/api.service";
 
 // ============== BLOCK 2: Types ==============

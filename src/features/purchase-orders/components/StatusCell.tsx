@@ -11,7 +11,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 
 import { ALL_PO_STATUSES } from "@/types/mrp.types";
-import { getBlockedStatuses } from "./helpers";
+import { getBlockedStatuses } from "../helpers";
 
 import type { PurchaseOrder } from "@/types/mrp.types";
 import type { Status } from "@/components/ui/StatusBadge";

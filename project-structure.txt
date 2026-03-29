@@ -3,7 +3,7 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-29 03:52:47                  |
+|          Generated: 2026-03-29 04:20:57                  |
 |                                                          |
 +----------------------------------------------------------+
 
@@ -84,29 +84,16 @@
   │   │   │   ├── [TS]   ConfirmationDialog.tsx
   │   │   │   └── [TS]   FormAlert.tsx
   │   │   ├── forms/
-  │   │   │   ├── [TS]   CreatePoForm.tsx
-  │   │   │   ├── [TS]   DespatchPoForm.tsx
-  │   │   │   └── [TS]   EditPoForm.tsx
+  │   │   │   └── [TS]   CreatePoForm.tsx
   │   │   ├── layout/
   │   │   │   ├── [TS]   ErrorBoundary.tsx
   │   │   │   ├── [TS]   index.ts
   │   │   │   └── [TS]   Sidebar.tsx
-  │   │   ├── modals/
-  │   │   │   └── [TS]   PoDetailModal.tsx
   │   │   ├── pages/
-  │   │   │   ├── testing/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   ├── [TS]   UITestPage2.tsx
-  │   │   │   │   └── [TS]   UITestPage.tsx
-  │   │   │   ├── [TS]   CreatePOPage.tsx
-  │   │   │   └── [TS]   PurchaseOrdersPage.tsx
-  │   │   ├── purchase-orders/
-  │   │   │   ├── [TS]   ActionsCell.tsx
-  │   │   │   ├── [TS]   constants.ts
-  │   │   │   ├── [TS]   helpers.ts
-  │   │   │   ├── [TS]   index.ts
-  │   │   │   ├── [TS]   PurchaseOrdersSkeleton.tsx
-  │   │   │   └── [TS]   StatusCell.tsx
+  │   │   │   └── testing/
+  │   │   │       ├── [TS]   index.ts
+  │   │   │       ├── [TS]   UITestPage2.tsx
+  │   │   │       └── [TS]   UITestPage.tsx
   │   │   ├── shared/
   │   │   │   ├── ExportDropdown/
   │   │   │   │   ├── [TS]   ExportDropdown.tsx
@@ -278,6 +265,29 @@
   │   │   │   ├── [TS]   index.ts
   │   │   │   ├── [TS]   ProductDashboardPage.tsx
   │   │   │   └── [TS]   ProductsPage.tsx
+  │   │   ├── purchase-orders/
+  │   │   │   ├── components/
+  │   │   │   │   ├── [TS]   ActionsCell.tsx
+  │   │   │   │   ├── [TS]   constants.ts
+  │   │   │   │   ├── [TS]   helpers.ts
+  │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   ├── [TS]   PurchaseOrdersSkeleton.tsx
+  │   │   │   │   └── [TS]   StatusCell.tsx
+  │   │   │   ├── forms/
+  │   │   │   │   ├── [TS]   DespatchPoForm.tsx
+  │   │   │   │   ├── [TS]   EditPoForm.tsx
+  │   │   │   │   └── [TS]   index.ts
+  │   │   │   ├── hooks/  (empty)
+  │   │   │   ├── modals/
+  │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   └── [TS]   PoDetailModal.tsx
+  │   │   │   ├── services/
+  │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   └── [TS]   purchaseOrder.service.ts
+  │   │   │   ├── types/  (empty)
+  │   │   │   ├── [TS]   CreatePOPage.tsx
+  │   │   │   ├── [TS]   index.ts
+  │   │   │   └── [TS]   PurchaseOrdersPage.tsx
   │   │   └── soh/
   │   │       ├── components/
   │   │       │   ├── [TS]   index.ts
@@ -299,8 +309,7 @@
   │   ├── services/
   │   │   ├── [TS]   api.service.ts
   │   │   ├── [TS]   component.service.ts
-  │   │   ├── [TS]   export.service.ts
-  │   │   └── [TS]   purchaseOrder.service.ts
+  │   │   └── [TS]   export.service.ts
   │   ├── styles/
   │   │   └── [TS]   themes.ts
   │   ├── types/
@@ -327,5 +336,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 91   | Files: 225  | Total: 316      |
+|  SUMMARY:  Folders: 96   | Files: 229  | Total: 325      |
 +----------------------------------------------------------+

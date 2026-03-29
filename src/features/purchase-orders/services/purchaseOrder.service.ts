@@ -1,3 +1,5 @@
+// src/features/purchase-orders/services/purchaseOrder.service.ts
+
 // BLOCK 1: Imports
 import {
   apiClient,
@@ -10,8 +12,8 @@ import {
   updatePurchaseOrderStatus as apiUpdateStatus,
   deletePo as apiDeletePo,
   fetchPoById as apiFetchPoById
-} from "./api.service";
-import { PurchaseOrder, Product, PoStatus } from "../types/mrp.types";
+} from "@/services/api.service";
+import { PurchaseOrder, Product, PoStatus } from "@/types/mrp.types";
 
 // BLOCK 2: Purchase Order Service Class
 class PurchaseOrderService {
@@ -179,7 +181,7 @@ class PurchaseOrderService {
       // TODO: Implement this with backend API
       // For now, just update status to Completed
       // Update status to Completed
-      await this.updatePoStatus(poId, 'Completed');
+      await this.updatePoStatus(poId, 'Despatched/ Completed');
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -564,4 +566,4 @@ export type {
   PurchaseOrder,
   Product,
   PoStatus
-} from '../types/mrp.types';
+} from '../../../types/mrp.types';
