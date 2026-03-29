@@ -1,8 +1,8 @@
-// src/components/forecasts/constants.ts
+// src/features/forecasts/constants.ts
 
 // ============== BLOCK 1: Imports ==============
 
-import type { SelectOption } from "../ui/Select";
+import type { SelectOption } from "@/components/ui/Select";
 
 // ============== BLOCK 2: Week Filter Options ==============
 
