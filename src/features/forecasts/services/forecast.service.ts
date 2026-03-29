@@ -1,61 +1,23 @@
-// src/services/forecast.service.ts
+// src/features/forecasts/services/forecast.service.ts
 
 // ============== BLOCK 1: Imports ==============
-import { handleApiError } from "./api.service";
-import { Forecast } from "../types/mrp.types";
+import { handleApiError } from "@/services/api.service";
+import { Forecast } from "@/types/mrp.types";
 import * as XLSX from "xlsx";
+import type {
+  ForecastReviewItem,
+  ForecastImportResult,
+  ForecastReviewApproval,
+  WeeklyForecastRow,
+  WeeklyDemandSummary,
+  ForecastTableData,
+} from "../types/forecast.types";
 
-// ============== BLOCK 2: Types & Interfaces ==============
-export interface ForecastReviewItem {
-  row_number: number;
-  product_code: string;
-  description: string;
-  forecast_values: Record<string, number>;
-  reason: 'unknown_product' | 'invalid_date';
-}
 
-export interface ForecastImportResult {
-  success: boolean;
-  message: string;
-  imported: number;
-  skipped?: number;
-  pending_review: number;
-  review_items: ForecastReviewItem[];
-  requires_review?: boolean;
-  debug?: any;
-}
-
-export interface ForecastReviewApproval {
-  product_code: string;
-  action: 'create_placeholder' | 'map_to_existing' | 'skip';
-  mapped_product_code?: string;
-}
-
-export interface WeeklyForecastRow {
-  productCode: string;
-  description: string;
-  weeklyData: Record<string, number>; // Key: YYYY-MM-DD, Value: quantity
-}
-
-export interface WeeklyDemandSummary {
-  weekDate: string; // YYYY-MM-DD
-  weekLabel: string; // "02 Mar 2026"
-  totalUnits: number;
-  totalHours: number;
-}
-
-export interface ForecastTableData {
-  headers: { key: string; label: string }[];
-  rows: WeeklyForecastRow[];
-  weeklyDemand: WeeklyDemandSummary[];
-  totalProducts: number;
-  activeProducts: number;
-}
-
-// ============== BLOCK 3: API Base URL ==============
+// ============== BLOCK 2: API Base URL ==============
 const API_BASE_URL = 'https://mrp-1.onrender.com/api';
 
-// ============== BLOCK 4: Forecast Service Class ==============
+// ============== BLOCK 3: Forecast Service Class ==============
 class ForecastService {
 
   /**
@@ -226,7 +188,7 @@ async getWeeklyForecasts(): Promise<{
   }
 }
 
-// ============== BLOCK 5: Export Singleton Instance ==============
+// ============== BLOCK 4: Export Singleton Instance ==============
 export const forecastService = new ForecastService();
 
 // ============== BLOCK 6: Export Individual Functions ==============
@@ -242,7 +204,17 @@ export const getAllForecastsTable = async () => {
   return forecastService.getWeeklyForecasts();
 };
 
-// ============== BLOCK 7: Utility Functions ==============
+// Re-export types for convenience
+export type {
+  ForecastReviewItem,
+  ForecastImportResult,
+  ForecastReviewApproval,
+  WeeklyForecastRow,
+  WeeklyDemandSummary,
+  ForecastTableData,
+} from "../types/forecast.types";
+
+// ============== BLOCK 6: Utility Functions ==============
 
 /**
  * Calculate demand hours from shippers
@@ -368,6 +340,6 @@ export const getForecastsWithProductData = async (
   };
 };
 
-// ============== BLOCK 8: Exports ==============
+// ============== BLOCK 7: Exports ==============
 export { ForecastService };
 export default forecastService;

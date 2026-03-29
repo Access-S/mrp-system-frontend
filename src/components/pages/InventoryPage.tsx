@@ -12,7 +12,7 @@ import { useToast } from "../ui/Toast";
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { getAllSoh } from "../../services/component.service";
 import { getAllProducts } from "../../services/product.service";
-import { getAllForecasts } from "../../services/forecast.service";
+import { getAllForecasts } from "../../features/forecasts/services/forecast.service";
 import {
   calculateInventoryProjections,
   InventoryProjection,

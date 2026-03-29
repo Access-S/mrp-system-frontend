@@ -5,7 +5,7 @@
 // ============================================================================
 import { Product, Forecast, Component } from "../types/mrp.types";
 import { productService } from "./product.service";
-import { forecastService } from "./forecast.service";
+import { forecastService } from "../features/forecasts/services/forecast.service";
 import { componentService } from "./component.service";
 import { handleApiError } from "./api.service";
 

@@ -25,7 +25,7 @@ import {
   ForecastImportResult, 
   ForecastReviewApproval,
   finalizeForecastReview 
-} from "../../services/forecast.service";
+} from "../../features/forecasts/services/forecast.service";
 import { getAllProducts } from "../../services/product.service";
 
 // ============== BLOCK 2: Types & Interfaces ==============
