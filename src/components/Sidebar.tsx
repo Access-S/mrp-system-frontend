@@ -36,7 +36,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useTheme } from "../contexts/ThemeContext";
 import { themes } from "../styles/themes";
-import { Page } from "../App";
+import { Page } from "../app/App";
 
 export function Sidebar({
   activePage,
