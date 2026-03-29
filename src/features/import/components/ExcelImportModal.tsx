@@ -1,4 +1,4 @@
-// src/components/modals/ExcelImportModal.tsx
+// src/features/import/components/ExcelImportModal.tsx
 
 // ============== BLOCK 1: Imports ==============
 import React, { useState, useRef, useEffect } from "react";
@@ -14,19 +14,19 @@ import {
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 
-import { Dialog } from "../ui/Dialog";
-import { Button } from "../ui/Button";
-import { Badge } from "../ui/Badge";
-import { Select } from "../ui/Select";
-import { Spinner } from "../ui/Spinner";
+import { Dialog } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Select } from "@/components/ui/Select";
+import { Spinner } from "@/components/ui/Spinner";
 
 // Services
 import { 
   ForecastImportResult, 
   ForecastReviewApproval,
   finalizeForecastReview 
-} from "../../features/forecasts/services/forecast.service";
-import { getAllProducts } from "../../services/product.service";
+} from "@/features/forecasts/services/forecast.service";
+import { getAllProducts } from "@/services/product.service";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 interface ExcelImportModalProps {

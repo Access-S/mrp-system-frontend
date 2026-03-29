@@ -22,8 +22,7 @@ import { FilterToolbar } from "@/components/shared/FilterToolbar";
 import { ResultsCount } from "@/components/shared/ResultsCount";
 import { ExportDropdown } from "@/components/shared/ExportDropdown";
 import { SohSkeleton } from "./components";
-import { ExcelImportModal } from "@/components/modals/ExcelImportModal";
-
+import { ExcelImportModal } from "@/features/import/components/ExcelImportModal";
 import { useFetch, useSearch, useImport } from "@/hooks";
 
 import {
