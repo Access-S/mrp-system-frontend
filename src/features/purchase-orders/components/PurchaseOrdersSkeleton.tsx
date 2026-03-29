@@ -1,11 +1,11 @@
-// src/components/purchase-orders/PurchaseOrdersSkeleton.tsx
+// src/features/purchase-orders/components/PurchaseOrdersSkeleton.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React from "react";
 
-import { Table } from "../ui/Table";
-import { Skeleton } from "../ui/Skeleton";
+import { Table } from "@/components/ui/Table";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 // ============== BLOCK 2: Table Row Skeleton ==============
 

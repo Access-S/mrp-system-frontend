@@ -1,4 +1,4 @@
-// src/components/purchase-orders/StatusCell.tsx
+// src/features/purchase-orders/components/StatusCell.tsx
 
 // ============== BLOCK 1: Imports ==============
 
@@ -6,15 +6,15 @@ import React from "react";
 import clsx from "clsx";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
-import { Menu } from "../ui/Menu";
-import { StatusBadge } from "../ui/StatusBadge";
-import { ScrollArea } from "../ui/ScrollArea";
+import { Menu } from "@/components/ui/Menu";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ScrollArea } from "@/components/ui/ScrollArea";
 
-import { ALL_PO_STATUSES } from "../../types/mrp.types";
+import { ALL_PO_STATUSES } from "@/types/mrp.types";
 import { getBlockedStatuses } from "./helpers";
 
-import type { PurchaseOrder } from "../../types/mrp.types";
-import type { Status } from "../ui/StatusBadge";
+import type { PurchaseOrder } from "@/types/mrp.types";
+import type { Status } from "@/components/ui/StatusBadge";
 
 // ============== BLOCK 2: Types ==============
 

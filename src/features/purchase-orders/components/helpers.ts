@@ -1,8 +1,8 @@
-// src/components/purchase-orders/helpers.ts
+// src/features/purchase-orders/components/helpers.ts
 
 // ============== BLOCK 1: Imports ==============
 
-import { ALL_PO_STATUSES } from "../../types/mrp.types";
+import { ALL_PO_STATUSES } from "@/types/mrp.types";
 
 // ============== BLOCK 2: Status Logic ==============
 

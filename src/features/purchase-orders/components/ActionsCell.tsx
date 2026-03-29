@@ -1,4 +1,4 @@
-// src/components/purchase-orders/ActionsCell.tsx
+// src/features/purchase-orders/components/ActionsCell.tsx
 
 // ============== BLOCK 1: Imports ==============
 
@@ -9,10 +9,10 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 
-import { Menu } from "../ui/Menu";
-import { Tooltip } from "../ui/Tooltip";
+import { Menu } from "@/components/ui/Menu";
+import { Tooltip } from "@/components/ui/Tooltip";
 
-import type { PurchaseOrder } from "../../types/mrp.types";
+import type { PurchaseOrder } from "@/types/mrp.types";
 
 // ============== BLOCK 2: Types ==============
 
