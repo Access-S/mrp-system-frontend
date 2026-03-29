@@ -1,13 +1,13 @@
-// src/components/dashboard/RecentActivityCard.tsx
+// src/features/dashboard/components/RecentActivityCard.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React from "react";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 
-import { Card, CardContent } from "../ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 
-import type { RecentActivity } from "../../services/dashboard.api";
+import type { RecentActivity } from "../services/dashboard.api";
 
 // ============== BLOCK 2: Types ==============
 
