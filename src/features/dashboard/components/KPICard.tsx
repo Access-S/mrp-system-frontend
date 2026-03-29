@@ -1,8 +1,8 @@
-// src/components/dashboard/KPICard.tsx
+// src/features/dashboard/components/KPICard.tsx
 
 import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'apexcharts';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface KPICardProps {
   title: string;
