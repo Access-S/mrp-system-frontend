@@ -1,36 +1,33 @@
-// src/components/forms/EditProductForm.tsx
+// src/features/products/forms/CreateProductForm.tsx
 
 // ============== BLOCK 1: Imports ==============
 
-import React, { useState, useEffect } from "react";
-import { Dialog } from "../ui/Dialog";
-import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
-import { useTheme } from "../../contexts/ThemeContext";
-import { productService, UpdateProductData } from "../../services/product.service";
+import React, { useState } from "react";
+import { Dialog } from "@/components/ui/Dialog";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { productService } from "../services/product.service";
 
 // ============== BLOCK 2: Types ==============
 
-interface EditProductFormProps {
+interface CreateProductFormProps {
   open: boolean;
   handleOpen: () => void;
-  product: any | null;
-  onProductUpdated: () => void;
+  onProductCreated: () => void;
 }
 
 // ============== BLOCK 3: Component ==============
 
-export function EditProductForm({
+export function CreateProductForm({
   open,
   handleOpen,
-  product,
-  onProductUpdated,
-}: EditProductFormProps) {
-  const { theme } = useTheme();
+  onProductCreated,
+}: CreateProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
+    productCode: "",
     description: "",
     unitsPerShipper: 0,
     dailyRunRate: 0,
@@ -39,31 +36,17 @@ export function EditProductForm({
     pricePerShipper: 0,
   });
 
-  // Populate form when product changes
-  useEffect(() => {
-    if (product) {
-      setFormData({
-        description: product.description || "",
-        unitsPerShipper: product.unitsPerShipper || 0,
-        dailyRunRate: product.dailyRunRate || 0,
-        hourlyRunRate: product.hourlyRunRate || 0,
-        minsPerShipper: product.minsPerShipper || 0,
-        pricePerShipper: product.pricePerShipper || 0,
-      });
-    }
-  }, [product]);
-
   const handleChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
   };
 
   const handleSubmit = async () => {
-    if (!product?.productCode) {
-      setError("Product code is missing");
+    // Validation
+    if (!formData.productCode.trim()) {
+      setError("Product Code is required");
       return;
     }
-
     if (!formData.description.trim()) {
       setError("Description is required");
       return;
@@ -73,11 +56,23 @@ export function EditProductForm({
     setError(null);
 
     try {
-      await productService.updateProduct(product.productCode, formData);
-      onProductUpdated();
+      await productService.createProduct(formData);
+
+      // Reset form
+      setFormData({
+        productCode: "",
+        description: "",
+        unitsPerShipper: 0,
+        dailyRunRate: 0,
+        hourlyRunRate: 0,
+        minsPerShipper: 0,
+        pricePerShipper: 0,
+      });
+
+      onProductCreated();
       handleOpen();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to update product";
+      const message = err instanceof Error ? err.message : "Failed to create product";
       setError(message);
     } finally {
       setLoading(false);
@@ -89,19 +84,27 @@ export function EditProductForm({
       open={open}
       onClose={handleOpen}
       size="lg"
-      title={`Edit Product: ${product?.productCode || ""}`}
+      title="Create New Product"
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={handleOpen}>
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSubmit} loading={loading}>
-            Update Product
+            Create Product
           </Button>
         </div>
       }
     >
       <div className="grid gap-4">
+        {/* Product Code */}
+        <Input
+          label="Product Code *"
+          value={formData.productCode}
+          onChange={(e) => handleChange("productCode", e.target.value)}
+          required
+        />
+
         {/* Description */}
         <Input
           label="Description *"

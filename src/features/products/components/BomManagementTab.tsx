@@ -1,24 +1,24 @@
-// src/components/tabs/BomManagementTab.tsx
+// src/features/products/components/BomManagementTab.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState, useEffect } from "react";
-import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
-import { Card, CardContent } from "../ui/Card";
-import { Spinner } from "../ui/Spinner";
-import { useTheme } from "../../contexts/ThemeContext";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Spinner } from "@/components/ui/Spinner";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   PlusIcon,
   MagnifyingGlassIcon,
   PencilIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import { productService } from "../../services/product.service";
-import { bomService } from "../../services/bom.service";
+import { productService } from "../services/product.service";
+import { bomService } from "../services/bom.service";
 import { AddBomComponentModal } from "../modals/AddBomComponentModal";
 import { EditBomComponentModal } from "../modals/EditBomComponentModal";
-import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
+import { ConfirmationDialog } from "@/components/shared/ConfirmationDialog";
 
 // ============== BLOCK 2: Types ==============
 

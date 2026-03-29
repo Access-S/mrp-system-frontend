@@ -1,9 +1,9 @@
-// src/components/tabs/ProductInfoTab.tsx
+// src/features/products/components/ProductInfoTab.tsx
 
 import React, { useState, useEffect } from "react";
 import { PencilIcon, CheckIcon, XMarkIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { useTheme } from "../../contexts/ThemeContext";
-import { productService } from "../../services/product.service";
+import { useTheme } from "@/contexts/ThemeContext";
+import { productService } from "../services/product.service";
 
 interface ProductInfoTabProps {
   product: any;

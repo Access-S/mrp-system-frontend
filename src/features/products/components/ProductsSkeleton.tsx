@@ -1,11 +1,11 @@
-// src/components/products/ProductsSkeleton.tsx
+// src/features/products/components/ProductsSkeleton.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React from "react";
 
-import { Card, CardContent } from "../ui/Card";
-import { Skeleton, SkeletonTableRow } from "../ui/Skeleton";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Skeleton, SkeletonTableRow } from "@/components/ui/Skeleton";
 
 // ============== BLOCK 2: Component ==============
 
