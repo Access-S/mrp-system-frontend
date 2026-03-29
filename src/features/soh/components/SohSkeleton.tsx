@@ -1,11 +1,11 @@
-// src/components/soh/SohSkeleton.tsx
+// src/features/soh/components/SohSkeleton.tsx
 
 // ============== BLOCK 1: Imports ==============
 
 import React from "react";
 
-import { Card, CardHeader, CardContent } from "../ui/Card";
-import { Skeleton, SkeletonTableRow } from "../ui/Skeleton";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { Skeleton, SkeletonTableRow } from "@/components/ui/Skeleton";
 
 // ============== BLOCK 2: Component ==============
 

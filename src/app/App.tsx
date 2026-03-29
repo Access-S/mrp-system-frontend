@@ -14,7 +14,7 @@ import { PurchaseOrdersPage } from "@/components/pages/PurchaseOrdersPage";
 import { ProductDashboardPage } from "@/components/pages/ProductDashboardPage";
 import { CreatePoPage } from "@/components/pages/CreatePOPage";
 import { ForecastsPage } from "@/components/pages/ForecastsPage";
-import { SohPage } from "@/components/pages/SohPage";
+import { SohPage } from "@/features/soh/SohPage";
 import { InventoryPage } from "@/components/pages/InventoryPage";
 import { ImportPage } from "@/components/pages/ImportPage";
 import { UITestPage, UITestPage2 } from "@/components/pages/testing";

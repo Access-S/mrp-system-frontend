@@ -1,4 +1,4 @@
-// src/components/pages/SohPage.tsx
+// src/features/soh/SohPage.tsx
 
 // ============== BLOCK 1: Imports ==============
 
@@ -9,33 +9,33 @@ import {
   ArchiveBoxIcon,
 } from "@heroicons/react/24/outline";
 
-import { Card, CardContent } from "../ui/Card";
-import { Button } from "../ui/Button";
-import { Table } from "../ui/Table";
-import { Badge } from "../ui/Badge";
-import { EmptyState } from "../ui/EmptyState";
-import { useToast } from "../ui/Toast";
-import { ScrollArea } from "../ui/ScrollArea";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Table } from "@/components/ui/Table";
+import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useToast } from "@/components/ui/Toast";
+import { ScrollArea } from "@/components/ui/ScrollArea";
 
-import { PageHeader } from "../shared/PageHeader";
-import { FilterToolbar } from "../shared/FilterToolbar";
-import { ResultsCount } from "../shared/ResultsCount";
-import { ExportDropdown } from "../shared/ExportDropdown";
-import { SohSkeleton } from "../soh";
-import { ExcelImportModal } from "../modals/ExcelImportModal";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { FilterToolbar } from "@/components/shared/FilterToolbar";
+import { ResultsCount } from "@/components/shared/ResultsCount";
+import { ExportDropdown } from "@/components/shared/ExportDropdown";
+import { SohSkeleton } from "./components";
+import { ExcelImportModal } from "@/components/modals/ExcelImportModal";
 
-import { useFetch, useSearch, useImport } from "../../hooks";
+import { useFetch, useSearch, useImport } from "@/hooks";
 
 import {
   getSohData,
   importSohData,
   formatStock,
   formatCurrency,
-} from "../../services/soh.service";
-import { exportData } from "../../services/export.service";
+} from "./services/soh.service";
+import { exportData } from "@/services/export.service";
 
-import type { SohTableData, SohImportResult } from "../../services/soh.service";
-import type { ExportFormat, ExportColumn } from "../../services/export.service";
+import type { SohTableData, SohImportResult } from "./services/soh.service";
+import type { ExportFormat, ExportColumn } from "@/services/export.service";
 
 // ============== BLOCK 2: Component ==============
 
