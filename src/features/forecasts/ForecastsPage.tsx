@@ -18,8 +18,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 
-import { KPICard } from "@/components/dashboard/KPICard";
-import { BarChart } from "@/components/dashboard/charts";
+import { KPICard } from "@/features/dashboard/components/KPICard";
+import { BarChart } from "@/features/dashboard/components/charts";
 import { ExcelImportModal } from "@/features/import";
 
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -29,7 +29,8 @@ import { ExportDropdown } from "@/components/shared/ExportDropdown";
 
 import { ForecastSkeleton, WEEK_OPTIONS, formatNumber } from "./components";
 
-import { useFetch, useSearch, useImport } from "@/hooks";
+import { useFetch, useSearch } from "@/hooks";
+import { useImport } from "@/features/import/hooks/useImport";
 
 import {
   importForecastData,
