@@ -1,4 +1,4 @@
-// src/components/pages/PurchaseOrdersPage.tsx
+// src/features/purchase-orders/PurchaseOrdersPage.tsx
 
 // ============== BLOCK 1: Imports ==============
 
@@ -10,18 +10,18 @@ import {
 } from "@heroicons/react/24/outline";
 import { useDebounce } from "use-debounce";
 
-import { Table } from "../ui/Table";
-import { Button } from "../ui/Button";
-import { Select } from "../ui/Select";
-import { Spinner } from "../ui/Spinner";
-import { Pagination, PaginationInfo } from "../ui/Pagination";
-import { EmptyState, EmptySearchState } from "../ui/EmptyState";
-import { Tooltip } from "../ui/Tooltip";
-import { ScrollArea } from "../ui/ScrollArea";
-import { Divider } from "../ui/Divider";
-import { useToast } from "../ui/Toast";
-import { PageHeader } from "../shared/PageHeader";
-import { FilterToolbar } from "../shared/FilterToolbar";
+import { Table } from "@/components/ui/Table";
+import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
+import { Spinner } from "@/components/ui/Spinner";
+import { Pagination, PaginationInfo } from "@/components/ui/Pagination";
+import { EmptyState, EmptySearchState } from "@/components/ui/EmptyState";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { ScrollArea } from "@/components/ui/ScrollArea";
+import { Divider } from "@/components/ui/Divider";
+import { useToast } from "@/components/ui/Toast";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { FilterToolbar } from "@/components/shared/FilterToolbar";
 import {
   PurchaseOrdersSkeleton,
   StatusCell,
@@ -30,20 +30,20 @@ import {
   ITEMS_PER_PAGE_OPTIONS,
   getBlockedStatuses,
   calculateProductionTime,
-} from "../purchase-orders";
-import { PoDetailModal } from "../modals/PoDetailModal";
-import { EditPoForm } from "../forms/EditPoForm";
-import { DespatchPoForm } from "../forms/DespatchPoForm";
-import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
+} from "./components";
+import { PoDetailModal } from "./modals/PoDetailModal";
+import { EditPoForm } from "./forms/EditPoForm";
+import { DespatchPoForm } from "./forms/DespatchPoForm";
+import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
 
-import { useModal, usePagination, useSort } from "../../hooks";
+import { useModal, usePagination, useSort } from "@/hooks";
 import {
   fetchPurchaseOrders,
   updatePurchaseOrderStatus,
   deletePo,
 } from "@/services/api.service";
 
-import type { PurchaseOrder } from "../../types/mrp.types";
+import type { PurchaseOrder } from "@/types/mrp.types";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 

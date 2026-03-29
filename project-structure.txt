@@ -3,7 +3,7 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-28 12:34:10                  |
+|          Generated: 2026-03-29 03:52:47                  |
 |                                                          |
 +----------------------------------------------------------+
 
@@ -39,7 +39,8 @@
   │   │       ├── [MD]   ENTERPRISE_CODEBASE_AUDIT_CROSSCHECK.md
   │   │       ├──        Post-Refactoring Audit Status Report_Version1
   │   │       ├──        Post-Refactoring Audit Status Report_Version2
-  │   │       └──        Post-Refactoring Audit Status Report_Version3
+  │   │       ├──        Post-Refactoring Audit Status Report_Version3
+  │   │       └── [MD]   Structure_restructure_Report.md
   │   ├── diagrams/
   │   │   ├── [MD]   app-flow.md
   │   │   └── [MD]   architecture.md
@@ -76,40 +77,21 @@
   ├── public/
   │   └── [IMG]  vite.svg
   ├── src/
+  │   ├── app/
+  │   │   └── [TS]   App.tsx
   │   ├── components/
-  │   │   ├── dashboard/
-  │   │   │   ├── charts/
-  │   │   │   │   ├── [TS]   BarChart.tsx
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   ├── [TS]   LineChart.tsx
-  │   │   │   │   ├── [TS]   PieChart.tsx
-  │   │   │   │   └── [TS]   RadialBarChart.tsx
-  │   │   │   ├── [TS]   DashboardSkeleton.tsx
-  │   │   │   ├── [TS]   index.ts
-  │   │   │   ├── [TS]   KPICard.tsx
-  │   │   │   ├── [TS]   LowStockAlerts.tsx
-  │   │   │   ├── [TS]   RecentActivityCard.tsx
-  │   │   │   ├── [TS]   TimeRangeFilter.tsx
-  │   │   │   └── [TS]   TopItemsCard.tsx
   │   │   ├── dialogs/
   │   │   │   ├── [TS]   ConfirmationDialog.tsx
   │   │   │   └── [TS]   FormAlert.tsx
-  │   │   ├── forecasts/
-  │   │   │   ├── [TS]   constants.ts
-  │   │   │   ├── [TS]   ForecastSkeleton.tsx
-  │   │   │   ├── [TS]   helpers.ts
-  │   │   │   └── [TS]   index.ts
   │   │   ├── forms/
   │   │   │   ├── [TS]   CreatePoForm.tsx
-  │   │   │   ├── [TS]   CreateProductForm.tsx
   │   │   │   ├── [TS]   DespatchPoForm.tsx
-  │   │   │   ├── [TS]   EditPoForm.tsx
-  │   │   │   └── [TS]   EditProductForm.tsx
+  │   │   │   └── [TS]   EditPoForm.tsx
+  │   │   ├── layout/
+  │   │   │   ├── [TS]   ErrorBoundary.tsx
+  │   │   │   ├── [TS]   index.ts
+  │   │   │   └── [TS]   Sidebar.tsx
   │   │   ├── modals/
-  │   │   │   ├── [TS]   AddBomComponentModal.tsx
-  │   │   │   ├── [TS]   BomDetailModal.tsx
-  │   │   │   ├── [TS]   EditBomComponentModal.tsx
-  │   │   │   ├── [TS]   ExcelImportModal.tsx
   │   │   │   └── [TS]   PoDetailModal.tsx
   │   │   ├── pages/
   │   │   │   ├── testing/
@@ -117,16 +99,7 @@
   │   │   │   │   ├── [TS]   UITestPage2.tsx
   │   │   │   │   └── [TS]   UITestPage.tsx
   │   │   │   ├── [TS]   CreatePOPage.tsx
-  │   │   │   ├── [TS]   DashboardPage.tsx
-  │   │   │   ├── [TS]   ForecastsPage.tsx
-  │   │   │   ├── [TS]   ImportPage.tsx
-  │   │   │   ├── [TS]   InventoryPage.tsx
-  │   │   │   ├── [TS]   ProductDashboardPage.tsx
-  │   │   │   ├── [TS]   ProductsPage.tsx
-  │   │   │   ├── [TS]   PurchaseOrdersPage.tsx
-  │   │   │   └── [TS]   SohPage.tsx
-  │   │   ├── products/
-  │   │   │   └── [TS]   ProductsSkeleton.tsx
+  │   │   │   └── [TS]   PurchaseOrdersPage.tsx
   │   │   ├── purchase-orders/
   │   │   │   ├── [TS]   ActionsCell.tsx
   │   │   │   ├── [TS]   constants.ts
@@ -148,121 +121,190 @@
   │   │   │   │   ├── [TS]   index.ts
   │   │   │   │   └── [TS]   ResultsCount.tsx
   │   │   │   └── [TS]   index.ts
-  │   │   ├── soh/
-  │   │   │   ├── [TS]   index.ts
-  │   │   │   └── [TS]   SohSkeleton.tsx
-  │   │   ├── tabs/
-  │   │   │   ├── [TS]   BomManagementTab.tsx
-  │   │   │   └── [TS]   ProductInfoTab.tsx
-  │   │   ├── ui/
-  │   │   │   ├── Accordion/
-  │   │   │   │   ├── [TS]   Accordion.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Avatar/
-  │   │   │   │   ├── [TS]   Avatar.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Badge/
-  │   │   │   │   ├── [TS]   Badge.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Breadcrumb/
-  │   │   │   │   ├── [TS]   Breadcrumb.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Button/
-  │   │   │   │   ├── [TS]   Button.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Card/
-  │   │   │   │   ├── [TS]   Card.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── DatePicker/
-  │   │   │   │   ├── [TS]   DatePicker.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Dialog/
-  │   │   │   │   ├── [TS]   Dialog.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Divider/
-  │   │   │   │   ├── [TS]   Divider.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Drawer/
-  │   │   │   │   ├── [TS]   Drawer.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── EmptyState/
-  │   │   │   │   ├── [TS]   EmptyState.tsx
-  │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── Input/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   Input.tsx
-  │   │   │   ├── Menu/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   Menu.tsx
-  │   │   │   ├── Pagination/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   Pagination.tsx
-  │   │   │   ├── ScrollArea/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   ScrollArea.tsx
-  │   │   │   ├── Select/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   Select.tsx
-  │   │   │   ├── Skeleton/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   Skeleton.tsx
-  │   │   │   ├── Spinner/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   Spinner.tsx
-  │   │   │   ├── StatusBadge/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   StatusBadge.tsx
-  │   │   │   ├── Table/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   ├── [TS]   TableContext.tsx
-  │   │   │   │   └── [TS]   Table.tsx
-  │   │   │   ├── Tabs/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   Tabs.tsx
-  │   │   │   ├── Toast/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   ├── [TS]   ToastContainer.tsx
-  │   │   │   │   ├── [TS]   ToastContext.tsx
-  │   │   │   │   ├── [TS]   Toast.tsx
-  │   │   │   │   └── [TS]   useToast.ts
-  │   │   │   ├── Tooltip/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   Tooltip.tsx
-  │   │   │   ├── WidgetCard/
-  │   │   │   │   ├── [TS]   index.ts
-  │   │   │   │   └── [TS]   WidgetCard.tsx
-  │   │   │   └── [TS]   index.ts
-  │   │   ├── [TS]   ErrorBoundary.tsx
-  │   │   └── [TS]   Sidebar.tsx
+  │   │   └── ui/
+  │   │       ├── Accordion/
+  │   │       │   ├── [TS]   Accordion.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Avatar/
+  │   │       │   ├── [TS]   Avatar.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Badge/
+  │   │       │   ├── [TS]   Badge.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Breadcrumb/
+  │   │       │   ├── [TS]   Breadcrumb.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Button/
+  │   │       │   ├── [TS]   Button.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Card/
+  │   │       │   ├── [TS]   Card.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── DatePicker/
+  │   │       │   ├── [TS]   DatePicker.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Dialog/
+  │   │       │   ├── [TS]   Dialog.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Divider/
+  │   │       │   ├── [TS]   Divider.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Drawer/
+  │   │       │   ├── [TS]   Drawer.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── EmptyState/
+  │   │       │   ├── [TS]   EmptyState.tsx
+  │   │       │   └── [TS]   index.ts
+  │   │       ├── Input/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   Input.tsx
+  │   │       ├── Menu/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   Menu.tsx
+  │   │       ├── Pagination/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   Pagination.tsx
+  │   │       ├── ScrollArea/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   ScrollArea.tsx
+  │   │       ├── Select/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   Select.tsx
+  │   │       ├── Skeleton/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   Skeleton.tsx
+  │   │       ├── Spinner/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   Spinner.tsx
+  │   │       ├── StatusBadge/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   StatusBadge.tsx
+  │   │       ├── Table/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   ├── [TS]   TableContext.tsx
+  │   │       │   └── [TS]   Table.tsx
+  │   │       ├── Tabs/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   Tabs.tsx
+  │   │       ├── Toast/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   ├── [TS]   ToastContainer.tsx
+  │   │       │   ├── [TS]   ToastContext.tsx
+  │   │       │   ├── [TS]   Toast.tsx
+  │   │       │   └── [TS]   useToast.ts
+  │   │       ├── Tooltip/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   Tooltip.tsx
+  │   │       ├── WidgetCard/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   WidgetCard.tsx
+  │   │       └── [TS]   index.ts
   │   ├── contexts/
   │   │   └── [TS]   ThemeContext.tsx
+  │   ├── features/
+  │   │   ├── dashboard/
+  │   │   │   ├── components/
+  │   │   │   │   ├── charts/
+  │   │   │   │   │   ├── [TS]   BarChart.tsx
+  │   │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   │   ├── [TS]   LineChart.tsx
+  │   │   │   │   │   ├── [TS]   PieChart.tsx
+  │   │   │   │   │   └── [TS]   RadialBarChart.tsx
+  │   │   │   │   ├── [TS]   DashboardSkeleton.tsx
+  │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   ├── [TS]   KPICard.tsx
+  │   │   │   │   ├── [TS]   LowStockAlerts.tsx
+  │   │   │   │   ├── [TS]   RecentActivityCard.tsx
+  │   │   │   │   ├── [TS]   TimeRangeFilter.tsx
+  │   │   │   │   └── [TS]   TopItemsCard.tsx
+  │   │   │   ├── hooks/  (empty)
+  │   │   │   ├── services/
+  │   │   │   │   ├── [TS]   dashboard.api.ts
+  │   │   │   │   └── [TS]   dashboard.service.ts
+  │   │   │   ├── types/
+  │   │   │   │   └── [TS]   dashboard.types.ts
+  │   │   │   ├── [TS]   DashboardPage.tsx
+  │   │   │   └── [TS]   index.ts
+  │   │   ├── forecasts/
+  │   │   │   ├── components/
+  │   │   │   │   ├── [TS]   ForecastSkeleton.tsx
+  │   │   │   │   └── [TS]   index.ts
+  │   │   │   ├── services/
+  │   │   │   │   └── [TS]   forecast.service.ts
+  │   │   │   ├── types/
+  │   │   │   │   └── [TS]   forecast.types.ts
+  │   │   │   ├── [TS]   constants.ts
+  │   │   │   ├── [TS]   ForecastsPage.tsx
+  │   │   │   ├── [TS]   helpers.ts
+  │   │   │   └── [TS]   index.ts
+  │   │   ├── import/
+  │   │   │   ├── components/
+  │   │   │   │   ├── [TS]   ExcelImportModal.tsx
+  │   │   │   │   └── [TS]   index.ts
+  │   │   │   ├── hooks/
+  │   │   │   │   └── [TS]   useImport.ts
+  │   │   │   ├── services/
+  │   │   │   │   └── [TS]   import.service.ts
+  │   │   │   ├── types/
+  │   │   │   │   └── [TS]   import.types.ts
+  │   │   │   ├── [TS]   ImportPage.tsx
+  │   │   │   └── [TS]   index.ts
+  │   │   ├── inventory/
+  │   │   │   ├── services/
+  │   │   │   │   └── [TS]   mrp.service.ts
+  │   │   │   ├── types/
+  │   │   │   │   └── [TS]   inventory.types.ts
+  │   │   │   ├── [TS]   index.ts
+  │   │   │   └── [TS]   InventoryPage.tsx
+  │   │   ├── products/
+  │   │   │   ├── components/
+  │   │   │   │   ├── [TS]   BomManagementTab.tsx
+  │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   ├── [TS]   ProductInfoTab.tsx
+  │   │   │   │   └── [TS]   ProductsSkeleton.tsx
+  │   │   │   ├── forms/
+  │   │   │   │   ├── [TS]   CreateProductForm.tsx
+  │   │   │   │   ├── [TS]   EditProductForm.tsx
+  │   │   │   │   └── [TS]   index.ts
+  │   │   │   ├── modals/
+  │   │   │   │   ├── [TS]   AddBomComponentModal.tsx
+  │   │   │   │   ├── [TS]   BomDetailModal.tsx
+  │   │   │   │   ├── [TS]   EditBomComponentModal.tsx
+  │   │   │   │   └── [TS]   index.ts
+  │   │   │   ├── services/
+  │   │   │   │   ├── [TS]   bom.service.ts
+  │   │   │   │   └── [TS]   product.service.ts
+  │   │   │   ├── types/  (empty)
+  │   │   │   ├── [TS]   index.ts
+  │   │   │   ├── [TS]   ProductDashboardPage.tsx
+  │   │   │   └── [TS]   ProductsPage.tsx
+  │   │   └── soh/
+  │   │       ├── components/
+  │   │       │   ├── [TS]   index.ts
+  │   │       │   └── [TS]   SohSkeleton.tsx
+  │   │       ├── services/
+  │   │       │   └── [TS]   soh.service.ts
+  │   │       ├── types/
+  │   │       │   └── [TS]   soh.types.ts
+  │   │       ├── [TS]   index.ts
+  │   │       └── [TS]   SohPage.tsx
   │   ├── hooks/
   │   │   ├── [TS]   index.ts
   │   │   ├── [TS]   useExportMenu.ts
   │   │   ├── [TS]   useFetch.ts
-  │   │   ├── [TS]   useImport.ts
   │   │   ├── [TS]   useModal.ts
   │   │   ├── [TS]   usePagination.ts
   │   │   ├── [TS]   useSearch.ts
   │   │   └── [TS]   useSort.ts
   │   ├── services/
   │   │   ├── [TS]   api.service.ts
-  │   │   ├── [TS]   bom.service.ts
   │   │   ├── [TS]   component.service.ts
-  │   │   ├── [TS]   dashboard.api.ts
-  │   │   ├── [TS]   dashboard.service.ts
   │   │   ├── [TS]   export.service.ts
-  │   │   ├── [TS]   forecast.service.ts
-  │   │   ├── [TS]   import.service.ts
-  │   │   ├── [TS]   mrp.service.ts
-  │   │   ├── [TS]   product.service.ts
-  │   │   ├── [TS]   purchaseOrder.service.ts
-  │   │   └── [TS]   soh.service.ts
+  │   │   └── [TS]   purchaseOrder.service.ts
   │   ├── styles/
   │   │   └── [TS]   themes.ts
   │   ├── types/
   │   │   └── [TS]   mrp.types.ts
-  │   ├── [TS]   App.tsx
   │   ├── [CSS]  index.css
   │   ├── [TS]   main.tsx
   │   ├── [TS]   supabase.config.ts
@@ -285,5 +327,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 66   | Files: 208  | Total: 274      |
+|  SUMMARY:  Folders: 91   | Files: 225  | Total: 316      |
 +----------------------------------------------------------+

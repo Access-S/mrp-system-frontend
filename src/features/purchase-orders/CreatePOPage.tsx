@@ -1,9 +1,9 @@
-// src/components/pages/CreatePOPage.tsx
+// src/features/purchase-orders/CreatePOPage.tsx
 
 // BLOCK 1: Imports
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import {
   MagnifyingGlassIcon,
   CalculatorIcon,
@@ -19,6 +19,7 @@ import { getAllProducts } from "@/features/products";
 import { FormAlert } from "@/components/dialogs/FormAlert";
 import { useToast } from "@/components/ui/Toast";
 import { DatePicker } from "@/components/ui/DatePicker";
+
 // BLOCK 2: Interfaces
 interface CreatePoPageProps {
   onBack: () => void;
