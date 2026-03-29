@@ -1,7 +1,7 @@
-// src/services/soh.service.ts
+// src/features/soh/services/soh.service.ts
 
 // ============== BLOCK 1: Imports ==============
-import { apiClient, handleApiError } from "./api.service";
+import { apiClient, handleApiError } from "@/services/api.service";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 export interface SohRecord {
