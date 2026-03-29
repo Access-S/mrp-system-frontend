@@ -2,50 +2,9 @@
 
 // ============== BLOCK 1: Imports ==============
 import { apiClient, handleApiError } from "@/services/api.service";
+import type { SohRecord, SohSummary, SohImportResult, SohTableData } from "../types/soh.types";
 
-// ============== BLOCK 2: Types & Interfaces ==============
-export interface SohRecord {
-  id: string;
-  part_code: string;
-  description: string;
-  stock_on_hand: number;
-  stock_value: number;
-  import_batch_id: string;
-  import_source: string;
-  created_at: string;
-  is_active: boolean;
-}
-
-export interface SohSummary {
-  totalRecords: number;
-  totalStock: number;
-  totalStockValue: number;
-  zeroStockCount: number;
-}
-
-export interface SohImportResult {
-  success: boolean;
-  message: string;
-  data: {
-    imported: number;
-    skipped: number;
-    archived: number;
-    import_batch_id: string;
-    detected_columns: {
-      part_code: string | null;
-      description: string | null;
-      stock_on_hand: string | null;
-    };
-  };
-}
-
-export interface SohTableData {
-  summary: SohSummary;
-  records: SohRecord[];
-}
-
-
-// ============== BLOCK 3: SOH Service Class ==============
+// ============== BLOCK 2: SOH Service Class ==============
 class SohService {
   /**
    * Import SOH data from Excel file
@@ -109,14 +68,17 @@ class SohService {
   }
 }
 
-// ============== BLOCK 4: Export Singleton Instance ==============
+// ============== BLOCK 3: Export Singleton Instance ==============
 export const sohService = new SohService();
 
-// ============== BLOCK 5: Export Individual Functions ==============
+// ============== BLOCK 4: Export Individual Functions & Re-export Types ==============
 export const importSohData = (file: File) => sohService.importSohData(file);
 export const getSohData = (search?: string) => sohService.getSohData(search);
 
-// ============== BLOCK 6: Utility Functions ==============
+// Re-export types for convenience
+export type { SohRecord, SohSummary, SohImportResult, SohTableData } from "../types/soh.types";
+
+// ============== BLOCK 5: Utility Functions ==============
 
 /**
  * Format stock number with thousand separators
@@ -137,6 +99,6 @@ export const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
-// ============== BLOCK 7: Default Export ==============
+// ============== BLOCK 6: Default Export ==============
 export { SohService };
 export default sohService;
