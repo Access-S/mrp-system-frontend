@@ -1,11 +1,16 @@
 // BLOCK 1: Imports
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-// import { visualizer } from 'rollup-plugin-visualizer'  // REMOVED
+import path from 'path'
 
 // BLOCK 2: Vite Configuration
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
     host: '0.0.0.0',
     hmr: {
@@ -39,7 +44,6 @@ export default defineConfig({
           'vendor-supabase': ['@supabase/supabase-js'],
         },
       },
-      // REMOVED plugins array that contained visualizer
     },
     chunkSizeWarningLimit: 1000,
   },
