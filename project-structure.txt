@@ -3,7 +3,7 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-04-02 11:58:58                  |
+|          Generated: 2026-04-02 12:11:01                  |
 |                                                          |
 +----------------------------------------------------------+
 
@@ -85,13 +85,10 @@
   │   │   └── [TS]   App.tsx
   │   ├── components/
   │   │   ├── dialogs/  (empty)
-  │   │   ├── forms/  (empty)
   │   │   ├── layout/
   │   │   │   ├── [TS]   ErrorBoundary.tsx
   │   │   │   ├── [TS]   index.ts
   │   │   │   └── [TS]   Sidebar.tsx
-  │   │   ├── pages/
-  │   │   │   └── testing/  (empty)
   │   │   ├── shared/
   │   │   │   ├── dialogs/
   │   │   │   │   ├── [TS]   ConfirmationDialog.tsx
@@ -322,8 +319,7 @@
   │   │   └── [TS]   export.service.ts
   │   ├── styles/
   │   │   └── [TS]   themes.ts
-  │   ├── types/
-  │   │   └── [TS]   mrp.types.ts
+  │   ├── types/  (empty)
   │   ├── [CSS]  index.css
   │   ├── [TS]   main.tsx
   │   └── [TS]   vite-env.d.ts
@@ -345,5 +341,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 99   | Files: 235  | Total: 334      |
+|  SUMMARY:  Folders: 96   | Files: 234  | Total: 330      |
 +----------------------------------------------------------+

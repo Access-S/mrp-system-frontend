@@ -1,4 +1,4 @@
-// src/services/component.service.ts
+// src/features/products/services/component.service.ts
 
 // ============== BLOCK 1: Imports ==============
 import { apiClient, handleApiError, ApiResponse } from "@/services/api.service";
