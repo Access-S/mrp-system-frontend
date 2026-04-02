@@ -1,16 +1,16 @@
-// src/components/pages/testing/UITestPage2.tsx
-
+// dev/UITestPage2.tsx 
+// 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState } from "react";
-import { useTheme } from "../../../contexts/ThemeContext";
-import { Pagination, PaginationInfo } from "../../ui/Pagination";
-import { Table } from "../../ui/Table";
-import { Badge } from "../../ui/Badge";
-import { Avatar, AvatarGroup } from "../../ui/Avatar";
-import { Tooltip } from "../../ui/Tooltip";
-import { Breadcrumb } from "../../ui/Breadcrumb";
-import { Button } from "../../ui/Button";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Pagination, PaginationInfo } from "@/components/ui/Pagination";
+import { Table } from "@/components/ui/Table";
+import { Badge } from "@/components/ui/Badge";
+import { Avatar, AvatarGroup } from "@/components/ui/Avatar";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { Button } from "@/components/ui/Button";
 
 // ============== BLOCK 2: Sample Data ==============
 

@@ -1,25 +1,29 @@
-// src/components/pages/testing/UITestPage.tsx
+// dev/UITestPage.tsx 
 
 // ============== BLOCK 1: Imports ==============
 
 import React, { useState } from "react";
-import { useTheme } from "../../../contexts/ThemeContext";
-import { Button } from "../../ui/Button";
-import { Input } from "../../ui/Input";
-import { Dialog } from "../../ui/Dialog";
-import { Card, CardHeader, CardContent, CardFooter } from "../../ui/Card";
-import { StatusBadge, Status } from "../../ui/StatusBadge";
-import { WidgetCard, WidgetHeader, WidgetBody, WidgetFooter, MiniActionButton } from "../../ui/WidgetCard";
-import { Table } from "../../ui/Table";
-import { Select, SelectOption } from "../../ui/Select";
-import { useToast } from "../../ui/Toast";
-import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButton } from "../../ui/Skeleton";
-import { Spinner, SpinnerPage } from "../../ui/Spinner";
-import { EmptyState, EmptySearchState, EmptyProductState, ErrorState } from "../../ui/EmptyState";
-import { Menu } from "../../ui/Menu";
-import { Accordion } from "../../ui/Accordion";
-import { Tabs } from "../../ui/Tabs";
-import { DatePicker } from "../../ui/DatePicker";
+
+// ✅ Use @/ alias for all src/ references
+import { useTheme } from "@/contexts/ThemeContext";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Dialog } from "@/components/ui/Dialog";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/Card";
+import { StatusBadge, Status } from "@/components/ui/StatusBadge";
+import { WidgetCard, WidgetHeader, WidgetBody, WidgetFooter, MiniActionButton } from "@/components/ui/WidgetCard";
+import { Table } from "@/components/ui/Table";
+import { Select, SelectOption } from "@/components/ui/Select";
+import { useToast } from "@/components/ui/Toast";
+import { Skeleton, SkeletonTableRow, SkeletonCard, SkeletonAvatar, SkeletonButton } from "@/components/ui/Skeleton";
+import { Spinner, SpinnerPage } from "@/components/ui/Spinner";
+import { EmptyState, EmptySearchState, EmptyProductState, ErrorState } from "@/components/ui/EmptyState";
+import { Menu } from "@/components/ui/Menu";
+import { Accordion } from "@/components/ui/Accordion";
+import { Tabs } from "@/components/ui/Tabs";
+import { DatePicker } from "@/components/ui/DatePicker";
+
+// ✅ Heroicons are npm packages - no change needed
 import {
   PlusIcon,
   ArrowPathIcon,
