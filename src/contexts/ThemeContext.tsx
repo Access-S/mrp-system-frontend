@@ -4,7 +4,7 @@
 
 import React, { createContext, useState, useContext, useMemo, useEffect } from "react";
 
-import { themes, ThemeName, Theme } from "../styles/themes";
+import { themes, ThemeName, Theme } from '@/config/themes'
 
 // ============== BLOCK 2: Types ==============
 

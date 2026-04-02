@@ -1,66 +1,23 @@
 // src/app/App.tsx
 
-// ============== BLOCK 1: Imports ==============
-
 import React, { useState, useEffect } from "react";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import { ToastProvider, ToastContainer } from "@/components/ui/Toast";
 import { Sidebar } from "@/components/layout";
-import { DashboardPage } from "@/features/dashboard";
-import { ProductsPage, ProductDashboardPage } from "@/features/products";
-import { PurchaseOrdersPage, CreatePoPage } from "@/features/purchase-orders";
-import { ForecastsPage } from "@/features/forecasts";
-import { SohPage } from "@/features/soh";
-import { InventoryPage } from "@/features/inventory";
-import { ImportPage } from "@/features/import";
-import { UITestPage, UITestPage2 } from "@root/dev";
+import { routes, getRouteById, type PageId } from "./routes";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { useMemo } from 'react';
 
-// ============== BLOCK 2: Types ==============
-
-export type Page =
-  | "dashboard"
-  | "products"
-  | "product-detail"
-  | "purchase-orders"
-  | "create-po"
-  | "import"
-  | "inventory"
-  | "forecasts"
-  | "soh"
-  | "analytics"
-  | "reporting"
-  | "ui-test"
-  | "ui-test-2";
-
-// ============== BLOCK 3: AppLayout Component ==============
+// ============== BLOCK 1: AppLayout Component ==============
 
 function AppLayout() {
   const { theme } = useTheme();
-  const [activePage, setActivePage] = useState<Page>("dashboard");
+  const [activePage, setActivePage] = useState<PageId>("dashboard");
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [selectedProductDescription, setSelectedProductDescription] = useState<string | null>(null);
 
-  const handlePageChange = (newPage: Page) => {
+  const handlePageChange = (newPage: PageId) => {
     setActivePage(newPage);
   };
-
-  const pageTitles = useMemo<Record<Page, string>>(() => ({
-    dashboard: "Dashboard",
-    products: "Products (BOM)",
-    "product-detail": "",
-    "purchase-orders": "Purchase Orders",
-    "create-po": "",
-    import: "Import Data",
-    inventory: "Inventory Planning Dashboard",
-    forecasts: "Sales Forecasts",
-    soh: "Stock On Hand",
-    analytics: "Analytics",
-    reporting: "Reporting",
-    "ui-test": "UI Components Test",
-    "ui-test-2": "UI Components Test - Page 2",
-  }), []);
 
   const handleViewProduct = (productCode: string, description?: string) => {
     setSelectedProductCode(productCode);
@@ -74,31 +31,34 @@ function AppLayout() {
     handlePageChange("products");
   };
 
-  // ============== BLOCK 3.5: Update document title ==============
+  // ============== BLOCK 2: Update document title ==============
 
   useEffect(() => {
     let title: string;
+    const route = getRouteById(activePage);
 
     if (activePage === "product-detail" && selectedProductCode) {
       title = `Product: ${selectedProductDescription || selectedProductCode}`;
-    } else if (activePage === "create-po") {
-      title = "Create New Purchase Order";
     } else {
-      title = pageTitles[activePage] || "MRP System";
+      title = route.title || "MRP System";
     }
 
     document.title = `${title} | MRP System`;
-  }, [activePage, selectedProductCode, selectedProductDescription, pageTitles]);
+  }, [activePage, selectedProductCode, selectedProductDescription]);
 
-  // ============== BLOCK 4: Navbar Content Renderer ==============
+  // ============== BLOCK 3: Navbar Content Renderer ==============
 
   const renderNavbarContent = () => {
+    const route = getRouteById(activePage);
+
+    // Product detail breadcrumb
     if (activePage === "product-detail" && selectedProductCode) {
       return (
         <div className="flex items-center gap-4 w-full">
           <button
             onClick={handleBackToProducts}
             className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Back to Products"
           >
             <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
           </button>
@@ -121,34 +81,64 @@ function AppLayout() {
       );
     }
 
-    if (activePage === "create-po") {
+    // Breadcrumb for routes with parent pages
+    if (route.parentPage) {
+      const parentRoute = getRouteById(route.parentPage);
       return (
         <div className="flex items-center gap-4 w-full">
           <button
-            onClick={() => handlePageChange("purchase-orders")}
+            onClick={() => handlePageChange(route.parentPage!)}
             className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            aria-label={`Back to ${parentRoute.title}`}
           >
             <ArrowLeftIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
           </button>
           <div className="flex items-center gap-2">
             <span
               className={`${theme.text} opacity-60 cursor-pointer hover:opacity-100 transition-opacity text-base`}
-              onClick={() => handlePageChange("purchase-orders")}
+              onClick={() => handlePageChange(route.parentPage!)}
             >
-              Purchase Orders
+              {parentRoute.title}
             </span>
             <span className={`${theme.text} opacity-40`}>›</span>
             <span className={`${theme.text} font-semibold text-base`}>
-              Create New Purchase Order
+              {route.title}
             </span>
           </div>
         </div>
       );
     }
 
+    // Default title
     return (
-      <h1 className={`text-2xl font-bold ${theme.text}`}>{pageTitles[activePage]}</h1>
+      <h1 className={`text-2xl font-bold ${theme.text}`}>{route.title}</h1>
     );
+  };
+
+  // ============== BLOCK 4: Page Content Renderer ==============
+
+  const renderPageContent = () => {
+    const route = getRouteById(activePage);
+    const Component = route.component;
+
+    // Special props for specific pages
+    const pageProps: Record<PageId, any> = {
+      products: { onViewProduct: handleViewProduct },
+      "product-detail": {
+        productCode: selectedProductCode!,
+        onBack: handleBackToProducts,
+      },
+      "purchase-orders": {
+        onCreatePo: () => handlePageChange("create-po"),
+        onImport: () => handlePageChange("import"),
+      },
+      "create-po": {
+        onBack: () => handlePageChange("purchase-orders"),
+        onPoCreated: () => handlePageChange("purchase-orders"),
+      },
+    };
+
+    return <Component {...(pageProps[activePage] || {})} />;
   };
 
   // ============== BLOCK 5: Render ==============
@@ -173,33 +163,10 @@ function AppLayout() {
         </div>
 
         <main id="main-content" className="flex-1 p-4 md:p-8 overflow-auto" tabIndex={-1}>
-          {activePage === "dashboard" && <DashboardPage />}
-          {activePage === "products" && <ProductsPage onViewProduct={handleViewProduct} />}
-          {activePage === "product-detail" && selectedProductCode && (
-            <ProductDashboardPage productCode={selectedProductCode} onBack={handleBackToProducts} />
-          )}
-          {activePage === "purchase-orders" && (
-            <PurchaseOrdersPage
-              onCreatePo={() => handlePageChange("create-po")}
-              onImport={() => handlePageChange("import")}
-            />
-          )}
-          {activePage === "create-po" && (
-            <CreatePoPage
-              onBack={() => setActivePage("purchase-orders")}
-              onPoCreated={() => setActivePage("purchase-orders")}
-            />
-          )}
-          {activePage === "import" && <ImportPage />}
-          {activePage === "forecasts" && <ForecastsPage />}
-          {activePage === "soh" && <SohPage />}
-          {activePage === "inventory" && <InventoryPage />}
-          {activePage === "ui-test" && <UITestPage />}
-          {activePage === "ui-test-2" && <UITestPage2 />}
+          {renderPageContent()}
         </main>
       </div>
 
-      {/* Custom Toast Container */}
       <ToastContainer />
     </div>
   );

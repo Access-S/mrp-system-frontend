@@ -17,7 +17,7 @@ import {
   calculateInventoryProjections,
   InventoryProjection,
   exportMrpData,
-} from "./services/mrp.service";
+} from './services/inventory.service'
 
 // ============== BLOCK 2: Constants & Types ==============
 

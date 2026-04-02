@@ -1,4 +1,4 @@
-// src/features/inventory/services/mrp.service.ts
+// src/features/inventory/services/inventory.service.ts
 
 // ============== BLOCK 1: Imports ==============
 import type { Product } from "@/features/products/types";

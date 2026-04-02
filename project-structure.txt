@@ -3,22 +3,16 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-04-02 12:11:01                  |
+|          Generated: 2026-04-02 13:17:49                  |
 |                                                          |
 +----------------------------------------------------------+
 
   mrp-system-frontend/
   |
-  ├── dev/
-  │   ├── [TS]   index.ts
-  │   ├── [TS]   UITestPage2.tsx
-  │   └── [TS]   UITestPage.tsx
   ├── docs/
   │   ├── ai-instructions/
   │   │   └── [MD]   AI_CODE_ASSISTANT_RULES.md
   │   ├── architecture/
-  │   │   ├── decisions/
-  │   │   │   └──        .gitkeep
   │   │   └── [MD]   mrp_simulation.md
   │   ├── audits/
   │   │   ├── detailed/
@@ -48,8 +42,6 @@
   │   ├── diagrams/
   │   │   ├── [MD]   app-flow.md
   │   │   └── [MD]   architecture.md
-  │   ├── guides/
-  │   │   └──        .gitkeep
   │   ├── product/
   │   │   └── [MD]   prd.md
   │   ├── specifications/
@@ -82,11 +74,11 @@
   │   └── [IMG]  vite.svg
   ├── src/
   │   ├── app/
-  │   │   └── [TS]   App.tsx
+  │   │   ├── [TS]   App.tsx
+  │   │   ├── [TS]   ErrorBoundary.tsx
+  │   │   └── [TS]   routes.tsx
   │   ├── components/
-  │   │   ├── dialogs/  (empty)
   │   │   ├── layout/
-  │   │   │   ├── [TS]   ErrorBoundary.tsx
   │   │   │   ├── [TS]   index.ts
   │   │   │   └── [TS]   Sidebar.tsx
   │   │   ├── shared/
@@ -185,9 +177,14 @@
   │   │       │   └── [TS]   WidgetCard.tsx
   │   │       └── [TS]   index.ts
   │   ├── config/
-  │   │   └── [TS]   supabase.ts
+  │   │   ├── [TS]   supabase.ts
+  │   │   └── [TS]   themes.ts
   │   ├── contexts/
   │   │   └── [TS]   ThemeContext.tsx
+  │   ├── __dev__/
+  │   │   ├── [TS]   index.ts
+  │   │   ├── [TS]   UITestPage2.tsx
+  │   │   └── [TS]   UITestPage.tsx
   │   ├── features/
   │   │   ├── dashboard/
   │   │   │   ├── components/
@@ -204,7 +201,6 @@
   │   │   │   │   ├── [TS]   RecentActivityCard.tsx
   │   │   │   │   ├── [TS]   TimeRangeFilter.tsx
   │   │   │   │   └── [TS]   TopItemsCard.tsx
-  │   │   │   ├── hooks/  (empty)
   │   │   │   ├── services/
   │   │   │   │   ├── [TS]   dashboard.api.ts
   │   │   │   │   └── [TS]   dashboard.service.ts
@@ -239,7 +235,7 @@
   │   │   │   └── [TS]   index.ts
   │   │   ├── inventory/
   │   │   │   ├── services/
-  │   │   │   │   └── [TS]   mrp.service.ts
+  │   │   │   │   └── [TS]   inventory.service.ts
   │   │   │   ├── types/
   │   │   │   │   ├── [TS]   index.ts
   │   │   │   │   └── [TS]   inventory.types.ts
@@ -281,7 +277,6 @@
   │   │   │   │   ├── [TS]   DespatchPoForm.tsx
   │   │   │   │   ├── [TS]   EditPoForm.tsx
   │   │   │   │   └── [TS]   index.ts
-  │   │   │   ├── hooks/  (empty)
   │   │   │   ├── modals/
   │   │   │   │   ├── [TS]   index.ts
   │   │   │   │   └── [TS]   PoDetailModal.tsx
@@ -317,9 +312,10 @@
   │   ├── services/
   │   │   ├── [TS]   api.service.ts
   │   │   └── [TS]   export.service.ts
-  │   ├── styles/
-  │   │   └── [TS]   themes.ts
-  │   ├── types/  (empty)
+  │   ├── types/
+  │   │   └── [TS]   index.ts
+  │   ├── utils/
+  │   │   └── [TS]   index.ts
   │   ├── [CSS]  index.css
   │   ├── [TS]   main.tsx
   │   └── [TS]   vite-env.d.ts
@@ -341,5 +337,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 96   | Files: 234  | Total: 330      |
+|  SUMMARY:  Folders: 91   | Files: 235  | Total: 326      |
 +----------------------------------------------------------+
