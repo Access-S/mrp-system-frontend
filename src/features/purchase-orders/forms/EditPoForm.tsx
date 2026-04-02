@@ -7,7 +7,7 @@ import { Dialog } from "@/components/ui/Dialog";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
-import { FormAlert } from "@/components/dialogs/FormAlert";
+import { FormAlert } from "@/components/shared/dialogs/FormAlert";
 import { updatePo } from "@/services/api.service";
 
 // ============== BLOCK 2: Types ==============

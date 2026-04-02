@@ -16,7 +16,7 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { createPo } from "@/services/api.service";
 import { getAllProducts } from "@/features/products";
-import { FormAlert } from "@/components/dialogs/FormAlert";
+import { FormAlert } from "@/components/shared/dialogs/FormAlert";
 import { useToast } from "@/components/ui/Toast";
 import { DatePicker } from "@/components/ui/DatePicker";
 

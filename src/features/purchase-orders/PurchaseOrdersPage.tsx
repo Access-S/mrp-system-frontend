@@ -34,7 +34,7 @@ import {
 import { PoDetailModal } from '@/features/purchase-orders/modals';
 import { EditPoForm } from "./forms/EditPoForm";
 import { DespatchPoForm } from "./forms/DespatchPoForm";
-import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
+import { ConfirmationDialog } from "@/components/shared/dialogs/ConfirmationDialog";
 
 import { useModal, usePagination, useSort } from "@/hooks";
 import {
