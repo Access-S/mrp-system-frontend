@@ -4,8 +4,7 @@
 
 import React from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-
-import { Input } from "../../ui/Input";
+import { Input } from "@/components/ui/Input";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 

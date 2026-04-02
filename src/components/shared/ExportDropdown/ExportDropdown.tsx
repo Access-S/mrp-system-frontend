@@ -8,9 +8,8 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 
-import { Button } from "../../ui/Button";
-
-import { useExportMenu } from "../../../hooks";
+import { Button } from "@/components/ui/Button";
+import { useExportMenu } from "@/hooks";
 
 // ============== BLOCK 2: Types & Interfaces ==============
 
