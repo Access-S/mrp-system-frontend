@@ -1,7 +1,7 @@
 // src/features/dashboard/services/dashboard.service.ts
 
 // BLOCK 1: Imports
-import { supabase } from "@/supabase.config";
+import { supabase } from "@/config/supabase";
 import { handleApiError } from "@/services/api.service";
 import type { PurchaseOrder } from "@/features/purchase-orders/types";
 import type { Component } from "@/features/inventory/types";
