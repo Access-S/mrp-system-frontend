@@ -13,7 +13,7 @@ import { ForecastsPage } from "@/features/forecasts";
 import { SohPage } from "@/features/soh";
 import { InventoryPage } from "@/features/inventory";
 import { ImportPage } from "@/features/import";
-import { UITestPage, UITestPage2 } from "@/components/pages/testing";
+import { UITestPage, UITestPage2 } from "@/dev";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { useMemo } from 'react';
 
