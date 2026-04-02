@@ -32,5 +32,5 @@ export type { UseExportMenuResult } from "./useExportMenu";
 
 // ============== BLOCK 7: Import ==============
 
-export { useImport } from "../features/import/hooks/useImport";
-export type { UseImportResult } from "../features/import/hooks/useImport";
+export { useImport } from "@/features/import/hooks/useImport";
+export type { UseImportResult } from "@/features/import/hooks/useImport";
