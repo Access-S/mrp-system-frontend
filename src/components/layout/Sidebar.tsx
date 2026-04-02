@@ -35,7 +35,7 @@ import {
   BeakerIcon,
 } from "@heroicons/react/24/outline";
 import { useTheme } from "@/contexts/ThemeContext";
-import { themes } from "@/styles/themes";
+import { themes } from '@/config/themes'
 import { Page } from "@/app/App";
 
 export function Sidebar({
