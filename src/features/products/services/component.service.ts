@@ -1,7 +1,7 @@
 // src/services/component.service.ts
 
 // ============== BLOCK 1: Imports ==============
-import { apiClient, handleApiError, ApiResponse } from "./api.service";
+import { apiClient, handleApiError, ApiResponse } from "@/services/api.service";
 import { Component } from "../types/mrp.types";
 
 // ============== BLOCK 2: Component Service Class ==============

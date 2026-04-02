@@ -3,12 +3,16 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-03-29 12:19:56                  |
+|          Generated: 2026-04-02 11:58:58                  |
 |                                                          |
 +----------------------------------------------------------+
 
   mrp-system-frontend/
   |
+  ├── dev/
+  │   ├── [TS]   index.ts
+  │   ├── [TS]   UITestPage2.tsx
+  │   └── [TS]   UITestPage.tsx
   ├── docs/
   │   ├── ai-instructions/
   │   │   └── [MD]   AI_CODE_ASSISTANT_RULES.md
@@ -80,20 +84,18 @@
   │   ├── app/
   │   │   └── [TS]   App.tsx
   │   ├── components/
-  │   │   ├── dialogs/
-  │   │   │   ├── [TS]   ConfirmationDialog.tsx
-  │   │   │   └── [TS]   FormAlert.tsx
+  │   │   ├── dialogs/  (empty)
   │   │   ├── forms/  (empty)
   │   │   ├── layout/
   │   │   │   ├── [TS]   ErrorBoundary.tsx
   │   │   │   ├── [TS]   index.ts
   │   │   │   └── [TS]   Sidebar.tsx
   │   │   ├── pages/
-  │   │   │   └── testing/
-  │   │   │       ├── [TS]   index.ts
-  │   │   │       ├── [TS]   UITestPage2.tsx
-  │   │   │       └── [TS]   UITestPage.tsx
+  │   │   │   └── testing/  (empty)
   │   │   ├── shared/
+  │   │   │   ├── dialogs/
+  │   │   │   │   ├── [TS]   ConfirmationDialog.tsx
+  │   │   │   │   └── [TS]   FormAlert.tsx
   │   │   │   ├── ExportDropdown/
   │   │   │   │   ├── [TS]   ExportDropdown.tsx
   │   │   │   │   └── [TS]   index.ts
@@ -185,6 +187,8 @@
   │   │       │   ├── [TS]   index.ts
   │   │       │   └── [TS]   WidgetCard.tsx
   │   │       └── [TS]   index.ts
+  │   ├── config/
+  │   │   └── [TS]   supabase.ts
   │   ├── contexts/
   │   │   └── [TS]   ThemeContext.tsx
   │   ├── features/
@@ -218,7 +222,8 @@
   │   │   │   ├── services/
   │   │   │   │   └── [TS]   forecast.service.ts
   │   │   │   ├── types/
-  │   │   │   │   └── [TS]   forecast.types.ts
+  │   │   │   │   ├── [TS]   forecast.types.ts
+  │   │   │   │   └── [TS]   index.ts
   │   │   │   ├── [TS]   constants.ts
   │   │   │   ├── [TS]   ForecastsPage.tsx
   │   │   │   ├── [TS]   helpers.ts
@@ -239,6 +244,7 @@
   │   │   │   ├── services/
   │   │   │   │   └── [TS]   mrp.service.ts
   │   │   │   ├── types/
+  │   │   │   │   ├── [TS]   index.ts
   │   │   │   │   └── [TS]   inventory.types.ts
   │   │   │   ├── [TS]   index.ts
   │   │   │   └── [TS]   InventoryPage.tsx
@@ -259,8 +265,11 @@
   │   │   │   │   └── [TS]   index.ts
   │   │   │   ├── services/
   │   │   │   │   ├── [TS]   bom.service.ts
+  │   │   │   │   ├── [TS]   component.service.ts
   │   │   │   │   └── [TS]   product.service.ts
-  │   │   │   ├── types/  (empty)
+  │   │   │   ├── types/
+  │   │   │   │   ├── [TS]   index.ts
+  │   │   │   │   └── [TS]   product.types.ts
   │   │   │   ├── [TS]   index.ts
   │   │   │   ├── [TS]   ProductDashboardPage.tsx
   │   │   │   └── [TS]   ProductsPage.tsx
@@ -310,7 +319,6 @@
   │   │   └── [TS]   useSort.ts
   │   ├── services/
   │   │   ├── [TS]   api.service.ts
-  │   │   ├── [TS]   component.service.ts
   │   │   └── [TS]   export.service.ts
   │   ├── styles/
   │   │   └── [TS]   themes.ts
@@ -318,7 +326,6 @@
   │   │   └── [TS]   mrp.types.ts
   │   ├── [CSS]  index.css
   │   ├── [TS]   main.tsx
-  │   ├── [TS]   supabase.config.ts
   │   └── [TS]   vite-env.d.ts
   ├── [ENV]  .env.local
   ├── [ENV]  .env.production
@@ -338,5 +345,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 96   | Files: 231  | Total: 327      |
+|  SUMMARY:  Folders: 99   | Files: 235  | Total: 334      |
 +----------------------------------------------------------+
