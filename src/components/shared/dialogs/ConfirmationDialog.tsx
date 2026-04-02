@@ -4,8 +4,8 @@
 
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
-import { Dialog } from "../ui/Dialog";
-import { Button } from "../ui/Button";
+import { Dialog } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
 
 // ============== BLOCK 2: Types ==============
 
