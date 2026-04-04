@@ -60,7 +60,7 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
     const avgRunRate =
       totalProducts > 0
         ? products.reduce((sum, p) => sum + (p.hourlyRunRate || 0), 0) /
-          totalProducts
+        totalProducts
         : 0;
 
     return { totalProducts, productsWithBom, totalComponents, avgRunRate };
@@ -138,9 +138,9 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               {stats.totalProducts > 0
                 ? (
-                    (stats.productsWithBom / stats.totalProducts) *
-                    100
-                  ).toFixed(1)
+                  (stats.productsWithBom / stats.totalProducts) *
+                  100
+                ).toFixed(1)
                 : 0}
               % coverage
             </p>
@@ -177,6 +177,7 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
       {/* Table Section */}
       <Card>
         <CardContent className="space-y-4">
+
           <FilterToolbar
             searchPlaceholder="Search by product code or description..."
             searchValue={query}
@@ -190,45 +191,58 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
           />
 
           {filtered.length > 0 ? (
-            <ScrollArea orientation="both" maxHeight="calc(100vh - 400px)">
-              <Table stickyHeader hoverable variant="striped" size="sm">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.Head style={{ minWidth: "150px" }}>
-                      Product Code
-                    </Table.Head>
-                    <Table.Head style={{ minWidth: "400px" }}>
-                      Description
-                    </Table.Head>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {filtered.map((product) => (
-                    <Table.Row
-                      key={product.id}
-                      className="cursor-pointer"
-                      onClick={() =>
-                        onViewProduct?.(
-                          product.productCode,
-                          product.description
-                        )
-                      }
-                    >
-                      <Table.Cell>
-                        <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                          {product.productCode || "-"}
-                        </span>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {product.description || "-"}
-                        </span>
-                      </Table.Cell>
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
+
+              {/* TABLE SCROLL AREA */}
+              <ScrollArea orientation="both" maxHeight="calc(100vh - 400px)">
+                <Table stickyHeader hoverable variant="striped" size="sm">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.Head style={{ minWidth: "150px" }}>
+                        Product Code
+                      </Table.Head>
+                      <Table.Head style={{ minWidth: "400px" }}>
+                        Description
+                      </Table.Head>
                     </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            </ScrollArea>
+                  </Table.Header>
+
+                  <Table.Body>
+                    {filtered.map((product) => (
+                      <Table.Row
+                        key={product.id}
+                        className="cursor-pointer"
+                        onClick={() =>
+                          onViewProduct?.(
+                            product.productCode,
+                            product.description
+                          )
+                        }
+                      >
+                        <Table.Cell>
+                          <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                            {product.productCode || "-"}
+                          </span>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <span className="text-gray-600 dark:text-gray-300">
+                            {product.description || "-"}
+                          </span>
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </ScrollArea>
+
+              {/* OPTIONAL FOOTER AREA (for future use like pagination, summary, etc.) */}
+              <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Showing {filtered.length} of {products.length} products
+                </div>
+              </div>
+
+            </div>
           ) : (
             <EmptyState
               variant={query ? "search" : "default"}
@@ -251,6 +265,7 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
               }
             />
           )}
+
         </CardContent>
       </Card>
 
