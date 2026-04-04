@@ -723,7 +723,7 @@ const UITestPage2: React.FC = () => {
             <Pagination
               currentPage={5}
               totalPages={10}
-              onPageChange={() => {}}
+              onPageChange={() => { }}
               disabled
             />
           </div>
@@ -733,41 +733,64 @@ const UITestPage2: React.FC = () => {
       {/* ============== BLOCK 10: Pagination with Table ============== */}
 
       <section className={`${theme.cards} rounded-xl p-6 shadow-sm border ${theme.borderColor}`}>
-        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>Pagination with Table</h2>
+        <h2 className={`text-lg font-semibold ${theme.text} mb-4`}>
+          Pagination with Table
+        </h2>
 
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.Head>ID</Table.Head>
-              <Table.Head>Product Name</Table.Head>
-              <Table.Head>SKU</Table.Head>
-              <Table.Head>Price</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {paginatedData.map((item) => (
-              <Table.Row key={item.id}>
-                <Table.Cell>{item.id}</Table.Cell>
-                <Table.Cell className="font-medium">{item.name}</Table.Cell>
-                <Table.Cell>{item.sku}</Table.Cell>
-                <Table.Cell>{item.price}</Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+        {/* TABLE CONTAINER */}
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <PaginationInfo
-            currentPage={tableCurrentPage}
-            totalPages={totalPages}
-            totalItems={sampleData.length}
-            itemsPerPage={itemsPerPage}
-          />
-          <Pagination
-            currentPage={tableCurrentPage}
-            totalPages={totalPages}
-            onPageChange={setTableCurrentPage}
-          />
+          {/* TABLE SCROLL AREA */}
+          <div className="overflow-x-auto">
+            <Table stickyHeader hoverable variant="striped" size="md">
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head>ID</Table.Head>
+                  <Table.Head>Product Name</Table.Head>
+                  <Table.Head>SKU</Table.Head>
+                  <Table.Head>Price</Table.Head>
+                </Table.Row>
+              </Table.Header>
+
+              <Table.Body>
+                {paginatedData.map((item) => (
+                  <Table.Row key={item.id}>
+                    <Table.Cell className="font-medium text-gray-900 dark:text-gray-100">
+                      {item.id}
+                    </Table.Cell>
+                    <Table.Cell className="font-semibold">
+                      {item.name}
+                    </Table.Cell>
+                    <Table.Cell className="text-gray-500 dark:text-gray-400">
+                      {item.sku}
+                    </Table.Cell>
+                    <Table.Cell className="font-medium">
+                      {item.price}
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          </div>
+
+          {/* FOOTER SEPARATOR */}
+          <div className="border-t border-gray-200 dark:border-gray-700" />
+
+          {/* FOOTER */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
+            <PaginationInfo
+              currentPage={tableCurrentPage}
+              totalPages={totalPages}
+              totalItems={sampleData.length}
+              itemsPerPage={itemsPerPage}
+            />
+            <Pagination
+              currentPage={tableCurrentPage}
+              totalPages={totalPages}
+              onPageChange={setTableCurrentPage}
+            />
+          </div>
+
         </div>
       </section>
 
