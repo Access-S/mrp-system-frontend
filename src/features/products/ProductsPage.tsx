@@ -2,264 +2,303 @@
 
 // ============== BLOCK 1: Imports ==============
 
-import React, { useMemo } from "react";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import React, { useState, useMemo } from "react";
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
+  ArrowDownTrayIcon,
+} from "@heroicons/react/24/outline";
 
-import { Card, CardContent } from "@/components/ui/Card";
 import { Table } from "@/components/ui/Table";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Pagination, PaginationInfo } from "@/components/ui/Pagination";
 
-import { useFetch, useSearch, useModal } from "@/hooks";
+import { useFetch, useSearch, useModal, useClientPagination } from "@/hooks";
 
 import { productService } from "./services/product.service";
-
-import { PageHeader } from "@/components/shared/PageHeader";
-import { FilterToolbar } from "@/components/shared/FilterToolbar";
-import { ResultsCount } from "@/components/shared/ResultsCount";
 import { ProductsSkeleton } from "./components/ProductsSkeleton";
 import { CreateProductForm } from "./forms/CreateProductForm";
 
 import type { Product } from "@/features/products/types";
 
-// ============== BLOCK 2: Types & Interfaces ==============
+// ============== BLOCK 2: Types ==============
 
 interface ProductsPageProps {
   onViewProduct?: (productCode: string, description?: string) => void;
 }
 
-// ============== BLOCK 3: Component ==============
+type StatusFilter = "all" | "active" | "inactive";
+
+// ============== BLOCK 3: Status Options ==============
+
+const statusOptions = [
+  { value: "all", label: "All Status" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+];
+
+// ============== BLOCK 4: Component ==============
 
 export function ProductsPage({ onViewProduct }: ProductsPageProps) {
+  // State
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
   // Data fetching
   const { data, loading, error, refetch } = useFetch<Product[]>(() =>
     productService.getAllProducts()
   );
   const products = data ?? [];
 
-  // Search & filter
-  const { query, setQuery, filtered } = useSearch(products, [
+  // Search
+  const { query, setQuery, filtered: searchFiltered } = useSearch(products, [
     "productCode",
     "description",
   ]);
 
-  // Create modal
+  // Status filtering
+  const filtered = useMemo(() => {
+    if (statusFilter === "all") return searchFiltered;
+    return searchFiltered.filter((p) =>
+      statusFilter === "active" ? p.isActive : !p.isActive
+    );
+  }, [searchFiltered, statusFilter]);
+
+  // Client-side pagination
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    setCurrentPage,
+    itemsPerPage,
+    setItemsPerPage,
+    totalItems,
+  } = useClientPagination(filtered, { initialItemsPerPage: 25 });
+
+  // Modal
   const createModal = useModal();
 
-  // Stats calculations
-  const stats = useMemo(() => {
-    const totalProducts = products.length;
-    const productsWithBom = products.filter(
-      (p) => p.components && p.components.length > 0
-    ).length;
-    const totalComponents = products.reduce(
-      (sum, p) => sum + (p.components?.length || 0),
-      0
-    );
-    const avgRunRate =
-      totalProducts > 0
-        ? products.reduce((sum, p) => sum + (p.hourlyRunRate || 0), 0) /
-        totalProducts
-        : 0;
-
-    return { totalProducts, productsWithBom, totalComponents, avgRunRate };
-  }, [products]);
-
-  // ============== BLOCK 4: Loading State ==============
+  // ============== BLOCK 5: Loading State ==============
 
   if (loading) {
     return <ProductsSkeleton />;
   }
 
-  // ============== BLOCK 5: Error State ==============
+  // ============== BLOCK 6: Error State ==============
 
   if (error) {
     return (
-      <Card>
-        <CardContent>
-          <EmptyState
-            variant="error"
-            title="Failed to Load Products"
-            description={error}
-            action={
-              <Button variant="primary" onClick={refetch}>
-                Try Again
-              </Button>
-            }
-          />
-        </CardContent>
-      </Card>
+      <div className="p-6">
+        <EmptyState
+          variant="error"
+          title="Failed to Load Products"
+          description={error}
+          action={
+            <Button variant="primary" onClick={refetch}>
+              Try Again
+            </Button>
+          }
+        />
+      </div>
     );
   }
 
-  // ============== BLOCK 6: Render ==============
+  // ============== BLOCK 7: Render ==============
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <PageHeader
-        title="Products"
-        description="Manage all products and their bill of materials."
-        actions={
+    <div className="h-full flex flex-col bg-gray-50 dark:bg-gray-950">
+
+      {/* ============== HEADER ============== */}
+      <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Products
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              Manage your product catalog
+            </p>
+          </div>
           <Button
             variant="primary"
+            size="md"
             leftIcon={<PlusIcon className="h-4 w-4" />}
             onClick={() => createModal.open()}
           >
-            Create Product
+            New Product
           </Button>
-        }
-      />
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Total Products
-            </p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-              {stats.totalProducts}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              Active in system
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Products with BOM
-            </p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-              {stats.productsWithBom}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              {stats.totalProducts > 0
-                ? ((stats.productsWithBom / stats.totalProducts) * 100).toFixed(
-                  1
-                )
-                : 0}
-              % coverage
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Total Components
-            </p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-              {stats.totalComponents}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              Across all BOMs
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Avg Hourly Run Rate
-            </p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-              {stats.avgRunRate.toFixed(1)}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              Units per hour
-            </p>
-          </CardContent>
-        </Card>
+        </div>
       </div>
 
-      {/* Filter Section - Separate from Table */}
-      <Card>
-        <CardContent className="space-y-4">
-          <FilterToolbar
-            searchPlaceholder="Search by product code or description..."
-            searchValue={query}
-            onSearchChange={setQuery}
-          />
-          <ResultsCount
-            filtered={filtered.length}
-            total={products.length}
-            label="products"
-          />
-        </CardContent>
-      </Card>
+      {/* ============== TOOLBAR ============== */}
+      <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-3">
+        <div className="flex items-center justify-between gap-4">
 
-      {/* Table Section - Standalone, Full Page Scroll */}
-      {filtered.length > 0 ? (
-        <Table variant="default" size="sm" stickyHeader hoverable>
-          <Table.Header>
-            <Table.Row>
-              <Table.Head style={{ minWidth: "150px" }}>
-                Product Code
-              </Table.Head>
-              <Table.Head style={{ minWidth: "400px" }}>
-                Description
-              </Table.Head>
-            </Table.Row>
-          </Table.Header>
+          {/* Left: Search & Filters */}
+          <div className="flex items-center gap-3 flex-1">
+            {/* Search */}
+            <div className="relative w-80">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search products..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pl-9 h-9"
+              />
+            </div>
 
-          <Table.Body>
-            {filtered.map((product) => (
-              <Table.Row
-                key={product.id}
-                className="cursor-pointer"
-                onClick={() =>
-                  onViewProduct?.(product.productCode, product.description)
-                }
-              >
-                <Table.Cell>
-                  <span className="font-semibold whitespace-nowrap">
-                    {product.productCode || "-"}
-                  </span>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className="opacity-80">
-                    {product.description || "-"}
-                  </span>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
+            {/* Status Filter */}
+            <Select
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value as StatusFilter)}
+              options={statusOptions}
+              className="w-36 h-9"
+            />
 
-          <Table.Footer>
-            <span className="text-sm">
-              Showing <span className="font-medium">{filtered.length}</span> of{" "}
-              <span className="font-medium">{products.length}</span> products
+            {/* Export Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<ArrowDownTrayIcon className="h-4 w-4" />}
+            >
+              Export
+            </Button>
+          </div>
+
+          {/* Right: Results Count */}
+          <div className="flex-shrink-0 text-sm text-gray-500 dark:text-gray-400">
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {totalItems}
             </span>
-          </Table.Footer>
-        </Table>
-      ) : (
-        <Card>
-          <CardContent>
+            {" "}products
+          </div>
+        </div>
+      </div>
+
+      {/* ============== TABLE ============== */}
+      <div className="flex-1 overflow-auto">
+        {filtered.length > 0 ? (
+          <Table variant="minimal" size="sm" stickyHeader hoverable>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head style={{ width: "180px" }}>Product Code</Table.Head>
+                <Table.Head>Description</Table.Head>
+                <Table.Head style={{ width: "120px" }} className="text-center">
+                  Status
+                </Table.Head>
+              </Table.Row>
+            </Table.Header>
+
+            <Table.Body>
+              {paginatedData.map((product) => (
+                <Table.Row
+                  key={product.id}
+                  className="cursor-pointer"
+                  onClick={() =>
+                    onViewProduct?.(product.productCode, product.description)
+                  }
+                >
+                  <Table.Cell>
+                    <span className="font-mono font-medium text-gray-900 dark:text-gray-100">
+                      {product.productCode}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      {product.description || "—"}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell className="text-center">
+                    <Badge
+                      variant={product.isActive ? "success" : "secondary"}
+                      size="sm"
+                    >
+                      {product.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        ) : (
+          <div className="flex items-center justify-center h-full p-12">
             <EmptyState
-              variant={query ? "search" : "default"}
-              title={query ? "No matching products" : "No products yet"}
+              variant={query || statusFilter !== "all" ? "search" : "default"}
+              title={
+                query || statusFilter !== "all"
+                  ? "No matching products"
+                  : "No products yet"
+              }
               description={
-                query
-                  ? `No products found matching "${query}"`
-                  : "Get started by creating your first product."
+                query || statusFilter !== "all"
+                  ? "Try adjusting your search or filters"
+                  : "Get started by creating your first product"
               }
               action={
-                !query ? (
+                !query && statusFilter === "all" ? (
                   <Button
                     variant="primary"
                     leftIcon={<PlusIcon className="h-4 w-4" />}
                     onClick={() => createModal.open()}
                   >
-                    Create Product
+                    New Product
                   </Button>
                 ) : undefined
               }
             />
-          </CardContent>
-        </Card>
+          </div>
+        )}
+      </div>
+
+      {/* ============== FOOTER / PAGINATION ============== */}
+      {filtered.length > 0 && (
+        <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-3">
+          <div className="flex items-center justify-between">
+            {/* Left: Info */}
+            <PaginationInfo
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              size="sm"
+            />
+
+            {/* Right: Pagination Controls */}
+            <div className="flex items-center gap-4">
+              {/* Rows per page */}
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <span>Rows:</span>
+                <Select
+                  value={String(itemsPerPage)}
+                  onChange={(value) => setItemsPerPage(Number(value))}
+                  options={[
+                    { value: "10", label: "10" },
+                    { value: "25", label: "25" },
+                    { value: "50", label: "50" },
+                    { value: "100", label: "100" },
+                  ]}
+                  className="w-20 h-8"
+                />
+              </div>
+
+              {/* Pagination */}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                size="sm"
+                showFirstLast={false}
+              />
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Create Product Modal */}
+      {/* ============== CREATE MODAL ============== */}
       <CreateProductForm
         open={createModal.isOpen}
         handleOpen={createModal.close}
