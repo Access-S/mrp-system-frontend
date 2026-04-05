@@ -181,55 +181,102 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
         </div>
       </div>
 
-      {/* ============== TABLE ============== */}
+      {/* ============== CONTENT AREA (Scrollable) ============== */}
       <div className="flex-1 overflow-auto">
         {filtered.length > 0 ? (
-          <Table variant="minimal" size="sm" stickyHeader hoverable>
-            <Table.Header>
-              <Table.Row>
-                <Table.Head style={{ width: "180px" }}>Product Code</Table.Head>
-                <Table.Head>Description</Table.Head>
-                <Table.Head style={{ width: "120px" }} className="text-center">
-                  Status
-                </Table.Head>
-              </Table.Row>
-            </Table.Header>
-
-            <Table.Body>
-              {paginatedData.map((product) => {
-                const isActive = product.isActive ?? true;
-                return (
-                  <Table.Row
-                    key={product.id}
-                    className="cursor-pointer"
-                    onClick={() =>
-                      onViewProduct?.(product.productCode, product.description)
-                    }
-                  >
-                    <Table.Cell>
-                      <span className="font-mono font-medium text-gray-900 dark:text-gray-100">
-                        {product.productCode}
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {product.description || "—"}
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell className="text-center">
-                      <Badge
-                        variant="subtle"
-                        color={isActive ? "success" : "gray"}
-                        size="sm"
-                      >
-                        {isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </Table.Cell>
+          <div className="min-h-full flex flex-col">
+            {/* Table */}
+            <div className="flex-1">
+              <Table variant="minimal" size="sm" stickyHeader hoverable>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head style={{ width: "180px" }}>Product Code</Table.Head>
+                    <Table.Head>Description</Table.Head>
+                    <Table.Head style={{ width: "120px" }} className="text-center">
+                      Status
+                    </Table.Head>
                   </Table.Row>
-                );
-              })}
-            </Table.Body>
-          </Table>
+                </Table.Header>
+
+                <Table.Body>
+                  {paginatedData.map((product) => {
+                    const isActive = product.isActive ?? true;
+                    return (
+                      <Table.Row
+                        key={product.id}
+                        className="cursor-pointer"
+                        onClick={() =>
+                          onViewProduct?.(product.productCode, product.description)
+                        }
+                      >
+                        <Table.Cell>
+                          <span className="font-mono font-medium text-gray-900 dark:text-gray-100">
+                            {product.productCode}
+                          </span>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <span className="text-gray-600 dark:text-gray-300">
+                            {product.description || "—"}
+                          </span>
+                        </Table.Cell>
+                        <Table.Cell className="text-center">
+                          <Badge
+                            variant="subtle"
+                            color={isActive ? "success" : "gray"}
+                            size="sm"
+                          >
+                            {isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table>
+            </div>
+
+            {/* Footer - At bottom of table content */}
+            <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-3">
+              <div className="flex items-center justify-between">
+                {/* Left: Info */}
+                <PaginationInfo
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  itemsPerPage={itemsPerPage}
+                  size="sm"
+                />
+
+                {/* Right: Pagination Controls */}
+                <div className="flex items-center gap-4">
+                  {/* Rows per page */}
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Rows:</span>
+                    <Select
+                      value={String(itemsPerPage)}
+                      onChange={(value) => setItemsPerPage(Number(value))}
+                      options={[
+                        { value: "10", label: "10" },
+                        { value: "25", label: "25" },
+                        { value: "50", label: "50" },
+                        { value: "100", label: "100" },
+                      ]}
+                      className="w-20 h-8"
+                    />
+                  </div>
+
+                  {/* Pagination */}
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    size="sm"
+                    showFirstLast={false}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="flex items-center justify-center h-full p-12">
             <EmptyState
@@ -259,50 +306,6 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
           </div>
         )}
       </div>
-
-      {/* ============== FOOTER / PAGINATION ============== */}
-      {filtered.length > 0 && (
-        <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-3">
-          <div className="flex items-center justify-between">
-            {/* Left: Info */}
-            <PaginationInfo
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              size="sm"
-            />
-
-            {/* Right: Pagination Controls */}
-            <div className="flex items-center gap-4">
-              {/* Rows per page */}
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                <span>Rows:</span>
-                <Select
-                  value={String(itemsPerPage)}
-                  onChange={(value) => setItemsPerPage(Number(value))}
-                  options={[
-                    { value: "10", label: "10" },
-                    { value: "25", label: "25" },
-                    { value: "50", label: "50" },
-                    { value: "100", label: "100" },
-                  ]}
-                  className="w-20 h-8"
-                />
-              </div>
-
-              {/* Pagination */}
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                size="sm"
-                showFirstLast={false}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ============== CREATE MODAL ============== */}
       <CreateProductForm
