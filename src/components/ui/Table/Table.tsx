@@ -25,7 +25,6 @@ interface TableProps extends HTMLAttributes<HTMLTableElement> {
   size?: TableSize;
   hoverable?: boolean;
   stickyHeader?: boolean;
-  maxHeight?: string;
 }
 
 interface TableRowProps extends HTMLAttributes<HTMLTableRowElement> {
@@ -108,9 +107,7 @@ const getVariantStyles = (variant: TableVariant, isDark: boolean) => {
       row: isDark
         ? "bg-transparent border-white/5"
         : "bg-transparent border-gray-200/30",
-      rowHover: isDark
-        ? "hover:bg-white/5"
-        : "hover:bg-white/60",
+      rowHover: isDark ? "hover:bg-white/5" : "hover:bg-white/60",
       cellText: isDark ? "text-gray-100" : "text-gray-800",
       footer: isDark
         ? "bg-white/5 border-t border-white/10"
@@ -131,9 +128,7 @@ const getVariantStyles = (variant: TableVariant, isDark: boolean) => {
         : "bg-blue-50 border-b border-blue-100",
       headerText: isDark ? "text-gray-100" : "text-blue-900",
       row: isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100",
-      rowHover: isDark
-        ? "hover:bg-gray-700"
-        : "hover:bg-blue-50/50",
+      rowHover: isDark ? "hover:bg-gray-700" : "hover:bg-blue-50/50",
       cellText: isDark ? "text-gray-100" : "text-gray-900",
       footer: isDark
         ? "bg-gray-700 border-t border-gray-600"
@@ -183,7 +178,9 @@ const getVariantStyles = (variant: TableVariant, isDark: boolean) => {
 
 // ============== BLOCK 5: Helper to Extract Footer ==============
 
-const extractFooter = (children: ReactNode): { tableChildren: ReactNode[]; footer: ReactElement | null } => {
+const extractFooter = (
+  children: ReactNode
+): { tableChildren: ReactNode[]; footer: ReactElement | null } => {
   const tableChildren: ReactNode[] = [];
   let footer: ReactElement | null = null;
 
@@ -206,7 +203,6 @@ const TableRoot: React.FC<TableProps> = ({
   size = "md",
   hoverable = true,
   stickyHeader = true,
-  maxHeight,
   className,
   ...props
 }) => {
@@ -240,11 +236,8 @@ const TableRoot: React.FC<TableProps> = ({
         className={clsx("w-full", className)}
         style={variantStyles.containerStyle as React.CSSProperties}
       >
-        {/* Scrollable Table Area */}
-        <div
-          className="w-full overflow-auto"
-          style={maxHeight ? { maxHeight } : undefined}
-        >
+        {/* Table - No scroll constraints, whole page scrolls */}
+        <div className="w-full overflow-x-auto">
           <table
             className={clsx(
               "w-full min-w-full text-left border-collapse",
@@ -256,7 +249,7 @@ const TableRoot: React.FC<TableProps> = ({
           </table>
         </div>
 
-        {/* Footer (outside scrollable area) */}
+        {/* Footer - At end of table, scrolls with page */}
         {footer}
       </div>
     </TableContext.Provider>
@@ -366,8 +359,7 @@ const TableHead: React.FC<TableHeadProps> = ({
         "uppercase tracking-wider",
         sortable &&
         "cursor-pointer select-none transition-colors duration-200",
-        sortable &&
-        (isDark ? "hover:bg-white/10" : "hover:bg-black/5"),
+        sortable && (isDark ? "hover:bg-white/10" : "hover:bg-black/5"),
         className
       )}
       onClick={sortable ? onSort : undefined}

@@ -172,7 +172,7 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
         </Card>
       </div>
 
-      {/* Table Section */}
+      {/* Filter Section - Separate from Table */}
       <Card>
         <CardContent className="space-y-4">
           <FilterToolbar
@@ -180,64 +180,61 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
             searchValue={query}
             onSearchChange={setQuery}
           />
-
           <ResultsCount
             filtered={filtered.length}
             total={products.length}
             label="products"
           />
+        </CardContent>
+      </Card>
 
-          {filtered.length > 0 ? (
-            <Table
-              variant="default"
-              size="sm"
-              stickyHeader
-              hoverable
-              maxHeight="calc(100vh - 450px)"
-            >
-              <Table.Header>
-                <Table.Row>
-                  <Table.Head style={{ minWidth: "150px" }}>
-                    Product Code
-                  </Table.Head>
-                  <Table.Head style={{ minWidth: "400px" }}>
-                    Description
-                  </Table.Head>
-                </Table.Row>
-              </Table.Header>
+      {/* Table Section - Standalone, Full Page Scroll */}
+      {filtered.length > 0 ? (
+        <Table variant="default" size="sm" stickyHeader hoverable>
+          <Table.Header>
+            <Table.Row>
+              <Table.Head style={{ minWidth: "150px" }}>
+                Product Code
+              </Table.Head>
+              <Table.Head style={{ minWidth: "400px" }}>
+                Description
+              </Table.Head>
+            </Table.Row>
+          </Table.Header>
 
-              <Table.Body>
-                {filtered.map((product) => (
-                  <Table.Row
-                    key={product.id}
-                    className="cursor-pointer"
-                    onClick={() =>
-                      onViewProduct?.(product.productCode, product.description)
-                    }
-                  >
-                    <Table.Cell>
-                      <span className="font-semibold whitespace-nowrap">
-                        {product.productCode || "-"}
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <span className="opacity-80">
-                        {product.description || "-"}
-                      </span>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
+          <Table.Body>
+            {filtered.map((product) => (
+              <Table.Row
+                key={product.id}
+                className="cursor-pointer"
+                onClick={() =>
+                  onViewProduct?.(product.productCode, product.description)
+                }
+              >
+                <Table.Cell>
+                  <span className="font-semibold whitespace-nowrap">
+                    {product.productCode || "-"}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="opacity-80">
+                    {product.description || "-"}
+                  </span>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
 
-              <Table.Footer>
-                <span className="text-sm">
-                  Showing{" "}
-                  <span className="font-medium">{filtered.length}</span> of{" "}
-                  <span className="font-medium">{products.length}</span> products
-                </span>
-              </Table.Footer>
-            </Table>
-          ) : (
+          <Table.Footer>
+            <span className="text-sm">
+              Showing <span className="font-medium">{filtered.length}</span> of{" "}
+              <span className="font-medium">{products.length}</span> products
+            </span>
+          </Table.Footer>
+        </Table>
+      ) : (
+        <Card>
+          <CardContent>
             <EmptyState
               variant={query ? "search" : "default"}
               title={query ? "No matching products" : "No products yet"}
@@ -258,9 +255,9 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
                 ) : undefined
               }
             />
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Create Product Modal */}
       <CreateProductForm
