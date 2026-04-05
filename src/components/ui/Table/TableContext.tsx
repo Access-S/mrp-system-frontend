@@ -4,7 +4,7 @@
 
 import { createContext, useContext } from "react";
 
-export type TableVariant = "default" | "striped" | "bordered";
+export type TableVariant = "default" | "glass" | "material" | "minimal" | "striped";
 export type TableSize = "sm" | "md" | "lg";
 
 export interface TableContextValue {
@@ -12,15 +12,17 @@ export interface TableContextValue {
   size: TableSize;
   hoverable: boolean;
   stickyHeader: boolean;
+  isDark: boolean;
 }
 
 // ============== BLOCK 2: Context ==============
 
 const TableContext = createContext<TableContextValue>({
-  variant: "striped",
+  variant: "default",
   size: "md",
   hoverable: true,
   stickyHeader: true,
+  isDark: false,
 });
 
 export const useTableContext = () => useContext(TableContext);

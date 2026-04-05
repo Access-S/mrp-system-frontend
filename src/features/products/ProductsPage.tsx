@@ -8,7 +8,6 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Table } from "@/components/ui/Table";
 import { Button } from "@/components/ui/Button";
-import { ScrollArea } from "@/components/ui/ScrollArea";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useFetch, useSearch, useModal } from "@/hooks";
@@ -33,8 +32,8 @@ interface ProductsPageProps {
 
 export function ProductsPage({ onViewProduct }: ProductsPageProps) {
   // Data fetching
-  const { data, loading, error, refetch } = useFetch<Product[]>(
-    () => productService.getAllProducts()
+  const { data, loading, error, refetch } = useFetch<Product[]>(() =>
+    productService.getAllProducts()
   );
   const products = data ?? [];
 
@@ -137,10 +136,9 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               {stats.totalProducts > 0
-                ? (
-                  (stats.productsWithBom / stats.totalProducts) *
-                  100
-                ).toFixed(1)
+                ? ((stats.productsWithBom / stats.totalProducts) * 100).toFixed(
+                  1
+                )
                 : 0}
               % coverage
             </p>
@@ -177,7 +175,6 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
       {/* Table Section */}
       <Card>
         <CardContent className="space-y-4">
-
           <FilterToolbar
             searchPlaceholder="Search by product code or description..."
             searchValue={query}
@@ -191,58 +188,55 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
           />
 
           {filtered.length > 0 ? (
-            <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
+            <Table
+              variant="default"
+              size="sm"
+              stickyHeader
+              hoverable
+              maxHeight="calc(100vh - 450px)"
+            >
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head style={{ minWidth: "150px" }}>
+                    Product Code
+                  </Table.Head>
+                  <Table.Head style={{ minWidth: "400px" }}>
+                    Description
+                  </Table.Head>
+                </Table.Row>
+              </Table.Header>
 
-              {/* TABLE SCROLL AREA */}
-              <ScrollArea orientation="both" maxHeight="calc(100vh - 400px)">
-                <Table stickyHeader hoverable variant="striped" size="sm">
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.Head style={{ minWidth: "150px" }}>
-                        Product Code
-                      </Table.Head>
-                      <Table.Head style={{ minWidth: "400px" }}>
-                        Description
-                      </Table.Head>
-                    </Table.Row>
-                  </Table.Header>
+              <Table.Body>
+                {filtered.map((product) => (
+                  <Table.Row
+                    key={product.id}
+                    className="cursor-pointer"
+                    onClick={() =>
+                      onViewProduct?.(product.productCode, product.description)
+                    }
+                  >
+                    <Table.Cell>
+                      <span className="font-semibold whitespace-nowrap">
+                        {product.productCode || "-"}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <span className="opacity-80">
+                        {product.description || "-"}
+                      </span>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
 
-                  <Table.Body>
-                    {filtered.map((product) => (
-                      <Table.Row
-                        key={product.id}
-                        className="cursor-pointer"
-                        onClick={() =>
-                          onViewProduct?.(
-                            product.productCode,
-                            product.description
-                          )
-                        }
-                      >
-                        <Table.Cell>
-                          <span className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                            {product.productCode || "-"}
-                          </span>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <span className="text-gray-600 dark:text-gray-300">
-                            {product.description || "-"}
-                          </span>
-                        </Table.Cell>
-                      </Table.Row>
-                    ))}
-                  </Table.Body>
-                </Table>
-              </ScrollArea>
-
-              {/* OPTIONAL FOOTER AREA (for future use like pagination, summary, etc.) */}
-              <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Showing {filtered.length} of {products.length} products
-                </div>
-              </div>
-
-            </div>
+              <Table.Footer>
+                <span className="text-sm">
+                  Showing{" "}
+                  <span className="font-medium">{filtered.length}</span> of{" "}
+                  <span className="font-medium">{products.length}</span> products
+                </span>
+              </Table.Footer>
+            </Table>
           ) : (
             <EmptyState
               variant={query ? "search" : "default"}
@@ -265,7 +259,6 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
               }
             />
           )}
-
         </CardContent>
       </Card>
 

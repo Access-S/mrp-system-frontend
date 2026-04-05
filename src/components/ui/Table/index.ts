@@ -4,4 +4,8 @@
 
 export { Table, default } from "./Table";
 export { useTableContext } from "./TableContext";
-export type { TableVariant, TableSize, TableContextValue } from "./TableContext";
+export type {
+    TableVariant,
+    TableSize,
+    TableContextValue,
+} from "./TableContext";
