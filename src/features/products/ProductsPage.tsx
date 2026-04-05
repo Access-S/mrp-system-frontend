@@ -218,7 +218,8 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
                     </Table.Cell>
                     <Table.Cell className="text-center">
                       <Badge
-                        variant={isActive ? "success" : "secondary"}
+                        variant="subtle"
+                        color={isActive ? "success" : "gray"}
                         size="sm"
                       >
                         {isActive ? "Active" : "Inactive"}
