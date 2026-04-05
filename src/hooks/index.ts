@@ -34,3 +34,11 @@ export type { UseExportMenuResult } from "./useExportMenu";
 
 export { useImport } from "@/features/import/hooks/useImport";
 export type { UseImportResult } from "@/features/import/hooks/useImport";
+
+// ============== BLOCK 8: Client Pagination ==============
+
+export { useClientPagination } from "./useClientPagination";
+export type {
+    UseClientPaginationOptions,
+    UseClientPaginationResult,
+} from "./useClientPagination";
