@@ -33,7 +33,7 @@ interface ProductsPageProps {
 
 type StatusFilter = "all" | "active" | "inactive";
 
-// ============== BLOCK 3: Status Options ==============
+// ============== BLOCK 3: Constants ==============
 
 const statusOptions = [
   { value: "all", label: "All Status" },
@@ -62,9 +62,11 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
   // Status filtering
   const filtered = useMemo(() => {
     if (statusFilter === "all") return searchFiltered;
-    return searchFiltered.filter((p) =>
-      statusFilter === "active" ? p.isActive : !p.isActive
-    );
+    // Treat undefined isActive as true (active by default)
+    return searchFiltered.filter((p) => {
+      const isActive = p.isActive ?? true;
+      return statusFilter === "active" ? isActive : !isActive;
+    });
   }, [searchFiltered, statusFilter]);
 
   // Client-side pagination
@@ -194,34 +196,37 @@ export function ProductsPage({ onViewProduct }: ProductsPageProps) {
             </Table.Header>
 
             <Table.Body>
-              {paginatedData.map((product) => (
-                <Table.Row
-                  key={product.id}
-                  className="cursor-pointer"
-                  onClick={() =>
-                    onViewProduct?.(product.productCode, product.description)
-                  }
-                >
-                  <Table.Cell>
-                    <span className="font-mono font-medium text-gray-900 dark:text-gray-100">
-                      {product.productCode}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-gray-600 dark:text-gray-300">
-                      {product.description || "—"}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell className="text-center">
-                    <Badge
-                      variant={product.isActive ? "success" : "secondary"}
-                      size="sm"
-                    >
-                      {product.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
+              {paginatedData.map((product) => {
+                const isActive = product.isActive ?? true;
+                return (
+                  <Table.Row
+                    key={product.id}
+                    className="cursor-pointer"
+                    onClick={() =>
+                      onViewProduct?.(product.productCode, product.description)
+                    }
+                  >
+                    <Table.Cell>
+                      <span className="font-mono font-medium text-gray-900 dark:text-gray-100">
+                        {product.productCode}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {product.description || "—"}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell className="text-center">
+                      <Badge
+                        variant={isActive ? "success" : "secondary"}
+                        size="sm"
+                      >
+                        {isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
             </Table.Body>
           </Table>
         ) : (

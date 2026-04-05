@@ -18,6 +18,7 @@ export interface Product {
   hourlyRunRate?: number;
   minsPerShipper?: number;
   pricePerShipper?: number;
+  isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
