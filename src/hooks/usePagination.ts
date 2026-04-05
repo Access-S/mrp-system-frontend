@@ -1,33 +1,37 @@
-// src/hooks/useClientPagination.ts
+// src/hooks/usePagination.ts
 
 // ============== BLOCK 1: Imports ==============
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useCallback } from "react";
 
-// ============== BLOCK 2: Types ==============
+// ============== BLOCK 2: Types & Interfaces ==============
 
-export interface UseClientPaginationOptions {
+export interface UsePaginationOptions {
   /** Starting page number (default: 1) */
   initialPage?: number;
   /** Starting items per page (default: 25) */
-  initialItemsPerPage?: number;
+  initialLimit?: number;
 }
 
-export interface UseClientPaginationResult<T> {
+export interface UsePaginationResult {
   /** Current page number */
-  currentPage: number;
+  page: number;
   /** Items per page */
-  itemsPerPage: number;
-  /** Total number of pages */
+  limit: number;
+  /** Total number of items (from server response) */
+  total: number;
+  /** Total number of pages (from server response) */
   totalPages: number;
-  /** Total items count */
-  totalItems: number;
-  /** Paginated slice of data for current page */
-  paginatedData: T[];
   /** Navigate to a specific page */
-  setCurrentPage: (page: number) => void;
+  setPage: (page: number) => void;
   /** Change items per page (resets to page 1) */
-  setItemsPerPage: (limit: number) => void;
+  setLimit: (limit: number) => void;
+  /** Sync state with server pagination response */
+  updateFromResponse: (response: {
+    total: number;
+    page: number;
+    totalPages: number;
+  }) => void;
   /** Reset to initial values */
   reset: () => void;
 }
@@ -35,77 +39,70 @@ export interface UseClientPaginationResult<T> {
 // ============== BLOCK 3: Hook ==============
 
 /**
- * Client-side pagination hook.
- * Takes full data array and returns paginated slice.
+ * Server-side pagination state management hook.
+ * Manages page + limit on the client, syncs totals from server responses.
  *
  * @example
- * const {
- *   paginatedData,
- *   currentPage,
- *   totalPages,
- *   setCurrentPage,
- *   itemsPerPage,
- *   setItemsPerPage
- * } = useClientPagination(filteredProducts, { initialItemsPerPage: 25 });
+ * const pagination = usePagination({ initialLimit: 25 });
  *
- * // Render only paginatedData in table
- * // Use currentPage, totalPages, setCurrentPage for Pagination component
+ * // After fetching:
+ * pagination.updateFromResponse(response.pagination);
+ *
+ * // In JSX:
+ * <Pagination
+ *   currentPage={pagination.page}
+ *   totalPages={pagination.totalPages}
+ *   onPageChange={pagination.setPage}
+ * />
  */
-export function useClientPagination<T>(
-  data: T[],
-  options: UseClientPaginationOptions = {}
-): UseClientPaginationResult<T> {
-  const { initialPage = 1, initialItemsPerPage = 25 } = options;
+export function usePagination(
+  options: UsePaginationOptions = {}
+): UsePaginationResult {
+  const { initialPage = 1, initialLimit = 25 } = options;
 
-  const [currentPage, setCurrentPageState] = useState(initialPage);
-  const [itemsPerPage, setItemsPerPageState] = useState(initialItemsPerPage);
+  const [page, setPageState] = useState(initialPage);
+  const [limit, setLimitState] = useState(initialLimit);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Calculate total pages
-  const totalPages = useMemo(() => {
-    return Math.max(1, Math.ceil(data.length / itemsPerPage));
-  }, [data.length, itemsPerPage]);
+  const setPage = useCallback(
+    (newPage: number) => {
+      if (newPage > 0 && newPage <= totalPages) {
+        setPageState(newPage);
+      }
+    },
+    [totalPages]
+  );
 
-  // Reset to page 1 if current page exceeds total pages (e.g., after filtering)
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPageState(1);
-    }
-  }, [totalPages, currentPage]);
+  const setLimit = useCallback((newLimit: number) => {
+    setLimitState(newLimit);
+    setPageState(1);
+  }, []);
 
-  // Get paginated slice
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return data.slice(startIndex, endIndex);
-  }, [data, currentPage, itemsPerPage]);
+  const updateFromResponse = useCallback(
+    (response: { total: number; page: number; totalPages: number }) => {
+      setTotal(response.total);
+      setPageState(response.page);
+      setTotalPages(response.totalPages);
+    },
+    []
+  );
 
-  // Set page with bounds checking
-  const setCurrentPage = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPageState(page);
-    }
-  };
-
-  // Set items per page (resets to page 1)
-  const setItemsPerPage = (limit: number) => {
-    setItemsPerPageState(limit);
-    setCurrentPageState(1);
-  };
-
-  // Reset to initial values
-  const reset = () => {
-    setCurrentPageState(initialPage);
-    setItemsPerPageState(initialItemsPerPage);
-  };
+  const reset = useCallback(() => {
+    setPageState(initialPage);
+    setLimitState(initialLimit);
+    setTotal(0);
+    setTotalPages(1);
+  }, [initialPage, initialLimit]);
 
   return {
-    currentPage,
-    itemsPerPage,
+    page,
+    limit,
+    total,
     totalPages,
-    totalItems: data.length,
-    paginatedData,
-    setCurrentPage,
-    setItemsPerPage,
+    setPage,
+    setLimit,
+    updateFromResponse,
     reset,
   };
 }
