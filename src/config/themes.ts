@@ -84,26 +84,38 @@ export const themes: Record<ThemeName, Theme> = {
   dark: {
     name: "Dark Mode",
     isDark: true,
-    background: "bg-gradient-to-br from-gray-900 to-gray-800",
-    navbar: "bg-gray-800 border-gray-700",
-    cards: "bg-gray-800",
-    text: "text-gray-200",
-    sidebarText: "text-white",
-    tableHeaderBg: "bg-gray-700",
-    borderColor: "border-gray-600",
-    hoverBg: "hover:bg-gray-700",
-    activeRowBg: "bg-gray-700",
-    buttonText: "text-gray-300 hover:text-white",
+
+    // --- SHADCN OLED INTEGRATION ---
+    // Now, your layout will use the pitch-black background
+    background: "bg-background",
+
+    // Your navbar and cards will use that rich deep slate hue
+    navbar: "bg-card border-border",
+    cards: "bg-card",
+
+    // Text will automatically use the crisp Shadcn foreground
+    text: "text-foreground",
+    sidebarText: "text-sidebar-foreground",
+
+    // Tables and borders use the subtle Shadcn variables
+    tableHeaderBg: "bg-muted",
+    borderColor: "border-border",
+
+    // Hover states map to Shadcn's accent colors
+    hoverBg: "hover:bg-accent hover:text-accent-foreground",
+    activeRowBg: "bg-accent",
+    buttonText: "text-primary hover:opacity-80",
+
     chip: {
-      blueGray: "bg-gray-600 text-gray-100",
-      red: "bg-red-800 text-red-100",
-      blue: "bg-blue-800 text-blue-100",
-      green: "bg-green-800 text-green-100",
+      blueGray: "bg-secondary text-secondary-foreground",
+      red: "bg-destructive/20 text-destructive",
+      blue: "bg-blue-900/50 text-blue-200",
+      green: "bg-green-900/50 text-green-200",
     },
     scrollbar: {
-      track: "#374151",
-      thumb: "#6b7280",
-      thumbHover: "#9ca3af",
+      track: "#111827",
+      thumb: "#374151",
+      thumbHover: "#4b5563",
     },
   },
 };
