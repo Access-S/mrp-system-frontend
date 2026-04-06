@@ -10,7 +10,10 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar, AvatarGroup } from "@/components/ui/Avatar";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button"; // Your legacy button
+
+// --- NEW SHADCN IMPORTS ---
+import { Button as ShadcnButton } from "@/components/shadcn-ui/button";
 
 // ============== BLOCK 2: Sample Data ==============
 
@@ -74,6 +77,30 @@ const UITestPage2: React.FC = () => {
           Testing additional UI components (Pagination, Badge, Avatar, Tooltip, Breadcrumb)
         </p>
       </div>
+
+      {/* ============== NEW SHADCN TEST SECTION ============== */}
+      <section className={`bg-card rounded-xl p-6 shadow-sm border border-border border-l-4 border-l-primary`}>
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-foreground">✨ New Shadcn UI Integration</h2>
+          <p className="text-muted-foreground mt-1">
+            Testing the new OLED Dark Mode with Neon Emerald Primary Color. Click these to test the focus ring!
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Shadcn Button Variants</h3>
+            <div className="flex flex-wrap items-center gap-4">
+              <ShadcnButton variant="default">Primary (Emerald)</ShadcnButton>
+              <ShadcnButton variant="secondary">Secondary</ShadcnButton>
+              <ShadcnButton variant="destructive">Destructive</ShadcnButton>
+              <ShadcnButton variant="outline">Outline</ShadcnButton>
+              <ShadcnButton variant="ghost">Ghost</ShadcnButton>
+              <ShadcnButton variant="link">Link Style</ShadcnButton>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ============== BLOCK 5: Badge Section ============== */}
 
