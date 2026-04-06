@@ -3,12 +3,22 @@
 |          FRONTEND PROJECT STRUCTURE                      |
 |          mrp-system-frontend                             |
 |                                                          |
-|          Generated: 2026-04-02 13:17:49                  |
+|          Generated: 2026-04-05 17:05:58                  |
 |                                                          |
 +----------------------------------------------------------+
 
   mrp-system-frontend/
   |
+  ├── .gemini/
+  │   ├── [MD]   GEMINI.md
+  │   └── [JSON] settings.json
+  ├── .github/
+  │   └── [MD]   PULL_REQUEST_TEMPLATE.md
+  ├── .husky/
+  │   └──        pre-commit
+  ├── components/
+  │   └── ui/
+  │       └── [TS]   button.tsx
   ├── docs/
   │   ├── ai-instructions/
   │   │   └── [MD]   AI_CODE_ASSISTANT_RULES.md
@@ -48,31 +58,15 @@
   │   │   ├── [MD]   forecast_comparison_specification.md
   │   │   └── [MD]   frontend-refactoring-plan.md
   │   └── [MD]   README.md
-  ├── .github/
-  │   └── [MD]   PULL_REQUEST_TEMPLATE.md
-  ├── .husky/
-  │   ├── _/
-  │   │   ├──        applypatch-msg
-  │   │   ├──        commit-msg
-  │   │   ├──        .gitignore
-  │   │   ├──        h
-  │   │   ├── [SH]   husky.sh
-  │   │   ├──        post-applypatch
-  │   │   ├──        post-checkout
-  │   │   ├──        post-commit
-  │   │   ├──        post-merge
-  │   │   ├──        post-rewrite
-  │   │   ├──        pre-applypatch
-  │   │   ├──        pre-auto-gc
-  │   │   ├──        pre-commit
-  │   │   ├──        pre-merge-commit
-  │   │   ├──        prepare-commit-msg
-  │   │   ├──        pre-push
-  │   │   └──        pre-rebase
-  │   └──        pre-commit
+  ├── lib/
+  │   └── [TS]   utils.ts
   ├── public/
   │   └── [IMG]  vite.svg
   ├── src/
+  │   ├── __dev__/
+  │   │   ├── [TS]   index.ts
+  │   │   ├── [TS]   UITestPage.tsx
+  │   │   └── [TS]   UITestPage2.tsx
   │   ├── app/
   │   │   ├── [TS]   App.tsx
   │   │   ├── [TS]   ErrorBoundary.tsx
@@ -81,6 +75,7 @@
   │   │   ├── layout/
   │   │   │   ├── [TS]   index.ts
   │   │   │   └── [TS]   Sidebar.tsx
+  │   │   ├── shadcn-ui/  (empty)
   │   │   ├── shared/
   │   │   │   ├── dialogs/
   │   │   │   │   ├── [TS]   ConfirmationDialog.tsx
@@ -158,16 +153,16 @@
   │   │       │   └── [TS]   StatusBadge.tsx
   │   │       ├── Table/
   │   │       │   ├── [TS]   index.ts
-  │   │       │   ├── [TS]   TableContext.tsx
-  │   │       │   └── [TS]   Table.tsx
+  │   │       │   ├── [TS]   Table.tsx
+  │   │       │   └── [TS]   TableContext.tsx
   │   │       ├── Tabs/
   │   │       │   ├── [TS]   index.ts
   │   │       │   └── [TS]   Tabs.tsx
   │   │       ├── Toast/
   │   │       │   ├── [TS]   index.ts
+  │   │       │   ├── [TS]   Toast.tsx
   │   │       │   ├── [TS]   ToastContainer.tsx
   │   │       │   ├── [TS]   ToastContext.tsx
-  │   │       │   ├── [TS]   Toast.tsx
   │   │       │   └── [TS]   useToast.ts
   │   │       ├── Tooltip/
   │   │       │   ├── [TS]   index.ts
@@ -181,10 +176,6 @@
   │   │   └── [TS]   themes.ts
   │   ├── contexts/
   │   │   └── [TS]   ThemeContext.tsx
-  │   ├── __dev__/
-  │   │   ├── [TS]   index.ts
-  │   │   ├── [TS]   UITestPage2.tsx
-  │   │   └── [TS]   UITestPage.tsx
   │   ├── features/
   │   │   ├── dashboard/
   │   │   │   ├── components/
@@ -303,6 +294,7 @@
   │   │       └── [TS]   SohPage.tsx
   │   ├── hooks/
   │   │   ├── [TS]   index.ts
+  │   │   ├── [TS]   useClientPagination.ts
   │   │   ├── [TS]   useExportMenu.ts
   │   │   ├── [TS]   useFetch.ts
   │   │   ├── [TS]   useModal.ts
@@ -321,8 +313,9 @@
   │   └── [TS]   vite-env.d.ts
   ├── [ENV]  .env.local
   ├── [ENV]  .env.production
-  ├── [JS]   eslint.config.js
   ├──        .gitignore
+  ├── [JSON] components.json
+  ├── [JS]   eslint.config.js
   ├── [HTML] index.html
   ├── [JSON] package.json
   ├── [JSON] package-lock.json
@@ -337,5 +330,5 @@
   └── [TS]   vite.config.ts
 
 +----------------------------------------------------------+
-|  SUMMARY:  Folders: 91   | Files: 235  | Total: 326      |
+|  SUMMARY:  Folders: 95   | Files: 224  | Total: 319      |
 +----------------------------------------------------------+
