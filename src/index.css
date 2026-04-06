@@ -140,7 +140,7 @@ td {
 
   .dark {
     /* Pure Pitch Black Background */
-    --background: oklch(0 0 0);
+    --background: red;
     --foreground: oklch(0.985 0 0);
 
     /* Rich Deep Slate for Cards to pop out */
