@@ -11,6 +11,7 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Button } from "@/components/ui/Button";
 
+
 // --- NEW SHADCN IMPORTS ---
 import { Button as ShadcnButton } from "@/components/shadcn-ui/button";
 import {
@@ -21,38 +22,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/shadcn-ui/table";
+import { Badge as ShadcnBadge } from "@/components/shadcn-ui/badge";
 
 // ============== BLOCK 2: Sample Data ==============
+const statuses = ["In Stock", "Low Stock", "Out of Stock"];
+const categories = ["Raw Materials", "Electronics", "Packaging", "Finished Goods"];
 
-const sampleData = Array.from({ length: 100 }, (_, i) => ({
-  id: i + 1,
-  name: `Product ${i + 1}`,
-  sku: `SKU-${String(i + 1).padStart(4, "0")}`,
-  price: `$${(Math.random() * 500 + 10).toFixed(2)}`,
-}));
-
-const sampleUsers = [
-  { name: "John Doe", src: "https://i.pravatar.cc/150?img=1" },
-  { name: "Jane Smith", src: "https://i.pravatar.cc/150?img=2" },
-  { name: "Bob Johnson", src: "https://i.pravatar.cc/150?img=3" },
-  { name: "Alice Brown", src: "https://i.pravatar.cc/150?img=4" },
-  { name: "Charlie Wilson", src: "https://i.pravatar.cc/150?img=5" },
-  { name: "Diana Prince", src: "https://i.pravatar.cc/150?img=6" },
-];
-
-const breadcrumbItems = [
-  { label: "Home", href: "/" },
-  { label: "Products", href: "/products" },
-  { label: "Electronics", href: "/products/electronics" },
-  { label: "Laptops", href: "/products/electronics/laptops" },
-  { label: "MacBook Pro" },
-];
-
-const shortBreadcrumbItems = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Settings", href: "/settings" },
-  { label: "Profile" },
-];
+const sampleData = Array.from({ length: 250 }, (_, i) => {
+  const status = statuses[Math.floor(Math.random() * statuses.length)];
+  return {
+    id: i + 1,
+    name: `Component X-${String(i + 1).padStart(4, "0")}`,
+    sku: `SKU-${String(i + 1).padStart(4, "0")}`,
+    category: categories[Math.floor(Math.random() * categories.length)],
+    inventory: Math.floor(Math.random() * 5000),
+    status: status,
+    price: `$${(Math.random() * 500 + 10).toFixed(2)}`,
+  };
+});
 
 // ============== BLOCK 3: Component ==============
 
@@ -64,7 +51,7 @@ const UITestPage2: React.FC = () => {
   const [currentPage2, setCurrentPage2] = useState(1);
   const [currentPage3, setCurrentPage3] = useState(1);
   const [tableCurrentPage, setTableCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 25;
 
   // Calculate paginated data for table
   const paginatedData = sampleData.slice(
@@ -118,49 +105,84 @@ const UITestPage2: React.FC = () => {
         </div>
       </section>
 
-      {/* ============== BLOCK 10: NEW SHADCN TABLE ============== */}
+      {/* ============== BLOCK 10: ADVANCED SHADCN TABLE ============== */}
 
       <section className="bg-card rounded-xl p-6 shadow-sm border border-border">
         <div className="flex justify-between items-end mb-4">
-          <h2 className="text-lg font-semibold text-foreground">
-            Pagination with Shadcn Table
-          </h2>
-          <ShadcnButton variant="outline" size="sm">Export CSV</ShadcnButton>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Inventory Master List
+            </h2>
+            <p className="text-sm text-muted-foreground">Showing 25 rows per page with sticky headers.</p>
+          </div>
+          <div className="space-x-2">
+            <ShadcnButton variant="outline" size="sm">Filter</ShadcnButton>
+            <ShadcnButton variant="default" size="sm">Export CSV</ShadcnButton>
+          </div>
         </div>
 
-        {/* SHADCN TABLE CONTAINER */}
-        <div className="rounded-md border border-border overflow-hidden bg-background">
-          <ShadcnTable>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Product Name</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium text-foreground">
-                    {item.id}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {item.name}
-                  </TableCell>
-                  <TableCell className="font-mono text-muted-foreground">
-                    {item.sku}
-                  </TableCell>
-                  <TableCell className="text-right font-medium text-foreground">
-                    {item.price}
-                  </TableCell>
+        {/* SHADCN TABLE CONTAINER - Fixed height for scrolling! */}
+        <div className="rounded-md border border-border bg-background overflow-hidden">
+          <div className="max-h-[600px] overflow-auto relative">
+            <ShadcnTable>
+              {/* STICKY HEADER */}
+              <TableHeader className="sticky top-0 z-10 bg-card shadow-sm">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[80px] py-3">ID</TableHead>
+                  <TableHead className="py-3">Component Name</TableHead>
+                  <TableHead className="py-3">SKU</TableHead>
+                  <TableHead className="py-3">Category</TableHead>
+                  <TableHead className="py-3 text-right">Stock</TableHead>
+                  <TableHead className="py-3 text-center">Status</TableHead>
+                  <TableHead className="py-3 text-right">Unit Price</TableHead>
+                  <TableHead className="py-3 text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </ShadcnTable>
+              </TableHeader>
+
+              <TableBody>
+                {paginatedData.map((item) => (
+                  <TableRow key={item.id} className="group">
+                    <TableCell className="font-medium text-foreground py-2">
+                      {item.id}
+                    </TableCell>
+                    <TableCell className="text-foreground py-2">
+                      {item.name}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground py-2">
+                      {item.sku}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm py-2">
+                      {item.category}
+                    </TableCell>
+                    <TableCell className="text-right font-medium text-foreground py-2">
+                      {item.inventory.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-center py-2">
+                      <ShadcnBadge
+                        variant={
+                          item.status === "In Stock" ? "default" :
+                            item.status === "Low Stock" ? "secondary" : "destructive"
+                        }
+                      >
+                        {item.status}
+                      </ShadcnBadge>
+                    </TableCell>
+                    <TableCell className="text-right font-medium text-foreground py-2">
+                      {item.price}
+                    </TableCell>
+                    <TableCell className="text-right py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ShadcnButton variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                        Edit
+                      </ShadcnButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </ShadcnTable>
+          </div>
         </div>
 
-        {/* FOOTER (Using your legacy pagination component for now) */}
+        {/* FOOTER */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 pt-4 border-t border-border">
           <PaginationInfo
             currentPage={tableCurrentPage}
