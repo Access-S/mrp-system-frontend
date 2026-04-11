@@ -12,6 +12,7 @@ export interface Component {
   unitCost: number;
   supplier?: string;
   leadTime?: number;
+  type?: string; // Added: "Carton" | "Shipper" | "Label" | "Leaflet" | etc.
 }
 
 // ============== BLOCK 1: Inventory Types ==============
@@ -20,7 +21,7 @@ export interface Component {
  * Represents weekly projection data for a component
  */
 export interface WeeklyProjection {
-  week: string;
+  week: string; // ISO date string (Monday start)
   totalDemand: number;
   coveragePercentage: number;
   projectedSoh: number;
@@ -29,20 +30,34 @@ export interface WeeklyProjection {
 }
 
 /**
+ * Reference to a Finished Good that uses this component
+ */
+export interface FGReference {
+  fgCode: string;
+  fgName: string;
+}
+
+/**
  * Represents complete inventory projection for a component
  */
 export interface InventoryProjection {
   component: Component;
-  skusUsedIn: string[];
-  displayPartType: string;
-  displayDescription: string;
+  skusUsedIn: string[]; // FG codes this part is used in (Column C)
+  displayPartType: string; // Part type short name (Column B)
+  displayDescription: string; // FG names/descriptions (Column D)
   netHorizonDemand: number;
-  projections: WeeklyProjection[];
+  projections: WeeklyProjection[]; // Should contain 52 entries for full year
   overallHealth: "Healthy" | "Risk" | "Shortage";
   recommendedAction: string;
   priority: "High" | "Medium" | "Low";
   totalForecastDemand: number;
   averageWeeklyDemand: number;
+
+  // === NEW FIELDS FOR 52-WEEK MRP VIEW ===
+  fgReferences?: FGReference[]; // Detailed FG info for tooltip/expand
+  totalRequirement?: number; // Sum of 52-week demand (calculated)
+  purchasingRequirement?: number; // totalRequirement - SOH (calculated)
+  monthsCoverage?: number; // Coverage metric (calculated)
 }
 
 /**
