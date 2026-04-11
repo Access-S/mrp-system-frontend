@@ -113,15 +113,24 @@ export function InventoryPage() {
         setProjections(calculated);
       } catch (error) {
         console.error("Failed to load inventory data:", error);
-        if (isMounted) toast.error("Failed to load inventory data");
+        // Only show toast if component is still mounted AND error is not from unmount
+        if (isMounted) {
+          // Use setTimeout to avoid state update during render
+          setTimeout(() => {
+            if (isMounted) toast.error("Failed to load inventory data");
+          }, 0);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
     fetchDataAndCalculate();
-    return () => { isMounted = false; };
-  }, [toast]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // ============== BLOCK 7: Filtering & Sorting ==============
   const processedProjections = useMemo(() => {
