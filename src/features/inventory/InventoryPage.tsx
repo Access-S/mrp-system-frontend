@@ -126,7 +126,7 @@ export function InventoryPage() {
     return () => {
       isMounted = false;
     };
-  }, []); // ✅ Empty dependency array - runs once on mount
+  }, []);
 
   // ============== BLOCK 7: Filtering & Sorting ==============
   const processedProjections = useMemo(() => {
@@ -302,21 +302,46 @@ export function InventoryPage() {
           <div className="p-12 text-center text-muted-foreground">No results match your filters.</div>
         ) : (
           <Table className="min-w-[2400px]">
-            <TableHeader className="bg-muted/40 sticky top-0 z-30">
-              <TableRow className="hover:bg-transparent">
+            <TableHeader className="sticky top-0 z-40 bg-background">
+              <TableRow className="hover:bg-transparent border-b-2">
                 {/* Sticky Columns */}
-                <TableHead className="sticky z-30 bg-muted/40 border-r font-semibold" style={{ width: STICKY.partCode.w, left: STICKY.partCode.left }}>Part Code</TableHead>
-                <TableHead className="sticky z-30 bg-muted/40 border-r font-semibold" style={{ width: STICKY.type.w, left: STICKY.type.left }}>Type</TableHead>
-                <TableHead className="sticky z-30 bg-muted/40 border-r font-semibold" style={{ width: STICKY.fgUsedIn.w, left: STICKY.fgUsedIn.left }}>FG Used In</TableHead>
-                <TableHead className="sticky z-30 bg-muted/40 border-r pr-4 font-semibold" style={{ width: STICKY.description.w, left: STICKY.description.left }}>Description</TableHead>
+                <TableHead
+                  className="sticky z-40 bg-background border-r-2 border-border font-semibold shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
+                  style={{ width: STICKY.partCode.w, left: STICKY.partCode.left }}
+                >
+                  Part Code
+                </TableHead>
+                <TableHead
+                  className="sticky z-40 bg-background border-r font-semibold"
+                  style={{ width: STICKY.type.w, left: STICKY.type.left }}
+                >
+                  Type
+                </TableHead>
+                <TableHead
+                  className="sticky z-40 bg-background border-r font-semibold"
+                  style={{ width: STICKY.fgUsedIn.w, left: STICKY.fgUsedIn.left }}
+                >
+                  FG Used In
+                </TableHead>
+                <TableHead
+                  className="sticky z-40 bg-background border-r-2 border-border pr-4 font-semibold shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
+                  style={{ width: STICKY.description.w, left: STICKY.description.left }}
+                >
+                  Description
+                </TableHead>
 
                 {/* 52 Week Columns */}
                 {weekHeaders.map((h, i) => (
-                  <TableHead key={i} className="text-center text-xs px-2 min-w-[65px] border-r last:border-r-0">{h}</TableHead>
+                  <TableHead
+                    key={i}
+                    className="text-center text-xs px-2 min-w-[65px] border-r last:border-r-0 bg-background"
+                  >
+                    {h}
+                  </TableHead>
                 ))}
 
                 {/* Summary Columns */}
-                <TableHead className="font-bold bg-muted/60 min-w-[110px] text-center">Total Req</TableHead>
+                <TableHead className="font-bold bg-muted/60 min-w-[110px] text-center border-l-2 border-border">Total Req</TableHead>
                 <TableHead className="font-bold bg-muted/60 min-w-[90px] text-center">SOH</TableHead>
                 <TableHead className="font-bold bg-muted/60 min-w-[120px] text-center">Purch. Req</TableHead>
                 <TableHead className="font-bold bg-muted/60 min-w-[100px] text-center">Mos. Cov</TableHead>
@@ -336,17 +361,26 @@ export function InventoryPage() {
                 return (
                   <TableRow key={key} className="group hover:bg-accent/40 border-b last:border-b-0">
                     {/* Sticky: Part Code */}
-                    <TableCell className="sticky z-20 bg-background/98 group-hover:bg-accent/40 border-r font-mono font-bold text-sm" style={{ width: STICKY.partCode.w, left: STICKY.partCode.left }}>
+                    <TableCell
+                      className="sticky z-30 bg-background group-hover:bg-accent/40 border-r-2 border-border font-mono font-bold text-sm shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
+                      style={{ width: STICKY.partCode.w, left: STICKY.partCode.left }}
+                    >
                       {item.component.partCode}
                     </TableCell>
 
                     {/* Sticky: Type */}
-                    <TableCell className="sticky z-20 bg-background/98 group-hover:bg-accent/40 border-r" style={{ width: STICKY.type.w, left: STICKY.type.left }}>
+                    <TableCell
+                      className="sticky z-30 bg-background group-hover:bg-accent/40 border-r"
+                      style={{ width: STICKY.type.w, left: STICKY.type.left }}
+                    >
                       <Badge variant="secondary" className="text-xs">{item.displayPartType || "–"}</Badge>
                     </TableCell>
 
                     {/* Sticky: FG Used In */}
-                    <TableCell className="sticky z-20 bg-background/98 group-hover:bg-accent/40 border-r" style={{ width: STICKY.fgUsedIn.w, left: STICKY.fgUsedIn.left }}>
+                    <TableCell
+                      className="sticky z-30 bg-background group-hover:bg-accent/40 border-r"
+                      style={{ width: STICKY.fgUsedIn.w, left: STICKY.fgUsedIn.left }}
+                    >
                       <div className="flex flex-wrap gap-1">
                         {item.skusUsedIn.slice(0, 4).map(sku => (
                           <span key={sku} className="bg-muted px-1.5 py-0.5 rounded text-[10px] font-mono">{sku}</span>
@@ -356,13 +390,16 @@ export function InventoryPage() {
                     </TableCell>
 
                     {/* Sticky: Description */}
-                    <TableCell className="sticky z-20 bg-background/98 group-hover:bg-accent/40 border-r pr-4 text-sm" style={{ width: STICKY.description.w, left: STICKY.description.left }}>
+                    <TableCell
+                      className="sticky z-30 bg-background group-hover:bg-accent/40 border-r-2 border-border pr-4 text-sm shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
+                      style={{ width: STICKY.description.w, left: STICKY.description.left }}
+                    >
                       {item.displayDescription}
                     </TableCell>
 
                     {/* 52 Week Demand Cells */}
                     {item.projections.slice(0, TIME_HORIZON).map((p, i) => (
-                      <TableCell key={i} className="text-center py-2 px-1.5 min-w-[65px] border-r last:border-r-0">
+                      <TableCell key={i} className="text-center py-2 px-1.5 min-w-[65px] border-r last:border-r-0 bg-background">
                         {p.totalDemand > 0 ? (
                           <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{fmt(p.totalDemand)}</span>
                         ) : <span className="text-xs text-muted-foreground">–</span>}
@@ -370,14 +407,14 @@ export function InventoryPage() {
                     ))}
 
                     {/* Summary Columns */}
-                    <TableCell className="text-center font-semibold bg-muted/20">{fmt(totalReq)}</TableCell>
-                    <TableCell className={`text-center font-bold ${getHealthColor(item.component.stock)}`}>{fmt(item.component.stock)}</TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center font-semibold bg-muted/20 border-l-2 border-border">{fmt(totalReq)}</TableCell>
+                    <TableCell className={`text-center font-bold bg-muted/20 ${getHealthColor(item.component.stock)}`}>{fmt(item.component.stock)}</TableCell>
+                    <TableCell className="text-center bg-muted/20">
                       {purchReq > 0 ? <Badge variant="destructive" className="text-xs">{fmt(purchReq)}</Badge> : <span className="text-muted-foreground">–</span>}
                     </TableCell>
-                    <TableCell className="text-center text-sm">{isFinite(mosCov) && mosCov < 999 ? mosCov.toFixed(1) : "∞"}</TableCell>
-                    <TableCell className="text-sm opacity-90">{item.component.supplier || "–"}</TableCell>
-                    <TableCell className="text-right font-mono text-sm">{fmtCur(item.component.unitCost)}</TableCell>
+                    <TableCell className="text-center text-sm bg-muted/20">{isFinite(mosCov) && mosCov < 999 ? mosCov.toFixed(1) : "∞"}</TableCell>
+                    <TableCell className="text-sm opacity-90 bg-muted/20">{item.component.supplier || "–"}</TableCell>
+                    <TableCell className="text-right font-mono text-sm bg-muted/20">{fmtCur(item.component.unitCost)}</TableCell>
                   </TableRow>
                 );
               })}
