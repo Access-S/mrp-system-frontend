@@ -113,12 +113,8 @@ export function InventoryPage() {
         setProjections(calculated);
       } catch (error) {
         console.error("Failed to load inventory data:", error);
-        // Only show toast if component is still mounted AND error is not from unmount
         if (isMounted) {
-          // Use setTimeout to avoid state update during render
-          setTimeout(() => {
-            if (isMounted) toast.error("Failed to load inventory data");
-          }, 0);
+          setProjections([]); // Set empty state on error
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -130,7 +126,7 @@ export function InventoryPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, []); // ✅ Empty dependency array - runs once on mount
 
   // ============== BLOCK 7: Filtering & Sorting ==============
   const processedProjections = useMemo(() => {
